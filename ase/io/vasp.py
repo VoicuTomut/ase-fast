@@ -725,6 +725,7 @@ def write_vasp_xdatcar(fd, images, label=None):
     _write_xdatcar_header(fd, image, label)
     _write_xdatcar_config(fd, image, index=1)
     for i, image in enumerate(images):
+        _write_xdatcar_header(fd, image, label)
         # Index is off by 2: 1-indexed file vs 0-indexed Python;
         # and we already wrote the first block.
         _write_xdatcar_config(fd, image, i + 2)
