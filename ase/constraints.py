@@ -10,10 +10,6 @@ from warnings import warn
 import numpy as np
 
 from ase import Atoms
-from ase.filters import ExpCellFilter as ExpCellFilterOld
-from ase.filters import Filter as FilterOld
-from ase.filters import StrainFilter as StrainFilterOld
-from ase.filters import UnitCellFilter as UnitCellFilterOld
 from ase.geometry import (
     conditional_find_mic,
     find_mic,
@@ -31,7 +27,6 @@ from ase.spacegroup.symmetrize import (
     symmetrize_rank2,
 )
 from ase.stress import full_3x3_to_voigt_6_stress, voigt_6_to_full_3x3_stress
-from ase.utils import deprecated
 from ase.utils.parsemath import eval_expression
 
 __all__ = [
@@ -2414,45 +2409,3 @@ class FixSymmetry(FixConstraint):
                 'verbose': self.verbose,
             },
         }
-
-
-class Filter(FilterOld):
-    @deprecated('Import Filter from ase.filters')
-    def __init__(self, *args, **kwargs):
-        """
-        .. deprecated:: 3.23.0
-            Import ``Filter`` from :mod:`ase.filters`
-        """
-        super().__init__(*args, **kwargs)
-
-
-class StrainFilter(StrainFilterOld):
-    @deprecated('Import StrainFilter from ase.filters')
-    def __init__(self, *args, **kwargs):
-        """
-        .. deprecated:: 3.23.0
-            Import ``StrainFilter`` from :mod:`ase.filters`
-        """
-        super().__init__(*args, **kwargs)
-
-
-class UnitCellFilter(UnitCellFilterOld):
-    @deprecated('Import UnitCellFilter from ase.filters')
-    def __init__(self, *args, **kwargs):
-        """
-        .. deprecated:: 3.23.0
-            Import ``UnitCellFilter`` from :mod:`ase.filters`
-        """
-        super().__init__(*args, **kwargs)
-
-
-class ExpCellFilter(ExpCellFilterOld):
-    @deprecated('Import ExpCellFilter from ase.filters')
-    def __init__(self, *args, **kwargs):
-        """
-        .. deprecated:: 3.23.0
-            Import ``ExpCellFilter`` from :mod:`ase.filters`
-            or use :class:`~ase.filters.FrechetCellFilter` for better
-            convergence w.r.t. cell variables
-        """
-        super().__init__(*args, **kwargs)
