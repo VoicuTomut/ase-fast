@@ -24,7 +24,7 @@ import os
 import shutil
 import warnings
 from os.path import isfile, islink, join
-from typing import List, Sequence, Tuple
+from typing import List, Sequence, TextIO, Tuple
 
 import numpy as np
 
@@ -2077,17 +2077,23 @@ def open_potcar(filename):
         raise ValueError(f'Invalid POTCAR filename: "{filename}"')
 
 
-def read_potcar_numbers_of_electrons(file_obj):
-    """ Read list of tuples (atomic symbol, number of valence electrons)
-    for each atomtype from a POTCAR file."""
-    nelect = []
-    lines = file_obj.readlines()
+def read_potcar_numbers_of_electrons(fd: TextIO, /) -> list[tuple[str, float]]:
+    """Read number of valence electrons for each atomtype from a POTCAR file.
+
+    Returns
+    -------
+    list[tuple[str, float]]
+        List of (atomic symbol, number of valence electrons).
+
+    """
+    nelect: list[tuple[str, float]] = []
+    lines = fd.readlines()
     for n, line in enumerate(lines):
         if 'TITEL' in line:
             symbol = line.split('=')[1].split()[1].split('_')[0].strip()
-            valence = float(
-                lines[n + 4].split(';')[1].split('=')[1].split()[0].strip())
-            nelect.append((symbol, valence))
+            linep4 = lines[n + 4]
+            zval = float(linep4.split(';')[1].split('=')[1].split()[0].strip())
+            nelect.append((symbol, zval))
     return nelect
 
 
