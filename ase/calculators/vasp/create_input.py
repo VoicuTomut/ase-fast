@@ -24,7 +24,7 @@ import os
 import shutil
 import warnings
 from os.path import isfile, islink, join
-from typing import List, Sequence, TextIO, Tuple
+from typing import List, Sequence, TextIO, Tuple, Union
 
 import numpy as np
 
@@ -119,22 +119,27 @@ def set_ldau(ldau_param, luj_params, symbol_count):
     return ldau_dct
 
 
-def test_nelect_charge_compitability(nelect, charge, nelect_from_ppp):
-    # We need to determine the nelect resulting from a given
-    # charge in any case if it's != 0, but if nelect is
-    # additionally given explicitly, then we need to determine it
-    # even for net charge of 0 to check for conflicts
-    if charge is not None and charge != 0:
+def test_nelect_charge_compitability(
+    nelect: Union[float, None],
+    charge: Union[float, None],
+    nelect_from_ppp: float,
+) -> Union[float, None]:
+    """Determine nelect resulting from a given charge if charge != 0.0.
+
+    If nelect is additionally given explicitly, then we need to determine it
+    even for net charge of 0 to check for conflicts.
+
+    """
+    if charge is not None and charge != 0.0:
         nelect_from_charge = nelect_from_ppp - charge
         if nelect and nelect != nelect_from_charge:
-            raise ValueError('incompatible input parameters: '
-                             f'nelect={nelect}, but charge={charge} '
-                             '(neutral nelect is '
-                             f'{nelect_from_ppp})')
-        print(nelect_from_charge)
+            raise ValueError(
+                'incompatible input parameters: '
+                f'nelect={nelect}, but charge={charge} '
+                f'(neutral nelect is {nelect_from_ppp})'
+            )
         return nelect_from_charge
-    else:
-        return nelect
+    return nelect  # NELECT explicitly given in INCAR (`None` if not given)
 
 
 def get_pp_setup(setup) -> Tuple[dict, Sequence[int]]:
