@@ -29,6 +29,7 @@ from typing import List, Sequence, TextIO, Tuple, Union
 import numpy as np
 
 import ase
+from ase import Atoms
 from ase.calculators.calculator import kpts2ndarray
 from ase.calculators.vasp.setups import get_default_setups
 from ase.config import cfg
@@ -1503,7 +1504,7 @@ class GenerateVaspInput:
                 raise RuntimeError(msg)
         return ppp_list
 
-    def initialize(self, atoms):
+    def initialize(self, atoms: Atoms) -> None:
         """Initialize a VASP calculation
 
         Constructs the POTCAR file (does not actually write it).
@@ -1541,16 +1542,18 @@ class GenerateVaspInput:
         # Check if the necessary POTCAR files exists and
         # create a list of their paths.
         atomtypes = atoms.get_chemical_symbols()
-        self.symbol_count = []
+        self.symbol_count: list[tuple[str, int]] = []
         for m in special_setups:
-            self.symbol_count.append([atomtypes[m], 1])
-        for m in symbols:
-            self.symbol_count.append([m, symbolcount[m]])
+            self.symbol_count.append((atomtypes[m], 1))
+        for s in symbols:
+            self.symbol_count.append((s, symbolcount[s]))
 
         # create pseudopotential list
-        self.ppp_list = self._build_pp_list(atoms,
-                                            setups=setups,
-                                            special_setups=special_setups)
+        self.ppp_list = self._build_pp_list(
+            atoms,
+            setups=setups,
+            special_setups=special_setups,
+        )
 
         self.converged = None
         self.setups_changed = None
@@ -2102,7 +2105,7 @@ def read_potcar_numbers_of_electrons(fd: TextIO, /) -> list[tuple[str, float]]:
     return nelect
 
 
-def count_symbols(atoms, exclude=()):
+def count_symbols(atoms: Atoms, exclude=()) -> tuple[list[str], dict[str, int]]:
     """Count symbols in atoms object, excluding a set of indices
 
     Parameters:
@@ -2123,8 +2126,8 @@ def count_symbols(atoms, exclude=()):
     >>> count_symbols(atoms, exclude=(1, 2, 3))
     (['Na', 'Cl'], {'Na': 3, 'Cl': 2})
     """
-    symbols = []
-    symbolcount = {}
+    symbols: list[str] = []
+    symbolcount: dict[str, int] = {}
     for m, symbol in enumerate(atoms.symbols):
         if m in exclude:
             continue
