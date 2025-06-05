@@ -119,7 +119,7 @@ def set_ldau(ldau_param, luj_params, symbol_count):
     return ldau_dct
 
 
-def test_nelect_charge_compitability(
+def _calc_nelect_from_charge(
     nelect: Union[float, None],
     charge: Union[float, None],
     nelect_from_ppp: float,
@@ -1646,7 +1646,7 @@ class GenerateVaspInput:
 
         if 'charge' in self.input_params and self.input_params[
                 'charge'] is not None:
-            nelect_val = test_nelect_charge_compitability(
+            nelect_val = _calc_nelect_from_charge(
                 self.float_params['nelect'],
                 self.input_params['charge'],
                 self.default_nelect_from_ppp())
