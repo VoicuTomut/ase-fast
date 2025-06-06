@@ -147,6 +147,16 @@ Keyword                                  Description
                          used with the kspace_* commands, which are sensitive
                          to the periodicity of the simulation box.
 
+``extra_cmd_args``       list of extra arguments for
+                         `lammps.lammps(cmd_args=...)`, e.g. for kokkos mliap on
+                         a gpu
+                         `("-k on g 1 -sf kk "
+                           "-pk kokkos neigh half newton on").split()`
+
+``activate_mliappy``     `"regular"` or `"kokkos"` to call
+                         `lammps.mliap.activate_mliappy()` or
+                         `activate_mliappy_kokkos`, respectively
+
 ``keep_alive``           Boolean
                          whether to keep the lammps routine alive for more
                          commands. Default is True.
@@ -281,6 +291,8 @@ xz and yz are the tilt of the lattice vectors, all to be edited.
                        'atom_modify map array sort 0 0'],
         amendments=None,
         post_changebox_cmds=None,
+        extra_cmd_args=[],
+        activate_mliappy=None,
         boundary=True,
         create_box=True,
         create_atoms=True,
@@ -656,11 +668,21 @@ xz and yz are the tilt of the lattice vectors, all to be edited.
             cmd_args = ['-echo', 'log', '-log', self.parameters.log_file,
                         '-screen', 'none', '-nocite']
 
-        self.cmd_args = cmd_args
+        self.cmd_args = cmd_args + self.parameters.extra_cmd_args
 
         if self.lmp is None:
             self.lmp = lammps(self.parameters.lammps_name, self.cmd_args,
                               comm=self.parameters.comm)
+
+            if self.parameters.activate_mliappy:
+                import lammps.mliap
+                if self.parameters.activate_mliappy == "regular":
+                    lammps.mliap.activate_mliappy(self.lmp)
+                elif self.parameters.activate_mliappy == "kokkos":
+                    lammps.mliap.activate_mliappy_kokkos(self.lmp)
+                else:
+                    raise ValueError("Unknown activate_mliappy value "
+                                     f"'{self.parameters.activate_mliappy}'")
 
         # Run header commands to set up lammps (units, etc.)
         for cmd in self.parameters.lammps_header:
