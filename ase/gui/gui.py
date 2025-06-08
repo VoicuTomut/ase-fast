@@ -509,8 +509,8 @@ class GUI(View):
               M(_('Edit _atoms …'), self.atoms_editor, 'A'),
               M('---'),
               M(_('_First image'), self.step, 'Home'),
-              M(_('_Previous image'), self.step, 'Page-Up'),
-              M(_('_Next image'), self.step, 'Page-Down'),
+              M(_('_Previous image'), self.step, 'PageUp'),
+              M(_('_Next image'), self.step, 'PageDown'),
               M(_('_Last image'), self.step, 'End'),
               M(_('Append image copy'), self.copy_image)]),
 

@@ -440,18 +440,18 @@ class MenuItem:
                 modifiers = ['Command' if m == 'Alt' else m for m in modifiers]
 
             if modifiers and key_char:
-                self.keyname = f"<{'-'.join(modifiers)}-{key_char}>"
+                self.tk_keyname = f"<{'-'.join(modifiers)}-{key_char}>"
             else:
                 # Handle special non-modifier keys
-                self.keyname = {
+                self.tk_keyname = {
                     'Home': '<Home>',
                     'End': '<End>',
-                    'Page-Up': '<Prior>',
-                    'Page-Down': '<Next>',
+                    'PageUp': '<Prior>',
+                    'PageDown': '<Next>',
                     'Backspace': '<BackSpace>'
                 }.get(key, key.lower())
         else:
-            self.keyname = None
+            self.tk_keyname = None
 
         if key:
             def callback2(event=None):
@@ -463,9 +463,9 @@ class MenuItem:
             self.callback = callback
 
         if is_macos and key is not None:
-            self.key = key.replace('Alt', 'Command')
+            self.displayed_key = key.replace('Alt', 'Command')
         else:
-            self.key = key
+            self.displayed_key = key
         self.value = value
         self.choices = choices
         self.submenu = submenu
@@ -473,6 +473,7 @@ class MenuItem:
 
     def addto(self, menu, window, stuff=None):
         callback = self.callback
+        
         if self.label == '---':
             menu.add_separator()
         elif self.value is not None:
@@ -482,7 +483,7 @@ class MenuItem:
             menu.add_checkbutton(label=self.label,
                                  underline=self.underline,
                                  command=self.callback,
-                                 accelerator=self.key,
+                                 accelerator=self.displayed_key,
                                  var=var)
 
             def callback(key):  # noqa: F811
@@ -511,13 +512,14 @@ class MenuItem:
             state = 'normal'
             if self.disabled:
                 state = 'disabled'
+
             menu.add_command(label=self.label,
                              underline=self.underline,
                              command=self.callback,
-                             accelerator=self.key,
+                             accelerator=self.displayed_key,
                              state=state)
-        if self.key:
-            window.bind(self.keyname, callback)
+        if self.displayed_key:
+            window.bind(self.tk_keyname, callback)
 
 
 class MainWindow(BaseWindow):
