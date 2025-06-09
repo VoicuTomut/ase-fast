@@ -144,7 +144,7 @@ class View:
         ).format(len(self.images))
 
         self.window.title = f'{header} — {images_loaded_text}'
-        
+
         if self.movie_window is not None:
             self.movie_window.frame_number.value = frame
 
