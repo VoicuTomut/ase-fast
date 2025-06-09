@@ -117,13 +117,11 @@ class GUI(View):
 
     def step(self, key):
         d = {'Home': -10000000,
-             'Page-Up': -1,
-             'Page-Down': 1,
+             'PageUp': -1,
+             'PageDown': 1,
              'End': 10000000}[key]
         i = max(0, min(len(self.images) - 1, self.frame + d))
         self.set_frame(i)
-        if self.movie_window is not None:
-            self.movie_window.frame_number.value = i
 
     def copy_image(self, key=None):
         self.images._images.append(self.atoms.copy())

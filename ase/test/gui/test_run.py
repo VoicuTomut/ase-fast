@@ -312,26 +312,26 @@ def test_movie(animation):
     animation.step('Home')
     assert movie.frame_number.value == 0
 
-    animation.step('Page-Up')
+    animation.step('PageUp')
     assert movie.frame_number.value == 0
 
-    animation.step('Page-Down')
+    animation.step('PageDown')
     assert movie.frame_number.value == 1
 
-    animation.step('Page-Down')
+    animation.step('PageDown')
     assert movie.frame_number.value == 2
 
     last_index = len(animation.images) - 1
     animation.step('End')
     assert movie.frame_number.value == last_index
 
-    animation.step('Page-Down')
+    animation.step('PageDown')
     assert movie.frame_number.value == last_index
 
-    animation.step('Page-Up')
+    animation.step('PageUp')
     assert movie.frame_number.value == last_index - 1
 
-    animation.step('Page-Up')
+    animation.step('PageUp')
     assert movie.frame_number.value == last_index - 2
 
     movie.play()
