@@ -717,12 +717,27 @@ class Atoms:
                     masses[i] = atomic_masses[self.numbers[i]]
         self.set_array('masses', masses, float, ())
 
-    def get_masses(self):
-        """Get array of masses in atomic mass units."""
+    def get_masses(self) -> np.ndarray:
+        """Get masses of atoms.
+
+        Returns
+        -------
+        masses : np.ndarray
+            Atomic masses in dalton (unified atomic mass units).
+
+        Examples
+        --------
+        >>> from ase.build import molecule
+        >>> atoms = molecule('CH4')
+        >>> atoms.get_masses()
+        array([ 12.011,   1.008,   1.008,   1.008,   1.008])
+        >>> total_mass = atoms.get_masses().sum()
+        >>> print(f'{total_mass:f}')
+        16.043000
+        """
         if 'masses' in self.arrays:
             return self.arrays['masses'].copy()
-        else:
-            return atomic_masses[self.arrays['numbers']]
+        return atomic_masses[self.arrays['numbers']]
 
     def set_initial_magnetic_moments(self, magmoms=None):
         """Set the initial magnetic moments.
