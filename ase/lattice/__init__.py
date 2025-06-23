@@ -1,6 +1,7 @@
 # fmt: off
 
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from functools import cached_property
 from typing import Dict, List
 
@@ -1137,12 +1138,15 @@ def get_lattice_from_canonical_cell(cell, eps=2e-4):
 
 
 class LatticeMatcher:
-    def __init__(self, cell, pbc, eps):
+    def __init__(self, cell, pbc, eps, niggli_eps=None):
         self.orig_cell = cell
         self.pbc = cell.any(1) & pbc2pbc(pbc)
         self.cell = cell.uncomplete(pbc)
         self.eps = eps
-        self.niggli_cell, self.niggli_op = self.cell.niggli_reduce(eps=eps)
+        if niggli_eps is None:
+            niggli_eps = eps
+        self.niggli_cell, self.niggli_op = self.cell.niggli_reduce(
+            eps=niggli_eps)
 
         # We tabulate the cell's Niggli-mapped versions so we don't need to
         # redo any work when the same Niggli-operation appears multiple times
@@ -1164,23 +1168,24 @@ class LatticeMatcher:
             else:
                 checker, op_3x3 = checker_and_op
 
-            lat, err = checker.query(latname)
-            if lat is None or err > self.eps:
+            lat, error = checker.query(latname)
+            if lat is None or error > self.eps:
                 continue
 
             # This is the full operation encompassing
             # both Niggli reduction of user input and mapping the
             # Niggli reduced form to standard (AFlow) form.
             op = op_3x3 @ np.linalg.inv(self.niggli_op)
-            matches.append(Match(lat, op))
+            matches.append(Match(lat, op, error))
 
         return matches
 
 
+@dataclass
 class Match:
-    def __init__(self, lat, op):
-        self.lat = lat
-        self.op = op
+    lat: BravaisLattice
+    op: np.ndarray
+    error: float
 
     @cached_property
     def orthogonality_defect(self):
@@ -1433,6 +1438,27 @@ class NormalizedLatticeMatcher:
 
     def TRI(self):
         return self._check(TRI, *self.cellpar)
+
+
+def match_to_lattice(cell, pbc, latname):
+    from ase.geometry.bravais_type_engine import niggli_op_table
+
+    matcher = LatticeMatcher(
+        cell=cell,
+        pbc=pbc,
+        eps=1e6,  # We want all candidates and apply eps in our own way
+        niggli_eps=1e-5,
+    )
+
+    # We should probably sort the matches by "quality".
+    # Quality must optimize both fitting error and
+    # orthogonality defect, so some weighting scheme is necessary,
+    # e.g. minimize one after filtering out the other.
+    #
+    # best = min(matches, key=lambda match: match.orthogonality_defect)
+    #
+    # Maybe we should take a key callable as argument.
+    return matcher.match(latname, niggli_op_table[latname])
 
 
 def all_variants():
