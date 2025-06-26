@@ -370,6 +370,7 @@ class BaseAtoms:
 
     @property
     def constraints(self):
+        """Constraints."""
         return self._constraints
 
     @constraints.setter
