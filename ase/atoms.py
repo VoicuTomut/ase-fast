@@ -26,7 +26,7 @@ from ase.symbols import Symbols, symbols2numbers
 from ase.utils import deprecated, string2index
 
 
-class Atoms:
+class BaseAtoms:
     """Atoms object.
 
     The Atoms object can represent an isolated molecule, or a
@@ -100,8 +100,6 @@ class Atoms:
 
     constraint : constraint object(s)
         One or more ASE constraints applied during structure optimization.
-    calculator : calculator object
-        ASE calculator to obtain energies and atomic forces.
     info : dict | None, default: None
         Dictionary with additional information about the system.
         The following keys may be used by ASE:
@@ -152,7 +150,6 @@ class Atoms:
                  scaled_positions=None,
                  cell=None, pbc=None, celldisp=None,
                  constraint=None,
-                 calculator=None,
                  info=None,
                  velocities=None):
 
@@ -200,8 +197,6 @@ class Atoms:
                 pbc = atoms.get_pbc()
             if constraint is None:
                 constraint = [c.copy() for c in atoms.constraints]
-            if calculator is None:
-                calculator = atoms.calc
             if info is None:
                 info = copy.deepcopy(atoms.info)
 
@@ -266,8 +261,6 @@ class Atoms:
             self.info = {}
         else:
             self.info = dict(info)
-
-        self.calc = calculator
 
     @property
     def symbols(self):
@@ -364,49 +357,6 @@ class Atoms:
             return wrap_positions(self.positions, self.cell, **wrap_kw)
         else:
             return self.arrays['positions'].copy()
-
-    @deprecated("Please use atoms.calc = calc", FutureWarning)
-    def set_calculator(self, calc=None):
-        """Attach calculator object.
-
-        .. deprecated:: 3.20.0
-            Please use the equivalent ``atoms.calc = calc`` instead of this
-            method.
-        """
-
-        self.calc = calc
-
-    @deprecated("Please use atoms.calc", FutureWarning)
-    def get_calculator(self):
-        """Get currently attached calculator object.
-
-        .. deprecated:: 3.20.0
-            Please use the equivalent ``atoms.calc`` instead of
-            ``atoms.get_calculator()``.
-        """
-
-        return self.calc
-
-    @property
-    def calc(self):
-        """Calculator object."""
-        return self._calc
-
-    @calc.setter
-    def calc(self, calc):
-        self._calc = calc
-        if hasattr(calc, 'set_atoms'):
-            calc.set_atoms(self)
-
-    @calc.deleter
-    @deprecated('Please use atoms.calc = None', FutureWarning)
-    def calc(self):
-        """Delete calculator
-
-        .. deprecated:: 3.20.0
-            Please use ``atoms.calc = None``
-        """
-        self._calc = None
 
     @property
     @deprecated('Please use atoms.cell.rank instead', DeprecationWarning)
@@ -777,18 +727,6 @@ class Atoms:
         else:
             return np.zeros(len(self))
 
-    def get_magnetic_moments(self):
-        """Get calculated local magnetic moments."""
-        if self._calc is None:
-            raise RuntimeError('Atoms object has no calculator.')
-        return self._calc.get_magnetic_moments(self)
-
-    def get_magnetic_moment(self):
-        """Get calculated total magnetic moment."""
-        if self._calc is None:
-            raise RuntimeError('Atoms object has no calculator.')
-        return self._calc.get_magnetic_moment(self)
-
     def set_initial_charges(self, charges=None):
         """Set the initial charges."""
 
@@ -804,174 +742,12 @@ class Atoms:
         else:
             return np.zeros(len(self))
 
-    def get_charges(self):
-        """Get calculated charges."""
-        if self._calc is None:
-            raise RuntimeError('Atoms object has no calculator.')
-        try:
-            return self._calc.get_charges(self)
-        except AttributeError:
-            from ase.calculators.calculator import PropertyNotImplementedError
-            raise PropertyNotImplementedError
-
-    def get_potential_energy(self, force_consistent=False,
-                             apply_constraint=True):
-        """Calculate potential energy.
-
-        Ask the attached calculator to calculate the potential energy and
-        apply constraints.  Use *apply_constraint=False* to get the raw
-        forces.
-
-        When supported by the calculator, either the energy extrapolated
-        to zero Kelvin or the energy consistent with the forces (the free
-        energy) can be returned.
-        """
-        if self._calc is None:
-            raise RuntimeError('Atoms object has no calculator.')
-        if force_consistent:
-            energy = self._calc.get_potential_energy(
-                self, force_consistent=force_consistent)
-        else:
-            energy = self._calc.get_potential_energy(self)
-        if apply_constraint:
-            for constraint in self.constraints:
-                if hasattr(constraint, 'adjust_potential_energy'):
-                    energy += constraint.adjust_potential_energy(self)
-        return energy
-
-    def get_properties(self, properties):
-        """This method is experimental; currently for internal use."""
-        # XXX Something about constraints.
-        if self._calc is None:
-            raise RuntimeError('Atoms object has no calculator.')
-        return self._calc.calculate_properties(self, properties)
-
-    def get_potential_energies(self):
-        """Calculate the potential energies of all the atoms.
-
-        Only available with calculators supporting per-atom energies
-        (e.g. classical potentials).
-        """
-        if self._calc is None:
-            raise RuntimeError('Atoms object has no calculator.')
-        return self._calc.get_potential_energies(self)
-
     def get_kinetic_energy(self):
         """Get the kinetic energy."""
         momenta = self.arrays.get('momenta')
         if momenta is None:
             return 0.0
         return 0.5 * np.vdot(momenta, self.get_velocities())
-
-    def get_total_energy(self):
-        """Get the total energy - potential plus kinetic energy."""
-        return self.get_potential_energy() + self.get_kinetic_energy()
-
-    def get_forces(self, apply_constraint=True, md=False):
-        """Calculate atomic forces.
-
-        Ask the attached calculator to calculate the forces and apply
-        constraints.  Use *apply_constraint=False* to get the raw
-        forces.
-
-        For molecular dynamics (md=True) we don't apply the constraint
-        to the forces but to the momenta. When holonomic constraints for
-        rigid linear triatomic molecules are present, ask the constraints
-        to redistribute the forces within each triple defined in the
-        constraints (required for molecular dynamics with this type of
-        constraints)."""
-
-        if self._calc is None:
-            raise RuntimeError('Atoms object has no calculator.')
-        forces = self._calc.get_forces(self)
-
-        if apply_constraint:
-            # We need a special md flag here because for MD we want
-            # to skip real constraints but include special "constraints"
-            # Like Hookean.
-            for constraint in self.constraints:
-                if md and hasattr(constraint, 'redistribute_forces_md'):
-                    constraint.redistribute_forces_md(self, forces)
-                if not md or hasattr(constraint, 'adjust_potential_energy'):
-                    constraint.adjust_forces(self, forces)
-        return forces
-
-    # Informs calculators (e.g. Asap) that ideal gas contribution is added here.
-    _ase_handles_dynamic_stress = True
-
-    def get_stress(self, voigt=True, apply_constraint=True,
-                   include_ideal_gas=False):
-        """Calculate stress tensor.
-
-        Returns an array of the six independent components of the
-        symmetric stress tensor, in the traditional Voigt order
-        (xx, yy, zz, yz, xz, xy) or as a 3x3 matrix.  Default is Voigt
-        order.
-
-        The ideal gas contribution to the stresses is added if the
-        atoms have momenta and ``include_ideal_gas`` is set to True.
-        """
-
-        if self._calc is None:
-            raise RuntimeError('Atoms object has no calculator.')
-
-        stress = self._calc.get_stress(self)
-        shape = stress.shape
-
-        if shape == (3, 3):
-            # Convert to the Voigt form before possibly applying
-            # constraints and adding the dynamic part of the stress
-            # (the "ideal gas contribution").
-            stress = full_3x3_to_voigt_6_stress(stress)
-        else:
-            assert shape == (6,)
-
-        if apply_constraint:
-            for constraint in self.constraints:
-                if hasattr(constraint, 'adjust_stress'):
-                    constraint.adjust_stress(self, stress)
-
-        # Add ideal gas contribution, if applicable
-        if include_ideal_gas and self.has('momenta'):
-            stress += self.get_kinetic_stress()
-
-        if voigt:
-            return stress
-        else:
-            return voigt_6_to_full_3x3_stress(stress)
-
-    def get_stresses(self, include_ideal_gas=False, voigt=True):
-        """Calculate the stress-tensor of all the atoms.
-
-        Only available with calculators supporting per-atom energies and
-        stresses (e.g. classical potentials).  Even for such calculators
-        there is a certain arbitrariness in defining per-atom stresses.
-
-        The ideal gas contribution to the stresses is added if the
-        atoms have momenta and ``include_ideal_gas`` is set to True.
-        """
-        if self._calc is None:
-            raise RuntimeError('Atoms object has no calculator.')
-        stresses = self._calc.get_stresses(self)
-
-        # make sure `stresses` are in voigt form
-        if np.shape(stresses)[1:] == (3, 3):
-            stresses_voigt = [full_3x3_to_voigt_6_stress(s) for s in stresses]
-            stresses = np.array(stresses_voigt)
-
-        # REMARK: The ideal gas contribution is intensive, i.e., the volume
-        # is divided out. We currently don't check if `stresses` are intensive
-        # as well, i.e., if `a.get_stresses.sum(axis=0) == a.get_stress()`.
-        # It might be good to check this here, but adds computational overhead.
-
-        if include_ideal_gas and self.has('momenta'):
-            stresses += self.get_kinetic_stresses()
-
-        if voigt:
-            return stresses
-        else:
-            stresses_3x3 = [voigt_6_to_full_3x3_stress(s) for s in stresses]
-            return np.array(stresses_3x3)
 
     def get_kinetic_stress(self, voigt=True):
         """Calculate the kinetic part of the Virial stress tensor."""
@@ -990,37 +766,6 @@ class Atoms:
             return stress
         else:
             return voigt_6_to_full_3x3_stress(stress)
-
-    def get_kinetic_stresses(self, voigt=True):
-        """Calculate the kinetic part of the Virial stress of all the atoms."""
-        stresses = np.zeros((len(self), 6))  # Voigt notation
-        stresscomp = np.array([[0, 5, 4], [5, 1, 3], [4, 3, 2]])
-        if hasattr(self._calc, 'get_atomic_volumes'):
-            invvol = 1.0 / self._calc.get_atomic_volumes()
-        else:
-            invvol = self.get_global_number_of_atoms() / self.get_volume()
-        p = self.get_momenta()
-        invmass = 1.0 / self.get_masses()
-        for alpha in range(3):
-            for beta in range(alpha, 3):
-                stresses[:, stresscomp[alpha, beta]] -= (
-                    p[:, alpha] * p[:, beta] * invmass * invvol)
-
-        if voigt:
-            return stresses
-        else:
-            stresses_3x3 = [voigt_6_to_full_3x3_stress(s) for s in stresses]
-            return np.array(stresses_3x3)
-
-    def get_dipole_moment(self):
-        """Calculate the electric dipole moment for the atoms object.
-
-        Only available for calculators which has a get_dipole_moment()
-        method."""
-
-        if self._calc is None:
-            raise RuntimeError('Atoms object has no calculator.')
-        return self._calc.get_dipole_moment(self)
 
     def copy(self):
         """Return a copy."""
@@ -1104,7 +849,7 @@ class Atoms:
         """
         return len(self)
 
-    def __repr__(self):
+    def _get_tokens_for_repr(self) -> list[str]:
         tokens = []
 
         N = len(self)
@@ -1139,10 +884,10 @@ class Atoms:
                 constraint = self.constraints
             tokens.append(f'constraint={constraint!r}')
 
-        if self._calc is not None:
-            tokens.append('calculator={}(...)'
-                          .format(self._calc.__class__.__name__))
+        return tokens
 
+    def __repr__(self) -> str:
+        tokens = self._get_tokens_for_repr()
         return '{}({})'.format(self.__class__.__name__, ', '.join(tokens))
 
     def __add__(self, other):
@@ -2100,6 +1845,279 @@ class Atoms:
         images = Images([self])
         gui = GUI(images)
         gui.run()
+
+
+class Atoms(BaseAtoms):
+    """Atoms object with calculators and related methods.
+
+    Parameters
+    ----------
+    calculator : :class:`~ase.calculators.calculator.BaseCalculator`
+        ASE calculator to obtain energies and atomic forces.
+
+    """
+    def __init__(self, symbols=None, *args, calculator=None, **kwargs) -> None:
+        super().__init__(symbols, *args, **kwargs)
+        if hasattr(symbols, 'get_positions'):
+            atoms = symbols
+            if atoms is not None:
+                if calculator is None:
+                    calculator = atoms.calc
+        self.calc = calculator
+
+    @deprecated("Please use atoms.calc = calc", FutureWarning)
+    def set_calculator(self, calc=None):
+        """Attach calculator object.
+
+        .. deprecated:: 3.20.0
+            Please use the equivalent ``atoms.calc = calc`` instead of this
+            method.
+        """
+
+        self.calc = calc
+
+    @deprecated("Please use atoms.calc", FutureWarning)
+    def get_calculator(self):
+        """Get currently attached calculator object.
+
+        .. deprecated:: 3.20.0
+            Please use the equivalent ``atoms.calc`` instead of
+            ``atoms.get_calculator()``.
+        """
+
+        return self.calc
+
+    @property
+    def calc(self):
+        """Calculator object."""
+        return self._calc
+
+    @calc.setter
+    def calc(self, calc):
+        self._calc = calc
+        if hasattr(calc, 'set_atoms'):
+            calc.set_atoms(self)
+
+    @calc.deleter
+    @deprecated('Please use atoms.calc = None', FutureWarning)
+    def calc(self):
+        """Delete calculator
+
+        .. deprecated:: 3.20.0
+            Please use ``atoms.calc = None``
+        """
+        self._calc = None
+
+    def get_magnetic_moments(self):
+        """Get calculated local magnetic moments."""
+        if self._calc is None:
+            raise RuntimeError('Atoms object has no calculator.')
+        return self._calc.get_magnetic_moments(self)
+
+    def get_magnetic_moment(self):
+        """Get calculated total magnetic moment."""
+        if self._calc is None:
+            raise RuntimeError('Atoms object has no calculator.')
+        return self._calc.get_magnetic_moment(self)
+
+    def get_charges(self):
+        """Get calculated charges."""
+        if self._calc is None:
+            raise RuntimeError('Atoms object has no calculator.')
+        try:
+            return self._calc.get_charges(self)
+        except AttributeError:
+            from ase.calculators.calculator import PropertyNotImplementedError
+            raise PropertyNotImplementedError
+
+    def get_potential_energy(self, force_consistent=False,
+                             apply_constraint=True):
+        """Calculate potential energy.
+
+        Ask the attached calculator to calculate the potential energy and
+        apply constraints.  Use *apply_constraint=False* to get the raw
+        forces.
+
+        When supported by the calculator, either the energy extrapolated
+        to zero Kelvin or the energy consistent with the forces (the free
+        energy) can be returned.
+        """
+        if self._calc is None:
+            raise RuntimeError('Atoms object has no calculator.')
+        if force_consistent:
+            energy = self._calc.get_potential_energy(
+                self, force_consistent=force_consistent)
+        else:
+            energy = self._calc.get_potential_energy(self)
+        if apply_constraint:
+            for constraint in self.constraints:
+                if hasattr(constraint, 'adjust_potential_energy'):
+                    energy += constraint.adjust_potential_energy(self)
+        return energy
+
+    def get_properties(self, properties):
+        """This method is experimental; currently for internal use."""
+        # XXX Something about constraints.
+        if self._calc is None:
+            raise RuntimeError('Atoms object has no calculator.')
+        return self._calc.calculate_properties(self, properties)
+
+    def get_potential_energies(self):
+        """Calculate the potential energies of all the atoms.
+
+        Only available with calculators supporting per-atom energies
+        (e.g. classical potentials).
+        """
+        if self._calc is None:
+            raise RuntimeError('Atoms object has no calculator.')
+        return self._calc.get_potential_energies(self)
+
+    def get_total_energy(self):
+        """Get the total energy - potential plus kinetic energy."""
+        return self.get_potential_energy() + self.get_kinetic_energy()
+
+    def get_forces(self, apply_constraint=True, md=False):
+        """Calculate atomic forces.
+
+        Ask the attached calculator to calculate the forces and apply
+        constraints.  Use *apply_constraint=False* to get the raw
+        forces.
+
+        For molecular dynamics (md=True) we don't apply the constraint
+        to the forces but to the momenta. When holonomic constraints for
+        rigid linear triatomic molecules are present, ask the constraints
+        to redistribute the forces within each triple defined in the
+        constraints (required for molecular dynamics with this type of
+        constraints)."""
+
+        if self._calc is None:
+            raise RuntimeError('Atoms object has no calculator.')
+        forces = self._calc.get_forces(self)
+
+        if apply_constraint:
+            # We need a special md flag here because for MD we want
+            # to skip real constraints but include special "constraints"
+            # Like Hookean.
+            for constraint in self.constraints:
+                if md and hasattr(constraint, 'redistribute_forces_md'):
+                    constraint.redistribute_forces_md(self, forces)
+                if not md or hasattr(constraint, 'adjust_potential_energy'):
+                    constraint.adjust_forces(self, forces)
+        return forces
+
+    # Informs calculators (e.g. Asap) that ideal gas contribution is added here.
+    _ase_handles_dynamic_stress = True
+
+    def get_stress(self, voigt=True, apply_constraint=True,
+                   include_ideal_gas=False):
+        """Calculate stress tensor.
+
+        Returns an array of the six independent components of the
+        symmetric stress tensor, in the traditional Voigt order
+        (xx, yy, zz, yz, xz, xy) or as a 3x3 matrix.  Default is Voigt
+        order.
+
+        The ideal gas contribution to the stresses is added if the
+        atoms have momenta and ``include_ideal_gas`` is set to True.
+        """
+
+        if self._calc is None:
+            raise RuntimeError('Atoms object has no calculator.')
+
+        stress = self._calc.get_stress(self)
+        shape = stress.shape
+
+        if shape == (3, 3):
+            # Convert to the Voigt form before possibly applying
+            # constraints and adding the dynamic part of the stress
+            # (the "ideal gas contribution").
+            stress = full_3x3_to_voigt_6_stress(stress)
+        else:
+            assert shape == (6,)
+
+        if apply_constraint:
+            for constraint in self.constraints:
+                if hasattr(constraint, 'adjust_stress'):
+                    constraint.adjust_stress(self, stress)
+
+        # Add ideal gas contribution, if applicable
+        if include_ideal_gas and self.has('momenta'):
+            stress += self.get_kinetic_stress()
+
+        if voigt:
+            return stress
+        else:
+            return voigt_6_to_full_3x3_stress(stress)
+
+    def get_stresses(self, include_ideal_gas=False, voigt=True):
+        """Calculate the stress-tensor of all the atoms.
+
+        Only available with calculators supporting per-atom energies and
+        stresses (e.g. classical potentials).  Even for such calculators
+        there is a certain arbitrariness in defining per-atom stresses.
+
+        The ideal gas contribution to the stresses is added if the
+        atoms have momenta and ``include_ideal_gas`` is set to True.
+        """
+        if self._calc is None:
+            raise RuntimeError('Atoms object has no calculator.')
+        stresses = self._calc.get_stresses(self)
+
+        # make sure `stresses` are in voigt form
+        if np.shape(stresses)[1:] == (3, 3):
+            stresses_voigt = [full_3x3_to_voigt_6_stress(s) for s in stresses]
+            stresses = np.array(stresses_voigt)
+
+        # REMARK: The ideal gas contribution is intensive, i.e., the volume
+        # is divided out. We currently don't check if `stresses` are intensive
+        # as well, i.e., if `a.get_stresses.sum(axis=0) == a.get_stress()`.
+        # It might be good to check this here, but adds computational overhead.
+
+        if include_ideal_gas and self.has('momenta'):
+            stresses += self.get_kinetic_stresses()
+
+        if voigt:
+            return stresses
+        else:
+            stresses_3x3 = [voigt_6_to_full_3x3_stress(s) for s in stresses]
+            return np.array(stresses_3x3)
+
+    def get_kinetic_stresses(self, voigt=True):
+        """Calculate the kinetic part of the Virial stress of all the atoms."""
+        stresses = np.zeros((len(self), 6))  # Voigt notation
+        stresscomp = np.array([[0, 5, 4], [5, 1, 3], [4, 3, 2]])
+        if hasattr(self._calc, 'get_atomic_volumes'):
+            invvol = 1.0 / self._calc.get_atomic_volumes()
+        else:
+            invvol = self.get_global_number_of_atoms() / self.get_volume()
+        p = self.get_momenta()
+        invmass = 1.0 / self.get_masses()
+        for alpha in range(3):
+            for beta in range(alpha, 3):
+                stresses[:, stresscomp[alpha, beta]] -= (
+                    p[:, alpha] * p[:, beta] * invmass * invvol)
+
+        if voigt:
+            return stresses
+        else:
+            stresses_3x3 = [voigt_6_to_full_3x3_stress(s) for s in stresses]
+            return np.array(stresses_3x3)
+
+    def get_dipole_moment(self):
+        """Calculate the electric dipole moment for the atoms object.
+
+        Only available for calculators which has a get_dipole_moment()
+        method."""
+
+        if self._calc is None:
+            raise RuntimeError('Atoms object has no calculator.')
+        return self._calc.get_dipole_moment(self)
+
+    def _get_tokens_for_repr(self) -> list[str]:
+        tokens = super()._get_tokens_for_repr()
+        if self._calc is not None:
+            tokens.append(f'calculator={self._calc.__class__.__name__}(...)')
+        return tokens
 
 
 def string2vector(v):
