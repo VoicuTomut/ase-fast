@@ -1,46 +1,47 @@
-# fmt: off
+"""Module for `Elk`."""
 
+import re
 from pathlib import Path
 
-from ase.calculators.abc import GetOutputsMixin
-from ase.calculators.calculator import FileIOCalculator
-from ase.io import write
-from ase.io.elk import ElkReader
+from ase.calculators.genericfileio import (
+    BaseProfile,
+    CalculatorTemplate,
+    GenericFileIOCalculator,
+    read_stdout,
+)
+from ase.io.elk import ElkReader, write_elk_in
 
 
-class ELK(FileIOCalculator, GetOutputsMixin):
-    _legacy_default_command = 'elk > elk.out'
-    implemented_properties = ['energy', 'forces']
-    ignored_changes = {'pbc'}
-    discard_results_on_any_change = True
+class ElkProfile(BaseProfile):
+    def get_calculator_command(self, inputfile):
+        return []
 
-    fileio_rules = FileIOCalculator.ruleset(
-        stdout_name='elk.out')
+    def version(self):
+        output = read_stdout(self._split_command)
+        match = re.search(r'Elk code version (\S+)', output, re.M)
+        return match.group(1)
 
-    def __init__(self, **kwargs):
-        """Construct ELK calculator.
 
-        The keyword arguments (kwargs) can be one of the ASE standard
-        keywords: 'xc', 'kpts' and 'smearing' or any of ELK'
-        native keywords.
-        """
+class ElkTemplate(CalculatorTemplate):
+    def __init__(self):
+        super().__init__('elk', ['energy', 'forces'])
+        self.inputname = 'elk.in'
+        self.outputname = 'elk.out'
 
-        super().__init__(**kwargs)
-
-    def write_input(self, atoms, properties=None, system_changes=None):
-        FileIOCalculator.write_input(self, atoms, properties, system_changes)
-
-        parameters = dict(self.parameters)
+    def write_input(self, profile, directory, atoms, parameters, properties):
+        directory = Path(directory)
+        parameters = dict(parameters)
         if 'forces' in properties:
             parameters['tforce'] = True
+        write_elk_in(directory / self.inputname, atoms, parameters=parameters)
 
-        directory = Path(self.directory)
-        write(directory / 'elk.in', atoms, parameters=parameters,
-              format='elk-in')
+    def execute(self, directory, profile: ElkProfile) -> None:
+        profile.run(directory, self.inputname, self.outputname)
 
-    def read_results(self):
+    def read_results(self, directory):
         from ase.outputs import Properties
-        reader = ElkReader(self.directory)
+
+        reader = ElkReader(directory)
         dct = dict(reader.read_everything())
 
         converged = dct.pop('converged')
@@ -49,7 +50,23 @@ class ELK(FileIOCalculator, GetOutputsMixin):
 
         # (Filter results thorugh Properties for error detection)
         props = Properties(dct)
-        self.results = dict(props)
+        return dict(props)
 
-    def _outputmixin_get_results(self):
-        return self.results
+    def load_profile(self, cfg, **kwargs):
+        return ElkProfile.from_config(cfg, self.name, **kwargs)
+
+
+class ELK(GenericFileIOCalculator):
+    def __init__(self, *, profile=None, directory='.', **kwargs):
+        """Construct ELK calculator.
+
+        The keyword arguments (kwargs) can be one of the ASE standard
+        keywords: 'xc', 'kpts' and 'smearing' or any of ELK'
+        native keywords.
+        """
+        super().__init__(
+            template=ElkTemplate(),
+            profile=profile,
+            directory=directory,
+            parameters=kwargs,
+        )

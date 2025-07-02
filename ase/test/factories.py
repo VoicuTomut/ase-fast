@@ -16,7 +16,7 @@ from ase.calculators.castep import Castep, get_castep_version
 from ase.calculators.cp2k import CP2K, Cp2kShell
 from ase.calculators.dftb import Dftb
 from ase.calculators.dftd3 import DFTD3
-from ase.calculators.elk import ELK
+from ase.calculators.elk import ELK, ElkTemplate
 from ase.calculators.espresso import Espresso, EspressoTemplate
 from ase.calculators.exciting.exciting import (
     ExcitingGroundStateCalculator,
@@ -250,13 +250,11 @@ class DFTD3Factory:
 @factory('elk')
 class ElkFactory:
     def __init__(self, cfg):
-        self.profile = ELK.load_argv_profile(cfg, 'elk')
+        self.profile = ElkTemplate().load_profile(cfg)
         self.species_dir = cfg.parser['elk']['species_dir']
 
     def version(self):
-        output = read_stdout(self.profile._split_command)
-        match = re.search(r'Elk code version (\S+)', output, re.M)
-        return match.group(1)
+        return self.profile.version()
 
     def calc(self, **kwargs):
         return ELK(profile=self.profile, species_dir=self.species_dir, **kwargs)
