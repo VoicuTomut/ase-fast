@@ -1,6 +1,8 @@
 """Module for `Elk`."""
 
+import os
 import re
+import warnings
 from pathlib import Path
 
 from ase.calculators.genericfileio import (
@@ -10,6 +12,11 @@ from ase.calculators.genericfileio import (
     read_stdout,
 )
 from ase.io.elk import ElkReader, write_elk_in
+
+COMPATIBILITY_MSG = (
+    '`ELK` has been restructured. '
+    'Please use `ELK(profile=ElkProfile(command))` instead.'
+)
 
 
 class ElkProfile(BaseProfile):
@@ -57,13 +64,31 @@ class ElkTemplate(CalculatorTemplate):
 
 
 class ELK(GenericFileIOCalculator):
-    def __init__(self, *, profile=None, directory='.', **kwargs):
+    def __init__(
+        self,
+        *,
+        profile=None,
+        command=GenericFileIOCalculator._deprecated,
+        label=GenericFileIOCalculator._deprecated,
+        directory='.',
+        **kwargs,
+    ):
         """Construct ELK calculator.
 
         The keyword arguments (kwargs) can be one of the ASE standard
         keywords: 'xc', 'kpts' and 'smearing' or any of ELK'
         native keywords.
         """
+        if command is not self._deprecated:
+            raise RuntimeError(COMPATIBILITY_MSG)
+
+        if label is not self._deprecated:
+            msg = 'Ignoring label, please use directory instead'
+            warnings.warn(msg, FutureWarning)
+
+        if 'ASE_ELK_COMMAND' in os.environ and profile is None:
+            warnings.warn(COMPATIBILITY_MSG, FutureWarning)
+
         super().__init__(
             template=ElkTemplate(),
             profile=profile,
