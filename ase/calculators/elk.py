@@ -1,4 +1,32 @@
-"""Module for `Elk`."""
+"""
+`Elk <https://elk.sourceforge.io>`_ is an all-electron full-potential linearised
+augmented-plane wave (LAPW) code.
+
+.. versionchanged:: 3.26.0
+   :class:`ELK` is now a subclass of :class:`GenericFileIOCalculator`.
+
+.. |config| replace:: ``config.ini``
+.. _config: calculators.html#calculator-configuration
+
+:class:`ELK` can be configured with |config|_.
+
+.. code-block:: ini
+
+    [elk]
+    command = /path/to/elk
+    species_dir = /path/to/species
+
+If you need to override it for programmatic control of the ``elk`` command,
+use :class:`ElkProfile`.
+
+.. code-block:: python
+
+    from ase.calculators.elk import ELK, ElkProfile
+
+    profile = ElkProfile(command='/path/to/elk')
+    calc = ELK(profile=profile)
+
+"""
 
 import os
 import re
@@ -20,6 +48,8 @@ COMPATIBILITY_MSG = (
 
 
 class ElkProfile(BaseProfile):
+    """Profile for :class:`ELK`."""
+
     def get_calculator_command(self, inputfile):
         return []
 
@@ -30,6 +60,8 @@ class ElkProfile(BaseProfile):
 
 
 class ElkTemplate(CalculatorTemplate):
+    """Template for :class:`ELK`."""
+
     def __init__(self):
         super().__init__('elk', ['energy', 'forces'])
         self.inputname = 'elk.in'
@@ -64,6 +96,8 @@ class ElkTemplate(CalculatorTemplate):
 
 
 class ELK(GenericFileIOCalculator):
+    """Elk calculator."""
+
     def __init__(
         self,
         *,
@@ -72,12 +106,19 @@ class ELK(GenericFileIOCalculator):
         label=GenericFileIOCalculator._deprecated,
         directory='.',
         **kwargs,
-    ):
-        """Construct ELK calculator.
+    ) -> None:
+        """
 
-        The keyword arguments (kwargs) can be one of the ASE standard
-        keywords: 'xc', 'kpts' and 'smearing' or any of ELK'
-        native keywords.
+        Parameters
+        ----------
+        **kwargs : dict, optional
+            ASE standard keywords like ``xc``, ``kpts`` and ``smearing`` or any
+            Elk-native keywords.
+
+        Examples
+        --------
+        >>> calc = ELK(tasks=0, ngridk=(3, 3, 3))
+
         """
         if command is not self._deprecated:
             raise RuntimeError(COMPATIBILITY_MSG)
