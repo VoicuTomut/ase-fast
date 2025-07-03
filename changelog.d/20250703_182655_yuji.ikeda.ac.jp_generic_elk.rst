@@ -1,0 +1,5 @@
+Calculators
+-----------
+
+- Changed :class:`~ase.calculators.elk.ELK` based on
+  :class:`~ase.calculators.GenericFileIOCalculator` (:mr:`3736`)
