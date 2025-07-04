@@ -14,7 +14,7 @@ augmented-plane wave (LAPW) code.
 
     [elk]
     command = /path/to/elk
-    species_dir = /path/to/species
+    sppath = /path/to/species
 
 If you need to override it for programmatic control of the ``elk`` command,
 use :class:`ElkProfile`.
@@ -32,6 +32,7 @@ import os
 import re
 import warnings
 from pathlib import Path
+from typing import Optional
 
 from ase.calculators.genericfileio import (
     BaseProfile,
@@ -50,6 +51,12 @@ COMPATIBILITY_MSG = (
 class ElkProfile(BaseProfile):
     """Profile for :class:`ELK`."""
 
+    configvars = {'sppath'}
+
+    def __init__(self, command, sppath: Optional[str] = None, **kwargs) -> None:
+        super().__init__(command, **kwargs)
+        self.sppath = sppath
+
     def get_calculator_command(self, inputfile):
         return []
 
@@ -67,11 +74,20 @@ class ElkTemplate(CalculatorTemplate):
         self.inputname = 'elk.in'
         self.outputname = 'elk.out'
 
-    def write_input(self, profile, directory, atoms, parameters, properties):
+    def write_input(
+        self,
+        profile: ElkProfile,
+        directory,
+        atoms,
+        parameters,
+        properties,
+    ):
         directory = Path(directory)
         parameters = dict(parameters)
         if 'forces' in properties:
             parameters['tforce'] = True
+        if 'sppath' not in parameters and profile.sppath:
+            parameters['sppath'] = profile.sppath
         write_elk_in(directory / self.inputname, atoms, parameters=parameters)
 
     def execute(self, directory, profile: ElkProfile) -> None:
