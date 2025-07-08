@@ -642,12 +642,13 @@ class MTKNPT(MolecularDynamics):
 
     def _integrate_p(self, delta: float) -> None:
         """Integrate exp(i * L_2 * delta)"""
+        forces = self._get_forces()  # (num_atoms, 3-xyz)
+
         # eigvals: (3-eigvec), U: (3-xyz, 3-eigvec)
         eigvals, U = np.linalg.eigh(self._p_g)
         kappas = eigvals \
-            + np.trace(self._p_g) / (3 * len(self.atoms))  # (3-eigvec)
+            + np.trace(self._p_g) / (3 * self._num_atoms_global)  # (3-eigvec)
         y = self._p @ U  # (num_atoms, 3-eigvec)
-        forces = self._get_forces()  # (num_atoms, 3-xyz)
         sol = (
             y * np.exp(-kappas * delta / self._barostat.W)[None, :]
             + delta * (forces @ U) * exprel(
@@ -672,7 +673,7 @@ class MTKNPT(MolecularDynamics):
         stress = self._get_stress()
         G = (
             self._get_volume() * (stress - self._pressure_au * np.eye(3))
-            + np.sum(self._p**2 / self.masses) / (3 * len(self.atoms))
+            + np.sum(self._p**2 / self.masses) / (3 * self._num_atoms_global)
                 * np.eye(3)
         )
         self._p_g += delta * G
