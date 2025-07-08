@@ -298,7 +298,6 @@ class IsotropicMTKNPT(MolecularDynamics):
         )
         self._barostat = IsotropicMTKBarostat(
             num_atoms_global=self._num_atoms_global,
-            masses=self.masses,
             temperature_K=temperature_K,
             pdamp=pdamp,
             pchain=pchain,
@@ -407,14 +406,12 @@ class IsotropicMTKBarostat:
     def __init__(
         self,
         num_atoms_global: int,
-        masses: np.ndarray,
         temperature_K: float,
         pdamp: float,
         pchain: int = 3,
         ploop: int = 1,
     ):
         self._num_atoms_global = num_atoms_global
-        self._masses = masses  # (num_atoms, 1)
         self._pdamp = pdamp
         self._pchain = pchain
         self._ploop = ploop
@@ -569,7 +566,6 @@ class MTKNPT(MolecularDynamics):
         )
         self._barostat = MTKBarostat(
             num_atoms_global=self._num_atoms_global,
-            masses=self.masses,
             temperature_K=temperature_K,
             pdamp=pdamp,
             pchain=pchain,
@@ -690,14 +686,12 @@ class MTKBarostat:
     def __init__(
         self,
         num_atoms_global: int,
-        masses: np.ndarray,
         temperature_K: float,
         pdamp: float,
         pchain: int = 3,
         ploop: int = 1,
     ):
         self._num_atoms_global = num_atoms_global
-        self._masses = masses  # (num_atoms, 1)
         self._pdamp = pdamp
         self._pchain = pchain
         self._ploop = ploop
