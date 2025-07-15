@@ -1,5 +1,3 @@
-# fmt: off
-
 """Module for wrapping an array without being an array.
 
 This can be desirable because we would like atoms.cell to be like an array,
@@ -24,24 +22,56 @@ This module provides the @arraylike decorator which does these things
 for all the interesting ndarray methods.
 """
 
-
 from functools import update_wrapper
 
 import numpy as np
 
-inplace_methods = ['__iadd__', '__imul__', '__ipow__', '__isub__',
-                   '__itruediv__', '__imatmul__']
+inplace_methods = [
+    '__iadd__',
+    '__imul__',
+    '__ipow__',
+    '__isub__',
+    '__itruediv__',
+    '__imatmul__',
+]
 
-forward_methods = ['__abs__', '__add__', '__contains__', '__eq__',
-                   '__ge__', '__getitem__', '__gt__', '__hash__',
-                   '__iter__', '__le__', '__len__', '__lt__',
-                   '__mul__', '__ne__', '__neg__', '__pos__',
-                   '__pow__', '__radd__', '__rmul__', '__rpow__',
-                   '__rsub__', '__rtruediv__', '__setitem__',
-                   '__sub__', '__truediv__']
+forward_methods = [
+    '__abs__',
+    '__add__',
+    '__contains__',
+    '__eq__',
+    '__ge__',
+    '__getitem__',
+    '__gt__',
+    '__hash__',
+    '__iter__',
+    '__le__',
+    '__len__',
+    '__lt__',
+    '__mul__',
+    '__ne__',
+    '__neg__',
+    '__pos__',
+    '__pow__',
+    '__radd__',
+    '__rmul__',
+    '__rpow__',
+    '__rsub__',
+    '__rtruediv__',
+    '__setitem__',
+    '__sub__',
+    '__truediv__',
+]
 
-default_methods = ['__eq__', '__le__', '__lt__', '__ge__',
-                   '__gt__', '__ne__', '__hash__']
+default_methods = [
+    '__eq__',
+    '__le__',
+    '__lt__',
+    '__ge__',
+    '__gt__',
+    '__ne__',
+    '__hash__',
+]
 
 if hasattr(np.ndarray, '__matmul__'):
     forward_methods += ['__matmul__', '__rmatmul__']
