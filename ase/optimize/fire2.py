@@ -144,11 +144,9 @@ class FIRE2(Optimizer):
     def read(self):
         self.v, self.dt = self.load()
 
-    def step(self, f=None):
+    def step(self):
         optimizable = self.optimizable
-
-        if f is None:
-            f = optimizable.get_gradient().reshape(-1, 3)
+        f = optimizable.get_gradient().reshape(-1, 3)
 
         if self.v is None:
             self.v = np.zeros(optimizable.ndofs()).reshape(-1, 3)

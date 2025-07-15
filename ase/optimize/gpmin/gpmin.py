@@ -249,10 +249,9 @@ class GPMin(Optimizer, GaussianProcess):
                                  np.array(self.y_list), eps=self.eps)
         self.noise = ratio * self.kernel.weight
 
-    def step(self, f=None):
+    def step(self):
         optimizable = self.optimizable
-        if f is None:
-            f = optimizable.get_gradient().reshape(-1, 3)
+        f = optimizable.get_gradient().reshape(-1, 3)
 
         r0 = optimizable.get_x()
         e0 = optimizable.get_value()

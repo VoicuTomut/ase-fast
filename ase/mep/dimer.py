@@ -1029,11 +1029,10 @@ class MinModeTranslate(Optimizer):
         self.r0 = None
         self.f0 = None
 
-    def step(self, f=None):
+    def step(self):
         """Perform the optimization step."""
         atoms = self.dimeratoms
-        if f is None:
-            f = atoms.get_forces()
+        f = atoms.get_forces()
         r = atoms.get_positions()
         curv = atoms.get_curvature()
         f0p = f.copy()
