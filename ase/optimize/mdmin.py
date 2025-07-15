@@ -50,7 +50,7 @@ class MDMin(Optimizer):
             :class:`~ase.optimize.optimize.Optimizer`.
 
         """
-        Optimizer.__init__(self, atoms, restart, logfile, trajectory, **kwargs)
+        super().__init__(atoms, restart, logfile, trajectory, **kwargs)
 
         self.dt = dt or self.defaults['dt']
         self.maxstep = maxstep or self.defaults['maxstep']
@@ -63,10 +63,10 @@ class MDMin(Optimizer):
 
     def step(self):
         optimizable = self.optimizable
-        forces = optimizable.get_gradient().reshape(-1, 3)
+        forces = optimizable.get_gradient()
 
         if self.v is None:
-            self.v = np.zeros(optimizable.ndofs()).reshape(-1, 3)
+            self.v = np.zeros(optimizable.ndofs())
         else:
             self.v += 0.5 * self.dt * forces
             # Correct velocities:
@@ -77,14 +77,17 @@ class MDMin(Optimizer):
                 self.v[:] = forces * vf / np.vdot(forces, forces)
 
         self.v += 0.5 * self.dt * forces
-        pos = optimizable.get_x().reshape(-1, 3)
+        pos = optimizable.get_x()
         dpos = self.dt * self.v
 
         # For any dpos magnitude larger than maxstep, scaling
         # is <1. We add a small float to prevent overflows/zero-div errors.
         # All displacement vectors (rows) of dpos which have a norm larger
         # than self.maxstep are scaled to it.
-        scaling = self.maxstep / (1e-6 + np.max(np.linalg.norm(dpos, axis=1)))
+
+        # XXX Here we are using gradient_norm() to get the norm of positions
+        maxstep = self.optimizable.gradient_norm(dpos)
+        scaling = self.maxstep / (1e-6 + maxstep)
         dpos *= np.clip(scaling, 0.0, 1.0)
-        optimizable.set_x((pos + dpos).ravel())
+        optimizable.set_x(pos + dpos)
         self.dump((self.v, self.dt))

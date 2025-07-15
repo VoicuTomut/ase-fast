@@ -46,7 +46,7 @@ class BoothFunctionOptimizable(Optimizable):
 optimizers = [
     'BFGS',
     'BFGSLineSearch',
-    # 'MDMin',
+    'MDMin',
     'FIRE',
     'FIRE2',
     # 'LBFGS',
