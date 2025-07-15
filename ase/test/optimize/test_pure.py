@@ -1,8 +1,8 @@
 import numpy as np
 import pytest
 
-from ase.optimize import BFGS, FIRE, FIRE2, BFGSLineSearch
 from ase.utils.abc import Optimizable
+import ase.optimize
 
 
 class BoothFunctionOptimizable(Optimizable):
@@ -43,12 +43,27 @@ class BoothFunctionOptimizable(Optimizable):
         return np.linalg.norm(gradient)
 
 
-@pytest.mark.parametrize('optcls', [BFGS, BFGSLineSearch, FIRE, FIRE2])
-def test_booth(optcls):
+optimizers = [
+    'BFGS',
+    'BFGSLineSearch',
+    # 'MDMin',
+    'FIRE',
+    'FIRE2',
+    # 'LBFGS',
+    # 'LBFGSLineSearch',
+    # 'GoodOldQuasiNewton',
+    # 'GPMin',
+    # 'ODE12r',
+]
+
+
+@pytest.mark.parametrize('optname', optimizers)
+def test_booth(optname):
     x0 = [1.234, 2.345]
     target = BoothFunctionOptimizable(x0)
 
     eps = 1e-8
+    optcls = getattr(ase.optimize, optname)
     with optcls(target) as opt:
         opt.run(fmax=eps)
 
