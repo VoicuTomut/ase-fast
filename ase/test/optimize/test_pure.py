@@ -49,7 +49,7 @@ optimizers = [
     'MDMin',
     'FIRE',
     'FIRE2',
-    # 'LBFGS',
+    'LBFGS',
     # 'LBFGSLineSearch',
     # 'GoodOldQuasiNewton',
     # 'GPMin',

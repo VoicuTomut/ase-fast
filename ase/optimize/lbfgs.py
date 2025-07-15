@@ -123,8 +123,8 @@ class LBFGS(Optimizer):
         Use the given forces, update the history and calculate the next step --
         then take it"""
 
-        forces = self.optimizable.get_gradient().reshape(-1, 3)
-        pos = self.optimizable.get_x().reshape(-1, 3)
+        forces = self.optimizable.get_gradient()
+        pos = self.optimizable.get_x()
 
         self.update(pos, forces, self.r0, self.f0)
 
@@ -137,7 +137,7 @@ class LBFGS(Optimizer):
         a = np.empty((loopmax,), dtype=np.float64)
 
         # ## The algorithm itself:
-        q = -forces.reshape(-1)
+        q = -forces
         for i in range(loopmax - 1, -1, -1):
             a[i] = rho[i] * np.dot(s[i], q)
             q -= a[i] * y[i]
@@ -147,19 +147,19 @@ class LBFGS(Optimizer):
             b = rho[i] * np.dot(y[i], z)
             z += s[i] * (a[i] - b)
 
-        self.p = - z.reshape((-1, 3))
+        self.p = - z
         # ##
 
         g = -forces
         if self.use_line_search is True:
             e = self.func(pos)
             self.line_search(pos, g, e)
-            dr = (self.alpha_k * self.p).reshape(-1, 3)
+            dr = self.alpha_k * self.p
         else:
             self.force_calls += 1
             self.function_calls += 1
             dr = self.determine_step(self.p) * self.damping
-        self.optimizable.set_x((pos + dr).ravel())
+        self.optimizable.set_x(pos + dr)
 
         self.iteration += 1
         self.r0 = pos
@@ -173,8 +173,7 @@ class LBFGS(Optimizer):
         Normalize all steps as the largest step. This way
         we still move along the eigendirection.
         """
-        steplengths = (dr**2).sum(1)**0.5
-        longest_step = np.max(steplengths)
+        longest_step = self.optimizable.gradient_norm(dr)
         if longest_step >= self.maxstep:
             dr *= self.maxstep / longest_step
 
@@ -186,11 +185,11 @@ class LBFGS(Optimizer):
         This function is mostly here to allow for replay_trajectory.
         """
         if self.iteration > 0:
-            s0 = pos.reshape(-1) - r0.reshape(-1)
+            s0 = pos - r0
             self.s.append(s0)
 
             # We use the gradient which is minus the force!
-            y0 = f0.reshape(-1) - forces.reshape(-1)
+            y0 = f0 - forces
             self.y.append(y0)
 
             rho0 = 1.0 / np.dot(y0, s0)
@@ -234,12 +233,9 @@ class LBFGS(Optimizer):
         return -self.optimizable.get_gradient()
 
     def line_search(self, r, g, e):
-        self.p = self.p.ravel()
         p_size = np.sqrt((self.p**2).sum())
         if p_size <= np.sqrt(self.optimizable.ndofs() / 3 * 1e-10):
             self.p /= (p_size / np.sqrt(self.optimizable.ndofs() / 3 * 1e-10))
-        g = g.ravel()
-        r = r.ravel()
         ls = LineSearch()
         self.alpha_k, e, self.e0, self.no_update = \
             ls._line_search(self.func, self.fprime, r, self.p, g, e, self.e0,
