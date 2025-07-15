@@ -146,14 +146,13 @@ class FIRE2(Optimizer):
 
     def step(self):
         optimizable = self.optimizable
-        f = optimizable.get_gradient()
+        gradient = optimizable.get_gradient()
 
         if self.v is None:
             self.v = np.zeros(optimizable.ndofs())
         else:
-            vf = np.vdot(f, self.v)
+            vf = np.vdot(gradient, self.v)
             if vf > 0.0:
-
                 self.Nsteps += 1
                 if self.Nsteps > self.Nmin:
                     self.dt = min(self.dt * self.finc, self.dtmax)
@@ -169,14 +168,15 @@ class FIRE2(Optimizer):
                 self.v[:] *= 0.0
 
         # euler semi implicit
-        f = optimizable.get_gradient()
-        self.v += self.dt * f
+        gradient = optimizable.get_gradient()
+        self.v += self.dt * gradient
 
         if self.use_abc:
             self.a = max(self.a, 1e-10)
             abc_multiplier = 1. / (1. - (1. - self.a)**(self.Nsteps + 1))
-            v_mix = ((1.0 - self.a) * self.v + self.a * f / np.sqrt(
-                np.vdot(f, f)) * np.sqrt(np.vdot(self.v, self.v)))
+            v_mix = ((1.0 - self.a) * self.v + self.a * gradient / np.sqrt(
+                np.vdot(gradient, gradient)) * np.sqrt(np.vdot(self.v,
+                                                               self.v)))
             self.v = abc_multiplier * v_mix
 
             def clip_velocity(vel):
@@ -207,8 +207,9 @@ class FIRE2(Optimizer):
                 assert abs(v1 - v2).max() < 1e-12
             self.v = v1
         else:
-            self.v = ((1.0 - self.a) * self.v + self.a * f / np.sqrt(
-                np.vdot(f, f)) * np.sqrt(np.vdot(self.v, self.v)))
+            self.v = ((1.0 - self.a) * self.v + self.a * gradient / np.sqrt(
+                np.vdot(gradient, gradient)) * np.sqrt(np.vdot(self.v,
+                                                               self.v)))
 
         dr = self.dt * self.v
 
