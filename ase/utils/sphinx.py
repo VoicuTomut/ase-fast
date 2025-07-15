@@ -1,5 +1,3 @@
-# fmt: off
-
 import os
 import re
 import runpy
@@ -26,7 +24,7 @@ def mol_role(role, rawtext, text, lineno, inliner, options={}, content=[]):
                 raise RuntimeError('Expected one or more digits after "_"')
             digits = m.group()
             n.append(nodes.subscript(text=digits))
-            text = text[1 + len(digits):]
+            text = text[1 + len(digits) :]
         else:
             t += text[0]
             text = text[1:]
@@ -34,9 +32,9 @@ def mol_role(role, rawtext, text, lineno, inliner, options={}, content=[]):
     return n, []
 
 
-def git_role_tmpl(urlroot,
-                  role,
-                  rawtext, text, lineno, inliner, options={}, content=[]):
+def git_role_tmpl(
+    urlroot, role, rawtext, text, lineno, inliner, options={}, content=[]
+):
     env = inliner.document.settings.env
     srcdir = Path(env.srcdir)
     project_root = srcdir.parent
@@ -45,15 +43,15 @@ def git_role_tmpl(urlroot,
 
     if text[-1] == '>':
         i = text.index('<')
-        name = text[:i - 1]
-        text = text[i + 1:-1]
+        name = text[: i - 1]
+        text = text[i + 1 : -1]
     else:
         name = text
         if name[0] == '~':
             name = name.split('/')[-1]
             text = text[1:]
         if '?' in name:
-            name = name[:name.index('?')]
+            name = name[: name.index('?')]
 
     # Check if the link is broken
     is_tag = text.startswith('..')  # Tags are like :git:`3.19.1 <../3.19.1>`
@@ -66,15 +64,21 @@ def git_role_tmpl(urlroot,
         return [prb], [msg]
     ref = urlroot + text
     set_classes(options)
-    node = nodes.reference(rawtext, name, refuri=ref,
-                           **options)
+    node = nodes.reference(rawtext, name, refuri=ref, **options)
     return [node], []
 
 
 def git_role(role, rawtext, text, lineno, inliner, options={}, content=[]):
-    return git_role_tmpl('https://gitlab.com/ase/ase/blob/master/',
-                         role,
-                         rawtext, text, lineno, inliner, options, content)
+    return git_role_tmpl(
+        'https://gitlab.com/ase/ase/blob/master/',
+        role,
+        rawtext,
+        text,
+        lineno,
+        inliner,
+        options,
+        content,
+    )
 
 
 def setup(app):
@@ -102,8 +106,9 @@ def creates():
                 outnames = []
                 for line in lines:
                     if line.startswith('# creates:'):
-                        outnames.extend([file.rstrip(',')
-                                         for file in line.split()[2:]])
+                        outnames.extend(
+                            [file.rstrip(',') for file in line.split()[2:]]
+                        )
                     else:
                         break
                 if outnames:
@@ -112,6 +117,7 @@ def creates():
 
 def create_png_files(raise_exceptions=False):
     from ase.utils import workdir
+
     try:
         check_call(['povray', '-h'], stderr=DEVNULL)
     except (FileNotFoundError, CalledProcessError):
@@ -120,12 +126,18 @@ def create_png_files(raise_exceptions=False):
         from ase.io import pov
         from ase.io.png import write_png
 
-        def write_pov(filename, atoms,
-                      povray_settings={}, isosurface_data=None,
-                      **generic_projection_settings):
-
-            write_png(Path(filename).with_suffix('.png'), atoms,
-                      **generic_projection_settings)
+        def write_pov(
+            filename,
+            atoms,
+            povray_settings={},
+            isosurface_data=None,
+            **generic_projection_settings,
+        ):
+            write_png(
+                Path(filename).with_suffix('.png'),
+                atoms,
+                **generic_projection_settings,
+            )
 
             class DummyRenderer:
                 def render(self):
@@ -153,6 +165,7 @@ def create_png_files(raise_exceptions=False):
             print('running:', path)
             with workdir(dir):
                 import matplotlib.pyplot as plt
+
                 plt.figure()
                 try:
                     runpy.run_path(pyname)
@@ -182,6 +195,7 @@ def clean():
 def visual_inspection():
     """Manually inspect generated files."""
     import subprocess
+
     images = []
     text = []
     pdf = []
@@ -202,9 +216,14 @@ def visual_inspection():
 
 if __name__ == '__main__':
     import argparse
+
     parser = argparse.ArgumentParser(description='Process generated files.')
-    parser.add_argument('command', nargs='?', default='list',
-                        choices=['list', 'inspect', 'clean', 'run'])
+    parser.add_argument(
+        'command',
+        nargs='?',
+        default='list',
+        choices=['list', 'inspect', 'clean', 'run'],
+    )
     args = parser.parse_args()
     if args.command == 'clean':
         clean()

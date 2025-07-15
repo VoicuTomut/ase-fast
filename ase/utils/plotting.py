@@ -1,5 +1,3 @@
-# fmt: off
-
 from typing import Any, Optional
 
 import matplotlib.pyplot as plt
@@ -7,10 +5,12 @@ from matplotlib.axes import Axes
 
 
 class SimplePlottingAxes:
-    def __init__(self,
-                 ax: Optional[Axes] = None,
-                 show: bool = False,
-                 filename: str = None) -> None:
+    def __init__(
+        self,
+        ax: Optional[Axes] = None,
+        show: bool = False,
+        filename: str = None,
+    ) -> None:
         self.ax = ax
         self.show = show
         self.filename = filename
@@ -28,8 +28,9 @@ class SimplePlottingAxes:
         if exc_type is None:
             # If there was no exception, display/write the plot as appropriate
             if self.figure is None:
-                raise Exception("Something went wrong initializing matplotlib "
-                                "figure")
+                raise Exception(
+                    'Something went wrong initializing matplotlib figure'
+                )
             if self.show:
                 self.figure.show()
             if self.filename is not None:

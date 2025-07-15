@@ -1,7 +1,6 @@
-# fmt: off
-
 """Determine symmetry equivalence of two structures.
 Based on the recipe from Comput. Phys. Commun. 183, 690-697 (2012)."""
+
 from collections import Counter
 from itertools import combinations, filterfalse, product
 
@@ -96,8 +95,15 @@ class SymmetryEquivalenceCheck:
 
     """
 
-    def __init__(self, angle_tol=1.0, ltol=0.05, stol=0.05, vol_tol=0.1,
-                 scale_volume=False, to_primitive=False):
+    def __init__(
+        self,
+        angle_tol=1.0,
+        ltol=0.05,
+        stol=0.05,
+        vol_tol=0.1,
+        scale_volume=False,
+        to_primitive=False,
+    ):
         self.angle_tol = angle_tol * np.pi / 180.0  # convert to radians
         self.scale_volume = scale_volume
         self.stol = stol
@@ -132,13 +138,13 @@ class SymmetryEquivalenceCheck:
         cell = atoms.get_cell().T
         total_rot_mat = np.eye(3)
         v1 = cell[:, 0]
-        l1 = np.sqrt(v1[0]**2 + v1[2]**2)
+        l1 = np.sqrt(v1[0] ** 2 + v1[2] ** 2)
         angle = np.abs(np.arcsin(v1[2] / l1))
-        if (v1[0] < 0.0 and v1[2] > 0.0):
+        if v1[0] < 0.0 and v1[2] > 0.0:
             angle = np.pi - angle
-        elif (v1[0] < 0.0 and v1[2] < 0.0):
+        elif v1[0] < 0.0 and v1[2] < 0.0:
             angle = np.pi + angle
-        elif (v1[0] > 0.0 and v1[2] < 0.0):
+        elif v1[0] > 0.0 and v1[2] < 0.0:
             angle = -angle
         ca = np.cos(angle)
         sa = np.sin(angle)
@@ -147,13 +153,13 @@ class SymmetryEquivalenceCheck:
         cell = rotmat.dot(cell)
 
         v1 = cell[:, 0]
-        l1 = np.sqrt(v1[0]**2 + v1[1]**2)
+        l1 = np.sqrt(v1[0] ** 2 + v1[1] ** 2)
         angle = np.abs(np.arcsin(v1[1] / l1))
-        if (v1[0] < 0.0 and v1[1] > 0.0):
+        if v1[0] < 0.0 and v1[1] > 0.0:
             angle = np.pi - angle
-        elif (v1[0] < 0.0 and v1[1] < 0.0):
+        elif v1[0] < 0.0 and v1[1] < 0.0:
             angle = np.pi + angle
-        elif (v1[0] > 0.0 and v1[1] < 0.0):
+        elif v1[0] > 0.0 and v1[1] < 0.0:
             angle = -angle
         ca = np.cos(angle)
         sa = np.sin(angle)
@@ -163,13 +169,13 @@ class SymmetryEquivalenceCheck:
 
         # Rotate around x axis such that the second vector is in the xy plane
         v2 = cell[:, 1]
-        l2 = np.sqrt(v2[1]**2 + v2[2]**2)
+        l2 = np.sqrt(v2[1] ** 2 + v2[2] ** 2)
         angle = np.abs(np.arcsin(v2[2] / l2))
-        if (v2[1] < 0.0 and v2[2] > 0.0):
+        if v2[1] < 0.0 and v2[2] > 0.0:
             angle = np.pi - angle
-        elif (v2[1] < 0.0 and v2[2] < 0.0):
+        elif v2[1] < 0.0 and v2[2] < 0.0:
             angle = np.pi + angle
-        elif (v2[1] > 0.0 and v2[2] < 0.0):
+        elif v2[1] > 0.0 and v2[2] < 0.0:
             angle = -angle
         ca = np.cos(angle)
         sa = np.sin(angle)
@@ -225,7 +231,7 @@ class SymmetryEquivalenceCheck:
         v1 = np.linalg.det(self.s1.get_cell())
 
         # Scale the cells
-        coordinate_scaling = (v1 / v2)**(1.0 / 3.0)
+        coordinate_scaling = (v1 / v2) ** (1.0 / 3.0)
         cell2 *= coordinate_scaling
         self.s2.set_cell(cell2, scale_atoms=True)
 
@@ -309,14 +315,14 @@ class SymmetryEquivalenceCheck:
                 # transposed version of the matrices to map atoms the
                 # other way
                 if transposed_matrices is None:
-                    transposed_matrices = np.transpose(matrices,
-                                                       axes=[0, 2, 1])
+                    transposed_matrices = np.transpose(matrices, axes=[0, 2, 1])
                 matrices = transposed_matrices
                 translations = self._get_least_frequent_positions(self.s1)
 
             # Calculate tolerance on positions
-            self.position_tolerance = \
-                self.stol * (vol / len(self.s2))**(1.0 / 3.0)
+            self.position_tolerance = self.stol * (vol / len(self.s2)) ** (
+                1.0 / 3.0
+            )
 
             if self._positions_match(matrices, translations):
                 return True
@@ -424,17 +430,22 @@ class SymmetryEquivalenceCheck:
         expanded_atoms = ref_atoms.copy()
 
         # Calculate normal vectors to the unit cell faces
-        normal_vectors = np.array([np.cross(cell[1, :], cell[2, :]),
-                                   np.cross(cell[0, :], cell[2, :]),
-                                   np.cross(cell[0, :], cell[1, :])])
+        normal_vectors = np.array(
+            [
+                np.cross(cell[1, :], cell[2, :]),
+                np.cross(cell[0, :], cell[2, :]),
+                np.cross(cell[0, :], cell[1, :]),
+            ]
+        )
         normalize(normal_vectors)
 
         # Get the distance to the unit cell faces from each atomic position
         pos2faces = np.abs(positions.dot(normal_vectors.T))
 
         # And the opposite faces
-        pos2oppofaces = np.abs(np.dot(positions - np.sum(cell, axis=0),
-                                      normal_vectors.T))
+        pos2oppofaces = np.abs(
+            np.dot(positions - np.sum(cell, axis=0), normal_vectors.T)
+        )
 
         for i, i2face in enumerate(pos2faces):
             # Append indices for positions close to the other faces
@@ -508,7 +519,7 @@ class SymmetryEquivalenceCheck:
 
         # Additional vector that is added to make sure that
         # there always is an atom at the origin
-        delta_vec = 1E-6 * cell_diag
+        delta_vec = 1e-6 * cell_diag
 
         # Store three reference vectors and their lengths
         ref_vec = self.s2.get_cell()
@@ -531,9 +542,9 @@ class SymmetryEquivalenceCheck:
         candidate_indices = []
         rtol = self.ltol / len(self.s1)
         for k in range(3):
-            correct_lengths_mask = np.isclose(lengths,
-                                              ref_vec_lengths[k],
-                                              rtol=rtol, atol=0)
+            correct_lengths_mask = np.isclose(
+                lengths, ref_vec_lengths[k], rtol=rtol, atol=0
+            )
             # The first vector is not interesting
             correct_lengths_mask[0] = False
 
@@ -558,9 +569,9 @@ class SymmetryEquivalenceCheck:
 
         # Calculate the dot product divided by the lengths:
         # cos(angle) = dot(vec1, vec2) / |vec1| |vec2|
-        cosa = np.inner(new_sc_pos[aci],
-                        new_sc_pos[aci]) / np.outer(lengths[aci],
-                                                    lengths[aci])
+        cosa = np.inner(new_sc_pos[aci], new_sc_pos[aci]) / np.outer(
+            lengths[aci], lengths[aci]
+        )
         # Make sure the inverse cosine will work
         cosa[cosa > 1] = 1
         cosa[cosa < -1] = -1
@@ -573,11 +584,16 @@ class SymmetryEquivalenceCheck:
         # that there are no duplicate candidates. product is the same as
         # nested for loops.
         refined_candidate_list = []
-        for p in filterfalse(self._equal_elements_in_array,
-                             product(*candidate_indices)):
-            a = np.array([angles[i2ang[p[0]], i2ang[p[1]]],
-                          angles[i2ang[p[0]], i2ang[p[2]]],
-                          angles[i2ang[p[1]], i2ang[p[2]]]])
+        for p in filterfalse(
+            self._equal_elements_in_array, product(*candidate_indices)
+        ):
+            a = np.array(
+                [
+                    angles[i2ang[p[0]], i2ang[p[1]]],
+                    angles[i2ang[p[0]], i2ang[p[2]]],
+                    angles[i2ang[p[1]], i2ang[p[2]]],
+                ]
+            )
 
             if np.allclose(a, ref_angles, atol=angle_tol, rtol=0):
                 refined_candidate_list.append(new_sc_pos[np.array(p)].T)
@@ -600,18 +616,16 @@ class SymmetryEquivalenceCheck:
         try:
             import spglib
         except ImportError:
-            raise SpgLibNotFoundError(
-                "SpgLib is required if to_primitive=True")
+            raise SpgLibNotFoundError('SpgLib is required if to_primitive=True')
         cell = (structure.get_cell()).tolist()
         pos = structure.get_scaled_positions().tolist()
         numbers = structure.get_atomic_numbers()
 
         cell, scaled_pos, numbers = spglib.standardize_cell(
-            (cell, pos, numbers), to_primitive=True)
+            (cell, pos, numbers), to_primitive=True
+        )
 
         atoms = Atoms(
-            scaled_positions=scaled_pos,
-            numbers=numbers,
-            cell=cell,
-            pbc=True)
+            scaled_positions=scaled_pos, numbers=numbers, cell=cell, pbc=True
+        )
         return atoms
