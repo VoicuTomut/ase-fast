@@ -74,7 +74,7 @@ class LBFGS(Optimizer):
             :class:`~ase.optimize.optimize.Optimizer`.
 
         """
-        Optimizer.__init__(self, atoms, restart, logfile, trajectory, **kwargs)
+        super().__init__(atoms, restart, logfile, trajectory, **kwargs)
 
         if maxstep is not None:
             self.maxstep = maxstep
@@ -151,7 +151,7 @@ class LBFGS(Optimizer):
         # ##
 
         g = -forces
-        if self.use_line_search is True:
+        if self.use_line_search:
             e = self.func(pos)
             self.line_search(pos, g, e)
             dr = self.alpha_k * self.p
@@ -252,4 +252,4 @@ class LBFGSLineSearch(LBFGS):
 
     def __init__(self, *args, **kwargs):
         kwargs['use_line_search'] = True
-        LBFGS.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
