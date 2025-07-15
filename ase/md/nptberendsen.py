@@ -156,7 +156,7 @@ class NPTBerendsen(NVTBerendsen):
         cell = scl_pressure * cell
         self.atoms.set_cell(cell, scale_atoms=True)
 
-    def step(self, forces=None):
+    def step(self):
         """ move one timestep forward using Berenden NPT molecular dynamics."""
 
         NVTBerendsen.scale_velocities(self)
@@ -164,9 +164,7 @@ class NPTBerendsen(NVTBerendsen):
 
         # one step velocity verlet
         atoms = self.atoms
-
-        if forces is None:
-            forces = atoms.get_forces(md=True)
+        forces = atoms.get_forces(md=True)
 
         p = self.atoms.get_momenta()
         p += 0.5 * self.dt * forces

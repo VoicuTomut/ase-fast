@@ -108,7 +108,7 @@ class Bussi(VelocityVerlet):
             * math.sqrt(self._exp_term * energy_scaling_term)
         )
 
-    def step(self, forces=None):
+    def step(self):
         """Move one timestep forward using Bussi NVT molecular dynamics."""
         self.scale_velocities()
-        return super().step(forces)
+        return super().step()

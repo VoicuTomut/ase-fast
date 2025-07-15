@@ -105,11 +105,9 @@ class BFGSLineSearch(Optimizer):
         self.e0 = None
         self.rep_count = 0
 
-    def step(self, forces=None):
+    def step(self):
         optimizable = self.optimizable
-
-        if forces is None:
-            forces = optimizable.get_gradient().reshape(-1, 3)
+        forces = optimizable.get_gradient().reshape(-1, 3)
 
         r = optimizable.get_x()
         g = -forces.reshape(-1) / self.alpha

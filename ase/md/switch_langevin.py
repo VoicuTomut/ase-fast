@@ -76,11 +76,9 @@ class SwitchLangevin(Langevin):
 
     def run(self):
         """ Run the MD switching simulation """
-        forces = self.atoms.get_forces(md=True)
-
         # run equilibration with calc1
         for _ in range(self.n_eq):
-            forces = self.step(forces)
+            self.step()
             self.nsteps += 1
             self.call_observers()
 
@@ -94,7 +92,7 @@ class SwitchLangevin(Langevin):
             self.atoms.calc.set_weights(1 - self.lam, self.lam)
 
             # carry out md step
-            forces = self.step(forces)
+            self.step()
             self.nsteps += 1
 
             # collect data

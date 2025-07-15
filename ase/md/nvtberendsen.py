@@ -108,15 +108,13 @@ class NVTBerendsen(MolecularDynamics):
         self.atoms.set_momenta(p)
         return
 
-    def step(self, forces=None):
+    def step(self):
         """Move one timestep forward using Berenden NVT molecular dynamics."""
         self.scale_velocities()
 
         # one step velocity verlet
         atoms = self.atoms
-
-        if forces is None:
-            forces = atoms.get_forces(md=True)
+        forces = atoms.get_forces(md=True)
 
         p = self.atoms.get_momenta()
         p += 0.5 * self.dt * forces

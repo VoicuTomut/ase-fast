@@ -91,11 +91,9 @@ class Andersen(MolecularDynamics):
         velos = self.boltzmann_random(width, size=(natoms, 3))
         return velos  # [[x, y, z],] components for each atom
 
-    def step(self, forces=None):
+    def step(self):
         atoms = self.atoms
-
-        if forces is None:
-            forces = atoms.get_forces(md=True)
+        forces = atoms.get_forces(md=True)
 
         self.v = atoms.get_velocities()
 
