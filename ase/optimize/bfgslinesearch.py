@@ -92,7 +92,7 @@ class BFGSLineSearch(Optimizer):
         self.no_update = False
         self.replay = False
 
-        Optimizer.__init__(self, atoms, restart, logfile, trajectory, **kwargs)
+        super().__init__(atoms, restart, logfile, trajectory, **kwargs)
 
     def read(self):
         self.r0, self.g0, self.e0, self.task, self.H = self.load()

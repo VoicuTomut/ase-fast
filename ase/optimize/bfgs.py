@@ -72,10 +72,11 @@ class BFGS(Optimizer):
         self.alpha = alpha
         if self.alpha is None:
             self.alpha = self.defaults['alpha']
-        Optimizer.__init__(self, atoms=atoms, restart=restart,
-                           logfile=logfile, trajectory=trajectory,
-                           append_trajectory=append_trajectory,
-                           **kwargs)
+        super().__init__(
+            atoms=atoms, restart=restart,
+            logfile=logfile, trajectory=trajectory,
+            append_trajectory=append_trajectory,
+            **kwargs)
 
     def initialize(self):
         # initial hessian

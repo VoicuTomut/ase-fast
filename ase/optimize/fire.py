@@ -134,7 +134,7 @@ class FIRE(Optimizer):
             Use of ``maxmove`` is deprecated; please use ``maxstep``.
 
         """
-        Optimizer.__init__(self, atoms, restart, logfile, trajectory, **kwargs)
+        super().__init__(atoms, restart, logfile, trajectory, **kwargs)
 
         self.dt = dt
 

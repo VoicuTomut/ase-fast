@@ -116,7 +116,7 @@ class FIRE2(Optimizer):
             :class:`~ase.optimize.optimize.Optimizer`.
 
        """
-        Optimizer.__init__(self, atoms, restart, logfile, trajectory, **kwargs)
+        super().__init__(atoms, restart, logfile, trajectory, **kwargs)
 
         self.dt = dt
 
