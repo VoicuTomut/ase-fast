@@ -163,13 +163,13 @@ class FIRE(Optimizer):
 
     def step(self):
         optimizable = self.optimizable
-        f = optimizable.get_gradient().reshape(-1, 3)
+        f = optimizable.get_gradient()
 
         if self.v is None:
-            self.v = np.zeros(optimizable.ndofs()).reshape(-1, 3)
+            self.v = np.zeros(optimizable.ndofs())
             if self.downhill_check:
                 self.e_last = optimizable.get_value()
-                self.r_last = optimizable.get_x().reshape(-1, 3).copy()
+                self.r_last = optimizable.get_x()
                 self.v_last = self.v.copy()
         else:
             is_uphill = False
@@ -182,10 +182,10 @@ class FIRE(Optimizer):
                         self.position_reset_callback(
                             optimizable, self.r_last, e,
                             self.e_last)
-                    optimizable.set_x(self.r_last.ravel())
+                    optimizable.set_x(self.r_last)
                     is_uphill = True
                 self.e_last = optimizable.get_value()
-                self.r_last = optimizable.get_x().reshape(-1, 3).copy()
+                self.r_last = optimizable.get_x()
                 self.v_last = self.v.copy()
 
             vf = np.vdot(f, self.v)
@@ -207,6 +207,6 @@ class FIRE(Optimizer):
         normdr = np.sqrt(np.vdot(dr, dr))
         if normdr > self.maxstep:
             dr = self.maxstep * dr / normdr
-        r = optimizable.get_x().reshape(-1, 3)
-        optimizable.set_x((r + dr).ravel())
+        r = optimizable.get_x()
+        optimizable.set_x(r + dr)
         self.dump((self.v, self.dt))

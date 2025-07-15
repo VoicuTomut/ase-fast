@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 
 from ase.utils.abc import Optimizable
+from ase.optimize import BFGS, FIRE
 
 
 class BoothFunctionOptimizable(Optimizable):
@@ -42,14 +43,13 @@ class BoothFunctionOptimizable(Optimizable):
         return np.linalg.norm(gradient)
 
 
-def test_booth():
-    from ase.optimize.bfgs import BFGS
-
+@pytest.mark.parametrize('optcls', [BFGS, FIRE])
+def test_booth(optcls):
     x0 = [1.234, 2.345]
     target = BoothFunctionOptimizable(x0)
 
     eps = 1e-8
-    with BFGS(target) as opt:
+    with optcls(target) as opt:
         opt.run(fmax=eps)
 
     assert target.xy == pytest.approx([1, 3], abs=eps)
