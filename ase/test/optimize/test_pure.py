@@ -1,8 +1,8 @@
 import numpy as np
 import pytest
 
-from ase.utils.abc import Optimizable
 from ase.optimize import BFGS, FIRE
+from ase.utils.abc import Optimizable
 
 
 class BoothFunctionOptimizable(Optimizable):
