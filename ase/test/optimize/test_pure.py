@@ -51,7 +51,7 @@ optimizers = [
     'FIRE2',
     'LBFGS',
     'LBFGSLineSearch',
-    # 'GoodOldQuasiNewton',
+    'GoodOldQuasiNewton',
     # 'GPMin',
     # 'ODE12r',
 ]
