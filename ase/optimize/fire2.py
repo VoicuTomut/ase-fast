@@ -179,21 +179,33 @@ class FIRE2(Optimizer):
                 np.vdot(f, f)) * np.sqrt(np.vdot(self.v, self.v)))
             self.v = abc_multiplier * v_mix
 
+            def clip_velocity(vel):
+                max_velocity = self.maxstep / self.dt
+                return vel.clip(-max_velocity, max_velocity)
+
+            def old_clip_velocity(v):
+                # Original implementation of clip_velocity(), can we remove?
+                v = v.reshape(-1, 3)
+                v_tmp = []
+                for car_dir in range(3):
+                    v_i = np.where(
+                        np.abs(v[:, car_dir]) * self.dt > self.maxstep,
+                        (self.maxstep / self.dt) *
+                        (v[:, car_dir] / np.abs(v[:, car_dir])),
+                        v[:, car_dir])
+                    v_tmp.append(v_i)
+                return np.array(v_tmp).T.ravel()
+
             # Verifying if the maximum distance an atom
             #  moved is larger than maxstep, for ABC-FIRE the check
             #  is done independently for each cartesian direction
-            if np.all(self.v):
-                v_tmp = []
-                for car_dir in range(3):
-                    v_i = np.where(np.abs(self.v[:, car_dir]) *
-                                   self.dt > self.maxstep,
-                                   (self.maxstep / self.dt) *
-                                   (self.v[:, car_dir] /
-                                   np.abs(self.v[:, car_dir])),
-                                   self.v[:, car_dir])
-                    v_tmp.append(v_i)
-                self.v = np.array(v_tmp).T
-
+            #
+            # Make sure old and new clip_velocity() agree:
+            v1 = clip_velocity(self.v)
+            if np.all(self.v) and len(self.v) % 3 == 0:
+                v2 = old_clip_velocity(self.v)
+                assert abs(v1 - v2).max() < 1e-12
+            self.v = v1
         else:
             self.v = ((1.0 - self.a) * self.v + self.a * f / np.sqrt(
                 np.vdot(f, f)) * np.sqrt(np.vdot(self.v, self.v)))
