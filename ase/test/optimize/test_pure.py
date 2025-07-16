@@ -1,14 +1,12 @@
 import numpy as np
 import pytest
 
-from ase.utils.abc import Optimizable
 import ase.optimize
 from ase.optimize.sciopt import (
-    SciPyFminCG,
     SciPyFminBFGS,
-    SciPyFmin,
-    SciPyFminPowell,
+    SciPyFminCG,
 )
+from ase.utils.abc import Optimizable
 
 
 class BoothFunctionOptimizable(Optimizable):
@@ -59,6 +57,8 @@ optimizers = [
     'LBFGSLineSearch',
     'GoodOldQuasiNewton',
     # 'GPMin',
+    # Maybe we should not test GPMin.  It probably needs a lot of knowledge
+    # and might not well suited for generic problems.
     'ODE12r',
     SciPyFminCG,
     SciPyFminBFGS,

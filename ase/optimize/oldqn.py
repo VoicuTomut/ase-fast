@@ -421,7 +421,6 @@ class GoodOldQuasiNewton(Optimizer):
 
     def get_hessian_inertia(self, eigenvalues):
         # return number of negative modes
-        first_eigs = eigenvalues[:3]
         txt = ' '.join(f'{eig:2.2f}' for eig in eigenvalues[:3])
         self.write_log(f'eigenvalues {txt}')
         n = 0
