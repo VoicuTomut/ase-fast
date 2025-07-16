@@ -236,7 +236,7 @@ class LBFGS(Optimizer):
         p_size = np.sqrt((self.p**2).sum())
         if p_size <= np.sqrt(self.optimizable.ndofs() / 3 * 1e-10):
             self.p /= (p_size / np.sqrt(self.optimizable.ndofs() / 3 * 1e-10))
-        ls = LineSearch()
+        ls = LineSearch(get_gradient_norm=self.optimizable.gradient_norm)
         self.alpha_k, e, self.e0, self.no_update = \
             ls._line_search(self.func, self.fprime, r, self.p, g, e, self.e0,
                             maxstep=self.maxstep, c1=.23,
