@@ -3,6 +3,12 @@ import pytest
 
 from ase.utils.abc import Optimizable
 import ase.optimize
+from ase.optimize.sciopt import (
+    SciPyFminCG,
+    SciPyFminBFGS,
+    SciPyFmin,
+    SciPyFminPowell,
+)
 
 
 class BoothFunctionOptimizable(Optimizable):
@@ -53,7 +59,9 @@ optimizers = [
     'LBFGSLineSearch',
     'GoodOldQuasiNewton',
     # 'GPMin',
-    # 'ODE12r',
+    'ODE12r',
+    SciPyFminCG,
+    SciPyFminBFGS,
 ]
 
 
@@ -63,7 +71,11 @@ def test_booth(optname):
     target = BoothFunctionOptimizable(x0)
 
     eps = 1e-8
-    optcls = getattr(ase.optimize, optname)
+    if isinstance(optname, str):
+        optcls = getattr(ase.optimize, optname)
+    else:
+        optcls = optname
+
     with optcls(target) as opt:
         opt.run(fmax=eps)
 

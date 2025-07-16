@@ -194,8 +194,8 @@ class ODE12r(SciPyOptimizer):
         rtol: float = 1e-2,
         **kwargs,
     ):
-        SciPyOptimizer.__init__(self, atoms, logfile, trajectory,
-                                callback_always, alpha, **kwargs)
+        super().__init__(atoms, logfile, trajectory,
+                         callback_always, alpha, **kwargs)
         self._actual_atoms = atoms
         from ase.optimize.precon.precon import make_precon  # avoid circular dep
         self.precon = make_precon(precon)
@@ -203,7 +203,7 @@ class ODE12r(SciPyOptimizer):
         self.rtol = rtol
 
     def apply_precon(self, Fn, X):
-        self._actual_atoms.set_positions(X.reshape(len(self._actual_atoms), 3))
+        self.optimizable.set_x(X)
         Fn, Rn = self.precon.apply(Fn, self._actual_atoms)
         return Fn, Rn
 
