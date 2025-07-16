@@ -47,7 +47,7 @@ class PreconFIRE(Optimizer):
         """
         if variable_cell:
             atoms = UnitCellFilter(atoms)
-        Optimizer.__init__(self, atoms, restart, logfile, trajectory, **kwargs)
+        super().__init__(atoms, restart, logfile, trajectory, **kwargs)
 
         self._actual_atoms = atoms
 
@@ -153,7 +153,7 @@ class PreconFIRE(Optimizer):
         if smax is None:
             smax = fmax
         self.smax = smax
-        return Optimizer.run(self, fmax, steps)
+        return super().run(fmax, steps)
 
     def converged(self, gradient):
         """Did the optimization converge?"""

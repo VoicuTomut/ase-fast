@@ -158,7 +158,7 @@ class GoodOldQuasiNewton(Optimizer):
 
         """
 
-        Optimizer.__init__(self, atoms, restart, logfile, trajectory, **kwargs)
+        super().__init__(atoms, restart, logfile, trajectory, **kwargs)
 
         self.eps = 1e-12
         self.hessianupdate = hessianupdate
