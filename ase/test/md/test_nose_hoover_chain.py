@@ -8,8 +8,10 @@ import ase.build
 import ase.units
 from ase import Atoms
 from ase.md.nose_hoover_chain import (
+    MTKNPT,
     IsotropicMTKBarostat,
     IsotropicMTKNPT,
+    MTKBarostat,
     NoseHooverChainNVT,
     NoseHooverChainThermostat,
 )
@@ -64,7 +66,6 @@ def test_isotropic_barostat(asap3, hcp_Cu: Atoms, pchain: int):
     timestep = 1.0 * ase.units.fs
     barostat = IsotropicMTKBarostat(
         num_atoms_global=len(atoms),
-        masses=atoms.get_masses()[:, None],
         temperature_K=1000,
         pdamp=1000 * timestep,
         pchain=pchain,
@@ -85,6 +86,43 @@ def test_isotropic_barostat(asap3, hcp_Cu: Atoms, pchain: int):
         p_eps = barostat.integrate_nhc_baro(p_eps, -0.5 * timestep)
 
     assert np.allclose(p_eps, p_eps_start, atol=1e-6)
+    assert np.allclose(barostat._xi, xi_start, atol=1e-6)
+    assert np.allclose(barostat._p_xi, p_xi_start, atol=1e-6)
+
+
+@pytest.mark.parametrize("pchain", [1, 3])
+def test_anisotropic_barostat(asap3, hcp_Cu: Atoms, pchain: int):
+    atoms = hcp_Cu.copy()
+    atoms.calc = asap3.EMT()
+
+    timestep = 1.0 * ase.units.fs
+    barostat = MTKBarostat(
+        num_atoms_global=len(atoms),
+        temperature_K=1000,
+        pdamp=1000 * timestep,
+        pchain=pchain,
+    )
+
+    rng = np.random.default_rng(0)
+    p_g = rng.standard_normal((3, 3))
+    p_g = 0.5 * (p_g + p_g.T)
+
+    n = 1000
+    p_g_start = p_g.copy()
+    xi_start = barostat._xi.copy()
+    p_xi_start = barostat._p_xi.copy()
+
+    for _ in range(n):
+        p_g = barostat.integrate_nhc_baro(p_g, timestep)
+    # extended variables should be updated by n * timestep
+    assert not np.allclose(p_g, p_g_start, atol=1e-6)
+    assert not np.allclose(barostat._xi, xi_start, atol=1e-6)
+    assert not np.allclose(barostat._p_xi, p_xi_start, atol=1e-6)
+
+    for _ in range(2 * n):
+        p_g = barostat.integrate_nhc_baro(p_g, -0.5 * timestep)
+    # Now, the extended variables should be back to the initial state
+    assert np.allclose(p_g, p_g_start, atol=1e-6)
     assert np.allclose(barostat._xi, xi_start, atol=1e-6)
     assert np.allclose(barostat._p_xi, p_xi_start, atol=1e-6)
 
@@ -148,3 +186,35 @@ def test_isotropic_mtk_npt(asap3, hcp_Cu: Atoms, tchain: int, pchain: int):
     conserved_energy2 = md.get_conserved_energy()
     assert np.allclose(np.sum(atoms.get_momenta(), axis=0), 0.0)
     assert np.isclose(conserved_energy1, conserved_energy2, atol=1e-3)
+
+
+@pytest.mark.parametrize("tchain", [1, 3])
+@pytest.mark.parametrize("pchain", [1, 3])
+def test_anisotropic_npt(asap3, hcp_Cu: Atoms, tchain: int, pchain: int):
+    atoms = hcp_Cu.copy()
+    atoms.calc = asap3.EMT()
+
+    temperature_K = 300
+    rng = np.random.default_rng(0)
+    MaxwellBoltzmannDistribution(
+        atoms,
+        temperature_K=temperature_K, force_temp=True, rng=rng
+    )
+    Stationary(atoms)
+
+    timestep = 1.0 * ase.units.fs
+    md = MTKNPT(
+        atoms,
+        timestep=timestep,
+        temperature_K=temperature_K,
+        pressure_au=10.0 * ase.units.GPa,
+        tdamp=100 * timestep,
+        pdamp=1000 * timestep,
+    )
+    conserved_energy1 = md.get_conserved_energy()
+    positions1 = atoms.get_positions().copy()
+    md.run(100)
+    conserved_energy2 = md.get_conserved_energy()
+    assert np.allclose(np.sum(atoms.get_momenta(), axis=0), 0.0)
+    assert np.isclose(conserved_energy1, conserved_energy2, atol=1e-3)
+    assert not np.allclose(atoms.get_positions(), positions1, atol=1e-6)
