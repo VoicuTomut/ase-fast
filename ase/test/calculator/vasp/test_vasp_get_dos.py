@@ -11,7 +11,7 @@ def test_vasp_Si_get_dos(factory):
     """
     Run VASP tests to ensure that the get_dos function works properly.
     This test is corresponding to the tutorial:
-    https://wiki.fysik.dtu.dk/ase/ase/calculators/vasp.html#density-of-states
+    https://ase-lib.org/ase/calculators/vasp.html#density-of-states
     This is conditional on the existence of the VASP_COMMAND or VASP_SCRIPT
     environment variables.
 

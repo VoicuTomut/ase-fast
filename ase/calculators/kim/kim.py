@@ -88,7 +88,7 @@ def KIM(model_name, simulator=None, options=None, debug=False):
           model to run with multiple concurrent threads. (Default: False)
 
         See the ASE LAMMPS calculators doc page
-        (https://wiki.fysik.dtu.dk/ase/ase/calculators/lammps.html) for
+        (https://ase-lib.org/ase/calculators/lammps.html) for
         available options for the lammpslib and lammpsrun calculators.
 
     debug : bool, optional

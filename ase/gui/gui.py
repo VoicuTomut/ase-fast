@@ -653,4 +653,4 @@ class GUI(View):
 
 def webpage():
     import webbrowser
-    webbrowser.open('https://wiki.fysik.dtu.dk/ase/ase/gui/gui.html')
+    webbrowser.open('https://ase-lib.org/ase/gui/gui.html')
