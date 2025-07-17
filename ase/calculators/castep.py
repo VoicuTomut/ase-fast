@@ -1,7 +1,7 @@
 # fmt: off
 
 """This module defines an interface to CASTEP for
-    use by the ASE (Webpage: http://wiki.fysik.dtu.dk/ase)
+    use by the ASE (Webpage: https://ase-lib.org/)
 
 Authors:
     Max Hoffmann, max.hoffmann@ch.tum.de
