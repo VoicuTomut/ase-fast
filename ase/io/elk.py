@@ -93,7 +93,9 @@ def write_elk_in(fd, atoms, parameters=None):
         parameters = {}
 
     parameters = dict(parameters)
+
     species_path = parameters.pop('species_dir', None)
+    species_path = parameters.pop('sppath', species_path)
 
     if parameters.get('spinpol') is None:
         if atoms.get_initial_magnetic_moments().any():
@@ -202,13 +204,13 @@ def write_elk_in(fd, atoms, parameters=None):
         for a, m in species[symbol]:
             fd.write('%.14f %.14f %.14f 0.0 0.0 %.14f\n' %
                      (tuple(scaled[a]) + (m,)))
-
-    # if sppath is present in elk.in it overwrites species blocks!
+    fd.write('\n')
 
     # Elk seems to concatenate path and filename in such a way
     # that we must put a / at the end:
     if species_path is not None:
-        fd.write(f"sppath\n'{species_path}/'\n\n")
+        fd.write('sppath\n')
+        fd.write(f"'{species_path.rstrip('/')}/'\n\n")
 
 
 class ElkReader:
