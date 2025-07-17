@@ -38,9 +38,9 @@ have a look at the :class:`~ase.calculators.dftb.PointChargePotential`
 classes in any of the calculators above.
 
 .. _GPAW: https://gpaw.readthedocs.io/
-.. _DFTBplus: https://wiki.fysik.dtu.dk/ase/ase/calculators/dftb.html
-.. _CRYSTAL: https://wiki.fysik.dtu.dk/ase/ase/calculators/crystal.html
-.. _TURBOMOLE: https://wiki.fysik.dtu.dk/ase/ase/calculators/turbomole.html
+.. _DFTBplus: https://ase-lib.org/ase/calculators/dftb.html
+.. _CRYSTAL: https://ase-lib.org/ase/calculators/crystal.html
+.. _TURBOMOLE: https://ase-lib.org/ase/calculators/turbomole.html
 
 You might also be interested in the solvent MM potentials included in ASE.
 The tutorial on :ref:`tipnp water box equilibration` could be relevant to
