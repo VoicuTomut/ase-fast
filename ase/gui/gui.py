@@ -592,10 +592,10 @@ class GUI(View):
             #    disabled=True)]),
 
             (_('_Help'),
-             [M(_('_About'), partial(ui.about, 'ASE-GUI',
-                                     version=__version__,
-                                     webpage='https://wiki.fysik.dtu.dk/'
-                                     'ase/ase/gui/gui.html')),
+             [M(_('_About'), partial(
+                 ui.about, 'ASE-GUI',
+                 version=__version__,
+                 webpage='https://ase-lib.org/ase/gui/gui.html')),
               M(_('Webpage ...'), webpage)])]
 
     def attach(self, function, *args, **kwargs):
