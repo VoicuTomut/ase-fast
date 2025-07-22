@@ -27,7 +27,7 @@ kwargs = dict(
     **boilerplate_kwargs,
 )
 
-abinit = Abinit(**kwargs)
+abinit = Abinit(directory='abinit-calc', **kwargs)
 opt = BFGS(FrechetCellFilter(atoms), trajectory='opt.traj')
 
 with abinit.socketio(unixsocket=unixsocket) as atoms.calc:
