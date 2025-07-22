@@ -3,7 +3,6 @@ from ase.calculators.abinit import Abinit
 from ase.filters import FrechetCellFilter
 from ase.optimize import BFGS
 
-
 # Modify this line to suit your needs:
 pseudopotentials = {'Si': '14-Si.LDA.fhi'}
 
