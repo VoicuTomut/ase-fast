@@ -1,4 +1,3 @@
-
 from ase.build import molecule
 from ase.calculators.espresso import Espresso
 from ase.optimize import BFGS
