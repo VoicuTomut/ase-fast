@@ -1,7 +1,6 @@
 from ase.build import bulk
 from ase.calculators.abinit import Abinit
-from ase.calculators.socketio import SocketIOCalculator
-from ase.constraints import ExpCellFilter
+from ase.filters import FrechetCellFilter
 from ase.optimize import BFGS
 
 atoms = bulk('Si')
@@ -29,8 +28,7 @@ kwargs = dict(
 )
 
 abinit = Abinit(**kwargs)
-
-opt = BFGS(ExpCellFilter(atoms), trajectory='opt.traj')
+opt = BFGS(FrechetCellFilter(atoms), trajectory='opt.traj')
 
 with abinit.socketio(unixsocket=unixsocket) as atoms.calc:
     opt.run(fmax=0.01)
