@@ -9,7 +9,6 @@ atoms = molecule('H2O')
 atoms.rattle(stdev=0.1)
 
 unixsocket = 'ase_nwchem'
-
 socket_kwargs = dict(task='optimize', driver={'socket': {'unix': unixsocket}})
 nwchem = NWChem(directory='calc-nwchem', theory='scf', **socket_kwargs)
 

@@ -3,12 +3,12 @@ from ase.calculators.abinit import Abinit
 from ase.filters import FrechetCellFilter
 from ase.optimize import BFGS
 
+
+# Modify this line to suit your needs:
+pseudopotentials = {'Si': '14-Si.LDA.fhi'}
+
 atoms = bulk('Si')
 atoms.rattle(stdev=0.1, seed=42)
-
-pseudopotentials = {'Si': '14-Si.LDA.fhi'}
-unixsocket = 'ase_abinit'
-
 
 # Implementation note: Socket-driven calculations in Abinit inherit several
 # controls for from the ordinary cell optimization code.  We have to hack those
@@ -18,7 +18,6 @@ boilerplate_kwargs = dict(
     ntime=100_000,  # Allow "infinitely" many iterations in Abinit
     ecutsm=0.5,  # Smoothing PW cutoff energy (mandatory for cell optimization)
 )
-
 
 kwargs = dict(
     ecut=5 * 27.3,
@@ -30,5 +29,5 @@ kwargs = dict(
 abinit = Abinit(directory='abinit-calc', **kwargs)
 opt = BFGS(FrechetCellFilter(atoms), trajectory='opt.traj')
 
-with abinit.socketio(unixsocket=unixsocket) as atoms.calc:
+with abinit.socketio(unixsocket='ase-abinit') as atoms.calc:
     opt.run(fmax=0.01)
