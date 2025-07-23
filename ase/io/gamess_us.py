@@ -195,6 +195,7 @@ def read_gamess_us_punch(fd):
     atoms = None
     energy = None
     forces = None
+    charges = None
     dipole = None
     for line in fd:
         if line.strip() == '$DATA':
@@ -213,6 +214,11 @@ def read_gamess_us_punch(fd):
             atoms = Atoms(symbols, np.array(pos))
         elif line.startswith('E('):
             energy = float(line.split()[1][:-1]) * Hartree
+        elif line.strip().startswith('POPULATION ANALYSIS'):
+            # Mulliken charges
+            charges = np.array(
+                [float(fd.readline().split()[2]) for _ in symbols],
+            )
         elif line.strip().startswith('DIPOLE'):
             dipole = np.array(list(map(float, line.split()[1:]))) * Debye
         elif line.strip() == '$GRAD':
@@ -231,7 +237,11 @@ def read_gamess_us_punch(fd):
             forces = -np.array(grad) * Hartree / Bohr
 
     atoms.calc = SinglePointCalculator(
-        atoms, energy=energy, forces=forces, dipole=dipole
+        atoms,
+        energy=energy,
+        forces=forces,
+        charges=charges,
+        dipole=dipole,
     )
 
     return atoms
