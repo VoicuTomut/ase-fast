@@ -6,7 +6,43 @@ import numpy as np
 import pytest
 
 from ase import units
-from ase.io.gamess_us import read_gamess_us_punch
+from ase.io.gamess_us import read_gamess_us_out, read_gamess_us_punch
+
+BUF_OUT = r"""
+ ATOM      ATOMIC                      COORDINATES (BOHR)
+           CHARGE         X                   Y                   Z
+ O           8.0     0.0000000000        0.0000000000        0.2253725007
+ H           1.0     0.0000000000        1.4423125731       -0.9014881133
+ H           1.0     0.0000000000       -1.4423125731       -0.9014881133
+
+...
+
+ FINAL RHF ENERGY IS      -75.9834173703 AFTER  10 ITERATIONS
+
+...
+
+          TOTAL MULLIKEN AND LOWDIN ATOMIC POPULATIONS
+       ATOM         MULL.POP.    CHARGE          LOW.POP.     CHARGE
+    1 O             8.792441   -0.792441         8.584488   -0.584488
+    2 H             0.603779    0.396221         0.707756    0.292244
+    3 H             0.603779    0.396221         0.707756    0.292244
+
+...
+
+         DX          DY          DZ         /D/  (DEBYE)
+     0.000000    0.000000   -2.643157    2.643157
+
+...
+
+                         ----------------------
+                         GRADIENT OF THE ENERGY
+                         ----------------------
+
+ UNITS ARE HARTREE/BOHR    E'X               E'Y               E'Z
+    1 O                0.000000000       0.000000000       0.036558632
+    2 H                0.000000000       0.003968070      -0.018279316
+    3 H                0.000000000      -0.003968070      -0.018279316
+"""
 
 BUF_PUNCH = r"""
  $DATA
@@ -85,6 +121,37 @@ H            1.    0.0000000000E+00   -3.9680702687E-03   -1.8279315939E-02
  0.000000000E+00 5.643854273E-15-2.643157432E+00
  $END
 """
+
+
+def test_read_gamess_us_out() -> None:
+    """Test if a GAMESS-US output file can be parsed."""
+    atoms = read_gamess_us_out(StringIO(BUF_OUT))
+    assert str(atoms.symbols) == 'OH2'
+    positions_ref = [
+        [+0.000000, +0.000000, +0.119262],
+        [+0.000000, +0.763239, -0.477047],
+        [+0.000000, -0.763239, -0.477047],
+    ]
+    np.testing.assert_allclose(atoms.positions, positions_ref)
+    assert not any(atoms.pbc)
+    assert atoms.cell.rank == 0
+
+    energy = atoms.get_potential_energy()
+    assert energy == pytest.approx(-75.9834173703 * units.Ha)
+
+    charges_ref = np.array([-0.792441, +0.396221, +0.396221])
+    np.testing.assert_allclose(atoms.get_charges(), charges_ref)
+
+    dipole_moment_ref = np.array([0.0, 0.0, -2.643157]) * units.Debye
+    np.testing.assert_allclose(atoms.get_dipole_moment(), dipole_moment_ref)
+
+    grad_ref = [
+        [+0.000000000, +0.000000000, +0.036558632],
+        [+0.000000000, +0.003968070, -0.018279316],
+        [+0.000000000, -0.003968070, -0.018279316],
+    ]
+    forces_ref = -np.array(grad_ref) * units.Hartree / units.Bohr
+    np.testing.assert_allclose(atoms.get_forces(), forces_ref)
 
 
 def test_read_gamess_us_punch() -> None:
