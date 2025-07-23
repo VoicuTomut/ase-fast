@@ -10,7 +10,7 @@ import numpy as np
 from ase import Atoms
 from ase.calculators.singlepoint import SinglePointCalculator
 from ase.units import Bohr, Debye, Hartree
-from ase.utils import workdir
+from ase.utils import reader, workdir, writer
 
 
 def _format_value(val):
@@ -64,6 +64,7 @@ def _write_ecp(atoms, ecp):
 _xc = dict(LDA='SVWN')
 
 
+@writer
 def write_gamess_us_in(fd, atoms, properties=None, **params):
     params = deepcopy(params)
 
@@ -129,6 +130,7 @@ _grad_re = re.compile(r'^\s*GRADIENT OF THE ENERGY\s*')
 _dipole_re = re.compile(r'^\s+DX\s+DY\s+DZ\s+\/D\/\s+\(DEBYE\)')
 
 
+@reader
 def read_gamess_us_out(fd):
     atoms = None
     energy = None
@@ -185,6 +187,7 @@ def read_gamess_us_out(fd):
     return atoms
 
 
+@reader
 def read_gamess_us_punch(fd):
     atoms = None
     energy = None
