@@ -130,6 +130,7 @@ _geom_re = re.compile(r'^\s*ATOM\s+ATOMIC\s+COORDINATES')
 _atom_re = re.compile(r'^\s*(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s*\n')
 _energy_re = re.compile(r'^\s*FINAL [\S\s]+ ENERGY IS\s+(\S+) AFTER')
 _grad_re = re.compile(r'^\s*GRADIENT OF THE ENERGY\s*')
+_charges_re = re.compile(r'^\s*TOTAL MULLIKEN AND LOWDIN ATOMIC POPULATIONS\s*')
 _dipole_re = re.compile(r'^\s+DX\s+DY\s+DZ\s+\/D\/\s+\(DEBYE\)')
 
 
@@ -138,6 +139,7 @@ def read_gamess_us_out(fd):
     atoms = None
     energy = None
     forces = None
+    charges = None
     dipole = None
     for line in fd:
         # Geometry
@@ -169,6 +171,12 @@ def read_gamess_us_out(fd):
         elif line.strip().startswith('THE FOLLOWING METHOD AND ENERGY'):
             energy = float(fd.readline().strip().split()[-1]) * Hartree
 
+        elif _charges_re.match(line):
+            fd.readline()
+            charges = np.array(
+                [float(fd.readline().split()[3]) for _ in symbols],
+            )
+
         # Gradients
         elif _grad_re.match(line):
             for _ in range(3):
@@ -185,7 +193,11 @@ def read_gamess_us_out(fd):
             dipole *= Debye
 
     atoms.calc = SinglePointCalculator(
-        atoms, energy=energy, forces=forces, dipole=dipole
+        atoms,
+        energy=energy,
+        forces=forces,
+        charges=charges,
+        dipole=dipole,
     )
     return atoms
 
