@@ -1,4 +1,5 @@
 # fmt: off
+from io import StringIO
 from unittest import mock
 
 import numpy as np
@@ -8,8 +9,10 @@ from ase.build import bulk
 from ase.calculators.vasp.create_input import (
     GenerateVaspInput,
     _args_without_comment,
+    _calc_nelect_from_charge,
     _from_vasp_bool,
     _to_vasp_bool,
+    read_potcar_numbers_of_electrons,
 )
 
 
@@ -324,3 +327,23 @@ def test_bool(tmp_path, vaspinput_factory):
         calc = vaspinput_factory(encut=100)
         with pytest.raises(ValueError):
             calc.read_incar(tmp_path / 'INCAR')
+
+
+def test_read_potcar_numbers_of_electrons() -> None:
+    """Test if the numbers of valence electrons are parsed correctly."""
+    # POTCAR lines publicly available
+    # https://www.vasp.at/wiki/index.php/POTCAR
+    lines = """\
+TITEL  = PAW_PBE Ti_pv 07Sep2000
+...
+...
+...
+POMASS =   47.880; ZVAL   =   10.000    mass and valenz
+"""
+    assert read_potcar_numbers_of_electrons(StringIO(lines)) == [('Ti', 10.0)]
+
+
+def test_calc_nelect_from_charge() -> None:
+    """Test if NELECT can be determined correctly."""
+    assert _calc_nelect_from_charge(None, None, 10.0) is None
+    assert _calc_nelect_from_charge(None, 4.0, 10.0) == 6.0
