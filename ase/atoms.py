@@ -271,10 +271,28 @@ class Atoms:
 
     @property
     def symbols(self):
-        """Get chemical symbols as a :class:`ase.symbols.Symbols` object.
+        """Get chemical symbols as a :class:`~ase.symbols.Symbols` object.
 
-        The object works like ``atoms.numbers`` except its values
-        are strings.  It supports in-place editing."""
+        The object works like ``atoms.numbers`` except its values are strings.
+        It supports in-place editing.
+
+        Examples
+        --------
+        >>> from ase.build import molecule
+        >>> atoms = molecule('CH3CH2OH')
+        >>> atoms.symbols
+        Symbols('C2OH6')
+        >>> list(atoms.symbols)
+        ['C', 'C', 'O', 'H', 'H', 'H', 'H', 'H', 'H']
+        >>> atoms.symbols == 'C'  # doctest: +ELLIPSIS
+        array([ True,  True, False, False, False, False, False, False, False]...)
+        >>> atoms.symbols.indices()
+        {'C': array([0, 1]), 'O': array([2]), 'H': array([3, 4, 5, 6, 7, 8])}
+        >>> list(atoms.symbols.indices())  # unique elements
+        ['C', 'O', 'H']
+        >>> atoms.symbols.species()  # doctest: +SKIP
+        {'C', 'O', 'H'}
+        """  # noqa
         return Symbols(self.numbers)
 
     @symbols.setter
