@@ -154,7 +154,7 @@ def read_vasp(fd):
     """
     atoms = read_vasp_configuration(fd)
     velocity_init_line = fd.readline()
-    if velocity_init_line[0] == 'L' or velocity_init_line[0] == 'l':
+    if velocity_init_line.strip() and velocity_init_line[0].lower() == 'l':
         read_lattice_velocities(fd)
     velocities = read_velocities_if_present(fd, len(atoms))
     if velocities is not None:
@@ -283,18 +283,17 @@ def read_lattice_velocities(fd):
     As lattice velocities are not yet implemented in ASE, this function just
     throws away these lines.
     """
-    init_state = fd.readline()
-    lattice1_velocity = fd.readline()
-    lattice2_velocity = fd.readline()
-    lattice3_velocity = fd.readline()
-    lattice1_vector = fd.readline()
-    lattice2_vector = fd.readline()
-    lattice3_vector = fd.readline()
-    fd.readline()  # get rid of 1 empry line below if it exists
+    fd.readline()  # initialization state
+    for _ in range(3):  # lattice velocities
+        fd.readline()
+    for _ in range(3):  # lattice vectors
+        fd.readline()
+    fd.readline()  # get rid of 1 empty line below if it exists
+
 
 def read_velocities_if_present(fd, natoms) -> np.ndarray | None:
     """Read velocities from POSCAR/CONTCAR if present, return in ASE units."""
-    # read the 1st line to determine if it is the velocities block or the MD extra block
+    # Check if it is the velocities block or the MD extra block
     words = fd.readline().split()
     if len(words) <= 1:  # MD extra block or end of file
         return None
