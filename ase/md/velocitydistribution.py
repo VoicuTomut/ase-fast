@@ -1,7 +1,3 @@
-# fmt: off
-
-# VelocityDistributions.py -- set up a velocity distribution
-
 """Module for setting up velocity distributions such as Maxwell–Boltzmann.
 
 Currently, only a few functions are defined, such as
@@ -9,13 +5,15 @@ MaxwellBoltzmannDistribution, which sets the momenta of a list of
 atoms according to a Maxwell-Boltzmann distribution at a given
 temperature.
 """
+
+import warnings
 from typing import Literal, Optional
 
 import numpy as np
 
 from ase import Atoms, units
 from ase.md.md import process_temperature
-from ase.parallel import world
+from ase.parallel import DummyMPI, world
 
 # define a ``zero'' temperature to avoid divisions by zero
 eps_temp = 1e-12
@@ -25,9 +23,11 @@ class UnitError(Exception):
     """Exception raised when wrong units are specified"""
 
 
-def force_temperature(atoms: Atoms,
-                      temperature: float,
-                      unit: Literal["K", "eV"] = "K"):
+def force_temperature(
+    atoms: Atoms,
+    temperature: float,
+    unit: Literal['K', 'eV'] = 'K',
+):
     """
     Force the temperature of the atomic system to a precise value.
 
@@ -47,9 +47,9 @@ def force_temperature(atoms: Atoms,
         Can be either 'K' (Kelvin) or 'eV' (electron volts). Default is 'K'.
     """
 
-    if unit == "K":
+    if unit == 'K':
         target_temp = temperature * units.kB
-    elif unit == "eV":
+    elif unit == 'eV':
         target_temp = temperature
     else:
         raise UnitError(f"'{unit}' is not supported, use 'K' or 'eV'.")
@@ -64,36 +64,32 @@ def force_temperature(atoms: Atoms,
     atoms.set_momenta(atoms.get_momenta() * np.sqrt(scale))
 
 
-def _maxwellboltzmanndistribution(masses, temp, communicator=None, rng=None):
+def _maxwellboltzmanndistribution(masses, temp, comm=world, rng=None):
     """Return a Maxwell-Boltzmann distribution with a given temperature.
 
-    Paremeters:
-
+    Parameters
+    ----------
     masses: float
         The atomic masses.
 
     temp: float
         The temperature in electron volt.
 
-    communicator: MPI communicator (optional)
-        Communicator used to distribute an identical distribution to
-        all tasks.  Set to 'serial' to disable communication (setting to None
-        gives the default).  Default: ase.parallel.world
+    comm: MPI communicator (optional, default: ase.parallel.world)
+        Communicator used to distribute an identical distribution to all tasks.
 
     rng: numpy RNG (optional)
         The random number generator.  Default: np.random
 
-    Returns:
-
-    A numpy array with Maxwell-Boltzmann distributed momenta.
+    Returns
+    -------
+    np.ndarray
+        Maxwell-Boltzmann distributed momenta.
     """
     if rng is None:
         rng = np.random
-    if communicator is None:
-        communicator = world
     xi = rng.standard_normal((len(masses), 3))
-    if communicator != 'serial':
-        communicator.broadcast(xi, 0)
+    comm.broadcast(xi, 0)
     momenta = xi * np.sqrt(masses * temp)[:, np.newaxis]
     return momenta
 
@@ -103,14 +99,15 @@ def MaxwellBoltzmannDistribution(
     temp: Optional[float] = None,
     *,
     temperature_K: Optional[float] = None,
+    comm=world,
     communicator=None,
     force_temp: bool = False,
     rng=None,
 ):
     """Set the atomic momenta to a Maxwell-Boltzmann distribution.
 
-    Parameters:
-
+    Parameters
+    ----------
     atoms: Atoms object
         The atoms.  Their momenta will be modified.
 
@@ -120,10 +117,16 @@ def MaxwellBoltzmannDistribution(
     temperature_K: float
         The temperature in Kelvin.
 
-    communicator: MPI communicator (optional)
-        Communicator used to distribute an identical distribution to
-        all tasks.  Set to 'serial' to disable communication.  Leave as None to
-        get the default: ase.parallel.world
+    comm: MPI communicator, default: :data:`ase.parallel.world`
+        Communicator used to distribute an identical distribution to all tasks.
+
+        .. versionadded:: 3.26.0
+
+    communicator
+
+        .. deprecated:: 3.26.0
+
+           To be removed in ASE 3.27.0 in favor of ``comm``.
 
     force_temp: bool (optional, default: False)
         If True, the random momenta are rescaled so the kinetic energy is
@@ -136,12 +139,26 @@ def MaxwellBoltzmannDistribution(
         supply a random seed like ``rng=numpy.random.RandomState(seed)``, where
         seed is an integer.
     """
+    if communicator is not None:
+        msg = (
+            '`communicator` has been deprecated since ASE 3.26.0 '
+            'and will be removed in ASE 3.27.0. Use `comm` instead.'
+        )
+        warnings.warn(msg, FutureWarning)
+        comm = communicator
+    if comm == 'serial':
+        msg = (
+            '`comm=="serial"` has been deprecated since ASE 3.26.0 '
+            'and will be removed in ASE 3.27.0. Use `comm=DummyMPI()` instead.'
+        )
+        warnings.warn(msg, FutureWarning)
+        comm = DummyMPI()
     temp = units.kB * process_temperature(temp, temperature_K, 'eV')
     masses = atoms.get_masses()
-    momenta = _maxwellboltzmanndistribution(masses, temp, communicator, rng)
+    momenta = _maxwellboltzmanndistribution(masses, temp, comm=comm, rng=rng)
     atoms.set_momenta(momenta)
     if force_temp:
-        force_temperature(atoms, temperature=temp, unit="eV")
+        force_temperature(atoms, temperature=temp, unit='eV')
 
 
 def Stationary(atoms: Atoms, preserve_temperature: bool = True):
@@ -302,7 +319,7 @@ def phonon_harmonics(
     temp = units.kB * process_temperature(temp, temperature_K, 'eV')
 
     # Build dynamical matrix
-    rminv = (masses ** -0.5).repeat(3)
+    rminv = (masses**-0.5).repeat(3)
     dynamical_matrix = force_constants * rminv[:, None] * rminv[None, :]
 
     # Solve eigenvalue problem to compute phonon spectrum and eigenvectors
@@ -313,13 +330,13 @@ def phonon_harmonics(
         zeros = w2_s[:3]
         worst_zero = np.abs(zeros).max()
         if worst_zero > 1e-3:
-            msg = "Translational deviate from 0 significantly: "
-            raise ValueError(msg + f"{w2_s[:3]}")
+            msg = 'Translational deviate from 0 significantly: '
+            raise ValueError(msg + f'{w2_s[:3]}')
 
         w2min = w2_s[3:].min()
         if w2min < 0:
-            msg = "Dynamical matrix has negative eigenvalues such as "
-            raise ValueError(msg + f"{w2min}")
+            msg = 'Dynamical matrix has negative eigenvalues such as '
+            raise ValueError(msg + f'{w2min}')
 
     # First three modes are translational so ignore:
     nw = len(w2_s) - 3
