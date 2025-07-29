@@ -67,7 +67,7 @@ def force_temperature(
 def _maxwellboltzmanndistribution(masses, temp, comm=world, rng=None):
     """Return a Maxwell-Boltzmann distribution with a given temperature.
 
-    Paremeters
+    Parameters
     ----------
     masses: float
         The atomic masses.
@@ -81,9 +81,10 @@ def _maxwellboltzmanndistribution(masses, temp, comm=world, rng=None):
     rng: numpy RNG (optional)
         The random number generator.  Default: np.random
 
-    Returns:
-
-    A numpy array with Maxwell-Boltzmann distributed momenta.
+    Returns
+    -------
+    np.ndarray
+        Maxwell-Boltzmann distributed momenta.
     """
     if rng is None:
         rng = np.random
