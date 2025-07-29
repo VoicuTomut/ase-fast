@@ -431,6 +431,7 @@ Isotropic Martyna-Tobias-Klein (MTK) dynamics
 ---------------------------------------------
 
 .. module:: ase.md.nose_hoover_chain
+   :no-index:
 
 .. autoclass:: IsotropicMTKNPT
 
@@ -439,6 +440,7 @@ Full Martyna-Tobias-Klein (MTK) dynamics
 ----------------------------------------
 
 .. module:: ase.md.nose_hoover_chain
+   :no-index:
 
 .. autoclass:: MTKNPT
 
