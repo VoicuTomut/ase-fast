@@ -69,9 +69,11 @@ Remember, great tests should serve a dual purpose:
 **Replicable results**
     Even if a calculation makes it to the end without crashing, you can never
     be too sure that the numerical results are consistent. Don't just assume
-    they are, :func:`assert` it!
+    they are, `assert
+    <https://docs.python.org/3/reference/simple_stmts.html#the-assert-statement>`_
+    it!
 
-.. function:: assert(expression)
+    ``assert expression``
 
     Raises an ``AssertionError`` if the ``expression`` does not
     evaluate to ``True``.
