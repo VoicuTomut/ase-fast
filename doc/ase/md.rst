@@ -366,8 +366,8 @@ Constant NPT simulations (the isothermal-isobaric ensemble)
 ===========================================================
 
 Constant pressure (or for solids, constant stress) is usually obtained
-by adding a barostat to one of the NVT algorithms above.  ASE
-currently lacks a good NPT algorithm.  The following two are available.
+by adding a barostat to one of the NVT algorithms above.  The following 
+algorithms are available.
 
 **Algorithms:**
 
@@ -381,8 +381,17 @@ Berendsen NPT dynamics
     compared to the correct NPT ensemble.  For large systems, this is
     not expected to be serious.
 
+Isotropic Martyna-Tobias-Klein (MTK) dynamics
+    Isothermal-isobaric molecular dynamics with isotropic volume fluctuations
+    as proposed by Martyna, Tobias and Klein (MTK) 
+    [`J. Chem. Phys. 101, 4177 (1994) <https://doi.org/10.1063/1.467468>`_].
 
-NPT
+Full Martyna-Tobias-Klein (MTK) dynamics
+    Isothermal-isobaric molecular dynamics with fluctuations of both
+    volume and shape of the unit cell, as proposed by Martyna, Tobias and Klein 
+    (see above).
+
+NPT (*deprecated*)
     An implementation of NPT dynamics combining a Nosé-Hoover
     thermostat with a Parinello-Rahman barostat, according to
     Melchionna *et al.*, see below.  **Not recommended!**  The
@@ -416,6 +425,22 @@ the gromacs manual at www.gromacs.org. or amber at ambermd.org
   dyn = NPTBerendsen(atoms, timestep=0.1 * units.fs, temperature_K=300,
                      taut=100 * units.fs, pressure_au=1.01325 * units.bar,
                      taup=1000 * units.fs, compressibility_au=4.57e-5 / units.bar)
+
+
+Isotropic Martyna-Tobias-Klein (MTK) dynamics
+---------------------------------------------
+
+.. module:: ase.md.nose_hoover_chain
+
+.. autoclass:: IsotropicMTKNPT
+
+
+Full Martyna-Tobias-Klein (MTK) dynamics
+----------------------------------------
+
+.. module:: ase.md.nose_hoover_chain
+
+.. autoclass:: MTKNPT
 
 
 Nosé-Hoover-Parinello-Rahman NPT dynamics
