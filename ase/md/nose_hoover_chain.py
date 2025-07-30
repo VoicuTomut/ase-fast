@@ -179,7 +179,7 @@ class NoseHooverChainThermostat:
         for _ in range(self._tloop):
             for coeff in FOURTH_ORDER_COEFFS:
                 p = self._integrate_nhc_loop(
-                    p, coeff * delta / len(FOURTH_ORDER_COEFFS)
+                    p, coeff * delta / self._tloop
                 )
 
         return p
@@ -446,7 +446,7 @@ class IsotropicMTKBarostat:
         for _ in range(self._ploop):
             for coeff in FOURTH_ORDER_COEFFS:
                 p_eps = self._integrate_nhc_baro_loop(
-                    p_eps, coeff * delta / len(FOURTH_ORDER_COEFFS)
+                    p_eps, coeff * delta / self._ploop
                 )
         return p_eps
 
@@ -727,7 +727,7 @@ class MTKBarostat:
         for _ in range(self._ploop):
             for coeff in FOURTH_ORDER_COEFFS:
                 p_g = self._integrate_nhc_baro_loop(
-                    p_g, coeff * delta / len(FOURTH_ORDER_COEFFS)
+                    p_g, coeff * delta / self._ploop
                 )
         return p_g
 
