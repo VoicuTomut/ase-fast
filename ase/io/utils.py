@@ -269,7 +269,7 @@ class PlottingVariables:
                 rescale_factor = self.maxwidth / im_size[0]
                 im_size *= rescale_factor
                 self.scale *= rescale_factor
-                middle *= rescale_factor # center should be rescaled too
+                middle *= rescale_factor  # center should be rescaled too
             offset = middle - im_size / 2
         else:
             width = (bbox[2] - bbox[0]) * self.scale
