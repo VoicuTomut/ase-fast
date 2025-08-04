@@ -480,24 +480,6 @@ def make_patch_list(writer):
     from matplotlib.patches import Circle, PathPatch, Wedge
     from matplotlib.path import Path
 
-    # Since the rotated image plane uses the corner as origin but 2D
-    # formats that use patches uses another corner?? as origin a
-    # shift is needed?
-    print('\nwriter.positions',writer.positions)
-    print('writer.positions (min.max)', writer.positions.min(axis=0), writer.positions.max(axis=0))
-    print('writer.positions ranges', writer.positions.max(axis=0)-writer.positions.min(axis=0))
-    print('im plane center scaled', writer.get_image_plane_center()*writer.scale)
-    print('bbox', writer.get_bbox())
-    print('scale', writer.scale )
-    print('(w,h)', (writer.w, writer.h), 'offset', writer.offset)
-    #bbox_atoms = writer.get_bbox_from_atoms(writer.atoms, writer.radii)
-    #print('bbox_atoms', bbox_atoms)
-
-    #origin_offset =  np.array([writer.w*0.45, -writer.h*0.55] )
-    #print(origin_offset)
-    #origin_offset = np.array( [ writer.offset[0]/2,  writer.offset[1]/2])
-    #print(origin_offset)
-
     indices = writer.positions[:, 2].argsort()
     patch_list = []
     for a in indices:
