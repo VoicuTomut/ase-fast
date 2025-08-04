@@ -19,7 +19,7 @@ If you do:
 
 .. code-block:: console
 
-    $ pip install sphinx_rtd_theme --user
+    $ pip install sphinx_book_theme --user
 
 and add ``~/.local/bin`` to you :envvar:`PATH` environment variable, then
 you should be ready to go.  You may need the following installed, but they
