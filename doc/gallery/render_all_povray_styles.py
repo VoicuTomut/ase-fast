@@ -20,10 +20,9 @@ for style in styles:
         'textures': len(atoms) * [style],
         'transparent': True,  # Transparent background
         'canvas_width': 1000,  # Width of canvas in pixels
-        'camera_type': 'orthographic angle 65',
     }
 
-    generic_projection_settings = {}
+    generic_projection_settings = {} # keywords for io.utils.PlottingVariables
 
     pov_object = io.write(
         pov_name, atoms, **generic_projection_settings, povray_settings=kwargs

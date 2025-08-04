@@ -269,6 +269,7 @@ class PlottingVariables:
                 rescale_factor = self.maxwidth / im_size[0]
                 im_size *= rescale_factor
                 self.scale *= rescale_factor
+                middle *= rescale_factor # center should be rescaled too
             offset = middle - im_size / 2
         else:
             width = (bbox[2] - bbox[0]) * self.scale
@@ -380,8 +381,8 @@ class PlottingVariables:
             D = None
             cell_vertices = None
         # just a rotations and scaling since offset is currently [0,0,0]
-        positions = self.to_image_plane_positions(positions)
-        self.positions = positions
+        image_plane_positions = self.to_image_plane_positions(positions)
+        self.positions = image_plane_positions
         # list of 2D cell points in the imageplane without the offset
         self.D = D
         # integers, probably z-order for lines?
@@ -479,6 +480,24 @@ def make_patch_list(writer):
     from matplotlib.patches import Circle, PathPatch, Wedge
     from matplotlib.path import Path
 
+    # Since the rotated image plane uses the corner as origin but 2D
+    # formats that use patches uses another corner?? as origin a
+    # shift is needed?
+    print('\nwriter.positions',writer.positions)
+    print('writer.positions (min.max)', writer.positions.min(axis=0), writer.positions.max(axis=0))
+    print('writer.positions ranges', writer.positions.max(axis=0)-writer.positions.min(axis=0))
+    print('im plane center scaled', writer.get_image_plane_center()*writer.scale)
+    print('bbox', writer.get_bbox())
+    print('scale', writer.scale )
+    print('(w,h)', (writer.w, writer.h), 'offset', writer.offset)
+    #bbox_atoms = writer.get_bbox_from_atoms(writer.atoms, writer.radii)
+    #print('bbox_atoms', bbox_atoms)
+
+    #origin_offset =  np.array([writer.w*0.45, -writer.h*0.55] )
+    #print(origin_offset)
+    #origin_offset = np.array( [ writer.offset[0]/2,  writer.offset[1]/2])
+    #print(origin_offset)
+
     indices = writer.positions[:, 2].argsort()
     patch_list = []
     for a in indices:
@@ -515,6 +534,8 @@ def make_patch_list(writer):
                         start += extent
 
             else:
+                # why are there more positions than atoms?
+                # is this related to the cell?
                 if ((xy[1] + r > 0) and (xy[1] - r < writer.h) and
                         (xy[0] + r > 0) and (xy[0] - r < writer.w)):
                     patch = Circle(xy, r, facecolor=writer.colors[a],
