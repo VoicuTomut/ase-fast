@@ -24,7 +24,7 @@ class AtomsEditor:
     def __init__(self, gui):
         gui.obs.change_atoms.register(self.update_table_from_atoms)
 
-        win = ui.Window(_('Edit atoms'), wmtype='utility')
+        win = ui.Window(_('Edit atoms'))
 
         treeview = ui.ttk.Treeview(win.win, selectmode='extended')
         edit_entry = ui.ttk.Entry(win.win)

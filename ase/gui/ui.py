@@ -19,7 +19,7 @@ __all__ = [
     'error', 'ask_question', 'MainWindow', 'LoadFileDialog', 'SaveFileDialog',
     'ASEGUIWindow', 'Button', 'CheckButton', 'ComboBox', 'Entry', 'Label',
     'Window', 'MenuItem', 'RadioButton', 'RadioButtons', 'Rows', 'Scale',
-    'showinfo', 'showwarning', 'SpinBox', 'Text', 'set_windowtype']
+    'showinfo', 'showwarning', 'SpinBox', 'Text']
 
 
 def error(title, message=None):
@@ -35,7 +35,6 @@ def about(name, version, webpage):
             _('Version') + ': ' + version,
             _('Web-page') + ': ' + webpage]
     win = Window(_('About'))
-    set_windowtype(win.win, 'dialog')
     win.add(Text('\n'.join(text)))
 
 
@@ -45,24 +44,11 @@ def helpbutton(text):
 
 def helpwindow(text):
     win = Window(_('Help'))
-    set_windowtype(win.win, 'dialog')
     win.add(Text(text))
 
 
-def set_windowtype(win, wmtype):
-    # introduced tweak to fix GUI on WSL, https://gitlab.com/ase/ase/-/issues/1511
-    if (platform.platform().find('WSL') and
-    platform.platform().find('microsoft')) != -1:
-        # only on X11, but not on WSL
-        # WM_TYPE, for possible settings see
-        # https://specifications.freedesktop.org/wm-spec/wm-spec-latest.html#idm45623487848608
-        # you want dialog, normal or utility most likely
-        if win._windowingsystem == "x11":
-            win.wm_attributes('-type', 'normal')
-
-
 class BaseWindow:
-    def __init__(self, title, close=None, wmtype='normal'):
+    def __init__(self, title, close=None):
         self.title = title
         if close:
             self.win.protocol('WM_DELETE_WINDOW', close)
@@ -71,7 +57,6 @@ class BaseWindow:
 
         self.things = []
         self.exists = True
-        set_windowtype(self.win, wmtype)
 
     def close(self):
         self.win.destroy()
@@ -92,9 +77,9 @@ class BaseWindow:
 
 
 class Window(BaseWindow):
-    def __init__(self, title, close=None, wmtype='normal'):
+    def __init__(self, title, close=None):
         self.win = tk.Toplevel()
-        BaseWindow.__init__(self, title, close, wmtype)
+        super().__init__(title, close)
 
 
 class Widget:
@@ -523,7 +508,7 @@ class MenuItem:
 class MainWindow(BaseWindow):
     def __init__(self, title, close=None, menu=[]):
         self.win = tk.Tk()
-        BaseWindow.__init__(self, title, close)
+        super().__init__(title, close)
 
         # self.win.tk.call('tk', 'scaling', 3.0)
         # self.win.tk.call('tk', 'scaling', '-displayof', '.', 7)
@@ -582,13 +567,7 @@ def bind(callback, modifier=None):
 class ASEFileChooser(LoadFileDialog):
     def __init__(self, win, formatcallback=lambda event: None):
         from ase.io.formats import all_formats, get_ioformat
-        LoadFileDialog.__init__(self, win, _('Open ...'))
-        # fix tkinter not automatically setting dialog type
-        # remove from Python3.8+
-        # see https://github.com/python/cpython/pull/25187
-        # and https://bugs.python.org/issue43655
-        # and https://github.com/python/cpython/pull/25592
-        set_windowtype(self.top, 'dialog')
+        super().__init__(win, _('Open ...'))
         labels = [_('Automatic')]
         values = ['']
 
@@ -621,7 +600,7 @@ class ASEGUIWindow(MainWindow):
     def __init__(self, close, menu, config,
                  scroll, scroll_event,
                  press, move, release, resize):
-        MainWindow.__init__(self, 'ASE-GUI', close, menu)
+        super().__init__('ASE-GUI', close, menu)
 
         self.size = np.array([450, 450])
 
