@@ -47,7 +47,7 @@ Bugfixes
 
 - Fixed bug in :class:`io.utils.PlottingVariables` where automatic 
   bounding boxes were incorrectly centered due the image center not being 
-  scaled for paper space.
+  scaled for paper space (:mr:`3769`).
 
 - Fixed bug in :class:`io.pov.POVRAY` where unspecified image (canvas) 
-  dimensions would use defaults with an incorrect aspect ratio.
+  dimensions would use defaults with an incorrect aspect ratio (:mr:`3769`).
