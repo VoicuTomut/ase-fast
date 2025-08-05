@@ -269,6 +269,7 @@ class PlottingVariables:
                 rescale_factor = self.maxwidth / im_size[0]
                 im_size *= rescale_factor
                 self.scale *= rescale_factor
+                middle *= rescale_factor  # center should be rescaled too
             offset = middle - im_size / 2
         else:
             width = (bbox[2] - bbox[0]) * self.scale
@@ -380,8 +381,8 @@ class PlottingVariables:
             D = None
             cell_vertices = None
         # just a rotations and scaling since offset is currently [0,0,0]
-        positions = self.to_image_plane_positions(positions)
-        self.positions = positions
+        image_plane_positions = self.to_image_plane_positions(positions)
+        self.positions = image_plane_positions
         # list of 2D cell points in the imageplane without the offset
         self.D = D
         # integers, probably z-order for lines?
@@ -515,6 +516,8 @@ def make_patch_list(writer):
                         start += extent
 
             else:
+                # why are there more positions than atoms?
+                # is this related to the cell?
                 if ((xy[1] + r > 0) and (xy[1] - r < writer.h) and
                         (xy[0] + r > 0) and (xy[0] - r < writer.w)):
                     patch = Circle(xy, r, facecolor=writer.colors[a],
