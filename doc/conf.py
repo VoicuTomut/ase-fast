@@ -21,6 +21,7 @@ extlinks = {
 source_suffix = '.rst'
 master_doc = 'index'
 project = 'ASE'
+author = 'ASE developers'
 copyright = f'{datetime.date.today().year}, ASE-developers'
 exclude_patterns = ['build']
 default_role = 'math'
