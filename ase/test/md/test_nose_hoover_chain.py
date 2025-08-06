@@ -1,6 +1,8 @@
 # fmt: off
 from __future__ import annotations
 
+from copy import deepcopy
+
 import numpy as np
 import pytest
 
@@ -28,7 +30,7 @@ def hcp_Cu() -> Atoms:
 
 @pytest.mark.parametrize("tchain", [1, 3])
 @pytest.mark.parametrize("tloop", [1, 3])
-def test_thermostat(hcp_Cu: Atoms, tchain: int, tloop: int):
+def test_thermostat_round_trip(hcp_Cu: Atoms, tchain: int, tloop: int):
     atoms = hcp_Cu.copy()
 
     timestep = 1.0 * ase.units.fs
@@ -62,6 +64,79 @@ def test_thermostat(hcp_Cu: Atoms, tchain: int, tloop: int):
     assert np.allclose(p, p_start, atol=1e-6)
     assert np.allclose(thermostat._eta, eta_start, atol=1e-6)
     assert np.allclose(thermostat._p_eta, p_eta_start, atol=1e-6)
+
+
+@pytest.mark.parametrize("tchain", [1, 3])
+@pytest.mark.parametrize("tloop", [1, 3])
+def test_thermostat_truncation_error(hcp_Cu: Atoms, tchain: int, tloop: int):
+    """Compare thermostat integration with delta by n steps and delta/2 by 2n
+    steps. The difference between the two results should decrease with delta
+    until reaching rounding error.
+    """
+    atoms = hcp_Cu.copy()
+
+    delta0 = 1e-1
+    n = 100
+    m = 10
+
+    list_p_diff = []
+    list_eta_diff = []
+    list_p_eta_diff = []
+    for i in range(m):
+        delta = delta0 * (2 ** -i)
+        thermostat = NoseHooverChainThermostat(
+            num_atoms_global=len(atoms),
+            masses=atoms.get_masses()[:, None],
+            temperature_K=1000,
+            tdamp=100 * delta0,
+            tchain=tchain,
+            tloop=tloop,
+        )
+
+        rng = np.random.default_rng(0)
+        p = rng.standard_normal(size=(len(atoms), 3))
+        thermostat._eta = rng.standard_normal(size=(tchain, ))
+        thermostat._p_eta = rng.standard_normal(size=(tchain, ))
+
+        thermostat1 = deepcopy(thermostat)
+        p1 = p.copy()
+        for _ in range(n):
+            p1 = thermostat1.integrate_nhc(p1, delta)
+
+        thermostat2 = deepcopy(thermostat)
+        p2 = p.copy()
+        for _ in range(2 * n):
+            p2 = thermostat2.integrate_nhc(p2, delta / 2)
+
+        # O(delta^3) truncation error
+        list_p_diff.append(np.linalg.norm(p1 - p2))
+        list_eta_diff.append(
+            np.linalg.norm(thermostat1._eta - thermostat2._eta)
+        )
+        list_p_eta_diff.append(
+            np.linalg.norm(thermostat1._p_eta - thermostat2._p_eta)
+        )
+
+    print(np.array(list_p_diff))
+    print(np.array(list_eta_diff))
+    print(np.array(list_p_eta_diff))
+
+    # Check that the differences decrease with delta until reaching rounding
+    # error.
+    eps = 1e-13
+    for i in range(1, m):
+        assert (
+            (list_p_diff[i] < eps)
+            or (list_p_diff[i] < list_p_diff[i - 1])
+        )
+        assert (
+            (list_eta_diff[i] < eps)
+            or (list_eta_diff[i] < list_eta_diff[i - 1])
+        )
+        assert (
+            (list_p_eta_diff[i] < eps)
+            or (list_p_eta_diff[i] < list_p_eta_diff[i - 1])
+        )
 
 
 @pytest.mark.parametrize("pchain", [1, 3])
