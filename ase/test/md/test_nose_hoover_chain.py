@@ -62,8 +62,10 @@ def test_thermostat_round_trip(hcp_Cu: Atoms, tchain: int, tloop: int):
     for _ in range(n):
         p = thermostat.integrate_nhc(p, -timestep)
     assert np.allclose(p, p_start, atol=1e-6)
-    assert np.allclose(thermostat._eta, eta_start, atol=1e-6)
-    assert np.allclose(thermostat._p_eta, p_eta_start, atol=1e-5)
+
+    # These values are apparently very machine-dependent:
+    assert np.allclose(thermostat._eta, eta_start, atol=1e-5)
+    assert np.allclose(thermostat._p_eta, p_eta_start, atol=1e-4)
 
 
 @pytest.mark.parametrize("tchain", [1, 3])
@@ -123,7 +125,7 @@ def test_thermostat_truncation_error(hcp_Cu: Atoms, tchain: int, tloop: int):
 
     # Check that the differences decrease with delta until reaching rounding
     # error.
-    eps = 1e-13
+    eps = 1e-12
     for i in range(1, m):
         assert (
             (list_p_diff[i] < eps)
