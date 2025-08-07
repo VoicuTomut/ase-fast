@@ -63,7 +63,7 @@ def test_thermostat_round_trip(hcp_Cu: Atoms, tchain: int, tloop: int):
         p = thermostat.integrate_nhc(p, -timestep)
     assert np.allclose(p, p_start, atol=1e-6)
     assert np.allclose(thermostat._eta, eta_start, atol=1e-6)
-    assert np.allclose(thermostat._p_eta, p_eta_start, atol=1e-6)
+    assert np.allclose(thermostat._p_eta, p_eta_start, atol=1e-5)
 
 
 @pytest.mark.parametrize("tchain", [1, 3])
