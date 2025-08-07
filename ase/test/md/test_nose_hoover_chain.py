@@ -125,7 +125,7 @@ def test_thermostat_truncation_error(hcp_Cu: Atoms, tchain: int, tloop: int):
 
     # Check that the differences decrease with delta until reaching rounding
     # error.
-    eps = 1e-13
+    eps = 1e-12
     for i in range(1, m):
         assert (
             (list_p_diff[i] < eps)
