@@ -44,7 +44,7 @@ available that you can install on your system. This will manage
 dependencies and make ASE available for all users.
 
 Red Hat requires the
-`EPEL repository <https://docs.fedoraproject.org/en-US/epel/>_`.
+`EPEL repository <https://docs.fedoraproject.org/en-US/epel/>`_.
 
 .. note::
    Depending on the distribution, this may not be the latest
