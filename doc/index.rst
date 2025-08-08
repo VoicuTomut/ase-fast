@@ -63,7 +63,7 @@ Mopac_
 News
 ====
 
-* ASE web page moved to `ase-lib.org <https://ase-lib.org/>`_.
+* ASE web page moved to `ase-lib.org <https://ase-lib.org/>`_ (8 August 2025).
 
 * Workshop focusing on the `extended ASE ecosystem
   <https://www.cecam.org/workshop-details/the-atomic-simulation-environment-ecosystem-present-and-perspectives-1373>`_
