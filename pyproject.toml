@@ -30,7 +30,7 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = 'https://wiki.fysik.dtu.dk/ase/'
+Homepage = 'https://ase-lib.org/'
 Repository = 'https://gitlab.com/ase/ase.git'
 Issues = 'https://gitlab.com/ase/ase/issues/'
 

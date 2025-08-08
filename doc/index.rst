@@ -63,6 +63,8 @@ Mopac_
 News
 ====
 
+* ASE web page moved to `ase-lib.org <https://ase-lib.org/>`_.
+
 * Workshop focusing on the `extended ASE ecosystem
   <https://www.cecam.org/workshop-details/the-atomic-simulation-environment-ecosystem-present-and-perspectives-1373>`_
   held at CECAM, EPFL, Switzerland June 23-27, 2025 (29 June 2025).
