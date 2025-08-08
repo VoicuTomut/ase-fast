@@ -38,10 +38,13 @@ Installation using system package managers
 Linux
 -----
 
-Major GNU/Linux distributions (including Debian and Ubuntu derivatives,
-Arch, Fedora, Red Hat and CentOS) have a ``python-ase`` package
+Major GNU/Linux distributions have a ``python3-ase`` (Debian and
+Ubuntu derivatives, Fedora, Red Hat) or ``python-ase`` (Arch) package
 available that you can install on your system. This will manage
 dependencies and make ASE available for all users.
+
+Red Hat requires the
+`EPEL repository <https://docs.fedoraproject.org/en-US/epel/>_`.
 
 .. note::
    Depending on the distribution, this may not be the latest
