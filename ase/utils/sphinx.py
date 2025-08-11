@@ -38,8 +38,10 @@ def git_role_tmpl(
     env = inliner.document.settings.env
     srcdir = Path(env.srcdir)
     project_root = srcdir.parent
-    assert srcdir.name == 'doc'
-    # assert project_root.name == 'ase'  # also used by GPAW
+    # The asserts below are commented out because this role template
+    # is also used by other projects, such as GPAW and Asap.
+    # assert srcdir.name == 'doc'
+    # assert project_root.name == 'ase'
 
     if text[-1] == '>':
         i = text.index('<')
