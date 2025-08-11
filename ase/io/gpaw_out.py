@@ -125,13 +125,13 @@ def read_gpaw_out(fileobj, index):  # -> Union[Atoms, List[Atoms]]:
             ibz_kpts = None
 
         try:
-            i = index_startswith(lines, 'energy contributions relative to')
+            i = index_startswith(lines, 'energy contributions relative to') + 2
         except ValueError:
             e = energy_contributions = None
         else:
             energy_contributions = {}
-            for line in lines[i + 2:i + 13]:
-                fields = line.split(':')
+            while i < len(lines):
+                fields = lines[i].split(':')
                 if len(fields) == 2:
                     name = fields[0]
                     energy = float(fields[1])
@@ -139,6 +139,7 @@ def read_gpaw_out(fileobj, index):  # -> Union[Atoms, List[Atoms]]:
                     if name in ['zero kelvin', 'extrapolated']:
                         e = energy
                         break
+                i += 1
             else:  # no break
                 raise ValueError
 
