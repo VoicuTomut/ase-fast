@@ -376,10 +376,12 @@ Berendsen NPT dynamics
     added.  The size of the unit cell is rescaled after each time
     step, so the pressure / stress approaches the desired pressure.
     It exists in two variations, one where the shape of the unit cell
-    is preserved and one where it is allowed to vary.  *Disadvantage*:
-    Fluctuations in both total energy and pressure are suppressed
-    compared to the correct NPT ensemble.  For large systems, this is
-    not expected to be serious.
+    is preserved and one where it is allowed to vary.
+
+    .. note::
+      Fluctuations in both total energy and pressure are suppressed
+      compared to the correct NPT ensemble.  For large systems, this is
+      not expected to be serious.
 
 Isotropic Martyna-Tobias-Klein (MTK) dynamics
     Isothermal-isobaric molecular dynamics with isotropic volume fluctuations
@@ -391,13 +393,15 @@ Full Martyna-Tobias-Klein (MTK) dynamics
     volume and shape of the unit cell, as proposed by Martyna, Tobias and Klein 
     (see above).
 
-NPT (*deprecated*)
+Melchionna NPT dynamics
     An implementation of NPT dynamics combining a Nosé-Hoover
     thermostat with a Parinello-Rahman barostat, according to
-    Melchionna *et al.*, see below.  **Not recommended!**  The
-    dynamics tend to be unstable, especially if started with a
-    temperature or pressure that is different from the desired.  The
-    fluctuations seem to often be wrong.
+    Melchionna *et al.*, see below.
+
+    .. note::
+      The dynamics tend to be unstable, especially if started with a
+      temperature or pressure that is different from the desired.  The
+      fluctuations seem to often be wrong.
 
 
        
@@ -445,8 +449,8 @@ Full Martyna-Tobias-Klein (MTK) dynamics
 .. autoclass:: MTKNPT
 
 
-Nosé-Hoover-Parinello-Rahman NPT dynamics
------------------------------------------
+Melchionna NPT dynamics
+-----------------------
 
 .. module:: ase.md.npt
 
