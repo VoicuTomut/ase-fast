@@ -250,7 +250,7 @@ Calculators:
 
 * Support PBCs in Plumed calculator (:mr:`2671`)
 
-* Support z-matrix format for ``FixCartesian``` constraints in Siesta (:mr:`2669`)
+* Support z-matrix format for ``FixCartesian`` constraints in Siesta (:mr:`2669`)
 
 * Support spin-orbit coupling and non-colinear calculations in Siesta
   (:mr:`2665`, :mr:`2665`)
