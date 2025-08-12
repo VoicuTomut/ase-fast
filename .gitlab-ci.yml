@@ -206,7 +206,7 @@ distribution-package:
   image: registry.gitlab.com/ase/ase:ase-main
   before_script:
     - mkdir dist
-    - pip install setuptools
+    - pip install setuptools build
   script:
     - python -m build
     - ls dist/*
