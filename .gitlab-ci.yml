@@ -206,10 +206,10 @@ distribution-package:
   image: registry.gitlab.com/ase/ase:ase-main
   before_script:
     - mkdir dist
-    - pip install setuptools
+    - pip install setuptools build
   script:
-    - python setup.py sdist | tee dist/setup_sdist.log
-    - python setup.py bdist_wheel | tee dist/setup_bdist_wheel.log
+    - python -m build
+    - ls dist/*
     - pip install dist/ase-*.tar.gz
     - ase test
     - pip uninstall --yes ase
@@ -219,7 +219,11 @@ distribution-package:
     paths:
       - dist
     expire_in: 1 week
-  when: manual
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_PIPELINE_SOURCE == "push"
+      when: manual
+      allow_failure: true
 
 # Publish code coverage data on web.
 #  * The deploy stage is specially recognized by gitlab

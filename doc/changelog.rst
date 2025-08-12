@@ -30,6 +30,126 @@ Git master branch
 
 .. scriv-auto-changelog-start
 
+Version 3.26.0
+==============
+
+I/O
+---
+
+- Added communicator argument to parprint, which defaults to world if None, analogous as for paropen
+
+- Added single float encoding for :mod:`~ase.io.jsonio` (:mr:`3682`)
+
+- Changed :func:`~ase.io.extxyz.write_extxyz` to store
+  :class:`~ase.constraints.FixAtoms` and
+  :class:`~ase.constraints.FixCartesian` by default without explicitly
+  specifying ``move_mask`` in ``columns`` (:mr:`3713`)
+
+- **Breaking change**: Removed IOFormat.open() method. It is untested and appears to be unused. :mr:`3738`
+
+- Fix :func:`~ase.io.vasp.read_vasp` to correctly read both atomic and lattice velocities if present in POSCAR (:mr:`3762`)
+
+Calculators
+-----------
+
+- Added per-atom ``energies`` consistent with LAMMPS to
+  :class:`~ase.calculators.tersoff.Tersoff` (:mr:`3656`)
+
+- Added toggles between analytical and numerical forces/stress in
+  :class:`~ase.calculators.fd.FiniteDifferenceCalculator` (:mr:`3678`)
+
+- Added calculators ``mattersim`` and ``mace_mp`` to the ``get_calculator()`` function
+
+- Changed :class:`~ase.calculators.elk.ELK` based on
+  :class:`~ase.calculators.GenericFileIOCalculator` (:mr:`3736`)
+
+- DFTD3 no longer warns about systems that are neither 3D periodic
+  nor 0D, because there is no way to adapt the code that resolves the
+  condition warned about.  (:mr:`3740`)
+
+Optimizers
+----------
+
+ - Logfile and trajectory inputs now accept both string and Path objects.
+
+- **Breaking change:** The :class:`~ase.utils.abc.Optimizable` interface
+  now works in terms of arbitrary degrees of freedom rather than
+  Cartesian (Nx3) ones.
+  Please note that the interface is still considered an internal feature
+  and may still change significantly. (:mr:`3732`)
+
+Molecular dynamics
+------------------
+
+- Added anisotropic NpT with MTK equations (:mr:`3595`).
+
+- Fixed bug in Nose-Hoover chain thermostat which would inconsistently update extended variables for the thermostat.
+
+GUI
+---
+
+ - Atomic spins can now be visualized as arrows
+
+- Mouse button 2 and 3 are now equivalent in the GUI, which simplifies
+  life on particularly MacOS (:mr:`3669`).
+- Menu shortcut keys now work as expected on MacOS.
+- In Rotate and Translate mode, Ctrl + arrow key now works as intended on
+  MacOS.  Left alt and Command now have the same effect (:mr:`3669`).
+
+- Changed Alt+X, Alt+Y, Alt+Z to Shift+X, Shift+Y, Shift+Z to view planes from "other side"
+- Changed views into basis vector planes to I, J, K, Shift+I, Shift+J, Shift+K
+
+- Added general window to view and edit data on atoms directly
+  in the same style as the cell editor.
+  The window currently edits
+  symbols and Cartesian positions only (:mr:`3790`).
+
+Development
+-----------
+
+ - Enable ruff for whole documentation
+
+Documentation
+-------------
+
+ - Web page now uses sphinx book theme (:mr:`3684`).
+
+- Documentation moved to `ase-lib.org <https://ase-lib.org/>`_.
+
+Other changes
+-------------
+
+- Removed `Quaternions` (subclass of `Atoms`).
+  The `quaternions` read from a LAMMPS data file is still accessible as an array
+  in `Atoms`. (:mr:`3709`)
+
+- Re-added the ``spin`` option of
+  :meth:`~ase.spectrum.band_structure.BandStructurePlot.plot`
+  to plot only the specified spin channel (:mr:`3726`)
+
+Bugfixes
+--------
+
+- Fixed :class:`~ase.calculators.tersoff.Tersoff` to compute properties
+  correctly (:mr:`3653`, :mr:`3655`, :mr:`3657`).
+
+- Enable :func:`ase.io.magres.read_magres` to handle cases from CASTEP < 23 where indices and labels are "munged" together if the index exceeds 99. If an index exceeds 999 the situation remains ambiguous and an error will be raised. (:mr:`3530`)
+
+- Fix duplicated transformation (e.g. rotation) of symmetry labels in :func:`~ase.dft.bz.bz_plot` (:mr:`3617`).
+
+- Fixed bug in :class:`io.utils.PlottingVariables` where automatic
+  bounding boxes were incorrectly centered due the image center not being
+  scaled for paper space (:mr:`3769`).
+
+- Fixed bug in :class:`io.pov.POVRAY` where unspecified image (canvas)
+  dimensions would use defaults with an incorrect aspect ratio (:mr:`3769`).
+
+Structure tools
+---------------
+
+- Added ``score_key='metric'`` to :func:`~ase.build.find_optimal_cell_shape`
+  for scoring a cell based on its metric tensor (:mr:`3616`)
+
 Version 3.25.0
 ==============
 
