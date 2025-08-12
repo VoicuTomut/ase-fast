@@ -90,9 +90,8 @@ def main():
     if args.clean:
         print(f'Cleaning {version}')
         git('checkout master')
-        # git('tag -d {}'.format(version), error_ok=True)
+        git(f'tag -d pre-{version}', error_ok=True)
         git(f'branch -D {branchname}', error_ok=True)
-        # git('branch -D {}'.format('web-page'), error_ok=True)
         return
 
     print(f'New release: {version}')
@@ -213,6 +212,7 @@ News
 
     git('add {}'.format(' '.join(str(path) for path in edited_paths)))
     git(f'commit -m "ASE version {version}"')
+    git(f'tag pre-{version}')
     # git('tag -s {0} -m "ase-{0}"'.format(version))
 
     buildpath = Path('build')
