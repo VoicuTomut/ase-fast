@@ -60,12 +60,12 @@ The rules for multiplying 1D arrays with 2D arrays:
 
 * 1D arrays and treated like shape (1, N) arrays (row vectors).
 * left and right multiplications are treated identically.
-* A length `m` *row* vector can be multiplied with an `n \times m`
+* A length :math:`m` *row* vector can be multiplied with an :math:`n \times m`
   matrix, producing the same result as if replaced by a matrix with
-  `n` copies of the vector as rows.
-* A length `n` *column* vector can be multiplied with an `n \times m`
+  :math:`n` copies of the vector as rows.
+* A length :math:`n` *column* vector can be multiplied with an :math:`n \times m`
   matrix, producing the same result as if replaced by a matrix with
-  `m` copies of the vector as columns.
+  :math:`m` copies of the vector as columns.
 
 Thus, for the arrays below:
 

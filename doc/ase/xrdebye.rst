@@ -25,17 +25,17 @@ The scattering can be calculated using Debye formula [Debye1915]_ :
 
 where:
 
-- `a` and `b` -- atom indexes;
-- `f_a(q)` -- `a`-th atomic scattering factor;
-- `r_{ab}` -- distance between atoms `a` and `b`;
-- `q` is a scattering vector length defined using scattering angle
-  (`\theta`) and wavelength (`\lambda`) as
-  `q = 4\pi \cdot \sin(\theta)/\lambda`.
+- :math:`a` and :math:`b` -- atom indexes;
+- :math:`f_a(q)` -- :math:`a`-th atomic scattering factor;
+- :math:`r_{ab}` -- distance between atoms :math:`a` and :math:`b`;
+- :math:`q` is a scattering vector length defined using scattering angle
+  (:math:`\theta`) and wavelength (:math:`\lambda`) as
+  :math:`q = 4\pi \cdot \sin(\theta)/\lambda`.
 
 The thermal vibration of atoms can be accounted by introduction of damping
-exponent factor (Debye-Waller factor) written as `\exp(-B \cdot q^2 / 2)`.
+exponent factor (Debye-Waller factor) written as :math:`\exp(-B \cdot q^2 / 2)`.
 The angular dependency of geometrical and polarization factors are expressed
-as [Iwasa2007]_ `\cos(\theta)/(1 + \alpha \cos^2(2\theta))`, where `\alpha
+as [Iwasa2007]_ :math:`\cos(\theta)/(1 + \alpha \cos^2(2\theta))`, where `\alpha
 \approx 1` if incident beam is not polarized.
 
 
@@ -44,8 +44,8 @@ Units
 
 The following measurement units are used:
 
-- scattering vector `q` -- inverse Angstrom (1/Å),
-- thermal damping parameter `B` -- squared Angstrom (Å\ :sup:`2`).
+- scattering vector :math:`q` -- inverse Angstrom (1/Å),
+- thermal damping parameter :math:`B` -- squared Angstrom (Å\ :sup:`2`).
 
 
 Example
@@ -67,7 +67,7 @@ Next, we need to specify the wavelength of the X-ray source::
 
   xrd = XrDebye(atoms=atoms, wavelength=0.50523)
 
-The X-ray diffraction pattern on the `2\theta` angles ranged from 15 to 30
+The X-ray diffraction pattern on the :math:`2\theta` angles ranged from 15 to 30
 degrees can be simulated as follows::
 
   xrd.calc_pattern(x=np.arange(15, 30, 0.1), mode='XRD')
@@ -79,7 +79,7 @@ The resulted X-ray diffraction pattern shows (220) and (311) peaks at 20 and
 .. image:: xrd.png
 
 The small-angle scattering curve can be simulated too. Assuming that
-scattering vector is ranged from `10^{-2}=0.01` to `10^{-0.3}\approx 0.5` 1/Å
+scattering vector is ranged from :math:`10^{-2}=0.01` to :math:`10^{-0.3}\approx 0.5` 1/Å
 the following code should be run: ::
 
   xrd.calc_pattern(x=np.logspace(-2, -0.3, 50), mode='SAXS')

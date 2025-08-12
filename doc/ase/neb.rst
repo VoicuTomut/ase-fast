@@ -123,9 +123,9 @@ calculators attached.
 
 .. note::
 
-  If there are `M` images and each image has `N` atoms, then the NEB
-  object behaves like one big Atoms object with `MN` atoms, so its
-  :meth:`~ase.Atoms.get_positions` method will return a `MN \times 3`
+  If there are :math:`M` images and each image has :math:`N` atoms, then the NEB
+  object behaves like one big Atoms object with :math:`MN` atoms, so its
+  :meth:`~ase.Atoms.get_positions` method will return a :math:`MN \times 3`
   array.
 
 
@@ -138,8 +138,8 @@ The code::
   opt = BFGS(neb, trajectory='A2B.traj')
 
 will write all images to one file.  The Trajectory object knows about
-NEB calculations, so it will write `M` images with `N` atoms at every
-iteration and not one big configuration containing `MN` atoms.
+NEB calculations, so it will write :math:`M` images with :math:`N` atoms at every
+iteration and not one big configuration containing :math:`MN` atoms.
 
 The result of the latest iteration can now be analysed with this
 command: :command:`ase gui A2B.traj@-5:`.

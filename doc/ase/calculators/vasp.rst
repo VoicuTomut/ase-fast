@@ -122,8 +122,8 @@ keyword         type       default value   description
 ``setups``      ``str``    None            Additional setup option
 ``pp``          ``str``    Set by ``xc``   Pseudopotential (POTCAR) set
                            or ``gga``      used (LDA, PW91 or PBE).
-``kpts``        various    `\Gamma`-point  **k**-point sampling
-``gamma``       ``bool``   None            `\Gamma`-point centered
+``kpts``        various    :math:`\Gamma`-point  **k**-point sampling
+``gamma``       ``bool``   None            :math:`\Gamma`-point centered
                                            **k**-point sampling
 ``reciprocal``  ``bool``   None            Use reciprocal units if
                                            **k**-points are specified
@@ -340,8 +340,8 @@ subdivisions for each reciprocal lattice vector.
 
 This is the `second “Automatic” scheme <https://www.vasp.at/wiki/index.php/KPOINTS#Automatic_k-mesh_generation>`_ described in the VASP manual.
 In the ASE calculator, it is used by setting ``kpts`` to a sequence of three ``int`` values, e.g. ``[2, 2, 3]``.
-If ``gamma` is set to ``True``, the mesh will be centred at the `\Gamma`-point;
-otherwise, a regular Monkhorst-Pack grid is used, which may or may not include the `\Gamma`-point.
+If ``gamma` is set to ``True``, the mesh will be centred at the :math:`\Gamma`-point;
+otherwise, a regular Monkhorst-Pack grid is used, which may or may not include the :math:`\Gamma`-point.
 
 In VASP it is possible to define an automatic grid and shift the origin point.
 This function is not currently included in the ASE calculator. The same result can be achieved by using :func:`ase.dft.kpoints.monkhorst_pack` to generate an explicit list of **k**-points (see below) and simply adding a constant vector to the matrix.

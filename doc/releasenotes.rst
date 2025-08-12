@@ -163,7 +163,7 @@ Version 3.23.0
 
 * Replaced :class:`ase.phasediagram.Pourbaix` class (to be deprecated)
   with the :mod:`ase.pourbaix` module. The latter includes a
-  `~ase.pourbaix.Pourbaix` class able to plot a complete diagram given a
+  :class:`~ase.pourbaix.Pourbaix` class able to plot a complete diagram given a
   set of references. The decomposition energy is now shown on a colormap
   and the phase boundaries are determined with a plane intersection method.
   (:mr:`3280`)
