@@ -385,8 +385,9 @@ Berendsen NPT dynamics
 
 Isotropic Martyna-Tobias-Klein (MTK) dynamics
     Isothermal-isobaric molecular dynamics with isotropic volume fluctuations
-    as proposed by Martyna, Tobias and Klein (MTK) 
-    [`J. Chem. Phys. 101, 4177 (1994) <https://doi.org/10.1063/1.467468>`_].
+    as proposed by Martyna, Tobias and Klein (MTK)
+
+    1) :doi:`G. J. Martyna, D. J. Tobias and M. L. Klein, J., Chem. Phys. 101, 4177 (1994). <10.1063/1.467468>`
 
 Full Martyna-Tobias-Klein (MTK) dynamics
     Isothermal-isobaric molecular dynamics with fluctuations of both
@@ -396,13 +397,20 @@ Full Martyna-Tobias-Klein (MTK) dynamics
 Melchionna NPT dynamics
     An implementation of NPT dynamics combining a Nosé-Hoover
     thermostat with a Parinello-Rahman barostat, according to
-    Melchionna *et al.*, see below.
+    Melchionna *et al.*.
 
     .. note::
       The dynamics tend to be unstable, especially if started with a
       temperature or pressure that is different from the desired.  The
       fluctuations seem to often be wrong.
 
+    1) :doi:`S. Melchionna, G. Ciccotti and B. L. Holian, Molecular Physics 78, p. 533 (1993). <10.1080/00268979300100371>`
+
+    2) :doi:`S. Melchionna, Phys. Rev. E 61, p. 6165 (2000). <10.1103/PhysRevE.62.8762>`
+
+    3) :doi:`B. L. Holian, A. J. De Groot, W. G. Hoover, and C. G. Hoover, Phys. Rev. A 41, p. 4552 (1990). <10.1103/physreva.41.4552>`
+
+    4) :doi:`F. D. Di Tolla and M. Ronchetti, Phys. Rev. E 48, p. 1726 (1993). <10.1103/PhysRevE.48.1726>`
 
        
 Berendsen NPT dynamics
