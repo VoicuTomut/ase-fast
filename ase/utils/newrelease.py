@@ -84,14 +84,14 @@ def main():
 
     version = args.version[0]
 
-    branchname = f'ase-{version}'
+    # branchname = f'ase-{version}'
     current_version = get_version()
 
     if args.clean:
         print(f'Cleaning {version}')
-        git('checkout master')
+        # git('checkout master')
         git(f'tag -d pre-{version}', error_ok=True)
-        git(f'branch -D {branchname}', error_ok=True)
+        # git(f'branch -D {branchname}', error_ok=True)
         return
 
     print(f'New release: {version}')
@@ -206,7 +206,7 @@ News
         fd.write(txt)
 
     print(f'Creating new release from branch {branch!r}')
-    git(f'checkout -b {branchname}')
+    # git(f'checkout -b {branchname}')
 
     edited_paths = [versionfile, installdoc, frontpage, releasenotes]
 
@@ -241,7 +241,7 @@ News
     print('===============')
     print(f'git show {version}  # Inspect!')
     print('git checkout master')
-    print(f'git merge {branchname}')
+    # print(f'git merge {branchname}')
     print(
         'twine upload '
         'dist/ase-{v}.tar.gz '
