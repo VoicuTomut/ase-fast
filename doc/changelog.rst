@@ -167,7 +167,7 @@ I/O
 - Added :func:`~ase.io.castep.write_castep_geom` and
   :func:`~ase.io.castep.write_castep_md` (:mr:`3229`)
 
-- Fixed `:mod:`ase.data.pubchem` module to convert ``#`` in SMILES to HEX
+- Fixed :mod:`ase.data.pubchem` module to convert ``#`` in SMILES to HEX
   ``%23`` for URL (:mr:`3620`).
 
  - :mod:`ase.db`: Unique IDs are now based on UUID rather than pseudorandom numbers that could become equal due to seeding (:mr:`3614`).
