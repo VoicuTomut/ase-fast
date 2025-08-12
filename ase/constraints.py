@@ -1,6 +1,8 @@
 # fmt: off
 
 """Constraints"""
+from __future__ import annotations
+
 from typing import Sequence
 from warnings import warn
 
@@ -40,9 +42,14 @@ __all__ = [
     'FixSymmetry']
 
 
-def dict2constraint(dct):
+def dict2constraint(dct: dict) -> FixConstraint:
+    """Convert dictionary to ASE `FixConstraint` object."""
     if dct['name'] not in __all__:
         raise ValueError
+    # address backward-compatibility breaking between ASE 3.22.0 and 3.23.0
+    # https://gitlab.com/ase/ase/-/merge_requests/3786
+    if dct['name'] in {'FixedLine', 'FixedPlane'} and 'a' in dct['kwargs']:
+        dct['kwargs']['indices'] = dct['kwargs'].pop('a')
     return globals()[dct['name']](**dct['kwargs'])
 
 
