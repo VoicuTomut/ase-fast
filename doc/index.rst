@@ -63,6 +63,8 @@ Mopac_
 News
 ====
 
+* :ref:`ASE version 3.26.0 <releasenotes>` released (12 August 2025).
+
 * ASE web page moved to `ase-lib.org <https://ase-lib.org/>`_ (8 August 2025).
 
 * Workshop focusing on the `extended ASE ecosystem
