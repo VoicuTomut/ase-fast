@@ -220,11 +220,10 @@ distribution-package:
       - dist
     expire_in: 1 week
   rules:
-    - if: $CI_COMMIT_TAG
     - if: $CI_PIPELINE_SOURCE == "schedule"
     - if: $CI_PIPELINE_SOURCE == "push"
       when: manual
-
+      allow_failure: true
 
 # Publish code coverage data on web.
 #  * The deploy stage is specially recognized by gitlab
