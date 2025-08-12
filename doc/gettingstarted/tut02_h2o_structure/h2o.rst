@@ -12,7 +12,7 @@ Let's calculate the structure of the :mol:`H_2O` molecule.
 
 .. admonition:: Exercise
 
-   Run a self-consistent calculation of the approximate H2O molecule
+   Run a self-consistent calculation of the approximate :mol:`H_2O` molecule
    using GPAW.
 
 
@@ -66,7 +66,7 @@ all the molecular coordinates ourselves.  As luck would have it, the
   atoms = molecule('H2O', vacuum=3.0)
 
 This function returns a molecule from the G2 test set, which is nice
-if we remember the exact name of that molecule, in this case `'H2O'`.
+if we remember the exact name of that molecule, in this case :mol:`'H_2O'`.
 In case we don't have all the molecule names memorized, we can work
 with the G2 test set using the more general :mod:`ase.collections.g2`
 module::

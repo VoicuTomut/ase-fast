@@ -176,9 +176,9 @@ be specified.
   Cubic          a                    'a'
   Tetragonal     (a, c)               'a', 'c' or 'c/a'
   Orthorhombic   (a, b, c)            'a', 'b' or 'b/a', 'c' or 'c/a'
-  Triclinic      (a, b, c, `\alpha`,  'a', 'b' or 'b/a', 'c' or
-                 `\beta`, `\gamma`)   'c/a', 'alpha', 'beta', 'gamma'
-  Monoclinic     (a, b, c, alpha)     'a', 'b' or 'b/a', 'c' or 'c/a', 'alpha'
+  Triclinic      (a, b, c, α, β, γ)   'a', 'b' or 'b/a', 'c' or
+                                      'alpha', 'beta', 'gamma'
+  Monoclinic     (a, b, c, α)         'a', 'b' or 'b/a', 'c' or 'c/a', 'alpha'
   Hexagonal      (a, c)               'a', 'c' or 'c/a'
   =============  ===================  ========================================
 

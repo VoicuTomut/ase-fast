@@ -122,8 +122,8 @@ keyword         type       default value   description
 ``setups``      ``str``    None            Additional setup option
 ``pp``          ``str``    Set by ``xc``   Pseudopotential (POTCAR) set
                            or ``gga``      used (LDA, PW91 or PBE).
-``kpts``        various    :math:`\Gamma`-point  **k**-point sampling
-``gamma``       ``bool``   None            :math:`\Gamma`-point centered
+``kpts``        various    Γ-point         **k**-point sampling
+``gamma``       ``bool``   None            Γ-point centered
                                            **k**-point sampling
 ``reciprocal``  ``bool``   None            Use reciprocal units if
                                            **k**-points are specified

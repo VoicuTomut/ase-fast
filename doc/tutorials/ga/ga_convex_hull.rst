@@ -91,7 +91,7 @@ Having identical or very similar in the population will limit the diversity and 
 
 .. math:: \text{NN}_\text{avg} = [\frac{\#\text{Cu-Cu}}{N_{\text{Cu}}} , \frac{\#\text{Cu-Pt}}{N_{\text{Cu}}}, \frac{\#\text{Pt-Cu}}{N_{\text{Pt}}}, \frac{\#\text{Pt-Pt}}{N_{\text{Pt}}}]
 
-where `\#\text{Cu-Cu}` is the number of Cu - Cu nearest neighbors and :math:`N_\text{Cu}` is the total number of Cu atoms in the slab. This check can be performed at two points; either just after candidate creation before evaluation or after evaluation before potential inclusion into the population. We will use the latter method here and add a comparator to the population.
+where :math:`\#\text{Cu-Cu}` is the number of Cu - Cu nearest neighbors and :math:`N_\text{Cu}` is the total number of Cu atoms in the slab. This check can be performed at two points; either just after candidate creation before evaluation or after evaluation before potential inclusion into the population. We will use the latter method here and add a comparator to the population.
 
 The nearest neighbor average is put in ``candidate.info['key_value_pairs']`` as a string rounded off to two decimal points. *Note* this accuracy is fitting for this size slab, but need testing for other systems.
 

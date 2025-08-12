@@ -126,7 +126,7 @@ written in the form
 .. math:: \mathbf{h} = \mathbf{P} \mathbf{h}_p
 
 where :math:`\mathbf{P} \in \mathbb{Z}^{3\times3}` and
-`\mathbf{h}_p` is the primitive cell metric.  This approach can
+:math:`\mathbf{h}_p` is the primitive cell metric.  This approach can
 be readily generalized to arbitrary target cell metrics. In order to
 obtain a measure that is size-independent it is furthermore convenient
 to introduce a normalization, which leads to the expression
