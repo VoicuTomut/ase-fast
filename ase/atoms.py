@@ -1613,7 +1613,7 @@ class Atoms:
     ) -> None:
         """Rotate atoms via Euler angles (in degrees).
 
-        See e.g http://mathworld.wolfram.com/EulerAngles.html for explanation.
+        See e.g https://mathworld.wolfram.com/EulerAngles.html for explanation.
 
         Note that the rotations in this method are passive and applied **not**
         to the atomic coordinates in the present frame **but** the frame itself.

@@ -2,7 +2,7 @@
 
 """This module defines an ASE interface to Amber16.
 
-Usage: (Tested only with Amber16, http://ambermd.org/)
+Usage: (Tested only with Amber16, https://ambermd.org/)
 
 Before usage, input files (infile, topologyfile, incoordfile)
 
@@ -233,7 +233,7 @@ class SANDER(Calculator):
     """
     Interface to SANDER using Python interface
 
-    Requires sander Python bindings from http://ambermd.org/
+    Requires sander Python bindings from https://ambermd.org/
     """
     implemented_properties = ['energy', 'forces']
 

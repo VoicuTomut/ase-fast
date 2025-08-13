@@ -224,7 +224,7 @@ Notes/Issues
   crash when trying to evaluate splines of a potential with one
   neighbor such as caused by evaluating a dimer.
 
-.. _LAMMPS: http://lammps.sandia.gov/
+.. _LAMMPS: https://www.lammps.org/
 
 .. [1] M.S. Daw and M.I. Baskes, Phys. Rev. Letters 50 (1983)
        1285.
@@ -342,7 +342,7 @@ End EAM Interface Documentation
 
             effective_charge = np.float64(data[n:n + self.nr])
             # convert effective charges to rphi according to
-            # http://lammps.sandia.gov/doc/pair_eam.html
+            # https://docs.lammps.org/pair_eam.html
             self.rphi_data[0, 0] = Bohr * Hartree * (effective_charge**2)
 
             self.density_data = np.array(
