@@ -70,7 +70,7 @@ def test_dict_compatibility(fixture_test_class) -> None:
     name = fixture_test_class.__name__
     dold = {'name': name, 'kwargs': {'a': [0], 'direction': [1, 0, 0]}}
     dnew = dict2constraint(dold).todict()
-    assert dnew['kwargs']['indices'] == dold['kwargs']['indices']
+    assert dnew['kwargs']['indices'] == dold['kwargs']['a']
 
 
 @pytest.mark.parametrize('indices', [0, [0], [0, 1]])
