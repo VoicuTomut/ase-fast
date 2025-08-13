@@ -49,7 +49,7 @@ string has been slightly modified.  Edit them as appropriate and remove the
 There will be a few special constructs such as string substitution
 codes :file:`%(number)d` or :file:`%s`.  These should remain unchanged
 in the translation as they are replaced by numbers or text at runtime.
-An underscore like in :file:`msgid "_File"` indicates that `F` is a
+An underscore like in :file:`msgid "_File"` indicates that ``F`` is a
 shortcut key.  Conflicting shortcut keys are not a big problem, but
 avoid them if you see them.  Finally, some messages may have a lot of
 whitespace in them.  This is due to bad programming style; just try to

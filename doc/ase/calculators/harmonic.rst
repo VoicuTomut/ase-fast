@@ -39,35 +39,35 @@ Harmonic Approximation. [1]_
 
 Theory for Anharmonic Correction via Thermodynamic Integration (TI)
 ===================================================================
-Thermodynamic integration (TI), i.e. `\lambda`-path integration,
-connects two thermodynamic states via a `\lambda`-path.
+Thermodynamic integration (TI), i.e. :math:`\lambda`-path integration,
+connects two thermodynamic states via a :math:`\lambda`-path.
 Here, the TI begins from a reference system '0' with known free energy
 (Harmonic Approximation) and the Anharmonic Correction is obtained via
-integration over the `\lambda`-path to the target system '1' (the fully
+integration over the :math:`\lambda`-path to the target system '1' (the fully
 interacting anharmonic system).
 Hence, the free energy of the target system can be written as
 
 .. math::
     A_1 = A_0 + \Delta A_{0 \rightarrow 1}
 
-where the second term corresponds to the integral over the `\lambda`-path
+where the second term corresponds to the integral over the :math:`\lambda`-path
 
 .. math::
 
     \Delta A_{0 \rightarrow 1} = \int_0^1 d \lambda
     \langle H_1 - H_0 \rangle_\lambda
 
-The term `\langle ... \rangle_\lambda` represents the NVT ensemble
+The term :math:`\langle ... \rangle_\lambda` represents the NVT ensemble
 average of the system driven by the classical Hamiltonian
-`\mathcal{H}_\lambda` determined by the coupling parameter
-`\lambda \in [0,1]`
+:math:`\mathcal{H}_\lambda` determined by the coupling parameter
+:math:`\lambda \in [0,1]`
 
 .. math::
 
     \mathcal{H}_\lambda = \lambda \mathcal{H}_1 + (1 - \lambda) \mathcal{H}_0
 
 Since the Hamiltonians differ only in their potential energy contributions
-`V_1` and `V_0`, the free energy change can be computed from the
+:math:`V_1` and :math:`V_0`, the free energy change can be computed from the
 potentials
 
 .. math::
@@ -89,21 +89,21 @@ rewritten to
     + \Delta A_{0,\mathbf{q} \rightarrow 1}
 
 The terms in this equation correspond to the free energy from the Harmonic
-Approximation with the reference Hessian (`A_{0,\mathbf{x}}`), the free
+Approximation with the reference Hessian (:math:`A_{0,\mathbf{x}}`), the free
 energy change due to the coordinate transformation
-(`\Delta A_{0,\mathbf{x} \rightarrow 0,\mathbf{q}}`) obtained via TI
+(:math:`\Delta A_{0,\mathbf{x} \rightarrow 0,\mathbf{q}}`) obtained via TI
 (see Example 3) and the free energy change from the harmonic to the fully
-interacting system (`\Delta A_{0,\mathbf{q} \rightarrow 1}`) obtained via
+interacting system (:math:`\Delta A_{0,\mathbf{q} \rightarrow 1}`) obtained via
 TI (see Example 4).
 Please see Amsler, J. et al. for details. [1]_
 
 .. note::
 
     Anharmonicity is quantified by comparison of the total free energy
-    `A_1` to the free energy contributions by the standard Harmonic
+    :math:`A_1` to the free energy contributions by the standard Harmonic
     Approximation with the unmodified Hessian.
     The reference Hessian and its free energy contribution
-    `A_{0,\mathbf{x}}` have no meaning outside the TI procedure.
+    :math:`A_{0,\mathbf{x}}` have no meaning outside the TI procedure.
 
 Examples
 ========
@@ -162,8 +162,8 @@ Example 3: Free Energy Change due to Coordinate Transformation
 --------------------------------------------------------------
 A transformation of the coordinate system may transform the force field.
 The change in free energy due to this transformation
-(`\Delta A_{0,\mathbf{x} \rightarrow 0,\mathbf{q}}`) can be computed via
-thermodynamic (`\lambda`-path) integration. [1]_
+(:math:`\Delta A_{0,\mathbf{x} \rightarrow 0,\mathbf{q}}`) can be computed via
+thermodynamic (:math:`\lambda`-path) integration. [1]_
 
 .. literalinclude:: ../../../ase/test/calculator/test_harmonic.py
     :language: python
@@ -172,7 +172,7 @@ thermodynamic (`\lambda`-path) integration. [1]_
     :dedent: 4
 
 Integration of the mean energy differences ('ediffs') over the integration grid
-(`\lambda` path) leads to the change in free energy due to the coordinate
+(:math:`\lambda` path) leads to the change in free energy due to the coordinate
 transformation.
 
 Example 4: Anharmonic Corrections
@@ -185,7 +185,7 @@ e.g. :mod:`~ase.calculators.vasp`.
 .. note::
 
    The obtained Anharmonic Correction applies to the Harmonic Approximation
-   (`A_{0,\mathbf{x}}`) of the reference system with the reference Hessian which
+   (:math:`A_{0,\mathbf{x}}`) of the reference system with the reference Hessian which
    is generated during initialization of the Calculator and
    may differ from the standard Harmonic Approximation.
    The vibrations for the reference system can be computed numerically with

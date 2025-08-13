@@ -72,13 +72,13 @@ only small fraction of the NGL_ widget capabilities. The simplest form:
 
 creates interactive ngl viewer widget with the few additional control widgets
 added on the side. The object returned by the above call is a reference to
-the `.gui` member of the :class:`ase.visualize.nglview.NGLDisplay` containing
-actual viewer (`.view` member), a reference to control widgets box
-(`.control_box` member) and
+the ``.gui`` member of the :class:`ase.visualize.nglview.NGLDisplay` containing
+actual viewer (``.view`` member), a reference to control widgets box
+(``.control_box`` member) and
 :func:`ase.visualize.view.nglview.NGLDisplay.custom_colors` method. The
 notebook interface is not blocked by the above call and the returned object
 may be further manipulated by the following code in the separate cell (the
-`\_` variable contains output from the previous cell):
+``\_`` variable contains output from the previous cell):
 
 >>> v=_
 >>> v.custom_colors({'Mn':'green','As':'blue'})
@@ -87,8 +87,8 @@ may be further manipulated by the following code in the separate cell (the
 >>> v.view.background='#ffc'
 >>> v.view.parameters=dict(clipDist=-200)
 
-The `.view` member exposes full API of the NGLView_ widget. The
-`.control_box` member is a :class:`ipywidgets.HBox` containing
+The ``.view`` member exposes full API of the NGLView_ widget. The
+``.control_box`` member is a :class:`ipywidgets.HBox` containing
 :class:`nglview.widget.NGLWidget` and :class:`ipywidgets.VBox` with control
 widgets. For the full documentation of these objects consult the NGLView_,
 NGL_ and ipywidgets_ websites.

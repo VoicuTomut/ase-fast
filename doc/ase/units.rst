@@ -10,7 +10,7 @@ Other units are (amongst others)
 ``nm``, ``Bohr``, ``Hartree`` or ``Ha``, ``kJ``, ``kcal``, ``mol``,
 ``Rydberg`` or ``Ry``, ``second``, ``fs`` and ``kB``.
 
-Time is given in units of :math:`\textrm Å \sqrt{\textrm{u} / \textrm{eV}}`.  Thus, for example, :math:`1\textrm{ fs} \approx 0.098 \textrm Å \sqrt{\textrm{u} / \textrm{eV}}`, where `\textrm u` is the atomic mass unit.
+Time is given in units of :math:`\textrm Å \sqrt{\textrm{u} / \textrm{eV}}`.  Thus, for example, :math:`1\textrm{ fs} \approx 0.098 \textrm Å \sqrt{\textrm{u} / \textrm{eV}}`, where :math:`\textrm u` is the atomic mass unit.
 
 Prior to ASE 3.21.0, temperatures were often specified as kT in energy
 units (eV), effectively using the Boltzmann konstant ``kB``

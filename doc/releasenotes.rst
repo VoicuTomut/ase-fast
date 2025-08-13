@@ -125,7 +125,7 @@ Version 3.23.0
 * Added a function, :func:`ase.dft.kpoints.mindistance2monkhorstpack`, to
   construct a Monkhorst-Pack grid (:mr:`2811`)
 
-* Fixed turbomole calculator parsing issues when `=` are present in data
+* Fixed turbomole calculator parsing issues when ``=`` are present in data
   groups (:mr:`2808`)
 
 * Fixed round-trip dict (de)serialization with ``FixedMode`` constraint
@@ -163,7 +163,7 @@ Version 3.23.0
 
 * Replaced :class:`ase.phasediagram.Pourbaix` class (to be deprecated)
   with the :mod:`ase.pourbaix` module. The latter includes a
-  `~ase.pourbaix.Pourbaix` class able to plot a complete diagram given a
+  :class:`~ase.pourbaix.Pourbaix` class able to plot a complete diagram given a
   set of references. The decomposition energy is now shown on a colormap
   and the phase boundaries are determined with a plane intersection method.
   (:mr:`3280`)
@@ -250,7 +250,7 @@ Calculators:
 
 * Support PBCs in Plumed calculator (:mr:`2671`)
 
-* Support z-matrix format for ``FixCartesian``` constraints in Siesta (:mr:`2669`)
+* Support z-matrix format for ``FixCartesian`` constraints in Siesta (:mr:`2669`)
 
 * Support spin-orbit coupling and non-colinear calculations in Siesta
   (:mr:`2665`, :mr:`2665`)
@@ -484,9 +484,9 @@ Algorithms:
   highly curved regions of the potential energy surface.
 
 * :class:`ase.neb.NEB` has been overhauled and given support for
-  preconditioning via a new `precon` argument to its constructor,
-  and two newly supported methods, `spline` for spline-interpolated
-  tangets and `string` for the string method, both of which support
+  preconditioning via a new ``precon`` argument to its constructor,
+  and two newly supported methods, ``spline`` for spline-interpolated
+  tangets and ``string`` for the string method, both of which support
   preconditioning. The default behaviour should be unchanged.
 
 * Interpolating NEB images on constrained atoms will now raise an
@@ -880,8 +880,8 @@ Algorithms:
 * Added a new tutorial on molecular crystal structure prediction using
   a genetic algorithm, see :ref:`ga_molecular_crystal_tutorial`.
 
-* Allow setting the initial hessian in `optimize.BFGS` via the keyword `alpha` or
-  explicitly via `opt.H0 = ...` after instantiation.
+* Allow setting the initial hessian in ``optimize.BFGS`` via the keyword ``alpha`` or
+  explicitly via ``opt.H0 = ...`` after instantiation.
 
 Command-line interface:
 
@@ -1771,7 +1771,7 @@ Version 3.11.0
 
 10 May 2016: :git:`3.11.0 <../3.11.0>`.
 
-* Special `\mathbf{k}`-points from the [Setyawan-Curtarolo]_ paper was added:
+* Special :math:`\mathbf{k}`-points from the [Setyawan-Curtarolo]_ paper was added:
   :data:`ase.dft.kpoints.special_points`.
 
 * New :mod:`ase.collections` module added.  Currently contains the G2 database
