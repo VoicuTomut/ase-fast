@@ -1,7 +1,7 @@
 # fmt: off
 
 """
-The ASE Calculator for OpenMX <http://www.openmx-square.org>: Python interface
+The ASE Calculator for OpenMX <https://www.openmx-square.org>: Python interface
 to the software package for nano-scale material simulations based on density
 functional theories.
     Copyright (C) 2018 JaeHwan Shim and JaeJun Yu
@@ -17,7 +17,7 @@ functional theories.
     GNU Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public License
-    along with ASE.  If not, see <http://www.gnu.org/licenses/>.
+    along with ASE.  If not, see <https://www.gnu.org/licenses/>.
 """
 import os
 
@@ -358,7 +358,7 @@ def get_atoms_speciesandcoordinates(atoms, parameters):
      1  Mn    0.00000   0.00000   0.00000   8.0  5.0  45.0 0.0 45.0 0.0  1 on
      2  O     1.70000   0.00000   0.00000   3.0  3.0  45.0 0.0 45.0 0.0  1 on
     Atoms.SpeciesAndCoordinates>
-    to know more, link <http://www.openmx-square.org/openmx_man3.7/node85.html>
+    to know more, link <https://www.openmx-square.org/openmx_man3.7/node85.html>
     """
     atoms_speciesandcoordinates = []
     xc = parameters.get('_xc')
