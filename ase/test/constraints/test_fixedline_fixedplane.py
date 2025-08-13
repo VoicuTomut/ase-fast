@@ -4,7 +4,7 @@ import pytest
 
 from ase.build import molecule
 from ase.calculators.emt import EMT
-from ase.constraints import FixedLine, FixedPlane
+from ase.constraints import FixedLine, FixedPlane, dict2constraint
 from ase.optimize import BFGS
 
 
@@ -63,6 +63,14 @@ def _check_simple_constraints(constraints, indices):
     cnew_positions = mol[indices].positions.copy()
 
     return cold_positions, cnew_positions
+
+
+def test_dict_compatibility(fixture_test_class) -> None:
+    """Test if dictionary made with ASE 3.22.0 can be read in newer ASE."""
+    name = fixture_test_class.__name__
+    dold = {'name': name, 'kwargs': {'a': [0], 'direction': [1, 0, 0]}}
+    dnew = dict2constraint(dold).todict()
+    assert dnew['kwargs']['indices'] == dold['kwargs']['a']
 
 
 @pytest.mark.parametrize('indices', [0, [0], [0, 1]])
