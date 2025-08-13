@@ -91,10 +91,10 @@ This example requires NWChem to be installed.
     $ ase gui h2.traj
 
 
-.. _Python: http://www.python.org/
-.. _NumPy: http://docs.scipy.org/doc/numpy/reference/
-.. _SciPy: http://docs.scipy.org/doc/scipy/reference/
-.. _Matplotlib: http://matplotlib.org/
+.. _Python: https://www.python.org/
+.. _NumPy: https://numpy.org/doc/stable/
+.. _SciPy: https://docs.scipy.org/doc/scipy/
+.. _Matplotlib: https://matplotlib.org/
 .. _flask: https://pypi.org/project/Flask/
 .. _spglib: https://github.com/spglib/spglib
 .. _ase-users: https://listserv.fysik.dtu.dk/mailman/listinfo/ase-users

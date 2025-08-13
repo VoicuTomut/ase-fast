@@ -712,7 +712,7 @@ reference_states = [
     None,  # Og
 ]
 
-# http://www.webelements.com
+# https://www.webelements.com
 ground_state_magnetic_moments = np.array([
     0.0,  # X
     1.0,  # H

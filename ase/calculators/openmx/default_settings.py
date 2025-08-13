@@ -1,7 +1,7 @@
 # fmt: off
 
 """
-The ASE Calculator for OpenMX <http://www.openmx-square.org>: Python interface
+The ASE Calculator for OpenMX <https://www.openmx-square.org>: Python interface
 to the software package for nano-scale material simulations based on density
 functional theories.
     Copyright (C) 2017 Charles Thomas Johnson, JaeHwan Shim and JaeJun Yu
@@ -17,14 +17,14 @@ functional theories.
     GNU Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public License
-    along with ASE.  If not, see <http://www.gnu.org/licenses/>.
+    along with ASE.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 # Dictionary containing information about the LCAO datasets
 # The keys are the chemical symbol of the atom. The value of 'orbitals used'
 # is list of integers which correspond to the number of 's', 'p', 'd' and 'f'
 # orbitals used respectively.
-# Information was brought from the http://www.jaist.ac.jp/~t-ozaki/vps_pao2013/
+# Information was brought from the https://www.jaist.ac.jp/~t-ozaki/vps_pao2013/
 
 default_dictionary = {
     'H': {

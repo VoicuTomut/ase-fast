@@ -2,8 +2,8 @@
 
 """ This module defines a FileIOCalculator for DFTB+
 
-http://www.dftbplus.org/
-http://www.dftb.org/
+https://www.dftbplus.org/
+https://www.dftb.org/
 
 Initial development: markus.kaukonen@iki.fi
 """

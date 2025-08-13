@@ -245,7 +245,7 @@ xz and yz are the tilt of the lattice vectors, all to be edited.
 
 **Notes**
 
-.. _LAMMPS: http://lammps.sandia.gov/
+.. _LAMMPS: https://lammps.org/
 
 * Units: The default lammps_header sets the units to Angstrom and eV
   and for compatibility with ASE Stress is in GPa.

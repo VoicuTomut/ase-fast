@@ -16,7 +16,7 @@ class QChem(FileIOCalculator):
     _legacy_default_command = 'qchem PREFIX.inp PREFIX.out'
 
     # Following the minimal requirements given in
-    # http://www.q-chem.com/qchem-website/manual/qchem43_manual/sect-METHOD.html
+    # https://www.q-chem.com/qchem-website/manual/qchem43_manual/sect-METHOD.html
     default_parameters = {'method': 'hf',
                           'basis': '6-31G*',
                           'jobtype': None,

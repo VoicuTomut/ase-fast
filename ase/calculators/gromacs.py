@@ -2,7 +2,7 @@
 
 """This module defines an ASE interface to GROMACS.
 
-http://www.gromacs.org/
+https://www.gromacs.org/
 It is VERY SLOW compared to standard Gromacs
 (due to slow formatted io required here).
 
