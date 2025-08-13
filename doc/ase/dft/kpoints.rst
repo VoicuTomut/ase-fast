@@ -20,8 +20,8 @@ The k-points are given as [MonkhorstPack]_:
 
     \sum_{i=1,2,3} \frac{2n_i -N_i - 1}{2N_i} \mathbf{b}_i,
 
-where `n_i=1,2,...,N_i`, ``size`` = `(N_1, N_2, N_3)` and the
-`\mathbf{b}_i`'s are reciprocal lattice vectors.
+where :math:`n_i=1,2,...,N_i`, ``size`` = :math:`(N_1, N_2, N_3)` and the
+:math:`\mathbf{b}_i`'s are reciprocal lattice vectors.
 
 .. autofunction:: get_monkhorst_pack_size_and_offset
 

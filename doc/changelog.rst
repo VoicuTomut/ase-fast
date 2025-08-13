@@ -119,9 +119,9 @@ Documentation
 Other changes
 -------------
 
-- Removed `Quaternions` (subclass of `Atoms`).
-  The `quaternions` read from a LAMMPS data file is still accessible as an array
-  in `Atoms`. (:mr:`3709`)
+- Removed ``Quaternions`` (subclass of ``Atoms``).
+  The ``quaternions`` read from a LAMMPS data file is still accessible as an array
+  in ``Atoms``. (:mr:`3709`)
 
 - Re-added the ``spin`` option of
   :meth:`~ase.spectrum.band_structure.BandStructurePlot.plot`
@@ -160,14 +160,14 @@ I/O
   https://gitlab.com/ase/ase-db-backends.  Install from PyPI with
   ``pip install ase-db-backends`` (:mr:`3545`).
 
-- **BREAKING** ase.io.orca `read_orca_output` now returns Atoms with attached properties.
-  `ase.io.read` will use this function.
-  The previous behaviour (return results dictionary only) is still available from function `read_orca_outputs`. (:mr:`3599`)
+- **BREAKING** ase.io.orca ``read_orca_output`` now returns Atoms with attached properties.
+  ``ase.io.read`` will use this function.
+  The previous behaviour (return results dictionary only) is still available from function ``read_orca_outputs``. (:mr:`3599`)
 
 - Added :func:`~ase.io.castep.write_castep_geom` and
   :func:`~ase.io.castep.write_castep_md` (:mr:`3229`)
 
-- Fixed `:mod:`ase.data.pubchem` module to convert ``#`` in SMILES to HEX
+- Fixed :mod:`ase.data.pubchem` module to convert ``#`` in SMILES to HEX
   ``%23`` for URL (:mr:`3620`).
 
  - :mod:`ase.db`: Unique IDs are now based on UUID rather than pseudorandom numbers that could become equal due to seeding (:mr:`3614`).
@@ -203,7 +203,7 @@ Optimizers
 Molecular dynamics
 ------------------
 
-- Merged `self.communicator` into `self.comm` (:mr:`3631`).
+- Merged ``self.communicator`` into ``self.comm`` (:mr:`3631`).
 
  - Improved random sampling in countour exploration (:mr:`3643`).
  - Fix small energy error in Langevin dynamics (:mr:`3567`).
@@ -246,7 +246,7 @@ Other changes
  - Bugfix: Constraint masks in cell filters are now respected down to numerical precision.  Previously, the constraints could be violated by a small amount (:mr:`3603`).
  - Deprecate :func:`~ase.utils.lazyproperty` and :func:`~ase.utils.lazymethod`
    since Python now provides :func:`functools.cached_property` (:mr:`3565`).
- - Remove `nomad-upload` and `nomad-get` commands due to incompatibility
+ - Remove ``nomad-upload`` and ``nomad-get`` commands due to incompatibility
    with recent Nomad (:mr:`3563`).
  - Fix normalization of phonon DOS (:mr:`3472`).
  - :class:`~ase.io.utils.PlottingVariables` towards rotating the
@@ -341,7 +341,7 @@ GUI
 * Force lines to appear black (:mr:`3459`)
 * Fix missing Alt+X/Y/Z/1/2/3 shortcuts to set view direction (:mr:`3482`)
 * Fix incorrect frame number after using Page-Up/Page-Down controls (:mr:`3481`)
-* Fix incorrect double application of `repeat` to `energy` in GUI (:mr:`3492`)
+* Fix incorrect double application of ``repeat`` to ``energy`` in GUI (:mr:`3492`)
 
 Molecular Dynamics
 ------------------

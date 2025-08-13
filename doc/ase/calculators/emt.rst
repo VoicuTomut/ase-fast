@@ -207,7 +207,7 @@ as
 Be careful that we also need to consider the contribution of the energy term
 associated to atom :math:`j`.
 
-The first terms depend on :math:`r_{ij}` indirectly via `s_{i}` and `s_{j}`.
+The first terms depend on :math:`r_{ij}` indirectly via :math:`s_{i}` and :math:`s_{j}`.
 
 .. math::
    \frac{\partial E_{\mathrm{c},i}}{\partial r_{ij}} =

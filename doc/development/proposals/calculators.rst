@@ -56,13 +56,13 @@ object.
 
   * ``(n1,n2,n3)``: Monkhorst-Pack grid
 
-  * ``(n1,n2,n3,'gamma')``: Shifted Monkhorst-Pack grid that includes `\Gamma`
+  * ``(n1,n2,n3,'gamma')``: Shifted Monkhorst-Pack grid that includes :math:`\Gamma`
 
   * ``[(k11,k12,k13),(k21,k22,k23),...]``: Explicit list in units of the
     reciprocal lattice vectors
 
-  * ``kpts=3.5``: `\vec k`-point density as in 3.5 `\vec k`-points per
-    Å\ `^{-1}`
+  * ``kpts=3.5``: :math:`\vec k`-point density as in 3.5 :math:`\vec k`-points per
+    Å\ :math:`^{-1}`
 
 :smearing:
 
@@ -70,7 +70,7 @@ object.
 
   * ``('Fermi-Dirac', width)``
   * ``('Gaussian', width)``
-  * ``('Methfessel-Paxton', width, n)``, where `n` is the order (`n=0`
+  * ``('Methfessel-Paxton', width, n)``, where ``n`` is the order (:math:`n=0`
     is the same as ``'Gaussian'``)
 
   Lower-case strings are also allowed.  The ``width`` parameter used
@@ -78,7 +78,7 @@ object.
 
 :charge:
 
-  Charge of the system in units of `|e|` (``charge=1`` means one
+  Charge of the system in units of :math:`|e|` (``charge=1`` means one
   electron has been removed).
 
 

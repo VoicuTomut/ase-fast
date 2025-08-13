@@ -145,7 +145,7 @@ Below follows a list with a selection of standard parameters
 ================= ======= ========== ===============================
 keyword           type    default    openmx_keyword
 ================= ======= ========== ===============================
-``xc``            ``str`` `LDA`      'scf.XcType'
+``xc``            ``str`` 'LDA'      'scf.XcType'
 ``maxiter``       ``int`` 100        'scf.maxIter'
 ``energy_cutoff`` ``flt`` 150\*Ry    'scf.energycutoff'
 ``kpts``          ``tpl`` (4, 4, 4)  'scf.Kgrid'
@@ -162,7 +162,7 @@ keyword           type    default    openmx_keyword
 Calculator parameters
 =====================
 
-By default, calculator uses `openmx` arguments to run the code. However, single
+By default, calculator uses ``openmx`` arguments to run the code. However, single
 node calculating is not a good way to run heavy DFT calculation. Parallel
 computation is inevitable. In OpenMX calculator, user may choose the way to
 run. There are two ways to excute the code. First is to use MPI and the second
@@ -183,7 +183,7 @@ Similarly, You can use PBS method by specifying kwargs,
 .. note::
 
   PBS method will not be applied unless you have schedular specifically
-  supports PBS. If your schedular support `qsub` command and `qlist` command,
+  supports PBS. If your schedular support ``qsub`` command and ``qlist`` command,
   you may check pbs command is possible to use.
 
 Below follows a list with a selection of calculator parameters
