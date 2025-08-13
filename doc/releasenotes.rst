@@ -19,13 +19,64 @@ Version 3.26.0
 
 12 August 2025: :git:`3.26.0 <../3.26.0>`
 
-* No changes yet
+This is the first release following the 2025 ASE workshop at EPFL.
+The workshop established plans for ASE 4 as well as a
+steering committee.  New features for ASE 4 will be developed under the
+ase._4 namespace and are experimental.  More information about these
+developments should be added to the documentation in the near future.
+
+The web page has been moved to `ase-lib.org <https://ase-lib.org/>`_
+and now uses the sphinx book theme.  It is now deployed automatically
+using Gitlab pages and continuous integration.
+
+Optimizers can now work on any target function with derivatives
+thanks to the limited :class:`~ase.utils.abc.Optimizable` interface.
+One future goal of this effort is to replace Filters with simpler objects
+and make it easier to control e.g. tolerances in cell optimizations.
+
+Highlights:
+
+- **Breaking change**: IO: Removed unused ``IOFormat.open()`` method (:mr:`3738`).
+- **Breaking change:** Optimizers: The :class:`~ase.utils.abc.Optimizable` interface
+  now works in terms of arbitrary degrees of freedom rather than
+  Cartesian (Nx3) ones.
+  This can break code that uses internals of ``Optimizer`` such as ``converged()``.
+  Please note that the interface is still considered an internal feature
+  and may still change significantly. (:mr:`3732`)
+- Changed :class:`~ase.calculators.elk.ELK` based on
+  :class:`~ase.calculators.GenericFileIOCalculator` (:mr:`3736`)
+- Molecular dynamics: Added anisotropic NpT with MTK equations (:mr:`3595`).
+- GUI: Multiple bugfixes related to keyboard shortcuts,
+  particularly for OSX.
+- GUI: Added general window to view and edit data on atoms directly
+  in the same style as the cell editor.
+  The window currently edits
+  symbols and Cartesian positions only (:mr:`3790`).
 
 
 Version 3.25.0
 ==============
 
 11 April 2025: :git:`3.25.0 <../3.25.0>`
+
+
+Starting with this release, release notes will change format.
+Until now, the release notes were mostly a changelog.
+Instead, release notes should now consist of prose and/or a shorter
+list of highlights.  In addition, a more detailed :ref:`changelog`
+is now generated using `scriv <https://github.com/nedbat/scriv>`_.
+
+Noteworthy changes in this release are:
+
+- **BREAKING** :mod:`ase.io.orca.read_orca_output` now returns :class:`~ase.Atoms` with attached properties.
+  :func:`ase.io.read` will use this function.
+  The previous behaviour (return results dictionary only) is still available from function
+  :func:`ase.io.orca.read_orca_outputs`. (:mr:`3599`)
+- The "heavy-weight" database backends in :mod:`ase.db` have been
+  moved to a separate project, https://gitlab.com/ase/ase-db-backends.
+- The EAM calculator can now compute stress tensors (:mr:`3581`).
+- Molecular dynamics: Added osotropic NPT with MTK equations (:mr:`3550`).
+
 
 Version 3.24.0
 ==============
