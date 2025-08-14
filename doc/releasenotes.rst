@@ -75,7 +75,7 @@ Noteworthy changes in this release are:
 - The "heavy-weight" database backends in :mod:`ase.db` have been
   moved to a separate project, https://gitlab.com/ase/ase-db-backends.
 - The EAM calculator can now compute stress tensors (:mr:`3581`).
-- Molecular dynamics: Added osotropic NPT with MTK equations (:mr:`3550`).
+- Molecular dynamics: Added isotropic NPT with MTK equations (:mr:`3550`).
 
 
 Version 3.24.0
