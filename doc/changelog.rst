@@ -70,7 +70,7 @@ Calculators
 Optimizers
 ----------
 
- - Logfile and trajectory inputs now accept both string and Path objects.
+- Logfile and trajectory inputs now accept both string and Path objects.
 
 - **Breaking change:** The :class:`~ase.utils.abc.Optimizable` interface
   now works in terms of arbitrary degrees of freedom rather than
@@ -88,7 +88,7 @@ Molecular dynamics
 GUI
 ---
 
- - Atomic spins can now be visualized as arrows
+- Atomic spins can now be visualized as arrows
 
 - Mouse button 2 and 3 are now equivalent in the GUI, which simplifies
   life on particularly MacOS (:mr:`3669`).
@@ -107,12 +107,12 @@ GUI
 Development
 -----------
 
- - Enable ruff for whole documentation
+- Enable ruff on all scripts inside documentation
 
 Documentation
 -------------
 
- - Web page now uses sphinx book theme (:mr:`3684`).
+- Web page now uses sphinx book theme (:mr:`3684`).
 
 - Documentation moved to `ase-lib.org <https://ase-lib.org/>`_.
 
@@ -170,60 +170,60 @@ I/O
 - Fixed :mod:`ase.data.pubchem` module to convert ``#`` in SMILES to HEX
   ``%23`` for URL (:mr:`3620`).
 
- - :mod:`ase.db`: Unique IDs are now based on UUID rather than pseudorandom numbers that could become equal due to seeding (:mr:`3614`).
- - :mod:`ase.db`: Fix bug where unique_id could be converted to float or int (:mr:`3613`).
- - Vasp: More robust reading of CHGCAR (:mr:`3607`).
- - Lammpsdump: Read timestep from lammpsdump and set element based on mass (:mr:`3529`).
- - Vasp: Read and write velocities (:mr:`3597`).
- - DB: Support for LMDB via `ase-db-backends` project (:mr:`3564`, :mr:`3639`).
- - Espresso: Fix bug reading `alat` in some cases (:mr:`3562`).
- - GPAW: Fix reading of total charge from text file (:mr:`3519`).
- - extxyz: Somewhat restrict what properties are automatically written (:mr:`3516`).
- - Lammpsdump: Read custom property/atom LAMMPS dump data (:mr:`3510`).
+- :mod:`ase.db`: Unique IDs are now based on UUID rather than pseudorandom numbers that could become equal due to seeding (:mr:`3614`).
+- :mod:`ase.db`: Fix bug where unique_id could be converted to float or int (:mr:`3613`).
+- Vasp: More robust reading of CHGCAR (:mr:`3607`).
+- Lammpsdump: Read timestep from lammpsdump and set element based on mass (:mr:`3529`).
+- Vasp: Read and write velocities (:mr:`3597`).
+- DB: Support for LMDB via `ase-db-backends` project (:mr:`3564`, :mr:`3639`).
+- Espresso: Fix bug reading `alat` in some cases (:mr:`3562`).
+- GPAW: Fix reading of total charge from text file (:mr:`3519`).
+- extxyz: Somewhat restrict what properties are automatically written (:mr:`3516`).
+- Lammpsdump: Read custom property/atom LAMMPS dump data (:mr:`3510`).
 
 Calculators
 -----------
 
- - More robust reading of Castep XC functional (:mr:`3612`).
- - More robust saving of calculators to e.g. trajectories (:mr:`3610`).
- - Lammpslib: Fix outdated MPI check (:mr:`3594`).
- - Morse: Optionally override neighbor list implementation (:mr:`3593`).
- - EAM: Calculate stress (:mr:`3581`).
+- More robust reading of Castep XC functional (:mr:`3612`).
+- More robust saving of calculators to e.g. trajectories (:mr:`3610`).
+- Lammpslib: Fix outdated MPI check (:mr:`3594`).
+- Morse: Optionally override neighbor list implementation (:mr:`3593`).
+- EAM: Calculate stress (:mr:`3581`).
 
- - A new Calculator :class:`ase.calculators.tersoff.Tersoff` has been added. This is a Python implementation of a LAMMPS-style Tersoff interatomic potential. Parameters may be passed directly to the calculator as a :class:`ase.calculators.tersoff.TersoffParameters` object, or the Calculator may be constructed from a LAMMPS-style file using its ``from_lammps`` classmethod. (:mr:`3502`)
+- A new Calculator :class:`ase.calculators.tersoff.Tersoff` has been added. This is a Python implementation of a LAMMPS-style Tersoff interatomic potential. Parameters may be passed directly to the calculator as a :class:`ase.calculators.tersoff.TersoffParameters` object, or the Calculator may be constructed from a LAMMPS-style file using its ``from_lammps`` classmethod. (:mr:`3502`)
 
 Optimizers
 ----------
 
- - Fix step counting in the
-   :class:`~ase.optimize.cellawarebfgs.CellAwareBFGS` (:mr:`3588`).
+- Fix step counting in the
+  :class:`~ase.optimize.cellawarebfgs.CellAwareBFGS` (:mr:`3588`).
 
- - Slightly more efficient/robust GoodOldQuasiNewton (:mr:`3570`).
+- Slightly more efficient/robust GoodOldQuasiNewton (:mr:`3570`).
 
 Molecular dynamics
 ------------------
 
 - Merged ``self.communicator`` into ``self.comm`` (:mr:`3631`).
 
- - Improved random sampling in countour exploration (:mr:`3643`).
- - Fix small energy error in Langevin dynamics (:mr:`3567`).
- - Isotropic NPT with MTK equations (:mr:`3550`).
- - Bussi dynamics now work in parallel (:mr:`3569`).
- - Improvements to documentation (:mr:`3566`).
- - Make Nose-Hoover chain NVT faster and fix domain decomposition
-   with Asap3 (:mr:`3571`).
+- Improved random sampling in countour exploration (:mr:`3643`).
+- Fix small energy error in Langevin dynamics (:mr:`3567`).
+- Isotropic NPT with MTK equations (:mr:`3550`).
+- Bussi dynamics now work in parallel (:mr:`3569`).
+- Improvements to documentation (:mr:`3566`).
+- Make Nose-Hoover chain NVT faster and fix domain decomposition
+  with Asap3 (:mr:`3571`).
 
- - NPT now works with cells that are upper or lower triangular matrices
-   (:mr:`3277`) aside from upper-only as before.
+- NPT now works with cells that are upper or lower triangular matrices
+  (:mr:`3277`) aside from upper-only as before.
 
- - Fix inconsistent :meth:`irun` for NPT (:mr:`3598`).
+- Fix inconsistent :meth:`irun` for NPT (:mr:`3598`).
 
 GUI
 ---
 
- - Fix windowing bug on WSL (:mr:`3478`).
+- Fix windowing bug on WSL (:mr:`3478`).
 
- - Added button to wrap atoms into cell (:mr:`3587`).
+- Added button to wrap atoms into cell (:mr:`3587`).
 
 Development
 -----------
@@ -234,23 +234,21 @@ Development
   (:mr:`3628`, :mr:`3629`).
 - Maximum automatic pytest workers reduced to 8 (:mr:`3628`).
 
- - Ruff formatter to be gradually enabled across codebase (:mr:`3600`).
+- Ruff formatter to be gradually enabled across codebase (:mr:`3600`).
 
 Other changes
 -------------
 
- - :meth:`~ase.cell.Cell.standard_form` can convert to upper triangular (:mr:`3623`).
-
- - Bugfix: :func:`~ase.geometry.geometry.get_duplicate_atoms` now respects pbc (:mr:`3609`).
-
- - Bugfix: Constraint masks in cell filters are now respected down to numerical precision.  Previously, the constraints could be violated by a small amount (:mr:`3603`).
- - Deprecate :func:`~ase.utils.lazyproperty` and :func:`~ase.utils.lazymethod`
-   since Python now provides :func:`functools.cached_property` (:mr:`3565`).
- - Remove ``nomad-upload`` and ``nomad-get`` commands due to incompatibility
-   with recent Nomad (:mr:`3563`).
- - Fix normalization of phonon DOS (:mr:`3472`).
- - :class:`~ase.io.utils.PlottingVariables` towards rotating the
-   camera rather than the atoms (:mr:`2895`).
+- :meth:`~ase.cell.Cell.standard_form` can convert to upper triangular (:mr:`3623`).
+- Bugfix: :func:`~ase.geometry.geometry.get_duplicate_atoms` now respects pbc (:mr:`3609`).
+- Bugfix: Constraint masks in cell filters are now respected down to numerical precision.  Previously, the constraints could be violated by a small amount (:mr:`3603`).
+- Deprecate :func:`~ase.utils.lazyproperty` and :func:`~ase.utils.lazymethod`
+  since Python now provides :func:`functools.cached_property` (:mr:`3565`).
+- Remove ``nomad-upload`` and ``nomad-get`` commands due to incompatibility
+  with recent Nomad (:mr:`3563`).
+- Fix normalization of phonon DOS (:mr:`3472`).
+- :class:`~ase.io.utils.PlottingVariables` towards rotating the
+  camera rather than the atoms (:mr:`2895`).
 
 .. scriv-auto-changelog-end
 
