@@ -306,7 +306,7 @@ class Cell:
         return np.linalg.norm(self.normal(i))
 
     def areas(self):
-        """Areas spanned by cell vector pairs (1, 2), (2, 0), and (0, 2)."""
+        """Areas spanned by cell vector pairs (1, 2), (2, 0), and (0, 1)."""
         return np.linalg.norm(self.normals(), axis=1)
 
     def __repr__(self):
