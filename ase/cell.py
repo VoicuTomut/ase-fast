@@ -26,8 +26,8 @@ class Cell:
     def __init__(self, array):
         """Create cell.
 
-        Parameters:
-
+        Parameters
+        ----------
         array: 3x3 arraylike object
           The three cell vectors: cell[0], cell[1], and cell[2].
         """
@@ -147,8 +147,8 @@ class Cell:
         If special special points are given, interpolate the path
         directly from the available data.
 
-        Parameters:
-
+        Parameters
+        ----------
         path: string
             String of special point names defining the path, e.g. 'GXL'.
         npoints: int
@@ -351,13 +351,13 @@ class Cell:
         (i.e. unique) description. For a left-handed cell the diagonal entries
         are negative.
 
-        Parameters:
-
+        Parameters
+        ----------
         form: str
             'lower' or 'upper' triangular form. The default is 'lower'.
 
-        Returns:
-
+        Returns
+        -------
         rcell: the standardized cell object
 
         Q: ndarray
