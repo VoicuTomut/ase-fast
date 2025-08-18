@@ -291,7 +291,7 @@ xz and yz are the tilt of the lattice vectors, all to be edited.
                        'atom_modify map array sort 0 0'],
         amendments=None,
         post_changebox_cmds=None,
-        extra_cmd_args=[],
+        extra_cmd_args=(),
         activate_mliappy=None,
         boundary=True,
         create_box=True,
