@@ -668,7 +668,7 @@ xz and yz are the tilt of the lattice vectors, all to be edited.
             cmd_args = ['-echo', 'log', '-log', self.parameters.log_file,
                         '-screen', 'none', '-nocite']
 
-        self.cmd_args = cmd_args + self.parameters.extra_cmd_args
+        self.cmd_args = cmd_args + list(self.parameters.extra_cmd_args)
 
         if self.lmp is None:
             self.lmp = lammps(self.parameters.lammps_name, self.cmd_args,
