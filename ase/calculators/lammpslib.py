@@ -153,9 +153,10 @@ Keyword                                  Description
                          `("-k on g 1 -sf kk "
                            "-pk kokkos neigh half newton on").split()`
 
-``activate_mliappy``     `"regular"` or `"kokkos"` to call
-                         `lammps.mliap.activate_mliappy()` or
-                         `activate_mliappy_kokkos`, respectively
+``intializer``           callback function that does arbitrary LAMMPS python
+                         API initializtion tasks (e.g. calling
+                         `lammps.mliap.activate_mliapy`) and accepts a single
+                         positional argument, `self.lmp`.
 
 ``keep_alive``           Boolean
                          whether to keep the lammps routine alive for more
@@ -292,7 +293,7 @@ xz and yz are the tilt of the lattice vectors, all to be edited.
         amendments=None,
         post_changebox_cmds=None,
         extra_cmd_args=(),
-        activate_mliappy=None,
+        initializer=None,
         boundary=True,
         create_box=True,
         create_atoms=True,
@@ -674,15 +675,8 @@ xz and yz are the tilt of the lattice vectors, all to be edited.
             self.lmp = lammps(self.parameters.lammps_name, self.cmd_args,
                               comm=self.parameters.comm)
 
-            if self.parameters.activate_mliappy:
-                import lammps.mliap
-                if self.parameters.activate_mliappy == "regular":
-                    lammps.mliap.activate_mliappy(self.lmp)
-                elif self.parameters.activate_mliappy == "kokkos":
-                    lammps.mliap.activate_mliappy_kokkos(self.lmp)
-                else:
-                    raise ValueError("Unknown activate_mliappy value "
-                                     f"'{self.parameters.activate_mliappy}'")
+            if self.parameters.initializer is not None:
+                self.parameters.initializer(self.lmp)
 
         # Run header commands to set up lammps (units, etc.)
         for cmd in self.parameters.lammps_header:

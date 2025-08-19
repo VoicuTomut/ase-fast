@@ -44,7 +44,10 @@ def calc_params_Ar_mliap(tmp_path):
         f"pair_style mliap unified {tmp_path / 'mliap_unified_lj_Ar.pkl'} 0",
         "pair_coeff * * Ar"
     ]
-    calc_params["activate_mliappy"] = "regular"
+    def _mliapy_initializer(lmp):
+        import lammps
+        lammps.mliap.activate_mliappy(lmp)
+    calc_params["initializer"] = _mliapy_initializer
     calc_params["atom_types"] = {"Ar": 1}
     calc_params["log_file"] = "test.log"
     calc_params["keep_alive"] = True

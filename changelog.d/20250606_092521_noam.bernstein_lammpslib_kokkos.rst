@@ -11,7 +11,9 @@
 Calculators
 -----------
 
-- Add LAMMPSlib features to support kokkos and ``mliap unified`` ``pair_style``s
+- Add LAMMPSlib features to support arbitrary startup flags (e.g.
+  to enable kokkos) and arbitrary initialization callbacks (e.g.
+  calling `lammps.mliap.activate_mliappy`)
 ..
 .. Optimizers
 .. ----------
