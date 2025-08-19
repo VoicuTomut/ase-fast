@@ -1048,11 +1048,6 @@ class GenerateVaspInput:
         'r2scan': {
             'metagga': 'R2SCAN'
         },
-        'scan-rvv10': {
-            'metagga': 'SCAN',
-            'luse_vdw': True,
-            'bparam': 15.7
-        },
         'mbj': {
             # Modified Becke-Johnson
             'metagga': 'MBJ',
@@ -1079,6 +1074,50 @@ class GenerateVaspInput:
             'lhfcalc': True,
             'aexx': 0.2,
             'aggax': 0.8
+        },
+        'vdw-df3-opt1': {
+            'gga': 'BO',
+            'param1': 0.1122334456,
+            'param2': 0.1234568,
+            'aggac': 0.0,
+            'luse_vdw': True,
+            'ivdw_nl': 3,
+            'alpha_vdw': 0.94950,
+            'gamma_vdw': 1.12,
+        },
+        'vdw-df3-opt2': {
+            'gga': 'MK',
+            'param1': 0.1234568,
+            'param2': 0.58,
+            'aggac': 0.0,
+            'luse_vdw': True,
+            'ivdw_nl': 4,
+            'zab_vdw': -1.8867,
+            'alpha_vdw': 0.28248,
+            'gamma_vdw': 1.29,
+        },
+        'rvv10': {
+            'gga': 'ML',
+            'luse_vdw': True,
+            'ivdw_nl': 2,
+            'bparam': 6.3,
+            'cparam': 0.0093,
+        },
+        'scan+rvv10': {
+            'metagga': 'SCAN',
+            'luse_vdw': True,
+            'bparam': 15.7,
+            'cparam': 0.0093,
+        },
+        'pbe+rvv10l': {
+            'gga': 'PE',
+            'bparam': 10,
+            'cparam': 0.0093,
+        },
+        'r2scan+rvv10': {
+            'metagga': 'R2SCAN',
+            'bparam': 11.95,
+            'cparam': 0.0093,
         },
         'optpbe-vdw': {
             'gga': 'OR',
