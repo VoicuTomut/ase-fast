@@ -824,6 +824,7 @@ def write_xyz(fileobj, images, comment='', columns=None,
     if hasattr(images, 'get_positions'):
         images = [images]
 
+    images_0 = None
     for atoms in images:
         natoms = len(atoms)
 
@@ -893,7 +894,9 @@ def write_xyz(fileobj, images, comment='', columns=None,
 
         # Move mask
         if 'move_mask' in fr_cols:
-            cnstr = images[0].constraints
+            if images_0 is None:
+                images_0 = atoms
+            cnstr = images_0.constraints
             if len(cnstr) > 0:
                 c0 = cnstr[0]
                 if isinstance(c0, FixAtoms):
