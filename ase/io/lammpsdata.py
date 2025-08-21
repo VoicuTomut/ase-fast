@@ -15,13 +15,20 @@ from ase.utils import reader, writer
 
 def _make_cell(box):
     cell = np.zeros((3, 3))
-    cell[0, 0] = box['xhi'] - box['xlo']
-    cell[1, 1] = box['yhi'] - box['ylo']
-    cell[2, 2] = box['zhi'] - box['zlo']
-    cell[1, 0] = box['xy']
-    cell[2, 0] = box['xz']
-    cell[2, 1] = box['yz']
-    return cell
+    celldisp = np.zeros(3)
+    if 'avec' in box:
+        cell[0] = box['avec']
+        cell[1] = box['bvec']
+        cell[2] = box['cvec']
+        celldisp = box['abc origin']
+    else:
+        cell[0, 0] = box['xhi'] - box['xlo']
+        cell[1, 1] = box['yhi'] - box['ylo']
+        cell[2, 2] = box['zhi'] - box['zlo']
+        cell[1, 0] = box['xy']
+        cell[2, 0] = box['xz']
+        cell[2, 1] = box['yz']
+    return cell, celldisp
 
 
 @reader
@@ -139,11 +146,20 @@ def read_lammps_data(
         'lines',
         'triangles',
         'bodies',
+    ]
+    header_fields_restricted_box = [
         'xlo xhi',
         'ylo yhi',
         'zlo zhi',
         'xy xz yz',
     ]
+    header_fields_general_box = [
+        'avec',
+        'bvec',
+        'cvec',
+        'abc origin',
+    ]
+    header_fields += header_fields_restricted_box + header_fields_general_box
     sections_re = '(' + '|'.join(sections).replace(' ', '\\s+') + ')'
     header_fields_re = '(' + '|'.join(header_fields).replace(' ', '\\s+') + ')'
 
@@ -180,10 +196,12 @@ def read_lammps_data(
             if field is not None and val is not None:
                 if field == 'atoms':
                     natoms = int(val)
-                elif field in {'xlo xhi', 'ylo yhi', 'zlo zhi', 'xy xz yz'}:
+                elif field in header_fields_restricted_box:
                     keys = field.split()
                     values = (float(x) for x in val.split())
                     box.update(dict(zip(keys, values)))
+                elif field in header_fields_general_box:
+                    box[field] = [float(x) for x in val.split()]
 
         if section is not None:
             fields = line.split()
@@ -200,7 +218,7 @@ def read_lammps_data(
                 dihedrals_in.append([int(fields[_]) for _ in (1, 2, 3, 4, 5)])
 
     # set cell
-    cell = _make_cell(box)
+    cell, celldisp = _make_cell(box)
 
     # initialize arrays for per-atom quantities
     positions = np.zeros((natoms, 3))
@@ -264,6 +282,7 @@ def read_lammps_data(
         masses=masses,
         cell=cell,
         pbc=[True, True, True],
+        celldisp=celldisp,
     )
 
     # add lattice translation vectors
