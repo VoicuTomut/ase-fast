@@ -1,0 +1,6 @@
+I/O
+---
+
+- Add support for reading Mulliken charges in
+  :meth:`~ase.io.gamess_us.read_gamess_us_out` and
+  :meth:`~ase.io.gamess_us.read_gamess_us_punch` (:mr:`3761`)
