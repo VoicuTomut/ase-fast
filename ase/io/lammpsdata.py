@@ -1,5 +1,7 @@
 """IO for LAMMPS data files."""
 
+from __future__ import annotations
+
 import re
 import warnings
 
@@ -9,6 +11,17 @@ from ase.atoms import Atoms
 from ase.calculators.lammps import Prism, convert
 from ase.data import atomic_masses, atomic_numbers
 from ase.utils import reader, writer
+
+
+def _make_cell(box):
+    cell = np.zeros((3, 3))
+    cell[0, 0] = box['xhi'] - box['xlo']
+    cell[1, 1] = box['yhi'] - box['ylo']
+    cell[2, 2] = box['zhi'] - box['zlo']
+    cell[1, 0] = box['xy']
+    cell[2, 0] = box['xz']
+    cell[2, 1] = box['yz']
+    return cell
 
 
 @reader
@@ -59,10 +72,17 @@ def read_lammps_data(
     # in most cases these will be updated below
     natoms = 0
     # N_types = 0
-    xlo, xhi = -0.5, 0.5
-    ylo, yhi = -0.5, 0.5
-    zlo, zhi = -0.5, 0.5
-    xy, xz, yz = 0.0, 0.0, 0.0
+    box: dict[str, float | list[float]] = {
+        'xlo': -0.5,
+        'xhi': +0.5,
+        'ylo': -0.5,
+        'yhi': +0.5,
+        'zlo': -0.5,
+        'zhi': +0.5,
+        'xy': 0.0,
+        'xz': 0.0,
+        'yz': 0.0,
+    }
 
     mass_in = {}
     vel_in = {}
@@ -160,14 +180,10 @@ def read_lammps_data(
             if field is not None and val is not None:
                 if field == 'atoms':
                     natoms = int(val)
-                elif field == 'xlo xhi':
-                    (xlo, xhi) = (float(x) for x in val.split())
-                elif field == 'ylo yhi':
-                    (ylo, yhi) = (float(x) for x in val.split())
-                elif field == 'zlo zhi':
-                    (zlo, zhi) = (float(x) for x in val.split())
-                elif field == 'xy xz yz':
-                    (xy, xz, yz) = (float(x) for x in val.split())
+                elif field in {'xlo xhi', 'ylo yhi', 'zlo zhi', 'xy xz yz'}:
+                    keys = field.split()
+                    values = (float(x) for x in val.split())
+                    box.update(dict(zip(keys, values)))
 
         if section is not None:
             fields = line.split()
@@ -184,13 +200,7 @@ def read_lammps_data(
                 dihedrals_in.append([int(fields[_]) for _ in (1, 2, 3, 4, 5)])
 
     # set cell
-    cell = np.zeros((3, 3))
-    cell[0, 0] = xhi - xlo
-    cell[1, 1] = yhi - ylo
-    cell[2, 2] = zhi - zlo
-    cell[1, 0] = xy
-    cell[2, 0] = xz
-    cell[2, 1] = yz
+    cell = _make_cell(box)
 
     # initialize arrays for per-atom quantities
     positions = np.zeros((natoms, 3))
