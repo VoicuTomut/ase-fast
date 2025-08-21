@@ -1,4 +1,3 @@
-# fmt: off
 """
 Routines for manually parsing a lammps data file.  This is a simplified
 recreation of ase.io.lammpsdata's read functionality that we use for
@@ -12,6 +11,7 @@ the following assumptions are made about the lammps data file:
   - The cell is orthogonal (xy, xz, yz tilt factors are
     ignored even if they exist)
 """
+
 import io
 import pathlib
 import re
@@ -24,12 +24,12 @@ from ase.calculators.lammps import convert
 def split_contents_by_section(raw_datafile_contents):
     # Remove comments
     raw_datafile_contents = re.sub('#.*', '', raw_datafile_contents)
-    return re.split(r'^([A-Za-z]+\s*)$\n',
-                    raw_datafile_contents, flags=re.MULTILINE)
+    return re.split(
+        r'^([A-Za-z]+\s*)$\n', raw_datafile_contents, flags=re.MULTILINE
+    )
 
 
 def extract_section(raw_datafile_contents, section_header):
-
     contents_split_by_section = split_contents_by_section(raw_datafile_contents)
 
     section = None
@@ -48,11 +48,11 @@ def extract_cell(raw_datafile_contents):
     ignored even if they exist)
     """
     RE_CELL = re.compile(
-        r'''
+        r"""
             (\S+)\s+(\S+)\s+xlo\s+xhi\n
             (\S+)\s+(\S+)\s+ylo\s+yhi\n
             (\S+)\s+(\S+)\s+zlo\s+zhi\n
-        ''',
+        """,
         flags=re.VERBOSE,
     )
     xlo, xhi, ylo, yhi, zlo, zhi = map(
@@ -78,7 +78,6 @@ def extract_mass(raw_datafile_contents):
 
 
 def extract_atom_quantities(raw_datafile_contents):
-
     # Grab all atoms lines
     atoms_block = extract_section(raw_datafile_contents, 'Atoms')
 
@@ -111,9 +110,7 @@ def extract_velocities(raw_datafile_contents):
     """
     velocities_block = extract_section(raw_datafile_contents, 'Velocities')
 
-    RE_VELOCITY = re.compile(
-        r'\s*[0-9]+\s+(\S+)\s+(\S+)\s+(\S+)'
-    )
+    RE_VELOCITY = re.compile(r'\s*[0-9]+\s+(\S+)\s+(\S+)\s+(\S+)')
 
     # Now parse each individual line for velocity
     velocities = []

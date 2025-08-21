@@ -1,12 +1,5 @@
-# fmt: off
-"""
-Use lammpsdata module to create an Atoms object from a lammps data file
-and checks that the cell, mass, positions, and velocities match the
-values that are parsed directly from the data file.
+"""Tests for `read_lammps_data`."""
 
-NOTE: This test currently only works when using a lammps data file
-containing a single atomic species
-"""
 import ase.io
 
 from .comparison import compare_with_pytest_approx
@@ -17,6 +10,14 @@ REL_TOL = 1e-2
 
 
 def test_lammpsdata_read(lammpsdata_file_path):
+    """Test if `Atoms` can be created properly with `read_lammps_data`.
+
+    This checks if the cell, mass, positions, and velocities match the
+    values that are parsed directly from the data file.
+
+    NOTE: This test currently only works when using a lammps data file
+    containing a single atomic species
+    """
     atoms = ase.io.read(
         lammpsdata_file_path,
         format='lammps-data',
@@ -33,8 +34,9 @@ def test_lammpsdata_read(lammpsdata_file_path):
 
     # Check masses were read in correctly
     masses_read_in = atoms.get_masses()
-    masses_expected = [expected_values['mass']] * \
-        len(expected_values['positions'])
+    masses_expected = [expected_values['mass']] * len(
+        expected_values['positions']
+    )
     compare_with_pytest_approx(masses_read_in, masses_expected, REL_TOL)
 
     # Check positions were read in correctly

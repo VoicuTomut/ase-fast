@@ -1,4 +1,4 @@
-# fmt: off
+"""IO for LAMMPS data files."""
 
 import re
 import warnings
@@ -145,8 +145,9 @@ def read_lammps_data(
                 # guess `atom_style` from the comment after `Atoms` if exists
                 if atom_style is None and line_comment != '':
                     atom_style = line_comment
-                mol_id_in, type_in, charge_in, pos_in, travel_in = \
+                mol_id_in, type_in, charge_in, pos_in, travel_in = (
                     _read_atoms_section(fileobj, natoms, atom_style)
+                )
             continue
 
         if header:
@@ -207,7 +208,7 @@ def read_lammps_data(
 
     ind_of_id = {}
     # copy per-atom quantities from read-in values
-    for (i, atom_id) in enumerate(pos_in.keys()):
+    for i, atom_id in enumerate(pos_in.keys()):
         # by id
         if sort_by_id:
             ind = atom_id - 1
@@ -273,7 +274,7 @@ def read_lammps_data(
         atoms.arrays['mmcharges'] = charge.copy()
 
     if bonds is not None:
-        for (atom_type, at1, at2) in bonds_in:
+        for atom_type, at1, at2 in bonds_in:
             i_a1 = ind_of_id[at1]
             i_a2 = ind_of_id[at2]
             if len(bonds[i_a1]) > 0:
@@ -285,7 +286,7 @@ def read_lammps_data(
         atoms.arrays['bonds'] = np.array(bonds)
 
     if angles is not None:
-        for (atom_type, at1, at2, at3) in angles_in:
+        for atom_type, at1, at2, at3 in angles_in:
             i_a1 = ind_of_id[at1]
             i_a2 = ind_of_id[at2]
             i_a3 = ind_of_id[at3]
@@ -298,7 +299,7 @@ def read_lammps_data(
         atoms.arrays['angles'] = np.array(angles)
 
     if dihedrals is not None:
-        for (atom_type, at1, at2, at3, at4) in dihedrals_in:
+        for atom_type, at1, at2, at3, at4 in dihedrals_in:
             i_a1 = ind_of_id[at1]
             i_a2 = ind_of_id[at2]
             i_a3 = ind_of_id[at3]
@@ -462,8 +463,11 @@ def write_lammps_data(
     fd.write(f'{n_atom_types} atom types\n\n')
 
     bonds_in = []
-    if (bonds and (atom_style == 'full') and
-            (atoms.arrays.get('bonds') is not None)):
+    if (
+        bonds
+        and (atom_style == 'full')
+        and (atoms.arrays.get('bonds') is not None)
+    ):
         n_bonds = 0
         n_bond_types = 1
         for i, bondsi in enumerate(atoms.arrays['bonds']):
@@ -485,7 +489,8 @@ def write_lammps_data(
 
     # Get cell parameters and convert from ASE units to LAMMPS units
     xhi, yhi, zhi, xy, xz, yz = convert(
-        prismobj.get_lammps_prism(), 'distance', 'ASE', units)
+        prismobj.get_lammps_prism(), 'distance', 'ASE', units
+    )
 
     fd.write(f'0.0 {xhi:23.17g}  xlo xhi\n')
     fd.write(f'0.0 {yhi:23.17g}  ylo yhi\n')
@@ -520,8 +525,7 @@ def write_lammps_data(
         for i, r in enumerate(pos):
             s = species.index(symbols[i]) + 1
             line = (
-                f'{i + 1:>6} {s:>3}'
-                f' {r[0]:23.17g} {r[1]:23.17g} {r[2]:23.17g}'
+                f'{i + 1:>6} {s:>3} {r[0]:23.17g} {r[1]:23.17g} {r[2]:23.17g}'
             )
             if write_image_flags:
                 img = image_flags[i]
@@ -555,11 +559,13 @@ def write_lammps_data(
                 raise TypeError(
                     f'If "atoms" object has "mol-id" array, then '
                     f'mol-id dtype must be subtype of np.integer, and '
-                    f'not {molecules.dtype!s:s}.')
+                    f'not {molecules.dtype!s:s}.'
+                )
             if (len(molecules) != len(atoms)) or (molecules.ndim != 1):
                 raise TypeError(
                     'If "atoms" object has "mol-id" array, then '
-                    'each atom must have exactly one mol-id.')
+                    'each atom must have exactly one mol-id.'
+                )
         else:
             # Assigning each atom to a distinct molecule id would seem
             # preferableabove assigning all atoms to a single molecule
