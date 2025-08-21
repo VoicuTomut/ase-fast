@@ -257,6 +257,41 @@ def construct_cell(diagdisp, offdiag):
     return cell, celldisp
 
 
+def _parse_box_bound(line: str, lines: deque) -> tuple:
+    # save labels behind "ITEM: BOX BOUNDS" in triclinic case
+    # (>=lammps-7Jul09)
+    tilt_items = line.split()[3:]
+    celldatarows = [lines.popleft() for _ in range(3)]
+    celldata = np.loadtxt(celldatarows)
+    diagdisp = celldata[:, :2].reshape(6, 1).flatten()
+
+    # determine cell tilt (triclinic case!)
+    if len(celldata[0]) > 2:
+        # for >=lammps-7Jul09 use labels behind "ITEM: BOX BOUNDS"
+        # to assign tilt (vector) elements ...
+        offdiag = celldata[:, 2]
+        # ... otherwise assume default order in 3rd column
+        # (if the latter was present)
+        if len(tilt_items) >= 3:
+            sort_index = [tilt_items.index(i) for i in ['xy', 'xz', 'yz']]
+            offdiag = offdiag[sort_index]
+    else:
+        offdiag = np.zeros(3)
+
+    cell, celldisp = construct_cell(diagdisp, offdiag)
+
+    # Handle pbc conditions
+    if len(tilt_items) == 3:
+        pbc_items = tilt_items
+    elif len(tilt_items) > 3:
+        pbc_items = tilt_items[3:6]
+    else:
+        pbc_items = ['f', 'f', 'f']
+    pbc = ['p' in d.lower() for d in pbc_items]
+
+    return cell, celldisp, pbc
+
+
 def get_max_index(index):
     if np.isscalar(index):
         return index
@@ -296,38 +331,7 @@ def read_lammps_dump_text(fileobj, index=-1, **kwargs):
             n_atoms = int(line.split()[0])
 
         if 'ITEM: BOX BOUNDS' in line:
-            # save labels behind "ITEM: BOX BOUNDS" in triclinic case
-            # (>=lammps-7Jul09)
-            tilt_items = line.split()[3:]
-            celldatarows = [lines.popleft() for _ in range(3)]
-            celldata = np.loadtxt(celldatarows)
-            diagdisp = celldata[:, :2].reshape(6, 1).flatten()
-
-            # determine cell tilt (triclinic case!)
-            if len(celldata[0]) > 2:
-                # for >=lammps-7Jul09 use labels behind "ITEM: BOX BOUNDS"
-                # to assign tilt (vector) elements ...
-                offdiag = celldata[:, 2]
-                # ... otherwise assume default order in 3rd column
-                # (if the latter was present)
-                if len(tilt_items) >= 3:
-                    sort_index = [
-                        tilt_items.index(i) for i in ['xy', 'xz', 'yz']
-                    ]
-                    offdiag = offdiag[sort_index]
-            else:
-                offdiag = (0.0,) * 3
-
-            cell, celldisp = construct_cell(diagdisp, offdiag)
-
-            # Handle pbc conditions
-            if len(tilt_items) == 3:
-                pbc_items = tilt_items
-            elif len(tilt_items) > 3:
-                pbc_items = tilt_items[3:6]
-            else:
-                pbc_items = ['f', 'f', 'f']
-            pbc = ['p' in d.lower() for d in pbc_items]
+            cell, celldisp, pbc = _parse_box_bound(line, lines)
 
         if 'ITEM: ATOMS' in line:
             colnames = line.split()[2:]
