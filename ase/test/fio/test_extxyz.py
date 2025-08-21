@@ -512,3 +512,10 @@ def test_outputs_not_properties(tmp_path):
                   pbc=[True] * 3, info={'nbands': 1})
     ase.io.write(tmp_path / 'nbands.extxyz', atoms)
     _ = ase.io.read(tmp_path / 'nbands.extxyz')
+
+
+def test_non_subscriptable_move_mask(tmp_path):
+    atoms = Atoms('H', cell=[1] * 3, pbc=[True] * 3)
+    atoms.new_array("move_mask", np.ones(atoms.positions.shape).astype(bool))
+
+    ase.io.write(tmp_path / "out.extxyz", (a for a in [atoms]))
