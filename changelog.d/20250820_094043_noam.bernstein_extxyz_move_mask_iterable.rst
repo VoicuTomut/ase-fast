@@ -48,4 +48,4 @@ Bugfixes
 
 - Remove subscripting of images iterable in extxyz writer so it works
   with non-subscriptable iterables when "move_mask" key is present in
-  `atoms.arrays`
+  `atoms.arrays` (:mr:`3795`)

@@ -809,6 +809,8 @@ def write_xyz(fileobj, images, comment='', columns=None,
     """
     Write output in extended XYZ format
 
+    ``images`` may be Atoms or any Iterable[Atoms].
+
     Optionally, specify which columns (arrays) to include in output,
     whether to write the contents of the `atoms.info` dict to the
     XYZ comment line (default is True), the results of any
