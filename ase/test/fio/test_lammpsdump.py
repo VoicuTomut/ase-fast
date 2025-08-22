@@ -127,6 +127,20 @@ def lammpsdump_no_element():
     return factory
 
 
+BUF_GENERAL_TRICLINIC_BOX = r"""
+ITEM: TIMESTEP
+0
+ITEM: NUMBER OF ATOMS
+1
+ITEM: BOX BOUNDS abc origin pp pp pp
+-1.0000000000000007e+00 2.0000000000000004e+00 3.0000000000000009e+00 0.0000000000000000e+00
+9.9999999999999833e-01 -2.0000000000000009e+00 3.0000000000000009e+00 0.0000000000000000e+00
+1.0000000000000004e+00 2.0000000000000000e+00 -3.0000000000000004e+00 0.0000000000000000e+00
+ITEM: ATOMS id type x y z
+1 1 0 0 0
+"""  # noqa
+
+
 def lammpsdump_headers():
     actual_magic = 'ITEM: TIMESTEP'
     yield actual_magic
@@ -194,6 +208,12 @@ def test_lammpsdump_errors(fmt, lammpsdump):
         ValueError, match='No atomic positions found in LAMMPS output'
     ):
         _ = fmt.parse_atoms(lammpsdump(position_cols='unk_x unk_y unk_z'))
+
+
+def test_general_triclinic_box(fmt) -> None:
+    """Test if a general triclinic box can be parsed."""
+    atoms = fmt.parse_atoms(BUF_GENERAL_TRICLINIC_BOX)
+    np.testing.assert_allclose(atoms.cell, [[-1, 2, 3], [1, -2, 3], [1, 2, -3]])
 
 
 @pytest.mark.parametrize(
