@@ -1,5 +1,9 @@
 """Tests for `read_lammps_data`."""
 
+from io import StringIO
+
+import numpy as np
+
 from ase.io.lammpsdata import read_lammps_data
 
 from .comparison import compare_with_pytest_approx
@@ -49,3 +53,34 @@ def test_lammpsdata_read(lammpsdata_file_path):
     compare_with_pytest_approx(velocities_read_in, velocities_expected, REL_TOL)
 
     # TODO: Also check charges, travels, molecule id, bonds, and angles
+
+
+BUF_GENERAL_TRICLINIC_BOX = r"""
+(written by ASE)
+
+1 atoms
+1 atom types
+
+ -1.0  2.0  3.0 avec
+  1.0 -2.0  3.0 bvec
+  1.0  2.0 -3.0 cvec
+  0.0  0.0  0.0 abc origin
+
+Masses
+
+     1      63.545999983653154 # Cu
+
+Atoms # atomic
+
+1 1 0 0 0 0 0 0
+
+Velocities
+
+1 0 0 0
+"""
+
+
+def test_general_triclinic_box() -> None:
+    """Test if a general triclinic box can be parsed."""
+    atoms = read_lammps_data(StringIO(BUF_GENERAL_TRICLINIC_BOX))
+    np.testing.assert_allclose(atoms.cell, [[-1, 2, 3], [1, -2, 3], [1, 2, -3]])
