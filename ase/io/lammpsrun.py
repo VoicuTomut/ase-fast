@@ -455,11 +455,21 @@ def read_lammps_dump_binary(
 
             _n_atoms, triclinic = read_variables('=' + bigformat + 'i')
             boundary = read_variables('=6i')
-            diagdisp = read_variables('=6d')
-            if triclinic != 0:
-                offdiag = read_variables('=3d')
-            else:
+
+            if triclinic == 0:
+                diagdisp = read_variables('=6d')
                 offdiag = (0.0,) * 3
+                cell, celldisp = construct_cell(diagdisp, offdiag)
+            elif triclinic == 1:
+                diagdisp = read_variables('=6d')
+                offdiag = read_variables('=3d')
+                cell, celldisp = construct_cell(diagdisp, offdiag)
+            elif triclinic == 2:  # general triclinic boxes (>=patch_17Apr2024)
+                cell = np.array(read_variables('=9d')).reshape(3, 3)
+                celldisp = np.array(read_variables('=3d'))
+            else:
+                raise ValueError(triclinic)
+
             (size_one,) = read_variables('=i')
 
             if len(colnames) != size_one:
@@ -493,8 +503,6 @@ def read_lammps_dump_binary(
             # periodic case: b 0 = 'p'
             # non-peridic cases 1: 'f', 2 : 's', 3: 'm'
             pbc = np.sum(np.array(boundary).reshape((3, 2)), axis=1) == 0
-
-            cell, celldisp = construct_cell(diagdisp, offdiag)
 
             data = []
             for _ in range(nchunk):
