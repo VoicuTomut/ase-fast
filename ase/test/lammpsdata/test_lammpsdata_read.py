@@ -1,6 +1,6 @@
 """Tests for `read_lammps_data`."""
 
-import ase.io
+from ase.io.lammpsdata import read_lammps_data
 
 from .comparison import compare_with_pytest_approx
 from .parse_lammps_data_file import lammpsdata_file_extracted_sections
@@ -18,9 +18,8 @@ def test_lammpsdata_read(lammpsdata_file_path):
     NOTE: This test currently only works when using a lammps data file
     containing a single atomic species
     """
-    atoms = ase.io.read(
+    atoms = read_lammps_data(
         lammpsdata_file_path,
-        format='lammps-data',
         read_image_flags=False,
         units='metal',
     )
