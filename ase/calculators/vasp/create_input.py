@@ -1111,13 +1111,13 @@ class GenerateVaspInput:
         },
         'pbe+rvv10l': {
             'gga': 'PE',
-            'lusw_vdw': True,
+            'luse_vdw': True,
             'bparam': 10,
             'cparam': 0.0093,
         },
         'r2scan+rvv10': {
             'metagga': 'R2SCAN',
-            'lusw_vdw': True,
+            'luse_vdw': True,
             'bparam': 11.95,
             'cparam': 0.0093,
         },
