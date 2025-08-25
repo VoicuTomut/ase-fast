@@ -1138,8 +1138,10 @@ def get_lattice_from_canonical_cell(cell, eps=2e-4):
 
 
 class LatticeMatcher:
-    def __init__(self, cell, pbc, eps, niggli_eps=None):
+    def __init__(self, cell, pbc=None, *, eps, niggli_eps=None):
         self.orig_cell = cell
+        if pbc is None:
+            pbc = cell.mask()
         self.pbc = cell.any(1) & pbc2pbc(pbc)
         self.cell = cell.uncomplete(pbc)
         self.eps = eps
@@ -1444,10 +1446,6 @@ def match_to_lattice(cell, latname: str, pbc=None):
     from ase.geometry.bravais_type_engine import niggli_op_table
 
     cell = Cell.ascell(cell)
-
-    if pbc is None:
-        pbc = cell.mask()
-
     matcher = LatticeMatcher(
         cell=cell,
         pbc=pbc,
