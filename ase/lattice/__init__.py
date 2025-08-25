@@ -1440,8 +1440,13 @@ class NormalizedLatticeMatcher:
         return self._check(TRI, *self.cellpar)
 
 
-def match_to_lattice(cell, pbc, latname):
+def match_to_lattice(cell, latname: str, pbc=None):
     from ase.geometry.bravais_type_engine import niggli_op_table
+
+    cell = Cell.ascell(cell)
+
+    if pbc is None:
+        pbc = cell.mask()
 
     matcher = LatticeMatcher(
         cell=cell,
