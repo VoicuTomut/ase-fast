@@ -17,7 +17,7 @@ to a python script looking something like::
 Alternatively, user can set the environmental flag $VASP_COMMAND pointing
 to the command use the launch vasp e.g. 'vasp' or 'mpirun -n 16 vasp'
 
-http://cms.mpi.univie.ac.at/vasp/
+https://www.vasp.at/
 """
 
 import os

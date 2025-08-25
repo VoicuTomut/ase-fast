@@ -19,8 +19,8 @@ The calculated tunneling current will be proportional to:
     w_{\mathbf k} |\Psi_{\mathbf k n}(\mathbf r)|^2
     \delta(\epsilon - \epsilon_{\mathbf k n}) d\epsilon,
 
-where `V` is the bias voltage, `w_{\mathbf k}` is the `\mathbf k`-point weight
-and `\Psi_{\mathbf k n}(\mathbf r)` is the wave function.
+where :math:`V` is the bias voltage, :math:`w_{\mathbf k}` is the :math:`\mathbf k`-point weight
+and :math:`\Psi_{\mathbf k n}(\mathbf r)` is the wave function.
 
 .. seealso::
 

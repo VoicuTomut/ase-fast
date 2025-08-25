@@ -62,7 +62,14 @@ details.  The i-PI documentation may also be useful.
 How to use the ASE socket I/O interface
 ---------------------------------------
 
-Example using Quantum Espresso
+The following examples should work if ASE is configured with each of the
+calculators in question, and if the pseudopotentials are available.
+
+Use ``ase info --calculators`` to see which calculators are installed
+and make sure your configuration works for the calculator in question.
+Then the following examples should work out of the box as long as
+you adapt the specifications of pseudopotential files to match
+your configuration.
 
 .. literalinclude:: example_espresso.py
 

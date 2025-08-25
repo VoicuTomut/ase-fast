@@ -1,5 +1,3 @@
-# fmt: off
-
 # Copyright (C) 2003  CAMP
 # Please see the accompanying LICENSE file for further information.
 
@@ -60,9 +58,10 @@ class Timer:
         names = tuple(self.running)
         running = self.running.pop()
         if name != running:
-            raise RuntimeError('Must stop timers by stack order.  '
-                               'Requested stopping of %s but topmost is %s'
-                               % (name, running))
+            raise RuntimeError(
+                'Must stop timers by stack order.  '
+                'Requested stopping of %s but topmost is %s' % (name, running)
+            )
         self.timers[names] += time.time()
         return names
 
@@ -134,8 +133,10 @@ class Timer:
             if level > self.print_levels:
                 continue
             name = (level - 1) * ' ' + names[-1] + ':'
-            out.write('%-*s%9.3f %9.3f %5.1f%% %s\n' %
-                      (n, name, tinclusive, t, p, bar))
+            out.write(
+                '%-*s%9.3f %9.3f %5.1f%% %s\n'
+                % (n, name, tinclusive, t, p, bar)
+            )
         out.write(line)
         out.write('%-*s%9.3f %5.1f%%\n\n' % (n + 10, 'Total:', tot, 100.0))
 
@@ -162,13 +163,14 @@ class timer:
             def add(self, x, y):
                 return x + y
 
-        """
+    """
 
     def __init__(self, name):
         self.name = name
 
     def __call__(self, method):
         if inspect.isgeneratorfunction(method):
+
             @functools.wraps(method)
             def new_method(slf, *args, **kwargs):
                 gen = method(slf, *args, **kwargs)
@@ -182,6 +184,7 @@ class timer:
                         slf.timer.stop()
                     yield x
         else:
+
             @functools.wraps(method)
             def new_method(slf, *args, **kwargs):
                 slf.timer.start(self.name)
@@ -191,4 +194,5 @@ class timer:
                 except IndexError:
                     pass
                 return x
+
         return new_method

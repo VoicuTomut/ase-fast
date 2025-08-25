@@ -52,7 +52,6 @@ calculators = {
     'dftb': {},
     'dftd3': {},
     'dmol': {},
-    'elk': {},
     'gamess_us': {},
     'gaussian': {},
     'gromacs': {},
@@ -144,7 +143,6 @@ envvars = {
     'dftb': 'DFTB_COMMAND',
     'dftd3': 'ASE_DFTD3_COMMAND',
     'dmol': 'DMOL_COMMAND',  # XXX Crashes when it runs along other tests
-    'elk': 'ASE_ELK_COMMAND',
     'gamess_us': 'ASE_GAMESSUS_COMMAND',
     'gaussian': 'ASE_GAUSSIAN_COMMAND',
     'gromacs': 'ASE_GROMACS_COMMAND',
@@ -252,7 +250,6 @@ default_commands = {
     'cp2k': 'cp2k_shell',
     'dftb': 'dftb+ > dftb.out',
     'dftd3': f'dftd3 {dftd3_boilerplate}'.split(),
-    'elk': 'elk > elk.out',
     'gamess_us': 'rungms gamess_us.inp > gamess_us.log 2> gamess_us.err',
     'gaussian': 'g16 < Gaussian.com > Gaussian.log',
     'gulp': 'gulp < gulp.gin > gulp.got',

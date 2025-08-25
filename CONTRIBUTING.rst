@@ -3,4 +3,4 @@ Contributing
 
 See how to contribute here:
     
-    https://wiki.fysik.dtu.dk/ase/development/contribute.html
+    https://ase-lib.org/development/contribute.html

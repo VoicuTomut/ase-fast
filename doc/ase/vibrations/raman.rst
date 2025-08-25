@@ -60,8 +60,8 @@ calculated in the form
   o_{ij} = \int d\vec{r} \; \phi_i^{{\rm disp},*}(\vec{r})
   \phi_j^{{\rm eq}}(\vec{r})
    
-where `\phi_j^{{\rm eq}}` is an orbital at equilibrium position
-and `\phi_i^{\rm disp}` is an orbital at displaced position.
+where :math:`\phi_j^{{\rm eq}}` is an orbital at equilibrium position
+and :math:`\phi_i^{\rm disp}` is an orbital at displaced position.
 
 The ``H2MorseExcitedStatesCalculator`` has a function ``overlap()`` for this.
 We therfore write data including the overlap as

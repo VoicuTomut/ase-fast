@@ -403,11 +403,6 @@ class VibrationsData:
     def get_zero_point_energy(self) -> float:
         """Diagonalise the Hessian and sum hw/2 to obtain zero-point energy
 
-        Args:
-            energies:
-                Pre-computed energy eigenvalues. Use if available to avoid
-                re-calculating these from the Hessian.
-
         Returns:
             zero-point energy in eV
         """

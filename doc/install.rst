@@ -38,10 +38,13 @@ Installation using system package managers
 Linux
 -----
 
-Major GNU/Linux distributions (including Debian and Ubuntu derivatives,
-Arch, Fedora, Red Hat and CentOS) have a ``python-ase`` package
+Major GNU/Linux distributions have a ``python3-ase`` (Debian and
+Ubuntu derivatives, Fedora, Red Hat) or ``python-ase`` (Arch) package
 available that you can install on your system. This will manage
 dependencies and make ASE available for all users.
+
+Red Hat requires the
+`EPEL repository <https://docs.fedoraproject.org/en-US/epel/>`_.
 
 .. note::
    Depending on the distribution, this may not be the latest
@@ -128,12 +131,12 @@ from Git.
 :Tar-file:
 
     You can get the source as a `tar-file <http://xkcd.com/1168/>`__ for the
-    latest stable release here: ase-3.25.0.tar.gz_
+    latest stable release here: ase-3.26.0.tar.gz_
 
     Unpack and make a soft link::
 
-        $ tar -xf ase-3.25.0.tar.gz
-        $ ln -s ase-3.25.0 ase
+        $ tar -xf ase-3.26.0.tar.gz
+        $ ln -s ase-3.26.0 ase
 
     Here is a `list of tarballs <https://pypi.org/simple/ase/>`__.
 
@@ -142,7 +145,7 @@ from Git.
     Alternatively, you can get the source for the latest stable release from
     https://gitlab.com/ase/ase like this::
 
-        $ git clone -b 3.25.0 https://gitlab.com/ase/ase.git
+        $ git clone -b 3.26.0 https://gitlab.com/ase/ase.git
 
     or if you want the development version::
 
@@ -180,7 +183,7 @@ number hasn't changed.
     dates of older releases can be found there.
 
 
-.. _ase-3.25.0.tar.gz: https://pypi.org/packages/source/a/ase/ase-3.25.0.tar.gz
+.. _ase-3.26.0.tar.gz: https://pypi.org/packages/source/a/ase/ase-3.26.0.tar.gz
 
 .. index:: test
 .. _running tests:

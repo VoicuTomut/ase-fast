@@ -101,18 +101,4 @@ For more details:
 
 * Look at the documentation for the individual :ref:`modules <ase>`.
 * Browse the :git:`source code <>` online.
-
-
-Videos
-------
-
-The following video tutorials are available:
-
- - **Overview and installation of ASE**, by Anthony Goodrow (duration: ~5min 30sec; size: 26 MB) - en: |oi_en|
-
-.. |oi_en| image:: ../static/United_States_of_America.png
-   :target: https://wiki.fysik.dtu.dk/ase-files/oi_en.avi
-
-.. |oi_cn| image:: ../static/China.png
-   :target: https://wiki.fysik.dtu.dk/ase-files/oi_ch.avi
-
+* `External tutorial part of Openscience and ASE workshop, Daresbury 2023  <https://ase-workshop-2023.github.io/tutorial/>`_

@@ -361,7 +361,7 @@ class GUI(View):
 
     def quick_info_window(self, key=None):
         from ase.gui.quickinfo import info
-        info_win = ui.Window(_('Quick Info'), wmtype='utility')
+        info_win = ui.Window(_('Quick Info'))
         info_win.add(info(self))
 
         # Update quickinfo window when we change frame
@@ -592,10 +592,10 @@ class GUI(View):
             #    disabled=True)]),
 
             (_('_Help'),
-             [M(_('_About'), partial(ui.about, 'ASE-GUI',
-                                     version=__version__,
-                                     webpage='https://wiki.fysik.dtu.dk/'
-                                     'ase/ase/gui/gui.html')),
+             [M(_('_About'), partial(
+                 ui.about, 'ASE-GUI',
+                 version=__version__,
+                 webpage='https://ase-lib.org/ase/gui/gui.html')),
               M(_('Webpage ...'), webpage)])]
 
     def attach(self, function, *args, **kwargs):
@@ -653,4 +653,4 @@ class GUI(View):
 
 def webpage():
     import webbrowser
-    webbrowser.open('https://wiki.fysik.dtu.dk/ase/ase/gui/gui.html')
+    webbrowser.open('https://ase-lib.org/ase/gui/gui.html')

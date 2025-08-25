@@ -5,7 +5,7 @@
 Ask Hjorth Larsen <asklarsen@gmail.com>
 Carlos de Armas
 
-http://tddft.org/programs/octopus/
+https://octopus-code.org/
 """
 
 import numpy as np

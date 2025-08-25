@@ -33,7 +33,7 @@ class CLICommand:
         2.2<bandgap<4.1
         Cu>=10
 
-    See also: https://wiki.fysik.dtu.dk/ase/ase/db/db.html.
+    See also: https://ase-lib.org/ase/db/db.html.
     """
 
     @staticmethod

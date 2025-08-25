@@ -16,7 +16,7 @@ from ase.calculators.calculator import (
 from ase.config import cfg as _cfg
 
 link_calculator_docs = (
-    "https://wiki.fysik.dtu.dk/ase/ase/calculators/"
+    "https://ase-lib.org/ase/calculators/"
     "calculators.html#calculator-configuration"
 )
 

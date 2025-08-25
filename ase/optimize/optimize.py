@@ -5,7 +5,6 @@ import time
 import warnings
 from collections.abc import Callable
 from functools import cached_property
-from math import sqrt
 from os.path import isfile
 from pathlib import Path
 from typing import IO, Any, Dict, List, Optional, Tuple, Union
@@ -28,14 +27,14 @@ class OptimizableAtoms(Optimizable):
     def __init__(self, atoms):
         self.atoms = atoms
 
-    def get_positions(self):
-        return self.atoms.get_positions()
+    def get_x(self):
+        return self.atoms.get_positions().ravel()
 
-    def set_positions(self, positions):
-        self.atoms.set_positions(positions)
+    def set_x(self, x):
+        self.atoms.set_positions(x.reshape(-1, 3))
 
-    def get_forces(self):
-        return self.atoms.get_forces()
+    def get_gradient(self):
+        return self.atoms.get_forces().ravel()
 
     @cached_property
     def _use_force_consistent_energy(self):
@@ -55,7 +54,7 @@ class OptimizableAtoms(Optimizable):
         else:
             return True
 
-    def get_potential_energy(self):
+    def get_value(self):
         force_consistent = self._use_force_consistent_energy
         return self.atoms.get_potential_energy(
             force_consistent=force_consistent)
@@ -64,10 +63,8 @@ class OptimizableAtoms(Optimizable):
         # XXX document purpose of iterimages
         return self.atoms.iterimages()
 
-    def __len__(self):
-        # TODO: return 3 * len(self.atoms), because we want the length
-        # of this to be the number of DOFs
-        return len(self.atoms)
+    def ndofs(self):
+        return 3 * len(self.atoms)
 
 
 class Dynamics(IOContext):
@@ -233,11 +230,11 @@ class Dynamics(IOContext):
         self.max_steps = self.nsteps + steps
 
         # compute the initial step
-        self.optimizable.get_forces()
+        gradient = self.optimizable.get_gradient()
 
         # log the initial step
         if self.nsteps == 0:
-            self.log()
+            self.log(gradient)
 
             # we write a trajectory file if it is None
             if self.trajectory is None:
@@ -248,7 +245,8 @@ class Dynamics(IOContext):
                 self.call_observers()
 
         # check convergence
-        is_converged = self.converged()
+        gradient = self.optimizable.get_gradient()
+        is_converged = self.converged(gradient)
         yield is_converged
 
         # run the algorithm until converged or max_steps reached
@@ -258,11 +256,13 @@ class Dynamics(IOContext):
             self.nsteps += 1
 
             # log the step
-            self.log()
+            gradient = self.optimizable.get_gradient()
+            self.log(gradient)
             self.call_observers()
 
             # check convergence
-            is_converged = self.converged()
+            gradient = self.optimizable.get_gradient()
+            is_converged = self.converged(gradient)
             yield is_converged
 
     def run(self, steps=DEFAULT_MAX_STEPS):
@@ -287,12 +287,12 @@ class Dynamics(IOContext):
             pass
         return converged
 
-    def converged(self):
+    def converged(self, gradient):
         """" a dummy function as placeholder for a real criterion, e.g. in
         Optimizer """
         return False
 
-    def log(self, *args):
+    def log(self, *args, **kwargs):
         """ a dummy function as placeholder for a real logger, e.g. in
         Optimizer """
         return True
@@ -416,17 +416,14 @@ class Optimizer(Dynamics):
         self.fmax = fmax
         return Dynamics.run(self, steps=steps)
 
-    def converged(self, forces=None):
+    def converged(self, gradient):
         """Did the optimization converge?"""
-        if forces is None:
-            forces = self.optimizable.get_forces()
-        return self.optimizable.converged(forces, self.fmax)
+        assert gradient.ndim == 1
+        return self.optimizable.converged(gradient, self.fmax)
 
-    def log(self, forces=None):
-        if forces is None:
-            forces = self.optimizable.get_forces()
-        fmax = sqrt((forces ** 2).sum(axis=1).max())
-        e = self.optimizable.get_potential_energy()
+    def log(self, gradient):
+        fmax = self.optimizable.gradient_norm(gradient)
+        e = self.optimizable.get_value()
         T = time.localtime()
         if self.logfile is not None:
             name = self.__class__.__name__

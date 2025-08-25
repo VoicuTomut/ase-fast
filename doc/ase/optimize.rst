@@ -112,7 +112,7 @@ quantities to decide where to move the atoms on each step:
 * the forces on each atom, as returned by the associated
   :class:`~ase.calculators.calculator.Calculator` object
 * the Hessian matrix, i.e. the matrix of second derivatives
-  `\frac{\partial^2 E}{\partial x_i \partial x_j}` of the
+  :math:`\frac{\partial^2 E}{\partial x_i \partial x_j}` of the
   total energy with respect to nuclear coordinates.
 
 If the atoms are close to the minimum, such that the potential energy
@@ -328,8 +328,8 @@ when used in conjunction with the preconditioner.
 For small systems, unless they are highly ill-conditioned due to large
 variations in bonding stiffness, it is unlikely that preconditioning provides a
 performance gain, and standard BFGS and LBFGS should be preferred. Therefore,
-for systems with fewer than 100 atoms, `PreconLBFGS` reverts to standard LBFGS.
-Preconditioning can be enforces with the keyword argument `precon`.
+for systems with fewer than 100 atoms, ``PreconLBFGS`` reverts to standard LBFGS.
+Preconditioning can be enforces with the keyword argument ``precon``.
 
 The preconditioned L-BFGS method implemented in ASE does not require external
 dependencies, but the :mod:`scipy.sparse` module can be used for efficient
@@ -338,7 +338,7 @@ computation of neighbour lists if available. The PyAMG package can be used to
 efficiently invert the preconditioner using an adaptive multigrid method.
 
 Usage is very similar to the standard optimizers. The example below compares
-unpreconditioned LBGFS with the default `Exp` preconditioner for a 3x3x3 bulk
+unpreconditioned LBGFS with the default ``Exp`` preconditioner for a 3x3x3 bulk
 cube of copper containing a vacancy::
 
     import numpy as np
@@ -371,7 +371,7 @@ cube of copper containing a vacancy::
     log_calc.plot(markers=['r-', 'b-'], energy=False, lw=2)
     plt.savefig("precon_exp.png")
 
-For molecular systems in gas phase the force field based `FF` preconditioner
+For molecular systems in gas phase the force field based ``FF`` preconditioner
 can be applied. An example below compares the effect of FF preconditioner to
 the unpreconditioned LBFGS for Buckminsterfullerene. Parameters are taken from
 Z. Berkai at al. Energy Procedia, 74, 2015, 59-64. and the underlying potential
@@ -431,8 +431,8 @@ is computed using a standalone force field calculator::
     log_calc.plot(markers=['r-', 'b-'], energy=False, lw=2)
     plt.savefig("precon_ff.png")
 
-For molecular crystals the `Exp_FF` preconditioner is recommended, which is a
-synthesis of `Exp` and `FF` preconditioners.
+For molecular crystals the ``Exp_FF`` preconditioner is recommended, which is a
+synthesis of ``Exp`` and ``FF`` preconditioners.
 
 The :class:`ase.calculators.loggingcalc.LoggingCalculator` provides
 a convenient tool for plotting convergence and walltime.
@@ -486,7 +486,7 @@ The minima hopping algorithm was developed and described by Goedecker:
   | :doi:`Minima hopping: An efficient search method for the global minimum of the potential energy surface of complex molecular systems <10.1063/1.1724816>`
   | J. Chem. Phys., Vol. **120**, 9911 (2004)
 
-This algorithm utilizes a series of alternating steps of NVE molecular dynamics and local optimizations, and has two parameters that the code dynamically adjusts in response to the progress of the search. The first parameter is the initial temperature of the NVE simulation. Whenever a step finds a new minimum this temperature is decreased; if the step finds a previously found minimum the temperature is increased. The second dynamically adjusted parameter is `E_\mathrm{diff}`, which is an energy threshold for accepting a newly found minimum. If the new minimum is no more than `E_\mathrm{diff}` eV higher than the previous minimum, it is acccepted and `E_\mathrm{diff}` is decreased; if it is more than `E_\mathrm{diff}` eV higher it is rejected and `E_\mathrm{diff}` is increased. The method is used as::
+This algorithm utilizes a series of alternating steps of NVE molecular dynamics and local optimizations, and has two parameters that the code dynamically adjusts in response to the progress of the search. The first parameter is the initial temperature of the NVE simulation. Whenever a step finds a new minimum this temperature is decreased; if the step finds a previously found minimum the temperature is increased. The second dynamically adjusted parameter is :math:`E_\mathrm{diff}`, which is an energy threshold for accepting a newly found minimum. If the new minimum is no more than :math:`E_\mathrm{diff}` eV higher than the previous minimum, it is acccepted and :math:`E_\mathrm{diff}` is decreased; if it is more than :math:`E_\mathrm{diff}` eV higher it is rejected and :math:`E_\mathrm{diff}` is increased. The method is used as::
 
    from ase.optimize.minimahopping import MinimaHopping
    opt = MinimaHopping(atoms=system)
@@ -516,7 +516,7 @@ The trajectory file ``minima_traj`` will be populated with the accepted minima a
 
 The code is written such that a stopped simulation (e.g., killed by the batching system when the maximum wall time was exceeded) can usually be restarted without too much effort by the user. In most cases, the script can be resubmitted without any modification -- if the ``logfile`` and ``minima_traj`` are found, the script will attempt to use these to resume. (Note that you may need to clean up files left in the directory by the calculator, however.)
 
-Note that these searches can be quite slow, so it can pay to have multiple searches running at a time. Multiple searches can run in parallel and share one list of minima. (Run each script from a separate directory but specify the location to the same absolute location for ``minima_traj``). Each search will use the global information of the list of minima, but will keep its own local information of the initial temperature and `E_\mathrm{diff}`.
+Note that these searches can be quite slow, so it can pay to have multiple searches running at a time. Multiple searches can run in parallel and share one list of minima. (Run each script from a separate directory but specify the location to the same absolute location for ``minima_traj``). Each search will use the global information of the list of minima, but will keep its own local information of the initial temperature and :math:`E_\mathrm{diff}`.
 
 For an example of use, see the :ref:`mhtutorial` tutorial.
 

@@ -24,7 +24,7 @@ class AtomsEditor:
     def __init__(self, gui):
         gui.obs.change_atoms.register(self.update_table_from_atoms)
 
-        win = ui.Window(_('Edit atoms'), wmtype='utility')
+        win = ui.Window(_('Edit atoms'))
 
         treeview = ui.ttk.Treeview(win.win, selectmode='extended')
         edit_entry = ui.ttk.Entry(win.win)
@@ -130,7 +130,8 @@ class AtomsEditor:
                 '', 'end', text=i, values=values, iid=self.rowid(i)
             )
 
-        selection = np.arange(len(self.atoms))[self.gui.images.selected]
+        mask = self.gui.images.selected[: len(self.atoms)]
+        selection = np.arange(len(self.atoms))[mask]
 
         rowids = [self.rowid(index) for index in selection]
         # Note: selection_set() does *not* fire an event, and therefore

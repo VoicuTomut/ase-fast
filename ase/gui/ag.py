@@ -9,7 +9,7 @@ class CLICommand:
     """ASE's graphical user interface.
 
     ASE-GUI.  See the online manual
-    (https://wiki.fysik.dtu.dk/ase/ase/gui/gui.html)
+    (https://ase-lib.org/ase/gui/gui.html)
     for more information.
     """
 
@@ -42,7 +42,7 @@ class CLICommand:
             help='Plot x,y1,y2,... graph from configurations or '
             'write data to sdtout in terminal mode.  Use the '
             'symbols: i, s, d, fmax, e, ekin, A, R, E and F.  See '
-            'https://wiki.fysik.dtu.dk/ase/ase/gui/gui.html'
+            'https://ase-lib.org/ase/gui/gui.html'
             '#plotting-data for more details.')
         add('-t', '--terminal',
             action='store_true',

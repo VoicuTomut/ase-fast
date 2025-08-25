@@ -13,11 +13,11 @@
 ..
 .. - A bullet item for the Calculators category.
 ..
-Optimizers
-----------
-
- - Logfile and trajectory inputs now accept both string and Path objects. 
-
+.. Optimizers
+.. ----------
+..
+.. - A bullet item for the Optimizers category.
+..
 .. Molecular dynamics
 .. ------------------
 ..
@@ -33,13 +33,19 @@ Optimizers
 ..
 .. - A bullet item for the Development category.
 ..
+.. Documentation
+.. -------------
+..
+.. - A bullet item for the Documentation category.
+..
 .. Other changes
 .. -------------
 ..
 .. - A bullet item for the Other changes category.
-..
-.. Bugfixes
-.. --------
-..
-.. - A bullet item for the Bugfixes category.
-..
+
+Bugfixes
+--------
+
+- Remove subscripting of images iterable in extxyz writer so it works
+  with non-subscriptable iterables when "move_mask" key is present in
+  `atoms.arrays` (:mr:`3795`)

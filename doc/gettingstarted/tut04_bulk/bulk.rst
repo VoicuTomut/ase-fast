@@ -234,7 +234,7 @@ as the curvature, which gives us the bulk modulus.
 
 The online ASE docs already provide a tutorial on how to do this, using
 the empirical EMT potential:
-https://wiki.fysik.dtu.dk/ase/tutorials/eos/eos.html
+https://ase-lib.org/tutorials/eos/eos.html
 
 .. admonition:: Exercise
 

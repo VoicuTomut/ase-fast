@@ -1,5 +1,3 @@
-# fmt: off
-
 import json
 from collections.abc import Mapping, MutableMapping
 from contextlib import contextmanager
@@ -183,8 +181,9 @@ class _MultiFileCacheTemplate(MutableMapping):
             missing(key)
 
     def combine(self):
-        cache = self.backend.dump_cache(self.directory, dict(self),
-                                        comm=self.comm)
+        cache = self.backend.dump_cache(
+            self.directory, dict(self), comm=self.comm
+        )
         assert set(cache) == set(self)
         self.clear()
         assert len(self) == 0
@@ -256,8 +255,9 @@ class _CombinedCacheTemplate(Mapping):
         return self
 
     def split(self):
-        cache = self.backend.create_multifile_cache(self.directory,
-                                                    comm=self.comm)
+        cache = self.backend.create_multifile_cache(
+            self.directory, comm=self.comm
+        )
         assert len(cache) == 0
         cache.update(self)
         assert set(cache) == set(self)
