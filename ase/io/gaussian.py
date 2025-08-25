@@ -1342,7 +1342,7 @@ def read_gaussian_out(fd, index=-1):
             # Löwdin is printed after Mulliken and overwrites `charges`.
             # Hirshfeld is printed after Mulliken and overwrites `charges`.
             results.update(_read_charges(fd))
-        elif line.startswith('Dipole moment') and energy is not None:
+        elif line.startswith('Dipole moment ') and energy is not None:
             # dipole moment in `l601.exe`, printed unless `Pop=None`
             # Skipped if energy is not printed in the same section.
             # This happens in the last geometry record when `opt` or `irc` is
@@ -1351,6 +1351,12 @@ def read_gaussian_out(fd, index=-1):
             # from `l601` conflicts with the previous record from `l716`.
             line = fd.readline().strip()
             dipole = np.array([float(_) for _ in line.split()[1:6:2]]) * Debye
+            results['dipole'] = dipole
+        elif re.match(r"^Recovered energy=.*dipole=.*$", line):
+            # energy and dipole moment obtained from an external script
+            energy = float(line.split()[2].replace('D', 'e'))
+            energy *= Hartree
+            dipole = np.array([float(_) for _ in line.split()[4:7]]) * Debye
             results['dipole'] = dipole
         elif _re_l716.match(line):
             # Sometimes Gaussian will print "Rotating derivatives to
