@@ -6,13 +6,13 @@ from ase.build import bulk
 
 @pytest.fixture()
 def atoms_fcc_Ni_with_H_at_center():
-    atoms = bulk("Ni", cubic=True)
-    atoms += Atom("H", position=atoms.cell.diagonal() / 2)
+    atoms = bulk('Ni', cubic=True)
+    atoms += Atom('H', position=atoms.cell.diagonal() / 2)
     return atoms
 
 
 @pytest.mark.calculator_lite()
-@pytest.mark.calculator("lammpslib")
+@pytest.mark.calculator('lammpslib')
 def test_lammpslib_simple_extra_cmd_args(
     factory,
     calc_params_NiH: dict,
@@ -35,11 +35,11 @@ def test_lammpslib_simple_extra_cmd_args(
     _ = NiH.get_potential_energy()
 
     # this should work only because extra_cmd_args defined nsteps=10
-    calc.lmp.command("run ${nsteps}")
+    calc.lmp.command('run ${nsteps}')
 
 
 @pytest.mark.calculator_lite()
-@pytest.mark.calculator("lammpslib")
+@pytest.mark.calculator('lammpslib')
 def test_lammpslib_simple_initializer(
     factory,
     calc_params_NiH: dict,
@@ -52,13 +52,13 @@ def test_lammpslib_simple_initializer(
         calc_params = calc_params_NiH.copy()
 
         def _initializer(lmp):
-            print("running initializer with lmp", lmp)
+            print('running initializer with lmp', lmp)
             assert lmp is not None
 
-        calc_params["initializer"] = _initializer
+        calc_params['initializer'] = _initializer
         calc = factory.calc(**calc_params)
         NiH.calc = calc
 
     _ = NiH.get_potential_energy()
 
-    assert "running initializer" in str(capsys.readouterr())
+    assert 'running initializer' in str(capsys.readouterr())
