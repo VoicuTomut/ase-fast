@@ -27,28 +27,6 @@ def dimer_params():
 
 
 @pytest.fixture()
-def calc_params_kokkos_cpu():
-    calc_params = {"extra_cmd_args": ("-k on -sf kk -pk kokkos "
-                                      "neigh half newton on").split()}
-    return calc_params
-
-
-@pytest.fixture()
-def calc_params_Ar_mliap(tmp_path):
-    from lammps.mliap.mliap_unified_lj import MLIAPUnifiedLJ
-    unified = MLIAPUnifiedLJ(["Ar"])
-    unified.pickle(tmp_path / 'mliap_unified_lj_Ar.pkl')
-
-    calc_params = {}
-    calc_params["lmpcmds"] = [
-        f"pair_style mliap unified {tmp_path / 'mliap_unified_lj_Ar.pkl'} 0",
-        "pair_coeff * * Ar"
-    ]
-    def _mliapy_initializer(lmp):
-        import lammps
-        lammps.mliap.activate_mliappy(lmp)
-    calc_params["initializer"] = _mliapy_initializer
-    calc_params["atom_types"] = {"Ar": 1}
-    calc_params["log_file"] = "test.log"
-    calc_params["keep_alive"] = True
+def calc_params_extra_cmd_args():
+    calc_params = {"extra_cmd_args": ("-var nsteps 10").split()}
     return calc_params
