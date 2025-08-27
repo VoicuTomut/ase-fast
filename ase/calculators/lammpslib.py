@@ -150,8 +150,10 @@ Keyword                                  Description
 ``extra_cmd_args``       list of extra arguments for
                          `lammps.lammps(cmd_args=...)`, e.g. for kokkos mliap on
                          a gpu
-                         `("-k on g 1 -sf kk "
-                           "-pk kokkos neigh half newton on").split()`
+                         ```
+                         ("-k on g 1 -sf kk "
+                         "-pk kokkos neigh half newton on").split()
+                         ```
 
 ``intializer``           callback function that does arbitrary LAMMPS python
                          API initializtion tasks (e.g. calling
