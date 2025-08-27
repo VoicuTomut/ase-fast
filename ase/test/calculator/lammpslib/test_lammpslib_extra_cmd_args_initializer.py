@@ -35,7 +35,7 @@ def test_lammpslib_simple_extra_cmd_args(
     _ = NiH.get_potential_energy()
 
     # this should work only because extra_cmd_args defined nsteps=10
-    calc.lammps.run("run ${nsteps}")
+    calc.lmp.command("run ${nsteps}")
 
 
 @pytest.mark.calculator_lite()
@@ -44,17 +44,21 @@ def test_lammpslib_simple_initializer(
     factory,
     calc_params_NiH: dict,
     atoms_fcc_Ni_with_H_at_center: Atoms,
+    capsys,
 ):
-    NiH = atoms_fcc_Ni_with_H_at_center
+    with capsys.disabled():
+        NiH = atoms_fcc_Ni_with_H_at_center
 
-    calc_params = calc_params_NiH.copy()
+        calc_params = calc_params_NiH.copy()
 
-    def _initializer(lmp):
-        print("running initializer with lmp", lmp)
-        assert lmp is not None
+        def _initializer(lmp):
+            print("running initializer with lmp", lmp)
+            assert lmp is not None
 
-    calc_params["initializer"] = _initializer
-    calc = factory.calc(**calc_params)
-    NiH.calc = calc
+        calc_params["initializer"] = _initializer
+        calc = factory.calc(**calc_params)
+        NiH.calc = calc
 
     _ = NiH.get_potential_energy()
+
+    assert "running initializer" in str(capsys.readouterr())
