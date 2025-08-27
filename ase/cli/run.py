@@ -155,7 +155,8 @@ class Runner:
                 pass
 
     def optimize(self, atoms, name):
-        from ase.constraints import FixAtoms, UnitCellFilter
+        from ase.constraints import FixAtoms
+        from ase.filters import UnitCellFilter
         from ase.io import Trajectory
         from ase.optimize import LBFGS
 

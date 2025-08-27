@@ -1,16 +1,15 @@
 # fmt: off
 
 """Constraints"""
-from typing import Sequence
+from __future__ import annotations
+
+from copy import deepcopy
+from typing import Any, Sequence
 from warnings import warn
 
 import numpy as np
 
 from ase import Atoms
-from ase.filters import ExpCellFilter as ExpCellFilterOld
-from ase.filters import Filter as FilterOld
-from ase.filters import StrainFilter as StrainFilterOld
-from ase.filters import UnitCellFilter as UnitCellFilterOld
 from ase.geometry import (
     conditional_find_mic,
     find_mic,
@@ -28,7 +27,6 @@ from ase.spacegroup.symmetrize import (
     symmetrize_rank2,
 )
 from ase.stress import full_3x3_to_voigt_6_stress, voigt_6_to_full_3x3_stress
-from ase.utils import deprecated
 from ase.utils.parsemath import eval_expression
 
 __all__ = [
@@ -40,9 +38,15 @@ __all__ = [
     'FixSymmetry']
 
 
-def dict2constraint(dct):
+def dict2constraint(dct: dict[str, Any]) -> FixConstraint:
+    """Convert dictionary to ASE `FixConstraint` object."""
     if dct['name'] not in __all__:
         raise ValueError
+    # address backward-compatibility breaking between ASE 3.22.0 and 3.23.0
+    # https://gitlab.com/ase/ase/-/merge_requests/3786
+    if dct['name'] in {'FixedLine', 'FixedPlane'} and 'a' in dct['kwargs']:
+        dct = deepcopy(dct)
+        dct['kwargs']['indices'] = dct['kwargs'].pop('a')
     return globals()[dct['name']](**dct['kwargs'])
 
 
@@ -2405,45 +2409,3 @@ class FixSymmetry(FixConstraint):
                 'verbose': self.verbose,
             },
         }
-
-
-class Filter(FilterOld):
-    @deprecated('Import Filter from ase.filters')
-    def __init__(self, *args, **kwargs):
-        """
-        .. deprecated:: 3.23.0
-            Import ``Filter`` from :mod:`ase.filters`
-        """
-        super().__init__(*args, **kwargs)
-
-
-class StrainFilter(StrainFilterOld):
-    @deprecated('Import StrainFilter from ase.filters')
-    def __init__(self, *args, **kwargs):
-        """
-        .. deprecated:: 3.23.0
-            Import ``StrainFilter`` from :mod:`ase.filters`
-        """
-        super().__init__(*args, **kwargs)
-
-
-class UnitCellFilter(UnitCellFilterOld):
-    @deprecated('Import UnitCellFilter from ase.filters')
-    def __init__(self, *args, **kwargs):
-        """
-        .. deprecated:: 3.23.0
-            Import ``UnitCellFilter`` from :mod:`ase.filters`
-        """
-        super().__init__(*args, **kwargs)
-
-
-class ExpCellFilter(ExpCellFilterOld):
-    @deprecated('Import ExpCellFilter from ase.filters')
-    def __init__(self, *args, **kwargs):
-        """
-        .. deprecated:: 3.23.0
-            Import ``ExpCellFilter`` from :mod:`ase.filters`
-            or use :class:`~ase.filters.FrechetCellFilter` for better
-            convergence w.r.t. cell variables
-        """
-        super().__init__(*args, **kwargs)

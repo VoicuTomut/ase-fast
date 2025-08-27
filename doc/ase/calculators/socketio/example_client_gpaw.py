@@ -9,7 +9,10 @@ atoms = read('initial.traj')
 unixsocket = 'ase_server_socket'
 
 atoms.calc = GPAW(
-    mode='lcao', basis='dzp', txt='gpaw.client.txt', mixer=Mixer(0.7, 7, 20.0)
+    mode='lcao',
+    basis='dzp',
+    txt='gpaw.client.txt',
+    mixer=Mixer(0.7, 7, 20.0),
 )
 
 client = SocketClient(unixsocket=unixsocket)

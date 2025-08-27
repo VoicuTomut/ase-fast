@@ -2,7 +2,7 @@
 
 # flake8: noqa
 """
-The ASE Calculator for OpenMX <http://www.openmx-square.org>: Python interface
+The ASE Calculator for OpenMX <https://www.openmx-square.org>: Python interface
 to the software package for nano-scale material simulations based on density
 functional theories.
     Copyright (C) 2018 JaeHwan Shim and JaeJun Yu
@@ -18,7 +18,7 @@ functional theories.
     GNU Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public License
-    along with ASE.  If not, see <http://www.gnu.org/licenses/>.
+    along with ASE.  If not, see <https://www.gnu.org/licenses/>.
 """
 #  from ase.calculators import SinglePointDFTCalculator
 import os

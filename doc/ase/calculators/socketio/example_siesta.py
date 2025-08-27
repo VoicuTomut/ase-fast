@@ -24,7 +24,7 @@ fdf_arguments = {
 atoms = molecule('H2O', vacuum=3.0)
 atoms.rattle(stdev=0.1)
 
-siesta = Siesta(fdf_arguments=fdf_arguments)
+siesta = Siesta(directory='siesta-calc', fdf_arguments=fdf_arguments)
 opt = BFGS(atoms, trajectory='opt.siesta.traj', logfile='opt.siesta.log')
 
 with SocketIOCalculator(siesta, log=sys.stdout, unixsocket=unixsocket) as calc:

@@ -91,7 +91,7 @@ Computations from the 2021 paper were performed using
    :members:
 
 .. note:: For calculations using **k**-points, make sure that the
-   `\Gamma`-point is included in the **k**-point grid.
+   :math:`\Gamma`-point is included in the **k**-point grid.
    The Wannier module does not support **k**-point reduction by symmetry, so
    you must use the ``usesymm=False`` keyword in the calc, and
    shift all **k**-points by a small amount (but not less than 2e-5

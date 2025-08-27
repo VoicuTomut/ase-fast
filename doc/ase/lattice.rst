@@ -176,9 +176,9 @@ be specified.
   Cubic          a                    'a'
   Tetragonal     (a, c)               'a', 'c' or 'c/a'
   Orthorhombic   (a, b, c)            'a', 'b' or 'b/a', 'c' or 'c/a'
-  Triclinic      (a, b, c, `\alpha`,  'a', 'b' or 'b/a', 'c' or
-                 `\beta`, `\gamma`)   'c/a', 'alpha', 'beta', 'gamma'
-  Monoclinic     (a, b, c, alpha)     'a', 'b' or 'b/a', 'c' or 'c/a', 'alpha'
+  Triclinic      (a, b, c, α, β, γ)   'a', 'b' or 'b/a', 'c' or
+                                      'alpha', 'beta', 'gamma'
+  Monoclinic     (a, b, c, α)         'a', 'b' or 'b/a', 'c' or 'c/a', 'alpha'
   Hexagonal      (a, c)               'a', 'c' or 'c/a'
   =============  ===================  ========================================
 
@@ -225,7 +225,7 @@ attribute, ``element_basis``, is added, giving which atoms in the
 basis are which element.  If there are four atoms in the basis, and
 element_basis is (0,0,1,0), then the first, second and fourth atoms
 are one element, and the third is the other element.  As an example,
-the AuCu3 structure (also known as `\mathrm{L}1_2`) is defined as::
+the AuCu3 structure (also known as :math:`\mathrm{L}1_2`) is defined as::
 
   # The L1_2 structure is "based on FCC", but is really simple cubic
   # with a basis.

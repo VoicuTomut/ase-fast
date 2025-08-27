@@ -1,8 +1,11 @@
-# fmt: off
+"""Module for GAMESS US IO."""
+
+from __future__ import annotations
 
 import os
 import re
 from copy import deepcopy
+from io import TextIOBase
 from subprocess import TimeoutExpired, call
 
 import numpy as np
@@ -10,16 +13,16 @@ import numpy as np
 from ase import Atoms
 from ase.calculators.singlepoint import SinglePointCalculator
 from ase.units import Bohr, Debye, Hartree
-from ase.utils import workdir
+from ase.utils import reader, workdir, writer
 
 
-def _format_value(val):
+def _format_value(val: bool | str) -> str:
     if isinstance(val, bool):
         return '.t.' if val else '.f.'
     return str(val).upper()
 
 
-def _write_block(name, args):
+def _write_block(name: str, args: dict[str, bool | str]) -> str:
     out = [f' ${name.upper()}']
     for key, val in args.items():
         out.append(f'  {key.upper()}={_format_value(val)}')
@@ -27,24 +30,27 @@ def _write_block(name, args):
     return '\n'.join(out)
 
 
-def _write_geom(atoms, basis_spec):
+def _write_geom(atoms: Atoms, basis_spec: dict[str | int, str] | None) -> str:
     out = [' $DATA', atoms.get_chemical_formula(), 'C1']
     for i, atom in enumerate(atoms):
-        out.append('{:<3} {:>3} {:20.13e} {:20.13e} {:20.13e}'
-                   .format(atom.symbol, atom.number, *atom.position))
+        out.append(
+            '{:<3} {:>3} {:20.13e} {:20.13e} {:20.13e}'.format(
+                atom.symbol, atom.number, *atom.position
+            )
+        )
         if basis_spec is not None:
             basis = basis_spec.get(i)
             if basis is None:
                 basis = basis_spec.get(atom.symbol)
             if basis is None:
-                raise ValueError('Could not find an appropriate basis set '
-                                 'for atom number {}!'.format(i))
+                msg = f'Could not find an appropriate basis set for atom {i}'
+                raise ValueError(msg)
             out += [basis, '']
     out.append(' $END')
     return '\n'.join(out)
 
 
-def _write_ecp(atoms, ecp):
+def _write_ecp(atoms: Atoms, ecp: dict[int | str, str]) -> str:
     out = [' $ECP']
     for i, symbol in enumerate(atoms.symbols):
         if i in ecp:
@@ -52,8 +58,8 @@ def _write_ecp(atoms, ecp):
         elif symbol in ecp:
             out.append(ecp[symbol])
         else:
-            raise ValueError('Could not find an appropriate ECP for '
-                             'atom number {}!'.format(i))
+            msg = f'Could not find an appropriate ECP for atom {i}'
+            raise ValueError(msg)
     out.append(' $END')
     return '\n'.join(out)
 
@@ -61,7 +67,8 @@ def _write_ecp(atoms, ecp):
 _xc = dict(LDA='SVWN')
 
 
-def write_gamess_us_in(fd, atoms, properties=None, **params):
+@writer
+def write_gamess_us_in(fd: TextIOBase, atoms: Atoms, properties=None, **params):
     params = deepcopy(params)
 
     if properties is None:
@@ -106,8 +113,9 @@ def write_gamess_us_in(fd, atoms, properties=None, **params):
         # We assume they are passing a per-atom basis if the keys of the
         # basis dict are atom symbols, or if they are atom indices, or
         # a mixture of both.
-        if (keys.intersection(set(atoms.symbols))
-                or any(map(lambda x: isinstance(x, int), keys))):
+        if keys.intersection(set(atoms.symbols)) or any(
+            map(lambda x: isinstance(x, int), keys)
+        ):
             basis_spec = params.pop('basis')
 
     out = [_write_block('contrl', contrl)]
@@ -122,13 +130,16 @@ _geom_re = re.compile(r'^\s*ATOM\s+ATOMIC\s+COORDINATES')
 _atom_re = re.compile(r'^\s*(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s*\n')
 _energy_re = re.compile(r'^\s*FINAL [\S\s]+ ENERGY IS\s+(\S+) AFTER')
 _grad_re = re.compile(r'^\s*GRADIENT OF THE ENERGY\s*')
+_charges_re = re.compile(r'^\s*TOTAL MULLIKEN AND LOWDIN ATOMIC POPULATIONS\s*')
 _dipole_re = re.compile(r'^\s+DX\s+DY\s+DZ\s+\/D\/\s+\(DEBYE\)')
 
 
+@reader
 def read_gamess_us_out(fd):
     atoms = None
     energy = None
     forces = None
+    charges = None
     dipole = None
     for line in fd:
         # Geometry
@@ -160,6 +171,12 @@ def read_gamess_us_out(fd):
         elif line.strip().startswith('THE FOLLOWING METHOD AND ENERGY'):
             energy = float(fd.readline().strip().split()[-1]) * Hartree
 
+        elif _charges_re.match(line):
+            fd.readline()
+            charges = np.array(
+                [float(fd.readline().split()[3]) for _ in symbols],
+            )
+
         # Gradients
         elif _grad_re.match(line):
             for _ in range(3):
@@ -175,15 +192,22 @@ def read_gamess_us_out(fd):
             dipole = np.array(list(map(float, fd.readline().split()[:3])))
             dipole *= Debye
 
-    atoms.calc = SinglePointCalculator(atoms, energy=energy,
-                                       forces=forces, dipole=dipole)
+    atoms.calc = SinglePointCalculator(
+        atoms,
+        energy=energy,
+        forces=forces,
+        charges=charges,
+        dipole=dipole,
+    )
     return atoms
 
 
+@reader
 def read_gamess_us_punch(fd):
     atoms = None
     energy = None
     forces = None
+    charges = None
     dipole = None
     for line in fd:
         if line.strip() == '$DATA':
@@ -202,6 +226,11 @@ def read_gamess_us_punch(fd):
             atoms = Atoms(symbols, np.array(pos))
         elif line.startswith('E('):
             energy = float(line.split()[1][:-1]) * Hartree
+        elif line.strip().startswith('POPULATION ANALYSIS'):
+            # Mulliken charges
+            charges = np.array(
+                [float(fd.readline().split()[2]) for _ in symbols],
+            )
         elif line.strip().startswith('DIPOLE'):
             dipole = np.array(list(map(float, line.split()[1:]))) * Debye
         elif line.strip() == '$GRAD':
@@ -219,13 +248,18 @@ def read_gamess_us_punch(fd):
                 grad.append(list(map(float, atom.group(3, 4, 5))))
             forces = -np.array(grad) * Hartree / Bohr
 
-    atoms.calc = SinglePointCalculator(atoms, energy=energy, forces=forces,
-                                       dipole=dipole)
+    atoms.calc = SinglePointCalculator(
+        atoms,
+        energy=energy,
+        forces=forces,
+        charges=charges,
+        dipole=dipole,
+    )
 
     return atoms
 
 
-def clean_userscr(userscr, prefix):
+def clean_userscr(userscr: str, prefix: str) -> None:
     for fname in os.listdir(userscr):
         tokens = fname.split('.')
         if tokens[0] == prefix and tokens[-1] != 'bak':
@@ -233,7 +267,7 @@ def clean_userscr(userscr, prefix):
             os.rename(fold, fold + '.bak')
 
 
-def get_userscr(prefix, command):
+def get_userscr(prefix: str, command: str) -> str | None:
     prefix_test = prefix + '_test'
     command = command.replace('PREFIX', prefix_test)
     with workdir(prefix_test, mkdir=True):
@@ -243,7 +277,7 @@ def get_userscr(prefix, command):
             pass
 
         try:
-            with open(prefix_test + '.log') as fd:
+            with open(f'{prefix_test}.log', encoding='utf-8') as fd:
                 for line in fd:
                     if line.startswith('GAMESS supplementary output files'):
                         return ' '.join(line.split(' ')[8:]).strip()

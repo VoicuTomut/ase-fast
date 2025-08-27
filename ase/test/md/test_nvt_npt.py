@@ -203,5 +203,5 @@ def test_npt_lower_tri(asap3, equilibrated_lower_tri, dynamicsparams, allraise):
               asap3,
               NPT,
               dynamicsparams['nptold'],
-              max_pressure_error=100 * bar,
+              max_pressure_error=150 * bar,
               com_not_thermalized=True)

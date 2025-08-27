@@ -25,7 +25,7 @@ Quick links:
 
   * diamond: :func:`~ase.build.diamond100`, :func:`~ase.build.diamond111`
 
-* `MX_2` (2H or 1T): :func:`~ase.build.mx2`
+* :mol:`MX_2` (2H or 1T): :func:`~ase.build.mx2`
 
 * Other surface tools: :func:`~ase.build.surface`,
   :func:`~ase.build.add_adsorbate`, :func:`~ase.build.add_vacuum`,

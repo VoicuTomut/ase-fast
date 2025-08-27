@@ -17,18 +17,19 @@ to a python script looking something like::
 Alternatively, user can set the environmental flag $VASP_COMMAND pointing
 to the command use the launch vasp e.g. 'vasp' or 'mpirun -n 16 vasp'
 
-http://cms.mpi.univie.ac.at/vasp/
+https://www.vasp.at/
 """
 
 import os
 import shutil
 import warnings
 from os.path import isfile, islink, join
-from typing import List, Sequence, Tuple
+from typing import List, Sequence, TextIO, Tuple, Union
 
 import numpy as np
 
 import ase
+from ase import Atoms
 from ase.calculators.calculator import kpts2ndarray
 from ase.calculators.vasp.setups import get_default_setups
 from ase.config import cfg
@@ -119,22 +120,27 @@ def set_ldau(ldau_param, luj_params, symbol_count):
     return ldau_dct
 
 
-def test_nelect_charge_compitability(nelect, charge, nelect_from_ppp):
-    # We need to determine the nelect resulting from a given
-    # charge in any case if it's != 0, but if nelect is
-    # additionally given explicitly, then we need to determine it
-    # even for net charge of 0 to check for conflicts
-    if charge is not None and charge != 0:
+def _calc_nelect_from_charge(
+    nelect: Union[float, None],
+    charge: Union[float, None],
+    nelect_from_ppp: float,
+) -> Union[float, None]:
+    """Determine nelect resulting from a given charge if charge != 0.0.
+
+    If nelect is additionally given explicitly, then we need to determine it
+    even for net charge of 0 to check for conflicts.
+
+    """
+    if charge is not None and charge != 0.0:
         nelect_from_charge = nelect_from_ppp - charge
         if nelect and nelect != nelect_from_charge:
-            raise ValueError('incompatible input parameters: '
-                             f'nelect={nelect}, but charge={charge} '
-                             '(neutral nelect is '
-                             f'{nelect_from_ppp})')
-        print(nelect_from_charge)
+            raise ValueError(
+                'incompatible input parameters: '
+                f'nelect={nelect}, but charge={charge} '
+                f'(neutral nelect is {nelect_from_ppp})'
+            )
         return nelect_from_charge
-    else:
-        return nelect
+    return nelect  # NELECT explicitly given in INCAR (`None` if not given)
 
 
 def get_pp_setup(setup) -> Tuple[dict, Sequence[int]]:
@@ -1042,11 +1048,6 @@ class GenerateVaspInput:
         'r2scan': {
             'metagga': 'R2SCAN'
         },
-        'scan-rvv10': {
-            'metagga': 'SCAN',
-            'luse_vdw': True,
-            'bparam': 15.7
-        },
         'mbj': {
             # Modified Becke-Johnson
             'metagga': 'MBJ',
@@ -1073,6 +1074,52 @@ class GenerateVaspInput:
             'lhfcalc': True,
             'aexx': 0.2,
             'aggax': 0.8
+        },
+        'vdw-df3-opt1': {
+            'gga': 'BO',
+            'param1': 0.1122334456,
+            'param2': 0.1234568,
+            'aggac': 0.0,
+            'luse_vdw': True,
+            'ivdw_nl': 3,
+            'alpha_vdw': 0.94950,
+            'gamma_vdw': 1.12,
+        },
+        'vdw-df3-opt2': {
+            'gga': 'MK',
+            'param1': 0.1234568,
+            'param2': 0.58,
+            'aggac': 0.0,
+            'luse_vdw': True,
+            'ivdw_nl': 4,
+            'zab_vdw': -1.8867,
+            'alpha_vdw': 0.28248,
+            'gamma_vdw': 1.29,
+        },
+        'rvv10': {
+            'gga': 'ML',
+            'luse_vdw': True,
+            'ivdw_nl': 2,
+            'bparam': 6.3,
+            'cparam': 0.0093,
+        },
+        'scan+rvv10': {
+            'metagga': 'SCAN',
+            'luse_vdw': True,
+            'bparam': 15.7,
+            'cparam': 0.0093,
+        },
+        'pbe+rvv10l': {
+            'gga': 'PE',
+            'luse_vdw': True,
+            'bparam': 10,
+            'cparam': 0.0093,
+        },
+        'r2scan+rvv10': {
+            'metagga': 'R2SCAN',
+            'luse_vdw': True,
+            'bparam': 11.95,
+            'cparam': 0.0093,
         },
         'optpbe-vdw': {
             'gga': 'OR',
@@ -1498,7 +1545,7 @@ class GenerateVaspInput:
                 raise RuntimeError(msg)
         return ppp_list
 
-    def initialize(self, atoms):
+    def initialize(self, atoms: Atoms) -> None:
         """Initialize a VASP calculation
 
         Constructs the POTCAR file (does not actually write it).
@@ -1536,32 +1583,34 @@ class GenerateVaspInput:
         # Check if the necessary POTCAR files exists and
         # create a list of their paths.
         atomtypes = atoms.get_chemical_symbols()
-        self.symbol_count = []
+        self.symbol_count: list[tuple[str, int]] = []
         for m in special_setups:
-            self.symbol_count.append([atomtypes[m], 1])
-        for m in symbols:
-            self.symbol_count.append([m, symbolcount[m]])
+            self.symbol_count.append((atomtypes[m], 1))
+        for s in symbols:
+            self.symbol_count.append((s, symbolcount[s]))
 
         # create pseudopotential list
-        self.ppp_list = self._build_pp_list(atoms,
-                                            setups=setups,
-                                            special_setups=special_setups)
+        self.ppp_list = self._build_pp_list(
+            atoms,
+            setups=setups,
+            special_setups=special_setups,
+        )
 
         self.converged = None
         self.setups_changed = None
 
-    def default_nelect_from_ppp(self):
+    def default_nelect_from_ppp(self) -> float:
         """ Get default number of electrons from ppp_list and symbol_count
 
         "Default" here means that the resulting cell would be neutral.
         """
-        symbol_valences = []
+        symbol_valences: list[tuple[str, float]] = []
         for filename in self.ppp_list:
             with open_potcar(filename=filename) as ppp_file:
                 r = read_potcar_numbers_of_electrons(ppp_file)
                 symbol_valences.extend(r)
         assert len(self.symbol_count) == len(symbol_valences)
-        default_nelect = 0
+        default_nelect = 0.0
         for ((symbol1, count),
              (symbol2, valence)) in zip(self.symbol_count, symbol_valences):
             assert symbol1 == symbol2
@@ -1641,7 +1690,7 @@ class GenerateVaspInput:
 
         if 'charge' in self.input_params and self.input_params[
                 'charge'] is not None:
-            nelect_val = test_nelect_charge_compitability(
+            nelect_val = _calc_nelect_from_charge(
                 self.float_params['nelect'],
                 self.input_params['charge'],
                 self.default_nelect_from_ppp())
@@ -2077,21 +2126,27 @@ def open_potcar(filename):
         raise ValueError(f'Invalid POTCAR filename: "{filename}"')
 
 
-def read_potcar_numbers_of_electrons(file_obj):
-    """ Read list of tuples (atomic symbol, number of valence electrons)
-    for each atomtype from a POTCAR file."""
-    nelect = []
-    lines = file_obj.readlines()
+def read_potcar_numbers_of_electrons(fd: TextIO, /) -> list[tuple[str, float]]:
+    """Read number of valence electrons for each atomtype from a POTCAR file.
+
+    Returns
+    -------
+    list[tuple[str, float]]
+        List of (atomic symbol, number of valence electrons).
+
+    """
+    nelect: list[tuple[str, float]] = []
+    lines = fd.readlines()
     for n, line in enumerate(lines):
         if 'TITEL' in line:
             symbol = line.split('=')[1].split()[1].split('_')[0].strip()
-            valence = float(
-                lines[n + 4].split(';')[1].split('=')[1].split()[0].strip())
-            nelect.append((symbol, valence))
+            linep4 = lines[n + 4]
+            zval = float(linep4.split(';')[1].split('=')[1].split()[0].strip())
+            nelect.append((symbol, zval))
     return nelect
 
 
-def count_symbols(atoms, exclude=()):
+def count_symbols(atoms: Atoms, exclude=()) -> tuple[list[str], dict[str, int]]:
     """Count symbols in atoms object, excluding a set of indices
 
     Parameters:
@@ -2112,8 +2167,8 @@ def count_symbols(atoms, exclude=()):
     >>> count_symbols(atoms, exclude=(1, 2, 3))
     (['Na', 'Cl'], {'Na': 3, 'Cl': 2})
     """
-    symbols = []
-    symbolcount = {}
+    symbols: list[str] = []
+    symbolcount: dict[str, int] = {}
     for m, symbol in enumerate(atoms.symbols):
         if m in exclude:
             continue

@@ -809,6 +809,8 @@ def write_xyz(fileobj, images, comment='', columns=None,
     """
     Write output in extended XYZ format
 
+    ``images`` may be Atoms or any Iterable[Atoms].
+
     Optionally, specify which columns (arrays) to include in output,
     whether to write the contents of the `atoms.info` dict to the
     XYZ comment line (default is True), the results of any
@@ -824,6 +826,7 @@ def write_xyz(fileobj, images, comment='', columns=None,
     if hasattr(images, 'get_positions'):
         images = [images]
 
+    images_0 = None
     for atoms in images:
         natoms = len(atoms)
 
@@ -838,7 +841,7 @@ def write_xyz(fileobj, images, comment='', columns=None,
                     voigt_6_to_full_3x3_stress(atoms.info['stress'])
 
         if columns is None:
-            fr_cols = (['symbols', 'positions']
+            fr_cols = (['symbols', 'positions', 'move_mask']
                        + [key for key in atoms.arrays if
                           key not in ['symbols', 'positions', 'numbers',
                                       'species', 'pos']])
@@ -893,7 +896,9 @@ def write_xyz(fileobj, images, comment='', columns=None,
 
         # Move mask
         if 'move_mask' in fr_cols:
-            cnstr = images[0]._get_constraints()
+            if images_0 is None:
+                images_0 = atoms
+            cnstr = images_0.constraints
             if len(cnstr) > 0:
                 c0 = cnstr[0]
                 if isinstance(c0, FixAtoms):

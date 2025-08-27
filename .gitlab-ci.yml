@@ -1,5 +1,8 @@
 --- # ASE Gitlab CI configuration
 
+default:
+  interruptible: true
+
 variables:
   OMP_NUM_THREADS: "1"
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/pip-cache"
@@ -9,6 +12,11 @@ stages:
   - test
   - paperwork
   - deploy
+
+workflow:
+  # https://docs.gitlab.com/ci/yaml/#workflowauto_cancelon_new_commit
+  auto_cancel:
+    on_new_commit: interruptible
 
 # This will ensure that only pipelines in master get to update the cache,
 # see https://docs.gitlab.com/ci/caching/
@@ -184,7 +192,7 @@ doc:
   variables:
     PIP_CACHE_DIR: "$CI_PROJECT_DIR/pip-cache-doc"
   before_script:
-    - pip install scriv
+    - pip install scriv sphinx_book_theme
     - pip install --no-deps .[docs]
     - ase info
     - which sphinx-build
@@ -192,23 +200,24 @@ doc:
     - scriv collect --keep || echo Not compiling changelog then  # Avoid error
     - python -m ase.utils.sphinx run # test scripts
     - sphinx-build -W doc doc/build
+    - mv doc/build web-html
   cache:
     paths:
       - $PIP_CACHE_DIR
     key: doc
   artifacts:
     paths:
-      - $CI_PROJECT_DIR/doc/build/
+      - web-html
     expire_in: 1 week
 
 distribution-package:
   image: registry.gitlab.com/ase/ase:ase-main
   before_script:
     - mkdir dist
-    - pip install setuptools
+    - pip install setuptools build
   script:
-    - python setup.py sdist | tee dist/setup_sdist.log
-    - python setup.py bdist_wheel | tee dist/setup_bdist_wheel.log
+    - python -m build
+    - ls dist/*
     - pip install dist/ase-*.tar.gz
     - ase test
     - pip uninstall --yes ase
@@ -218,7 +227,11 @@ distribution-package:
     paths:
       - dist
     expire_in: 1 week
-  when: manual
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_PIPELINE_SOURCE == "push"
+      when: manual
+      allow_failure: true
 
 # Publish code coverage data on web.
 #  * The deploy stage is specially recognized by gitlab
@@ -229,8 +242,13 @@ pages:
   stage: deploy
   dependencies:
     - coverage-combine
+    - doc
   script:
-    - mv coverage-html public
+    - mkdir public
+    - mv coverage-html public/
+    - pwd
+    - ls
+    - mv web-html/* public/
   artifacts:
     paths:
       - public
@@ -275,7 +293,7 @@ coverage-combine:
       - coverage-html
     expire_in: 1 week
 
-.windows_test:
+windows_test:
   tags:
     - saas-windows-medium-amd64
   stage: test
@@ -296,8 +314,9 @@ coverage-combine:
       --pytest
       -W "ignore:The --rsyncdir command line argument"
       -W "ignore:NumPy will stop allowing conversion of out-of-bound Python integers"
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "push"
-      when: manual
-      allow_failure: true
-    - if: $CI_PIPELINE_SOURCE == "schedule"
+  when: manual
+  # rules:
+  #  - if: $CI_PIPELINE_SOURCE == "push"
+  #    when: manual
+  #    allow_failure: true
+  #  - if: $CI_PIPELINE_SOURCE == "schedule"

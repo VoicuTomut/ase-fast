@@ -1,11 +1,17 @@
-# fmt: off
-
 import numpy as np
 from scipy.interpolate import interpn
 
 
-def grid_2d_slice(spacings, array, u, v, o=(0, 0, 0), step=0.02,
-                  size_u=(-10, 10), size_v=(-10, 10)):
+def grid_2d_slice(
+    spacings,
+    array,
+    u,
+    v,
+    o=(0, 0, 0),
+    step=0.02,
+    size_u=(-10, 10),
+    size_v=(-10, 10),
+):
     """Extract a 2D slice from a cube file using interpolation.
 
     Works for non-orthogonal cells.
@@ -99,14 +105,15 @@ def grid_2d_slice(spacings, array, u, v, o=(0, 0, 0), step=0.02,
     B = np.array([u, u_perp, n])
     Bo = np.dot(B, o)
 
-    det = (u[0] * v[1] - v[0] * u[1])
+    det = u[0] * v[1] - v[0] * u[1]
 
     if det == 0:
         zoff = 0
     else:
-        zoff = ((0 - o[1]) * (u[0] * v[2] - v[0] * u[2]) -
-                (0 - o[0]) * (u[1] * v[2] - v[1] * u[2])) \
-            / det + o[2]
+        zoff = (
+            (0 - o[1]) * (u[0] * v[2] - v[0] * u[2])
+            - (0 - o[0]) * (u[1] * v[2] - v[1] * u[2])
+        ) / det + o[2]
 
     zoff = np.dot(B, [0, 0, zoff])[-1]
 
@@ -126,11 +133,8 @@ def grid_2d_slice(spacings, array, u, v, o=(0, 0, 0), step=0.02,
     # We avoid nan values at boundary
     vectors = np.round(vectors, 12)
 
-    D = interpn((ox, oy, oz),
-                array,
-                vectors,
-                bounds_error=False,
-                method='linear'
-                ).reshape(X.shape)
+    D = interpn(
+        (ox, oy, oz), array, vectors, bounds_error=False, method='linear'
+    ).reshape(X.shape)
 
     return X - Bo[0], Y - Bo[1], D

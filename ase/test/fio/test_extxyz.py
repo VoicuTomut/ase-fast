@@ -325,14 +325,17 @@ def test_json_scalars():
     assert abs(b.info['val_3'] - 42) == 0
 
 
+@pytest.mark.parametrize(
+    'columns',
+    [None, ['symbols', 'positions', 'move_mask']],
+)
 @pytest.mark.parametrize('constraint', [FixAtoms(indices=(0, 2)),
                                         FixCartesian(1, mask=(1, 0, 1)),
                                         [FixCartesian(0), FixCartesian(2)]])
-def test_constraints(constraint):
+def test_constraints(constraint, columns):
     atoms = molecule('H2O')
     atoms.set_constraint(constraint)
 
-    columns = ['symbols', 'positions', 'move_mask']
     ase.io.write('tmp.xyz', atoms, columns=columns)
 
     atoms2 = ase.io.read('tmp.xyz')
@@ -509,3 +512,10 @@ def test_outputs_not_properties(tmp_path):
                   pbc=[True] * 3, info={'nbands': 1})
     ase.io.write(tmp_path / 'nbands.extxyz', atoms)
     _ = ase.io.read(tmp_path / 'nbands.extxyz')
+
+
+def test_non_subscriptable_move_mask(tmp_path):
+    atoms = Atoms('H', cell=[1] * 3, pbc=[True] * 3)
+    atoms.new_array("move_mask", np.ones(atoms.positions.shape).astype(bool))
+
+    ase.io.write(tmp_path / "out.extxyz", (a for a in [atoms]))
