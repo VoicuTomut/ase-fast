@@ -35,7 +35,9 @@ The local optimization algorithms available in ASE are: :class:`BFGS`,
 
     `Performance test
     <https://gpaw.readthedocs.io/devel/ase_optimize/ase_optimize.html>`_
-    for all ASE local optimizers.
+    for all ASE local optimizers with ``GPAW``.
+    `Figs. S7-10 in this SI from 2025 <https://iopscience.iop.org/article/10.1088/2515-7655/ade916/data>`__
+    also shows performance tests with ML potentials.
 
 
 ``MDMin`` and ``FIRE`` both use Newtonian dynamics with added
