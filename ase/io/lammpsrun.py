@@ -258,13 +258,8 @@ def construct_cell(diagdisp, offdiag):
 
 
 def _parse_pbc(tilt_items: list[str]) -> list[bool]:
-    # Handle pbc conditions
-    if len(tilt_items) == 3:
-        pbc_items = tilt_items
-    elif len(tilt_items) > 3:
-        pbc_items = tilt_items[-3:]
-    else:
-        pbc_items = ['f', 'f', 'f']
+    """Handle pbc conditions."""
+    pbc_items = tilt_items[-3:] if len(tilt_items) >= 3 else ['f', 'f', 'f']
     return ['p' in d.lower() for d in pbc_items]
 
 
@@ -272,23 +267,23 @@ def _parse_box_bound(line: str, lines: deque) -> tuple:
     # save labels behind "ITEM: BOX BOUNDS" in triclinic case
     # (>=lammps-7Jul09)
     tilt_items = line.split()[3:]
-    celldatarows = [lines.popleft() for _ in range(3)]
-    celldata = np.loadtxt(celldatarows)
+    cell_lines = [lines.popleft() for _ in range(3)]
+    cell_data = np.loadtxt(cell_lines)
 
     # general triclinic boxes (>=patch_17Apr2024)
     if tilt_items[0] == 'abc':
-        cell = celldata[:, :3]
-        celldisp = celldata[:, 3]
+        cell = cell_data[:, :3]
+        celldisp = cell_data[:, 3]
         pbc = _parse_pbc(tilt_items)
         return cell, celldisp, pbc
 
-    diagdisp = celldata[:, :2].reshape(6, 1).flatten()
+    diagdisp = cell_data[:, :2].flatten()
 
     # determine cell tilt (triclinic case!)
-    if len(celldata[0]) > 2:
+    if len(cell_data[0]) > 2:
         # for >=lammps-7Jul09 use labels behind "ITEM: BOX BOUNDS"
         # to assign tilt (vector) elements ...
-        offdiag = celldata[:, 2]
+        offdiag = cell_data[:, 2]
         # ... otherwise assume default order in 3rd column
         # (if the latter was present)
         if len(tilt_items) >= 3:
