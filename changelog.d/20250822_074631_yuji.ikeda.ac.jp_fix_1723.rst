@@ -1,0 +1,7 @@
+I/O
+---
+
+- Add support to parse general triclinic boxes in
+  :meth:`~ase.io.lammpsdata.read_lammps_data`,
+  :meth:`~ase.io.lammpsrun.read_lammps_dump_text`, and
+  :meth:`~ase.io.lammpsrun.read_lammps_dump_binary` (:mr:`3797`)
