@@ -6,8 +6,8 @@ from ase import Atoms
 from ase.build import bulk, make_supercell
 from ase.md.bussi import Bussi
 from ase.md.langevin import Langevin
+from ase.md.melchionna import MelchionnaNPT
 from ase.md.nose_hoover_chain import NoseHooverChainNVT
-from ase.md.npt import NPT
 from ase.md.nptberendsen import NPTBerendsen
 from ase.md.nvtberendsen import NVTBerendsen
 from ase.md.velocitydistribution import MaxwellBoltzmannDistribution, Stationary
@@ -174,22 +174,23 @@ def test_nptberendsen(asap3, equilibrated, dynamicsparams, allraise):
 
 @pytest.mark.optimize()
 @pytest.mark.slow()
-def test_npt_cubic(asap3, equilibrated, dynamicsparams, allraise):
-    propagate(Atoms(equilibrated), asap3, NPT,
+def test_melchionna_cubic(asap3, equilibrated, dynamicsparams, allraise):
+    propagate(Atoms(equilibrated), asap3, MelchionnaNPT,
               dynamicsparams['nptold'],
               max_pressure_error=100 * bar,
               com_not_thermalized=True)
-    # Unlike NPTBerendsen, NPT assumes that the center of mass is not
+    # Unlike NPTBerendsen, MelchionnaNPT assumes that the center of mass is not
     # thermalized, so the kinetic energy should be 3/2 ' kB * (N-1) * T
 
 
 @pytest.mark.optimize()
 @pytest.mark.slow()
-def test_npt_upper_tri(asap3, equilibrated_upper_tri, dynamicsparams, allraise):
-    # Otherwise, parameters are the same as test_npt
+def test_melchionna_upper_tri(
+        asap3, equilibrated_upper_tri, dynamicsparams, allraise):
+    # Otherwise, parameters are the same as test_melchionna_cubic
     propagate(Atoms(equilibrated_upper_tri),
               asap3,
-              NPT,
+              MelchionnaNPT,
               dynamicsparams['nptold'],
               max_pressure_error=100 * bar,
               com_not_thermalized=True)
@@ -197,11 +198,12 @@ def test_npt_upper_tri(asap3, equilibrated_upper_tri, dynamicsparams, allraise):
 
 @pytest.mark.optimize()
 @pytest.mark.slow()
-def test_npt_lower_tri(asap3, equilibrated_lower_tri, dynamicsparams, allraise):
-    # Otherwise, parameters are the same as test_npt
+def test_melchionna_lower_tri(
+        asap3, equilibrated_lower_tri, dynamicsparams, allraise):
+    # Otherwise, parameters are the same as test_melchionna_cubic
     propagate(Atoms(equilibrated_lower_tri),
               asap3,
-              NPT,
+              MelchionnaNPT,
               dynamicsparams['nptold'],
-              max_pressure_error=150 * bar,
+              max_pressure_error=100 * bar,
               com_not_thermalized=True)

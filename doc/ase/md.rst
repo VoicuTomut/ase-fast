@@ -460,9 +460,9 @@ Full Martyna-Tobias-Klein (MTK) dynamics
 Melchionna NPT dynamics
 -----------------------
 
-.. module:: ase.md.npt
+.. module:: ase.md.melchionna
 
-.. autoclass:: NPT
+.. autoclass:: MelchionnaNPT
 
     .. automethod:: run
     .. automethod:: set_stress

@@ -1,0 +1,59 @@
+.. A new scriv changelog fragment.
+..
+.. Uncomment the header that is right (remove the leading dots).
+..
+.. I/O
+.. ---
+..
+.. - A bullet item for the I/O category.
+..
+.. Calculators
+.. -----------
+..
+.. - A bullet item for the Calculators category.
+..
+.. Optimizers
+.. ----------
+..
+.. - A bullet item for the Optimizers category.
+..
+Molecular dynamics
+------------------
+
+- The "NPT" thermostat has been renamed to "MelchionnaNPT" for clearer
+  comparison with alternatives, and to avoid giving the impression
+  that this is a generally recommended default choice for NPT.
+
+  For backward compatibility an :class:`ase.md.npt.NPT` class remains
+  in place, which aliases the renamed class at its new location
+  :class:`ase.md.melchionna.MelchionnaNPT`.
+
+  The alias is marked as "deprecated" and will be removed in a future
+  ASE version.
+
+..
+.. GUI
+.. ---
+..
+.. - A bullet item for the GUI category.
+..
+.. Development
+.. -----------
+..
+.. - A bullet item for the Development category.
+..
+.. Documentation
+.. -------------
+..
+.. - A bullet item for the Documentation category.
+..
+.. Other changes
+.. -------------
+..
+.. - A bullet item for the Other changes category.
+..
+.. Bugfixes
+.. --------
+..
+.. - A bullet item for the Bugfixes category.
+..
