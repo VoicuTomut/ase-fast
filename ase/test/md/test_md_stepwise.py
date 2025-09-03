@@ -6,7 +6,7 @@ from ase.atoms import Atoms
 from ase.build import bulk
 from ase.calculators.calculator import compare_atoms
 from ase.calculators.emt import EMT
-from ase.md.npt import NPT
+from ase.md.melchionna import MelchionnaNPT as NPT
 from ase.units import fs
 
 
