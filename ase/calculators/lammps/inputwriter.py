@@ -215,13 +215,15 @@ def write_lammps_in(lammps_in, parameters, atoms, prismobj,
             + "\n"
         )
 
-    fileobj.write("\n### run\n" "fix fix_nve all nve\n")
+    fileobj.write("\n### run\n")
 
     if "fix" in parameters:
         fileobj.write(
             "\n".join([f"fix {p}" for p in parameters["fix"]])
             + "\n"
         )
+    else:
+        fileobj.write("fix fix_nve all nve\n")
 
     fileobj.write(
         "dump dump_all all custom {1} {0} id type x y z vx vy vz "
