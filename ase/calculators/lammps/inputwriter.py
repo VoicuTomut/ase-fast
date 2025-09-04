@@ -217,6 +217,9 @@ def write_lammps_in(lammps_in, parameters, atoms, prismobj,
 
     fileobj.write("\n### run\n")
 
+    if "velocity" in parameters:
+        fileobj.write("velocity {}\n".format(parameters["velocity"]))
+
     if "fix" in parameters:
         fileobj.write(
             "\n".join([f"fix {p}" for p in parameters["fix"]])
