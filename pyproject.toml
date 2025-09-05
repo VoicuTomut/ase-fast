@@ -15,14 +15,13 @@ classifiers = [
     'Intended Audience :: Science/Research',
     'Operating System :: OS Independent',
     'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.9',
     'Programming Language :: Python :: 3.10',
     'Programming Language :: Python :: 3.11',
     'Programming Language :: Python :: 3.12',
     'Intended Audience :: Science/Research',
     'Topic :: Scientific/Engineering :: Physics'
 ]
-requires-python = '>=3.9'
+requires-python = '>=3.10'
 dependencies = [
     'numpy>=1.19.5',  # January 2021
     'scipy>=1.6.0',  # December 2020

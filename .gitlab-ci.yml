@@ -301,7 +301,7 @@ windows_test:
     # https://stackoverflow.com/questions/61791108/gitlab-ci-shared-windows-runner-for-python
     # https://gitlab.com/gitlab-org/ci-cd/shared-runners/images/gcp/windows-containers/-/issues/13
     - Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-    - choco install python --version=3.9 -y -f
+    - choco install python --version=3.10 -y -f
     - refreshenv
     - python --version
     - python -m pip install --upgrade pip
