@@ -47,7 +47,7 @@ def equilibrate(atoms, dynamicsparams):
     MaxwellBoltzmannDistribution(atoms, temperature_K=300, force_temp=True,
                                  rng=rng)
     Stationary(atoms)
-    assert abs(atoms.get_temperature() - 300) < 0.0001
+    assert atoms.get_temperature() == pytest.approx(300, abs=0.0001)
     with NPTBerendsen(atoms, timestep=20 * fs, logfile='-',
                       loginterval=200,
                       **dynamicsparams['npt']) as md:
@@ -125,14 +125,14 @@ def propagate(atoms,
     targettemp = algoargs['temperature_K']
     if com_not_thermalized:
         targettemp *= (len(atoms) - 1) / len(atoms)
-    assert abs(Tmean - targettemp) < maxtemperr * targettemp
+    assert Tmean == pytest.approx(targettemp, abs=maxtemperr * targettemp)
     if max_pressure_error:
         try:
             # Different algorithms use different keywords
             targetpressure = algoargs['pressure_au']
         except KeyError:
             targetpressure = algoargs['externalstress']
-        assert abs(pmean - targetpressure) < max_pressure_error
+        assert pmean == pytest.approx(targetpressure, abs=max_pressure_error)
 
 
 # Not a real optimizer test but uses optimizers.
