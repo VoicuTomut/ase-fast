@@ -795,6 +795,10 @@ class MaskedMTKNPT(MTKNPT):
             axis=0,
         )
 
+    @_p_g.setter
+    def _p_g(self, value: np.ndarray) -> None:
+        raise AttributeError("_p_g is a read-only property.")
+
     def step(self) -> None:
         dt2 = self.dt / 2
 
