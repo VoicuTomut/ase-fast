@@ -13,6 +13,7 @@ from ase.md.nose_hoover_chain import (
     MTKNPT,
     IsotropicMTKBarostat,
     IsotropicMTKNPT,
+    MaskedMTKNPT,
     MTKBarostat,
     NoseHooverChainNVT,
     NoseHooverChainThermostat,
@@ -180,7 +181,21 @@ def test_isotropic_barostat(asap3, hcp_Cu: Atoms, pchain: int, ploop: int):
 
 @pytest.mark.parametrize("pchain", [1, 3])
 @pytest.mark.parametrize("ploop", [1, 3])
-def test_anisotropic_barostat(asap3, hcp_Cu: Atoms, pchain: int, ploop: int):
+@pytest.mark.parametrize("mask",
+    [
+        pytest.param(None, id="aniso"),
+        pytest.param((True, False, False), id='uniaxial'),
+        pytest.param((True, True, False), id='biaxial'),
+        pytest.param((True, True, True), id='iso'),
+    ]
+)
+def test_anisotropic_barostat(
+    asap3,
+    hcp_Cu: Atoms,
+    pchain: int,
+    ploop: int,
+    mask: tuple[bool, bool, bool] | None,
+):
     atoms = hcp_Cu.copy()
     atoms.calc = asap3.EMT()
 
@@ -190,6 +205,8 @@ def test_anisotropic_barostat(asap3, hcp_Cu: Atoms, pchain: int, ploop: int):
         temperature_K=1000,
         pdamp=1000 * timestep,
         pchain=pchain,
+        ploop=ploop,
+        mask=mask,
     )
 
     rng = np.random.default_rng(0)
@@ -299,6 +316,58 @@ def test_anisotropic_npt(asap3, hcp_Cu: Atoms, tchain: int, pchain: int):
         pressure_au=10.0 * ase.units.GPa,
         tdamp=100 * timestep,
         pdamp=1000 * timestep,
+        tchain=tchain,
+        pchain=pchain,
+    )
+    conserved_energy1 = md.get_conserved_energy()
+    positions1 = atoms.get_positions().copy()
+    md.run(100)
+    conserved_energy2 = md.get_conserved_energy()
+    assert np.allclose(np.sum(atoms.get_momenta(), axis=0), 0.0)
+    assert np.isclose(conserved_energy1, conserved_energy2, atol=1e-3)
+    assert not np.allclose(atoms.get_positions(), positions1, atol=1e-6)
+
+
+@pytest.mark.parametrize("tchain", [1, 3])
+@pytest.mark.parametrize("pchain", [1, 3])
+@pytest.mark.parametrize("mask",
+    [
+        pytest.param((True, False, False), id='uniaxial-a'),
+        pytest.param((False, False, True), id='uniaxial-c'),
+        pytest.param((True, True, False), id='biaxial-a-b'),
+        pytest.param((True, False, True), id='biaxial-a-c'),
+        pytest.param((True, True, True), id='iso'),
+    ]
+)
+def test_masked_npt(
+    asap3,
+    hcp_Cu: Atoms,
+    tchain: int,
+    pchain: int,
+    mask: tuple[bool, bool, bool]
+):
+    atoms = hcp_Cu.copy()
+    atoms.calc = asap3.EMT()
+
+    temperature_K = 300
+    rng = np.random.default_rng(0)
+    MaxwellBoltzmannDistribution(
+        atoms,
+        temperature_K=temperature_K, force_temp=True, rng=rng
+    )
+    Stationary(atoms)
+
+    timestep = 1.0 * ase.units.fs
+    md = MaskedMTKNPT(
+        atoms,
+        timestep=timestep,
+        temperature_K=temperature_K,
+        pressure_au=10.0 * ase.units.GPa,
+        mask=mask,
+        tdamp=100 * timestep,
+        pdamp=1000 * timestep,
+        tchain=tchain,
+        pchain=pchain,
     )
     conserved_energy1 = md.get_conserved_energy()
     positions1 = atoms.get_positions().copy()

@@ -564,6 +564,7 @@ class MTKNPT(MolecularDynamics):
             tchain=tchain,
             tloop=tloop,
         )
+
         self._barostat = MTKBarostat(
             num_atoms_global=self._num_atoms_global,
             temperature_K=temperature_K,
@@ -604,7 +605,7 @@ class MTKNPT(MolecularDynamics):
             self.atoms.get_total_energy()
             + self._thermostat.get_thermostat_energy()
             + self._barostat.get_barostat_energy()
-            + np.trace(self._p_g.T @ self._p_g) / (2 * self._barostat.W)
+            + np.sum(self._p_g**2) / (2 * self._barostat.W)
             + self._pressure_au * self._get_volume()
         )
         return float(conserved_energy)
@@ -671,12 +672,174 @@ class MTKNPT(MolecularDynamics):
     def _integrate_p_cell(self, delta: float) -> None:
         """Integrate exp(i * L_(g, 2) * delta)"""
         stress = self._get_stress()
+        volume = self._get_volume()
         G = (
-            self._get_volume() * (stress - self._pressure_au * np.eye(3))
+            volume * (stress - self._pressure_au * np.eye(3))
             + np.sum(self._p**2 / self.masses) / (3 * self._num_atoms_global)
                 * np.eye(3)
         )
         self._p_g += delta * G
+
+
+class MaskedMTKNPT(MTKNPT):
+    """Isothermal-isobaric molecular dynamics with volume-and-cell fluctuations
+    by Martyna-Tobias-Klein (MTK) method [1].
+
+    See also `NoseHooverChainNVT` for the references.
+
+    - [1] G. J. Martyna, D. J. Tobias, and M. L. Klein, J. Chem. Phys. 101,
+          4177-4189 (1994). https://doi.org/10.1063/1.467468
+    """
+    def __init__(
+        self,
+        atoms: Atoms,
+        timestep: float,
+        temperature_K: float,
+        pressure_au: float,
+        mask: tuple[bool, bool, bool],
+        tdamp: float,
+        pdamp: float,
+        tchain: int = 3,
+        pchain: int = 3,
+        tloop: int = 1,
+        ploop: int = 1,
+        **kwargs,
+    ):
+        """
+        Parameters
+        ----------
+        atoms: ase.Atoms
+            The atoms object.
+        timestep: float
+            The time step in ASE time units.
+        temperature_K: float
+            The target temperature in K.
+        pressure_au: float
+            The external pressure in eV/Ang^3.
+        mask: 3-tuple
+            mask=(False, False, True) allows only fluctuations along c-axis.
+        tdamp: float
+            The characteristic time scale for the thermostat in ASE time units.
+            Typically, it is set to 100 times of `timestep`.
+        pdamp: float
+            The characteristic time scale for the barostat in ASE time units.
+            Typically, it is set to 1000 times of `timestep`.
+        tchain: int
+            The number of thermostat variables in the Nose-Hoover thermostat.
+        pchain: int
+            The number of barostat variables in the MTK barostat.
+        tloop: int
+            The number of sub-steps in thermostat integration.
+        ploop: int
+            The number of sub-steps in barostat integration.
+        **kwargs : dict, optional
+            Additional arguments passed to :class:~ase.md.md.MolecularDynamics
+            base class.
+        """
+        MolecularDynamics.__init__(
+            self,
+            atoms=atoms,
+            timestep=timestep,
+            **kwargs,
+        )
+        assert self.masses.shape == (len(self.atoms), 1)
+
+        if len(atoms.constraints) > 0:
+            raise NotImplementedError(
+                "Current implementation does not support constraints"
+            )
+
+        self._num_atoms_global = self.atoms.get_global_number_of_atoms()
+        self._thermostat = NoseHooverChainThermostat(
+            num_atoms_global=self._num_atoms_global,
+            masses=self.masses,
+            temperature_K=temperature_K,
+            tdamp=tdamp,
+            tchain=tchain,
+            tloop=tloop,
+        )
+
+        self._mask = mask
+        self._barostat = MTKBarostat(
+            num_atoms_global=self._num_atoms_global,
+            temperature_K=temperature_K,
+            pdamp=pdamp,
+            pchain=pchain,
+            ploop=ploop,
+            mask=self._mask,
+        )
+
+        self._temperature_K = temperature_K
+        self._pressure_au = pressure_au
+
+        self._kT = ase.units.kB * self._temperature_K
+
+        # The following variables are updated during self.step()
+        self._q = self.atoms.get_positions()  # positions
+        self._p = self.atoms.get_momenta()  # momenta
+        self._h = np.array(self.atoms.get_cell())  # cell
+
+        # Additional variables for masked MTK
+        self._h0_basis = self._h / np.linalg.norm(self._h, axis=1)[:, None]
+        self._p_c = np.zeros(3)  # Cell momenta for axis
+
+    @property
+    def _p_g(self) -> np.ndarray:
+        return np.sum(
+            np.array(
+                [
+                    pc * np.outer(ec, ec)
+                    for ec, pc in zip(self._h0_basis, self._p_c)
+                ]
+            ),
+            axis=0,
+        )
+
+    def step(self) -> None:
+        dt2 = self.dt / 2
+
+        self._p_c = self._barostat.integrate_nhc_baro(self._p_c, dt2)
+        self._p = self._thermostat.integrate_nhc(self._p, dt2)
+        self._integrate_p_cell(dt2)
+        self._integrate_p(dt2)
+        self._integrate_q(self.dt)
+        self._integrate_q_cell(self.dt)
+        self._integrate_p(dt2)
+        self._integrate_p_cell(dt2)
+        self._p = self._thermostat.integrate_nhc(self._p, dt2)
+        self._p_c = self._barostat.integrate_nhc_baro(self._p_c, dt2)
+
+        self._update_atoms()
+
+    def get_conserved_energy(self) -> float:
+        conserved_energy = (
+            self.atoms.get_total_energy()
+            + self._thermostat.get_thermostat_energy()
+            + self._barostat.get_barostat_energy()
+            + np.sum(self._p_c ** 2) / (2 * self._barostat.W)
+            + self._pressure_au * self._get_volume()
+        )
+        return float(conserved_energy)
+
+    def _integrate_p_cell(self, delta: float) -> None:
+        """Integrate exp(i * L_(g, 2) * delta)"""
+        stress = self._get_stress()
+        kinetic_term = np.sum(self._p**2 / self.masses) / (
+            3 * self._num_atoms_global
+        )
+        pv_tensor = self._get_volume() * (
+            stress - self._pressure_au * np.eye(3)
+        )
+        for c, mc in enumerate(self._mask):
+            if not mc:
+                continue
+            gc = (
+                np.sum(
+                    pv_tensor * np.outer(self._h0_basis[c], self._h0_basis[c])
+                )
+                + kinetic_term
+            )
+            self._p_c[c] += delta * gc
 
 
 class MTKBarostat:
@@ -691,11 +854,14 @@ class MTKBarostat:
         pdamp: float,
         pchain: int = 3,
         ploop: int = 1,
+        mask: tuple[bool, bool, bool] | None = None,
     ):
         self._num_atoms_global = num_atoms_global
         self._pdamp = pdamp
         self._pchain = pchain
         self._ploop = ploop
+
+        self._cell_dof = 9 if mask is None else sum(mask)
 
         self._kT = ase.units.kB * temperature_K
 
@@ -703,8 +869,7 @@ class MTKBarostat:
 
         assert pchain >= 1
         self._R = np.zeros(self._pchain)
-        cell_dof = 9  # TODO:
-        self._R[0] = cell_dof * self._kT * self._pdamp**2
+        self._R[0] = self._cell_dof * self._kT * self._pdamp**2
         self._R[1:] = self._kT * self._pdamp**2
 
         self._xi = np.zeros(self._pchain)  # barostat coordinates
@@ -717,37 +882,39 @@ class MTKBarostat:
     def get_barostat_energy(self) -> float:
         energy = (
             np.sum(self._p_xi**2 / self._R) / 2
-            + 9 * self._kT * self._xi[0]
+            + self._cell_dof * self._kT * self._xi[0]
             + self._kT * np.sum(self._xi[1:])
         )
         return float(energy)
 
-    def integrate_nhc_baro(self, p_g: np.ndarray, delta: float) -> np.ndarray:
+    def integrate_nhc_baro(
+            self, p_cell: np.ndarray, delta: float
+        ) -> np.ndarray:
         """Integrate exp(i * L_NHC-baro * delta)"""
         for _ in range(self._ploop):
             for coeff in FOURTH_ORDER_COEFFS:
-                p_g = self._integrate_nhc_baro_loop(
-                    p_g, coeff * delta / self._ploop
+                p_cell = self._integrate_nhc_baro_loop(
+                    p_cell, coeff * delta / self._ploop
                 )
-        return p_g
+        return p_cell
 
     def _integrate_nhc_baro_loop(
-        self, p_g: np.ndarray, delta: float
+        self, p_cell: np.ndarray, delta: float
     ) -> np.ndarray:
         delta2 = delta / 2
         delta4 = delta / 4
 
         for j in range(self._pchain):
-            self._integrate_p_xi_j(p_g, self._pchain - j - 1, delta2, delta4)
+            self._integrate_p_xi_j(p_cell, self._pchain - j - 1, delta2, delta4)
         self._integrate_xi(delta)
-        self._integrate_nhc_p_eps(p_g, delta)
+        self._integrate_nhc_p_cell(p_cell, delta)
         for j in range(self._pchain):
-            self._integrate_p_xi_j(p_g, j, delta2, delta4)
+            self._integrate_p_xi_j(p_cell, j, delta2, delta4)
 
-        return p_g
+        return p_cell
 
     def _integrate_p_xi_j(
-        self, p_g: np.ndarray, j: int, delta2: float, delta4: float
+        self, p_cell: np.ndarray, j: int, delta2: float, delta4: float
     ) -> None:
         if j < self._pchain - 1:
             self._p_xi[j] *= np.exp(
@@ -755,8 +922,7 @@ class MTKBarostat:
             )
 
         if j == 0:
-            # TODO: do we need to substitute 9 with cell_dof?
-            g_j = np.trace(p_g.T @ p_g) / self._W - 9 * self._kT
+            g_j = np.sum(p_cell**2) / self._W - self._cell_dof * self._kT
         else:
             g_j = self._p_xi[j - 1] ** 2 / self._R[j - 1] - self._kT
         self._p_xi[j] += delta2 * g_j
@@ -770,5 +936,5 @@ class MTKBarostat:
         for j in range(self._pchain):
             self._xi[j] += delta * self._p_xi[j] / self._R[j]
 
-    def _integrate_nhc_p_eps(self, p_g: np.ndarray, delta: float) -> None:
-        p_g *= np.exp(-delta * self._p_xi[0] / self._R[0])
+    def _integrate_nhc_p_cell(self, p_cell: np.ndarray, delta: float) -> None:
+        p_cell *= np.exp(-delta * self._p_xi[0] / self._R[0])
