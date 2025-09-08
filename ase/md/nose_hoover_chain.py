@@ -682,8 +682,8 @@ class MTKNPT(MolecularDynamics):
 
 
 class MaskedMTKNPT(MTKNPT):
-    """Isothermal-isobaric molecular dynamics with volume-and-cell fluctuations
-    by Martyna-Tobias-Klein (MTK) method [1].
+    """Isothermal-isobaric molecular dynamics with cell fluctuations along
+    specified crystallographic axes by Martyna-Tobias-Klein (MTK) method [1].
 
     See also `NoseHooverChainNVT` for the references.
 
