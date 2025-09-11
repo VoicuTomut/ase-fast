@@ -15,18 +15,22 @@ classifiers = [
     'Intended Audience :: Science/Research',
     'Operating System :: OS Independent',
     'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.9',
     'Programming Language :: Python :: 3.10',
     'Programming Language :: Python :: 3.11',
     'Programming Language :: Python :: 3.12',
     'Intended Audience :: Science/Research',
     'Topic :: Scientific/Engineering :: Physics'
 ]
-requires-python = '>=3.9'
+
+# We should normally require the oldest Python that's not at end-of-life:
+requires-python = '>=3.10'
+
+# Dependencies should normally be oldest-ish possible versions which have
+# wheels for the required Python version:
 dependencies = [
-    'numpy>=1.19.5',  # January 2021
-    'scipy>=1.6.0',  # December 2020
-    'matplotlib>=3.3.4'  # January 2021 (3.3.0 is July 2020)
+    'numpy>=1.21.6',  # April 2022
+    'scipy>=1.8.1',  # May 2022
+    'matplotlib>=3.5.2'  # May 2022
 ]
 
 [project.urls]

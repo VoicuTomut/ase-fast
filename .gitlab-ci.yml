@@ -38,8 +38,8 @@ oldlibs:
     - whoami
     - >
       pip install
-      numpy==1.19.5 scipy==1.6.0 matplotlib==3.3.4
-      pytest==7.0.0 attrs==20.3.0 pluggy==1.0.0 py==1.11.0 six==1.15.0
+      numpy==1.21.6 scipy==1.8.1 matplotlib==3.5.2
+      pytest==7.0.0 attrs==20.3.0 pluggy==1.0.0 py==1.11.0 six==1.16.0
       pytest-xdist==2.1.0 execnet==1.8.1 pytest-forked==1.4.0
     - pip install --no-deps .
   script:
@@ -301,7 +301,7 @@ windows_test:
     # https://stackoverflow.com/questions/61791108/gitlab-ci-shared-windows-runner-for-python
     # https://gitlab.com/gitlab-org/ci-cd/shared-runners/images/gcp/windows-containers/-/issues/13
     - Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-    - choco install python --version=3.9 -y -f
+    - choco install python --version=3.10 -y -f
     - refreshenv
     - python --version
     - python -m pip install --upgrade pip
