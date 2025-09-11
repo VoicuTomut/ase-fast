@@ -373,6 +373,28 @@ class TestConstraints:
         assert np.all(constraint2[1].mask)
         assert np.all(constraint2[2].mask == constraint[1].mask)
 
+    def test_list_of_fixed_line(self, columns) -> None:
+        """Test list of `FixedLine`.
+
+        Since `move_mask` does not deal with an arbitrary direction,
+        `FixedLine` is ignored when written.
+        """
+        atoms = self._make_atoms()
+        constraint = FixedLine(indices=(0, 1), direction=(0, 0, 1))
+        constraint2 = self._roundtrip(atoms, columns, constraint)
+        assert not constraint2
+
+    def test_list_of_fixed_plane(self, columns) -> None:
+        """Test list of `FixedPlane`.
+
+        Since `move_mask` does not deal with an arbitrary direction,
+        `FixedPlane` is ignored when written.
+        """
+        atoms = self._make_atoms()
+        constraint = FixedPlane(indices=(0, 1), direction=(0, 0, 1))
+        constraint2 = self._roundtrip(atoms, columns, constraint)
+        assert not constraint2
+
 
 def test_constraints_int():
     # check for regressions of issue #1015
