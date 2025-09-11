@@ -363,6 +363,15 @@ class TestConstraints:
         assert np.all(constraint2[1].mask == constraint.mask)
         assert np.all(constraint2[2].mask)
 
+    def test_list_of_fix_atoms(self, columns) -> None:
+        """Test list of `FixAtoms`."""
+        atoms = self._make_atoms()
+        constraint = [FixAtoms(0), FixAtoms(2)]
+        constraint2 = self._roundtrip(atoms, columns, constraint)
+        assert len(constraint2) == 1
+        assert isinstance(constraint2[0], FixAtoms)
+        assert np.all(constraint2[0].index == [0, 2])
+
     def test_list_of_fix_cartesian(self, columns) -> None:
         """Test list of `FixCartesian`."""
         atoms = self._make_atoms()
