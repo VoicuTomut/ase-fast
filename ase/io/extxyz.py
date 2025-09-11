@@ -899,6 +899,9 @@ def write_xyz(fileobj, images, comment='', columns=None,
             if images_0 is None:
                 images_0 = atoms
             cnstr = images_0.constraints
+            cnstr = [
+                _ for _ in cnstr if isinstance(_, (FixAtoms, FixCartesian))
+            ]
             if len(cnstr) > 0:
                 c0 = cnstr[0]
                 if isinstance(c0, FixAtoms):
