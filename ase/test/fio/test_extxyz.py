@@ -359,9 +359,9 @@ class TestConstraints:
         constraint2 = self._roundtrip(atoms, columns, constraint)
         assert len(constraint2) == len(atoms)
         assert isinstance(constraint2[0], FixCartesian)
-        assert np.all(constraint2[0].mask)
+        assert np.all(~constraint2[0].mask)  # unconstrained
         assert np.all(constraint2[1].mask == constraint.mask)
-        assert np.all(constraint2[2].mask)
+        assert np.all(~constraint2[2].mask)  # unconstrained
 
     def test_list_of_fix_atoms(self, columns) -> None:
         """Test list of `FixAtoms`."""
@@ -379,7 +379,7 @@ class TestConstraints:
         constraint2 = self._roundtrip(atoms, columns, constraint)
         assert len(constraint2) == len(atoms)
         assert np.all(constraint2[0].mask == constraint[0].mask)
-        assert np.all(constraint2[1].mask)
+        assert np.all(~constraint2[1].mask)  # unconstrained
         assert np.all(constraint2[2].mask == constraint[1].mask)
 
     def test_list_of_fixed_line(self, columns) -> None:
