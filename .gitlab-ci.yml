@@ -38,7 +38,7 @@ oldlibs:
     - whoami
     - >
       pip install
-      numpy==1.19.5 scipy==1.6.0 matplotlib==3.3.4
+      numpy==1.21.6 scipy==1.8.1 matplotlib==3.5.2
       pytest==7.0.0 attrs==20.3.0 pluggy==1.0.0 py==1.11.0 six==1.15.0
       pytest-xdist==2.1.0 execnet==1.8.1 pytest-forked==1.4.0
     - pip install --no-deps .
