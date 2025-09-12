@@ -154,9 +154,9 @@ for step in range(n_to_test):
         pairing.update_scaling_volume(current_pop, w_adapt=0.5, n_adapt=4)
         write('current_population.traj', current_pop)
 
-print('GA finished after step %d' % step)
+print(f'GA finished after step {step}')
 hiscore = get_raw_score(current_pop[0])
-print('Highest raw score = %8.4f eV' % hiscore)
+print(f'Highest raw score = {hiscore:8.4f} eV')
 
 all_candidates = da.get_all_relaxed_candidates()
 write('all_candidates.traj', all_candidates)

@@ -120,17 +120,17 @@ for step in range(n_to_test):
 
     # Print out information for easier follow-up/analysis/plotting:
     print(
-        'Step %d %s %.3f %.3f %.3f'
-        % (step, desc, get_raw_score(a1), get_raw_score(a2), get_raw_score(a3))
+        f'Step {step} {desc} {get_raw_score(a1):.3f} '
+        f'{get_raw_score(a2):.3f} {get_raw_score(a3):.3f}'
     )
 
     print(
-        'Step %d highest raw score in pop: %.3f'
-        % (step, get_raw_score(current_pop[0]))
+        f'Step {step} '
+        f'highest raw score in pop: {get_raw_score(current_pop[0]):.3f}'
     )
 
-print('GA finished after step %d' % step)
+print(f'GA finished after step {step}')
 hiscore = get_raw_score(current_pop[0])
-print('Highest raw score = %8.4f eV' % hiscore)
+print(f'Highest raw score = {hiscore:8.4f} eV')
 write('all_candidates.traj', da.get_all_relaxed_candidates())
 write('current_population.traj', current_pop)
