@@ -61,7 +61,9 @@ class MDMin(Optimizer):
     def read(self):
         self.v, self.dt = self.load()
 
-    def step(self):
+    def step(self, forces=None):
+        self._ignored(forces)
+
         optimizable = self.optimizable
         forces = optimizable.get_gradient()
 

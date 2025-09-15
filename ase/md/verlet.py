@@ -7,9 +7,12 @@ from ase.md.md import MolecularDynamics
 class VelocityVerlet(MolecularDynamics):
     """MD with NVE ensemble and velocity Verlet time integration."""
 
-    def step(self):
+    def step(self, forces=None):
+
         atoms = self.atoms
-        forces = atoms.get_forces(md=True)
+
+        if forces is None:
+            forces = atoms.get_forces(md=True)
 
         p = atoms.get_momenta()
         p += 0.5 * self.dt * forces

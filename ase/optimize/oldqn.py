@@ -287,9 +287,12 @@ class GoodOldQuasiNewton(Optimizer):
                     h *= 1. / absdpos
                     self.hessian[i][j] += h
 
-    def step(self):
-        """Do one QN step."""
+    def step(self, forces=None):
+        """ Do one QN step
+        """
+        self._ignored(forces)
 
+        forces = self.optimizable.get_gradient()
         pos = self.optimizable.get_x()
         G = -self.optimizable.get_gradient()
         energy = self.optimizable.get_value()

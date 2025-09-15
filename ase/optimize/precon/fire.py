@@ -73,7 +73,8 @@ class PreconFIRE(Optimizer):
     def read(self):
         self.v, self.dt = self.load()
 
-    def step(self):
+    def step(self, f=None):
+        self._ignored(f)
         atoms = self._actual_atoms
         f = atoms.get_forces()
         r = atoms.get_positions()

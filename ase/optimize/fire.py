@@ -161,7 +161,8 @@ class FIRE(Optimizer):
     def read(self):
         self.vel, self.dt = self.load()
 
-    def step(self):
+    def step(self, f=None):
+        self._ignored(f)
         optimizable = self.optimizable
         gradient = optimizable.get_gradient()
 

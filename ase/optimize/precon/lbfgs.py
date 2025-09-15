@@ -200,11 +200,12 @@ class PreconLBFGS(Optimizer):
             self.r0, self.f0, self.e0, self.task = self.load()
         self.load_restart = True
 
-    def step(self):
+    def step(self, f=None):
         """Take a single step
 
         Use the given forces, update the history and calculate the next step --
         then take it"""
+        self._ignored(f)
         r = self._actual_atoms.get_positions()
         f = self._actual_atoms.get_forces()
 

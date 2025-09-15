@@ -117,15 +117,16 @@ class LBFGS(Optimizer):
             self.r0, self.f0, self.e0, self.task = self.load()
         self.load_restart = True
 
-    def step(self):
+    def step(self, forces=None):
         """Take a single step
 
         Use the given forces, update the history and calculate the next step --
         then take it"""
 
+        self._ignored(forces)
+
         forces = self.optimizable.get_gradient()
         pos = self.optimizable.get_x()
-
         self.update(pos, forces, self.r0, self.f0)
 
         s = self.s

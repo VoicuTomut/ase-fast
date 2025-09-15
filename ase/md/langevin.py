@@ -132,11 +132,12 @@ class Langevin(MolecularDynamics):
         self.c5 = dt**1.5 * sigma / (2 * np.sqrt(3))
         self.c4 = fr / 2.0 * self.c5
 
-    def step(self):
+    def step(self, forces=None):
         atoms = self.atoms
         natoms = len(atoms)
 
-        forces = atoms.get_forces(md=True)
+        if forces is None:
+            forces = atoms.get_forces(md=True)
 
         # This velocity as well as rnd_pos, rnd_mom and a few other
         # variables are stored as attributes, so Asap can do its magic

@@ -380,7 +380,8 @@ class ContourExploration(Dynamics):
             self.potentiostat_step_scale
         return potentiostat_step_size
 
-    def step(self):
+    def step(self, f=None):
+        self._ignored(f)
         atoms = self._actual_atoms
         f = atoms.get_forces()
 

@@ -135,6 +135,11 @@ class Dynamics(IOContext):
 
         self.trajectory = trajectory
 
+    def _ignored(self, forces):
+        if forces is not None:
+            warnings.warn('The forces argument in step(...) is ignored '
+                          'and forces are (currently) recalculated.')
+
     def todict(self) -> Dict[str, Any]:
         raise NotImplementedError
 
