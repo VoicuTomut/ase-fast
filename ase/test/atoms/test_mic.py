@@ -1,20 +1,26 @@
-# fmt: off
 import numpy as np
 
 import ase
 
 
 def test_mic():
-
     tol = 1e-9
-    cell = np.array([[1., 0., 0.],
-                     [0.5, np.sqrt(3) / 2, 0.],
-                     [0., 0., 1.]]) * 10
+    cell = (
+        np.array([[1.0, 0.0, 0.0], [0.5, np.sqrt(3) / 2, 0.0], [0.0, 0.0, 1.0]])
+        * 10
+    )
 
-    pos = np.dot(np.array([[0.0, 0.0, 0.0],
-                           [0.5, 0.5, 0.5],
-                           [0.2, 0.2, 0.2],
-                           [0.25, 0.5, 0.0]]), cell)
+    pos = np.dot(
+        np.array(
+            [
+                [0.0, 0.0, 0.0],
+                [0.5, 0.5, 0.5],
+                [0.2, 0.2, 0.2],
+                [0.25, 0.5, 0.0],
+            ]
+        ),
+        cell,
+    )
 
     a = ase.Atoms('C4', pos, cell=cell, pbc=True)
 
@@ -42,16 +48,36 @@ def test_mic():
     assert abs(a.get_distance(0, 3, mic=True) - d03T) < tol
 
     # get_distance(mic=False, vector=True)
-    assert all(abs(a.get_distance(0, 1, mic=False, vector=True)
-                   - np.array([7.5, np.sqrt(18.75), 5.0])) < tol)
-    assert all(abs(a.get_distance(0, 2, mic=False, vector=True)
-                   - np.array([3., np.sqrt(3.), 2.0])) < tol)
+    assert all(
+        abs(
+            a.get_distance(0, 1, mic=False, vector=True)
+            - np.array([7.5, np.sqrt(18.75), 5.0])
+        )
+        < tol
+    )
+    assert all(
+        abs(
+            a.get_distance(0, 2, mic=False, vector=True)
+            - np.array([3.0, np.sqrt(3.0), 2.0])
+        )
+        < tol
+    )
 
     # get_distance(mic=True, vector=True)
-    assert np.all(abs(a.get_distance(0, 1, mic=True, vector=True)
-                      - np.array([-2.5, np.sqrt(18.75), -5.0])) < tol)
-    assert np.all(abs(a.get_distance(0, 2, mic=True, vector=True)
-                      - np.array([3., np.sqrt(3.), 2.0])) < tol)
+    assert np.all(
+        abs(
+            a.get_distance(0, 1, mic=True, vector=True)
+            - np.array([-2.5, np.sqrt(18.75), -5.0])
+        )
+        < tol
+    )
+    assert np.all(
+        abs(
+            a.get_distance(0, 2, mic=True, vector=True)
+            - np.array([3.0, np.sqrt(3.0), 2.0])
+        )
+        < tol
+    )
 
     # get_all_distances(mic=False)
     all_dist = a.get_all_distances(mic=False)
@@ -69,52 +95,117 @@ def test_mic():
 
     # get_distances(mic=False)
     for i in range(4):
-        assert all(abs(a.get_distances(i, [0, 1, 2, 3], mic=False) -
-                       all_dist[i]) < tol)
+        assert all(
+            abs(a.get_distances(i, [0, 1, 2, 3], mic=False) - all_dist[i]) < tol
+        )
 
     # get_distances(mic=True)
-    assert all(abs(a.get_distances(0, [0, 1, 2, 3], mic=True)
-                   - all_dist_mic[0]) < tol)
-    assert all(abs(a.get_distances(1, [0, 1, 2, 3], mic=True)
-                   - all_dist_mic[1]) < tol)
-    assert all(abs(a.get_distances(2, [0, 1, 2, 3], mic=True)
-                   - all_dist_mic[2]) < tol)
-    assert all(abs(a.get_distances(3, [0, 1, 2, 3], mic=True)
-                   - all_dist_mic[3]) < tol)
+    assert all(
+        abs(a.get_distances(0, [0, 1, 2, 3], mic=True) - all_dist_mic[0]) < tol
+    )
+    assert all(
+        abs(a.get_distances(1, [0, 1, 2, 3], mic=True) - all_dist_mic[1]) < tol
+    )
+    assert all(
+        abs(a.get_distances(2, [0, 1, 2, 3], mic=True) - all_dist_mic[2]) < tol
+    )
+    assert all(
+        abs(a.get_distances(3, [0, 1, 2, 3], mic=True) - all_dist_mic[3]) < tol
+    )
 
     # get_distances(mic=False, vec=True)
-    assert np.all(abs(a.get_distances(0, [0, 1, 2, 3], mic=False, vector=True)
-                      - np.array([a.get_distance(0, i, vector=True)
-                                  for i in [0, 1, 2, 3]])) < tol)
-    assert np.all(abs(a.get_distances(1, [0, 1, 2, 3], mic=False, vector=True)
-                      - np.array([a.get_distance(1, i, vector=True)
-                                  for i in [0, 1, 2, 3]])) < tol)
-    assert np.all(abs(a.get_distances(2, [0, 1, 2, 3], mic=False, vector=True)
-                      - np.array([a.get_distance(2, i, vector=True)
-                                  for i in [0, 1, 2, 3]])) < tol)
-    assert np.all(abs(a.get_distances(3, [0, 1, 2, 3], mic=False, vector=True)
-                      - np.array([a.get_distance(3, i, vector=True)
-                                  for i in [0, 1, 2, 3]])) < tol)
+    assert np.all(
+        abs(
+            a.get_distances(0, [0, 1, 2, 3], mic=False, vector=True)
+            - np.array(
+                [a.get_distance(0, i, vector=True) for i in [0, 1, 2, 3]]
+            )
+        )
+        < tol
+    )
+    assert np.all(
+        abs(
+            a.get_distances(1, [0, 1, 2, 3], mic=False, vector=True)
+            - np.array(
+                [a.get_distance(1, i, vector=True) for i in [0, 1, 2, 3]]
+            )
+        )
+        < tol
+    )
+    assert np.all(
+        abs(
+            a.get_distances(2, [0, 1, 2, 3], mic=False, vector=True)
+            - np.array(
+                [a.get_distance(2, i, vector=True) for i in [0, 1, 2, 3]]
+            )
+        )
+        < tol
+    )
+    assert np.all(
+        abs(
+            a.get_distances(3, [0, 1, 2, 3], mic=False, vector=True)
+            - np.array(
+                [a.get_distance(3, i, vector=True) for i in [0, 1, 2, 3]]
+            )
+        )
+        < tol
+    )
 
     # get_distances(mic=True, vec=True)
-    assert np.all(abs(a.get_distances(0, [0, 1, 2, 3], mic=True, vector=True)
-                      - np.array([a.get_distance(0, i, mic=True, vector=True)
-                                  for i in [0, 1, 2, 3]])) < tol)
-    assert np.all(abs(a.get_distances(1, [0, 1, 2, 3], mic=True, vector=True)
-                      - np.array([a.get_distance(1, i, mic=True, vector=True)
-                                  for i in [0, 1, 2, 3]])) < tol)
-    assert np.all(abs(a.get_distances(2, [0, 1, 2, 3], mic=True, vector=True)
-                      - np.array([a.get_distance(2, i, mic=True, vector=True)
-                                  for i in [0, 1, 2, 3]])) < tol)
-    assert np.all(abs(a.get_distances(3, [0, 1, 2, 3], mic=True, vector=True)
-                      - np.array([a.get_distance(3, i, mic=True, vector=True)
-                                  for i in [0, 1, 2, 3]])) < tol)
+    assert np.all(
+        abs(
+            a.get_distances(0, [0, 1, 2, 3], mic=True, vector=True)
+            - np.array(
+                [
+                    a.get_distance(0, i, mic=True, vector=True)
+                    for i in [0, 1, 2, 3]
+                ]
+            )
+        )
+        < tol
+    )
+    assert np.all(
+        abs(
+            a.get_distances(1, [0, 1, 2, 3], mic=True, vector=True)
+            - np.array(
+                [
+                    a.get_distance(1, i, mic=True, vector=True)
+                    for i in [0, 1, 2, 3]
+                ]
+            )
+        )
+        < tol
+    )
+    assert np.all(
+        abs(
+            a.get_distances(2, [0, 1, 2, 3], mic=True, vector=True)
+            - np.array(
+                [
+                    a.get_distance(2, i, mic=True, vector=True)
+                    for i in [0, 1, 2, 3]
+                ]
+            )
+        )
+        < tol
+    )
+    assert np.all(
+        abs(
+            a.get_distances(3, [0, 1, 2, 3], mic=True, vector=True)
+            - np.array(
+                [
+                    a.get_distance(3, i, mic=True, vector=True)
+                    for i in [0, 1, 2, 3]
+                ]
+            )
+        )
+        < tol
+    )
 
     # set_distance
-    a.set_distance(0, 1, 11., mic=False)
-    assert abs(a.get_distance(0, 1, mic=False) - 11.) < tol
+    a.set_distance(0, 1, 11.0, mic=False)
+    assert abs(a.get_distance(0, 1, mic=False) - 11.0) < tol
     assert abs(a.get_distance(0, 1, mic=True) - np.sqrt(46)) < tol
 
     # set_distance(mic=True)
-    a.set_distance(0, 1, 3., mic=True)
-    assert abs(a.get_distance(0, 1, mic=True) - 3.) < tol
+    a.set_distance(0, 1, 3.0, mic=True)
+    assert abs(a.get_distance(0, 1, mic=True) - 3.0) < tol

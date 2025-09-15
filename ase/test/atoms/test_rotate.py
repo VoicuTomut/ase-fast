@@ -1,4 +1,3 @@
-# fmt: off
 from math import sqrt
 
 import numpy as np
@@ -8,7 +7,6 @@ from ase.utils import irotate, rotate
 
 
 def test_rotate():
-
     def test(xyz):
         a = rotate(xyz)
         ixyz = '%sx,%sy,%sz' % irotate(a)
@@ -26,9 +24,7 @@ def test_rotate():
 
     norm = np.linalg.norm
 
-    for eps in [1.e-6, 1.e-8]:
-        struct = Atoms('H2',
-                       [[0, 0, 0],
-                        [0, sqrt(1 - eps**2), eps]])
+    for eps in [1.0e-6, 1.0e-8]:
+        struct = Atoms('H2', [[0, 0, 0], [0, sqrt(1 - eps**2), eps]])
         struct.rotate(struct[1].position, 'y')
-        assert abs(norm(struct[1].position) - 1) < 1.e-12
+        assert abs(norm(struct[1].position) - 1) < 1.0e-12

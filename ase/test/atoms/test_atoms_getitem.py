@@ -1,16 +1,19 @@
-# fmt: off
 import pytest
 
 from ase.atoms import Atoms
 
 
 def test_h2o_getitem():
-    w = Atoms('H2O',
-              positions=[[2.264, 0.639, 0.876],
-                         [0.792, 0.955, 0.608],
-                         [1.347, 0.487, 1.234]],
-              cell=[3, 3, 3],
-              pbc=True)
+    w = Atoms(
+        'H2O',
+        positions=[
+            [2.264, 0.639, 0.876],
+            [0.792, 0.955, 0.608],
+            [1.347, 0.487, 1.234],
+        ],
+        cell=[3, 3, 3],
+        pbc=True,
+    )
 
     with pytest.raises(IndexError):
         w[True, False]
@@ -34,7 +37,8 @@ def test_h2o_getitem():
         ('HHeLiBe', slice(1, -1), 'HeLi'),
         ('HHeLiBe', [True, False, False, True], 'HBe'),
         ('HHeLiBeBCNOF', slice(1, 7, 2), 'HeBeC'),
-    ])
+    ],
+)
 def test_getitem(symbols, index, expected):
     """Test various slicing syntaxes on various simple atoms objects."""
     atoms = Atoms(symbols)

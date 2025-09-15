@@ -1,11 +1,9 @@
-# fmt: off
 import numpy as np
 
 from ase import Atoms
 
 
 def test_species_index():
-
     a = Atoms(['H', 'H', 'C', 'C', 'H'])
 
     spind = a.symbols.species_indices()
@@ -16,4 +14,4 @@ def test_species_index():
     allind = a.symbols.indices()
 
     for i, s in enumerate(a.symbols):
-        assert (list(allind[s]).index(i) == spind[i])
+        assert list(allind[s]).index(i) == spind[i]
