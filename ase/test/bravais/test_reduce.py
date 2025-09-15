@@ -1,4 +1,3 @@
-# fmt: off
 import numpy as np
 import pytest
 
@@ -21,9 +20,12 @@ def test_reduce_lattice():
     symbols = 'CuAgAuPt'
     scaled_positions = np.random.RandomState(42).random((4, 3))
 
-    atoms = Atoms(symbols=symbols,
-                  scaled_positions=scaled_positions,
-                  cell=origcellpar, pbc=True)
+    atoms = Atoms(
+        symbols=symbols,
+        scaled_positions=scaled_positions,
+        cell=origcellpar,
+        pbc=True,
+    )
 
     reduced_atoms = atoms.copy()
     reduce_lattice(reduced_atoms)

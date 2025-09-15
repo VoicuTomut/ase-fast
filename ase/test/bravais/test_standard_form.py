@@ -1,4 +1,3 @@
-# fmt: off
 """Bravais lattice type check.
 
 1) For each Bravais variant, check that we recognize the
