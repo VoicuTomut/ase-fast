@@ -259,16 +259,13 @@ class SQLite3Database(Database):
 
         if self.version > VERSION:
             raise OSError(
-                'Can not read new ase.db format '
-                '(version {}).  Please update to latest ASE.'.format(
-                    self.version
-                )
+                f'Can not read new ase.db format (version {self.version}).  '
+                'Please update to latest ASE.'
             )
         if self.version < 5 and not self._allow_reading_old_format:
             raise OSError(
                 'Please convert to new format. '
-                + 'Use: python -m ase.db.convert '
-                + self.filename
+                f'Use: python -m ase.db.convert {self.filename}'
             )
 
         self.initialized = True
