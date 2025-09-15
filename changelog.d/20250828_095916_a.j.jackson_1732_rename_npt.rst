@@ -2,11 +2,10 @@
 ..
 .. Uncomment the header that is right (remove the leading dots).
 ..
-I/O
----
-
-- **Breaking change**: Removed IOFormat.open() method. It is untested and appears to be unused. :mr:`3738`
-
+.. I/O
+.. ---
+..
+.. - A bullet item for the I/O category.
 ..
 .. Calculators
 .. -----------
@@ -18,10 +17,20 @@ I/O
 ..
 .. - A bullet item for the Optimizers category.
 ..
-.. Molecular dynamics
-.. ------------------
-..
-.. - A bullet item for the Molecular dynamics category.
+Molecular dynamics
+------------------
+
+- The "NPT" thermostat has been renamed to "MelchionnaNPT" for clearer
+  comparison with alternatives, and to avoid giving the impression
+  that this is a generally recommended default choice for NPT.
+
+  For backward compatibility an :class:`ase.md.npt.NPT` class remains
+  in place, which aliases the renamed class at its new location
+  :class:`ase.md.melchionna.MelchionnaNPT`.
+
+  The alias is marked as "deprecated" and will be removed in a future
+  ASE version.
+
 ..
 .. GUI
 .. ---

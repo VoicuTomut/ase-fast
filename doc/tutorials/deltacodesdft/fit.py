@@ -1,12 +1,11 @@
 import json
 from pathlib import Path
-from typing import Tuple
 
 from ase.eos import EquationOfState as EOS
 from ase.io import read
 
 
-def fit(symbol: str) -> Tuple[float, float, float, float]:
+def fit(symbol: str) -> tuple[float, float, float, float]:
     V = []
     E = []
     for atoms in read(f'{symbol}.traj@:'):

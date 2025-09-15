@@ -46,8 +46,6 @@ Modules
    * :ref:`tutorials`
    * :ref:`cli`
    * :git:`Source code <>`
-   * Presentation about ASE:
-     `ase-talk.pdf <https://wiki.fysik.dtu.dk/ase-files/ase-talk.pdf>`__
 
 .. toctree::
    :maxdepth: 2

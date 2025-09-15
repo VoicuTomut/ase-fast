@@ -6,7 +6,7 @@ This module defines the ASE interface to SIESTA.
 Written by Mads Engelund (see www.espeem.com)
 
 Home of the SIESTA package:
-http://www.uam.es/departamentos/ciencias/fismateriac/siesta
+https://siesta-project.org/
 
 2017.04 - Pedro Brandimarte: changes for python 2-3 compatible
 

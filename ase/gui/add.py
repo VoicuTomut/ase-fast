@@ -15,7 +15,7 @@ current_selection_string = _('(selection)')
 class AddAtoms:
     def __init__(self, gui):
         self.gui = gui
-        win = self.win = ui.Window(_('Add atoms'), wmtype='utility')
+        win = self.win = ui.Window(_('Add atoms'))
         win.add(_('Specify chemical symbol, formula, or filename.'))
 
         def choose_file():

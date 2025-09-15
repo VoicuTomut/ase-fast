@@ -24,3 +24,9 @@ def dimer_params():
     dimer_params["cell"] = (1000 * a, 1000 * a, 1000 * a)
     dimer_params["pbc"] = (False, False, False)
     return dimer_params
+
+
+@pytest.fixture()
+def calc_params_extra_cmd_args():
+    calc_params = {"extra_cmd_args": ("-var nsteps 10").split()}
+    return calc_params

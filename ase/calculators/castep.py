@@ -1,7 +1,7 @@
 # fmt: off
 
 """This module defines an interface to CASTEP for
-    use by the ASE (Webpage: http://wiki.fysik.dtu.dk/ase)
+    use by the ASE (Webpage: https://ase-lib.org/)
 
 Authors:
     Max Hoffmann, max.hoffmann@ch.tum.de
@@ -395,7 +395,7 @@ Notes/Issues:
   different calculators, one should check that the same CODATA_ version is
   used for constants and conversion factors, respectively.
 
-.. _CASTEP: http://www.castep.org/
+.. _CASTEP: https://www.castep.org/
 
 .. _W: https://en.wikipedia.org/wiki/CASTEP
 
@@ -405,7 +405,7 @@ Notes/Issues:
        K. Refson, M. C. Payne Zeitschrift für Kristallographie 220(5-6)
        pp.567- 570 (2005) PDF_.
 
-.. _PDF: http://www.tcm.phy.cam.ac.uk/castep/papers/ZKristallogr_2005.pdf
+.. _PDF: https://www.tcm.phy.cam.ac.uk/castep/papers/ZKristallogr_2005.pdf
 
 
 End CASTEP Interface Documentation
@@ -1680,7 +1680,7 @@ def create_castep_keywords(castep_command, filename='castep_keywords.json',
     for o_i, option in enumerate(raw_options[:fetch_only]):
         doc, _ = shell_stdouterr(f'{castep_command} -help {option}')
 
-        # Stand Back! I know regular expressions (http://xkcd.com/208/) :-)
+        # Stand Back! I know regular expressions (https://xkcd.com/208/) :-)
         match = re.match(r'(?P<before_type>.*)Type: (?P<type>.+?)\s+'
                          + r'Level: (?P<level>[^ ]+)\n\s*\n'
                          + r'(?P<doc>.*?)(\n\s*\n|$)', doc, re.DOTALL)

@@ -180,7 +180,7 @@ in action you can check out the 2D database https://cmrdb.fysik.dtu.dk/c2db.
 Adsorbates on metals
 --------------------
 When you are done with this introductory exercise we encourage you to follow
-the online ASE-DB tutorial at https://wiki.fysik.dtu.dk/ase/tutorials/db/db.html.
+the online ASE-DB tutorial at https://ase-lib.org/tutorials/db/db.html.
 
 
 Solutions

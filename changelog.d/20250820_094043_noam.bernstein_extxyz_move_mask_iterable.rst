@@ -33,12 +33,19 @@
 ..
 .. - A bullet item for the Development category.
 ..
+.. Documentation
+.. -------------
+..
+.. - A bullet item for the Documentation category.
+..
 .. Other changes
 .. -------------
 ..
 .. - A bullet item for the Other changes category.
-..
+
 Bugfixes
 --------
 
-- Enable :func:`ase.io.magres.read_magres` to handle cases from CASTEP < 23 where indices and labels are "munged" together if the index exceeds 99. If an index exceeds 999 the situation remains ambiguous and an error will be raised. (:mr:`3530`)
+- Remove subscripting of images iterable in extxyz writer so it works
+  with non-subscriptable iterables when "move_mask" key is present in
+  `atoms.arrays` (:mr:`3795`)

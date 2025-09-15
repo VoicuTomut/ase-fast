@@ -1,0 +1,7 @@
+Other changes
+-------------
+
+- Fixed backward-compatibility of
+  :class:`~ase.constraints.FixedLine` and :class:`~ase.constraints.FixedPlane`
+  made before ASE 3.23.0 to be read with
+  :meth:`~ase.constraints.dict2constraint` after ASE 3.23.0 (:mr:`3786`)

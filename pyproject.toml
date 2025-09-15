@@ -1,5 +1,5 @@
 [build-system]
-requires = ['setuptools >= 61.0.0']
+requires = ['setuptools >= 77.0.3']
 build-backend = 'setuptools.build_meta'
 
 [project]
@@ -7,6 +7,7 @@ name = 'ase'
 description='Atomic Simulation Environment'
 dynamic = ['version']
 readme = 'README.rst'
+license = 'LGPL-2.1-or-later'
 license-files = ['LICENSE']
 maintainers = [{ name = 'ASE Community', email = 'ase-users@listserv.fysik.dtu.dk' }]
 classifiers = [
@@ -14,22 +15,26 @@ classifiers = [
     'Intended Audience :: Science/Research',
     'Operating System :: OS Independent',
     'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.9',
     'Programming Language :: Python :: 3.10',
     'Programming Language :: Python :: 3.11',
     'Programming Language :: Python :: 3.12',
     'Intended Audience :: Science/Research',
     'Topic :: Scientific/Engineering :: Physics'
 ]
-requires-python = '>=3.9'
+
+# We should normally require the oldest Python that's not at end-of-life:
+requires-python = '>=3.10'
+
+# Dependencies should normally be oldest-ish possible versions which have
+# wheels for the required Python version:
 dependencies = [
-    'numpy>=1.19.5',  # January 2021
-    'scipy>=1.6.0',  # December 2020
-    'matplotlib>=3.3.4'  # January 2021 (3.3.0 is July 2020)
+    'numpy>=1.21.6',  # April 2022
+    'scipy>=1.8.1',  # May 2022
+    'matplotlib>=3.5.2'  # May 2022
 ]
 
 [project.urls]
-Homepage = 'https://wiki.fysik.dtu.dk/ase/'
+Homepage = 'https://ase-lib.org/'
 Repository = 'https://gitlab.com/ase/ase.git'
 Issues = 'https://gitlab.com/ase/ase/issues/'
 
@@ -94,12 +99,16 @@ select = [
     'F',  # Pyflakes
     'E',  # pycodestyle
     'W',  # pycodestyle
-    'I'   # isort
+    'I',  # isort
+    'UP', # pyupgrade
 ]
 ignore = [
     'E741',  # ambiguous-variable-name
     'W505',  # doc-line-too-long
 ]
+
+[tool.ruff.lint.per-file-ignores]
+"!doc/tutorials/**.py" = ["UP"]  # Only pyupgrade tutorials (for now)
 
 [tool.ruff.lint.pycodestyle]
 max-line-length = 80

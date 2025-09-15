@@ -80,7 +80,7 @@ keyword           type     default value            description
 ``symmetry``      ``str``  ``'c1'``                 The symmetry of your system
 ``PSI_SCRATCH``   ``str``  ``/tmp``                 The scratch directory for
                                                     psi4
-``multiplicity``  ``int``` ``None``                 The spin multiplicity of your
+``multiplicity``  ``int``  ``None``                 The spin multiplicity of your
                                                     system
 
 ``reference``     ``str``  ``None``                 The reference wave function.

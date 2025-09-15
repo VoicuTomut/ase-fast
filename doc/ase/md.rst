@@ -366,8 +366,8 @@ Constant NPT simulations (the isothermal-isobaric ensemble)
 ===========================================================
 
 Constant pressure (or for solids, constant stress) is usually obtained
-by adding a barostat to one of the NVT algorithms above.  ASE
-currently lacks a good NPT algorithm.  The following two are available.
+by adding a barostat to one of the NVT algorithms above.  The following 
+algorithms are available.
 
 **Algorithms:**
 
@@ -376,20 +376,41 @@ Berendsen NPT dynamics
     added.  The size of the unit cell is rescaled after each time
     step, so the pressure / stress approaches the desired pressure.
     It exists in two variations, one where the shape of the unit cell
-    is preserved and one where it is allowed to vary.  *Disadvantage*:
-    Fluctuations in both total energy and pressure are suppressed
-    compared to the correct NPT ensemble.  For large systems, this is
-    not expected to be serious.
+    is preserved and one where it is allowed to vary.
 
+    .. note::
+      Fluctuations in both total energy and pressure are suppressed
+      compared to the correct NPT ensemble.  For large systems, this is
+      not expected to be serious.
 
-NPT
+Isotropic Martyna-Tobias-Klein (MTK) dynamics
+    Isothermal-isobaric molecular dynamics with isotropic volume fluctuations
+    as proposed by Martyna, Tobias and Klein (MTK)
+
+    1) :doi:`G. J. Martyna, D. J. Tobias and M. L. Klein, J., Chem. Phys. 101, 4177 (1994). <10.1063/1.467468>`
+
+Full Martyna-Tobias-Klein (MTK) dynamics
+    Isothermal-isobaric molecular dynamics with fluctuations of both
+    volume and shape of the unit cell, as proposed by Martyna, Tobias and Klein 
+    (see above).
+
+Melchionna NPT dynamics
     An implementation of NPT dynamics combining a Nosé-Hoover
     thermostat with a Parinello-Rahman barostat, according to
-    Melchionna *et al.*, see below.  **Not recommended!**  The
-    dynamics tend to be unstable, especially if started with a
-    temperature or pressure that is different from the desired.  The
-    fluctuations seem to often be wrong.
+    Melchionna *et al.*.
 
+    .. note::
+      The dynamics tend to be unstable, especially if started with a
+      temperature or pressure that is different from the desired.  The
+      fluctuations seem to often be wrong.
+
+    1) :doi:`S. Melchionna, G. Ciccotti and B. L. Holian, Molecular Physics 78, p. 533 (1993). <10.1080/00268979300100371>`
+
+    2) :doi:`S. Melchionna, Phys. Rev. E 61, p. 6165 (2000). <10.1103/PhysRevE.62.8762>`
+
+    3) :doi:`B. L. Holian, A. J. De Groot, W. G. Hoover, and C. G. Hoover, Phys. Rev. A 41, p. 4552 (1990). <10.1103/physreva.41.4552>`
+
+    4) :doi:`F. D. Di Tolla and M. Ronchetti, Phys. Rev. E 48, p. 1726 (1993). <10.1103/PhysRevE.48.1726>`
 
        
 Berendsen NPT dynamics
@@ -418,12 +439,30 @@ the gromacs manual at www.gromacs.org. or amber at ambermd.org
                      taup=1000 * units.fs, compressibility_au=4.57e-5 / units.bar)
 
 
-Nosé-Hoover-Parinello-Rahman NPT dynamics
------------------------------------------
+Isotropic Martyna-Tobias-Klein (MTK) dynamics
+---------------------------------------------
 
-.. module:: ase.md.npt
+.. module:: ase.md.nose_hoover_chain
+   :no-index:
 
-.. autoclass:: NPT
+.. autoclass:: IsotropicMTKNPT
+
+
+Full Martyna-Tobias-Klein (MTK) dynamics
+----------------------------------------
+
+.. module:: ase.md.nose_hoover_chain
+   :no-index:
+
+.. autoclass:: MTKNPT
+
+
+Melchionna NPT dynamics
+-----------------------
+
+.. module:: ase.md.melchionna
+
+.. autoclass:: MelchionnaNPT
 
     .. automethod:: run
     .. automethod:: set_stress

@@ -94,5 +94,5 @@ def pywindow(title, callback):
             _('No Python code'),
             _('You have not (yet) specified a consistent set of parameters.'))
     else:
-        win = ui.Window(title, wmtype='utility')
+        win = ui.Window(title)
         win.add(ui.Text(code))

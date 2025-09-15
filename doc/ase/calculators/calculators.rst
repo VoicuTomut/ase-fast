@@ -101,7 +101,7 @@ XTB_                                      Semiemprical extended tight-binding pr
 :mod:`~ase.calculators.dftb`              DFT based tight binding
 :mod:`~ase.calculators.dmol`              Atomic orbital DFT code
 :mod:`~ase.calculators.eam`               Embedded Atom Method
-elk                                       Full Potential LAPW code
+:mod:`~ase.calculators.elk`               Full Potential LAPW code
 :mod:`~ase.calculators.espresso`          Plane-wave pseudopotential code
 :mod:`~ase.calculators.exciting`          Full Potential LAPW code
 :mod:`~ase.calculators.aims`              Numeric atomic orbital, full potential code
@@ -175,6 +175,8 @@ where ``abc`` is the module name and ``ABC`` is the class name.
 .. _TBLite: https://tblite.readthedocs.io/en/latest/users/ase.html
 .. _XTB: https://xtb-python.readthedocs.io/en/latest/ase-calculator.html
 
+.. _calculator-configuration:
+
 Calculator configuration
 ========================
 
@@ -231,6 +233,7 @@ to set the ``ASE_CONFIG_PATH`` to an empty string.
 
 
 .. toctree::
+   :maxdepth: 1
 
    eam
    emt
@@ -243,6 +246,7 @@ to set the ``ASE_CONFIG_PATH`` to an empty string.
    demonnano
    dftb
    dmol
+   elk
    espresso
    exciting
    FHI-aims

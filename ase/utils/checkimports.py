@@ -1,5 +1,3 @@
-# fmt: off
-
 """Utility for checking Python module imports triggered by any code snippet.
 
 This module was developed to monitor the import footprint of the ase CLI
@@ -11,6 +9,7 @@ See https://gitlab.com/ase/ase/-/issues/1124 for more discussion.
 The utility here is general, so it can be used for checking and
 monitoring other code snippets too.
 """
+
 import json
 import os
 import re
@@ -35,23 +34,31 @@ def exec_and_check_modules(expression: str) -> Set[str]:
     # Take null outside command to avoid
     # `import os` before expression
     null = os.devnull
-    command = ("import sys;"
-               f" stdout = sys.stdout; sys.stdout = open({null!r}, 'w');"
-               f" {expression};"
-               " sys.stdout = stdout;"
-               " modules = list(sys.modules);"
-               " import json; print(json.dumps(modules))")
-    proc = run([sys.executable, '-c', command],
-               capture_output=True, universal_newlines=True,
-               check=True)
+    command = (
+        'import sys;'
+        f" stdout = sys.stdout; sys.stdout = open({null!r}, 'w');"
+        f' {expression};'
+        ' sys.stdout = stdout;'
+        ' modules = list(sys.modules);'
+        ' import json; print(json.dumps(modules))'
+    )
+    proc = run(
+        [sys.executable, '-c', command],
+        capture_output=True,
+        universal_newlines=True,
+        check=True,
+    )
     return set(json.loads(proc.stdout))
 
 
-def check_imports(expression: str, *,
-                  forbidden_modules: List[str] = [],
-                  max_module_count: Optional[int] = None,
-                  max_nonstdlib_module_count: Optional[int] = None,
-                  do_print: bool = False) -> None:
+def check_imports(
+    expression: str,
+    *,
+    forbidden_modules: List[str] = [],
+    max_module_count: Optional[int] = None,
+    max_nonstdlib_module_count: Optional[int] = None,
+    do_print: bool = False,
+) -> None:
     """Check modules imported by the execution of a Python expression.
 
     Parameters
@@ -76,8 +83,7 @@ def check_imports(expression: str, *,
     for module_pattern in forbidden_modules:
         r = re.compile(module_pattern)
         for module in modules:
-            assert not r.fullmatch(module), \
-                f'{module} was imported'
+            assert not r.fullmatch(module), f'{module} was imported'
 
     if max_nonstdlib_module_count is not None:
         assert sys.version_info >= (3, 10), 'Python 3.10+ required'
@@ -85,8 +91,7 @@ def check_imports(expression: str, *,
         nonstdlib_modules = []
         for module in modules:
             if (
-                module.split('.')[0]
-                in sys.stdlib_module_names  # type: ignore[attr-defined]
+                module.split('.')[0] in sys.stdlib_module_names  # type: ignore[attr-defined]
             ):
                 continue
             nonstdlib_modules.append(module)
@@ -103,8 +108,9 @@ def check_imports(expression: str, *,
 
     if max_module_count is not None:
         module_count = len(modules)
-        assert module_count <= max_module_count, \
+        assert module_count <= max_module_count, (
             f'too many modules loaded: {module_count}/{max_module_count}'
+        )
 
 
 if __name__ == '__main__':

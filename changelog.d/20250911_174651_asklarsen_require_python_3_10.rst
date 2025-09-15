@@ -1,7 +1,6 @@
 .. A new scriv changelog fragment.
 ..
-.. Uncomment the section that is right (remove the leading dots).
-.. For top level release notes, leave all the headers commented out.
+.. Uncomment the header that is right (remove the leading dots).
 ..
 .. I/O
 .. ---
@@ -33,13 +32,21 @@
 ..
 .. - A bullet item for the Development category.
 ..
-.. Other changes
+.. Documentation
 .. -------------
+..
+.. - A bullet item for the Documentation category.
+..
+Other changes
+-------------
+
+* ASE now requires Python 3.10+.
+
 ..
 .. - A bullet item for the Other changes category.
 ..
-Bugfixes
---------
-
-- Fix duplicated transformation (e.g. rotation) of symmetry labels in :func:`~ase.dft.bz.bz_plot` (:mr:`3617`).
+.. Bugfixes
+.. --------
+..
+.. - A bullet item for the Bugfixes category.
 ..

@@ -2,7 +2,7 @@
 
 # type: ignore
 """
-This module defines an ASE interface to Turbomole: http://www.turbomole.com/
+This module defines an ASE interface to Turbomole: https://www.turbomole.com/
 
 QMMM functionality provided by Markus Kaukonen <markus.kaukonen@iki.fi>.
 

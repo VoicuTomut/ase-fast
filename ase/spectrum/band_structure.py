@@ -162,7 +162,7 @@ class BandStructurePlot:
         self.ax = None
         self.xcoords = None
 
-    def plot(self, ax=None, emin=-10, emax=5, filename=None,
+    def plot(self, ax=None, *, spin=None, emin=-10, emax=5, filename=None,
              show=False, ylabel=None, colors=None, point_colors=None,
              label=None, loc=None,
              cmap=None, cmin=-1.0, cmax=1.0, sortcolors=False,
@@ -172,6 +172,10 @@ class BandStructurePlot:
 
         ax: Axes
             MatPlotLib Axes object.  Will be created if not supplied.
+        spin: int or None
+            If given, only plot the specified spin channel.
+            If None, plot all spins.
+            Default: None, i.e., plot all spins.
         emin, emax: float
             Minimum and maximum energy above reference.
         filename: str
@@ -230,7 +234,14 @@ class BandStructurePlot:
         if self.ax is None:
             ax = self.prepare_plot(ax, emin, emax, ylabel)
 
-        e_skn = self.bs.energies
+        if spin is None:
+            e_skn = self.bs.energies
+        elif spin not in [0, 1]:
+            raise ValueError(f"spin should be 0 or 1, not {spin}")
+        else:
+            # Select only one spin channel.
+            e_skn = self.bs.energies[spin, np.newaxis]
+
         nspins = len(e_skn)
 
         if point_colors is None:

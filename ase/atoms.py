@@ -271,10 +271,28 @@ class Atoms:
 
     @property
     def symbols(self):
-        """Get chemical symbols as a :class:`ase.symbols.Symbols` object.
+        """Get chemical symbols as a :class:`~ase.symbols.Symbols` object.
 
-        The object works like ``atoms.numbers`` except its values
-        are strings.  It supports in-place editing."""
+        The object works like ``atoms.numbers`` except its values are strings.
+        It supports in-place editing.
+
+        Examples
+        --------
+        >>> from ase.build import molecule
+        >>> atoms = molecule('CH3CH2OH')
+        >>> atoms.symbols
+        Symbols('C2OH6')
+        >>> list(atoms.symbols)
+        ['C', 'C', 'O', 'H', 'H', 'H', 'H', 'H', 'H']
+        >>> atoms.symbols == 'C'  # doctest: +ELLIPSIS
+        array([ True,  True, False, False, False, False, False, False, False]...)
+        >>> atoms.symbols.indices()
+        {'C': array([0, 1]), 'O': array([2]), 'H': array([3, 4, 5, 6, 7, 8])}
+        >>> list(atoms.symbols.indices())  # unique elements
+        ['C', 'O', 'H']
+        >>> atoms.symbols.species()  # doctest: +SKIP
+        {'C', 'O', 'H'}
+        """  # noqa
         return Symbols(self.numbers)
 
     @symbols.setter
@@ -717,12 +735,27 @@ class Atoms:
                     masses[i] = atomic_masses[self.numbers[i]]
         self.set_array('masses', masses, float, ())
 
-    def get_masses(self):
-        """Get array of masses in atomic mass units."""
+    def get_masses(self) -> np.ndarray:
+        """Get masses of atoms.
+
+        Returns
+        -------
+        masses : np.ndarray
+            Atomic masses in dalton (unified atomic mass units).
+
+        Examples
+        --------
+        >>> from ase.build import molecule
+        >>> atoms = molecule('CH4')
+        >>> atoms.get_masses()
+        array([ 12.011,   1.008,   1.008,   1.008,   1.008])
+        >>> total_mass = atoms.get_masses().sum()
+        >>> print(f'{total_mass:f}')
+        16.043000
+        """
         if 'masses' in self.arrays:
             return self.arrays['masses'].copy()
-        else:
-            return atomic_masses[self.arrays['numbers']]
+        return atomic_masses[self.arrays['numbers']]
 
     def set_initial_magnetic_moments(self, magmoms=None):
         """Set the initial magnetic moments.
@@ -1580,7 +1613,7 @@ class Atoms:
     ) -> None:
         """Rotate atoms via Euler angles (in degrees).
 
-        See e.g http://mathworld.wolfram.com/EulerAngles.html for explanation.
+        See e.g https://mathworld.wolfram.com/EulerAngles.html for explanation.
 
         Note that the rotations in this method are passive and applied **not**
         to the atomic coordinates in the present frame **but** the frame itself.

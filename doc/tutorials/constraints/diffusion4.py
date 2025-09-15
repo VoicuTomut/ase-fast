@@ -27,7 +27,7 @@ slab.set_constraint([fixlayers, plane])
 slab.calc = EMT()
 
 for i in range(5):
-    qn = QuasiNewton(slab, trajectory='mep%d.traj' % i)
+    qn = QuasiNewton(slab, trajectory=f'mep{i}.traj')
     qn.run(fmax=0.05)
     # Move gold atom along x-axis:
     slab[-1].x += slab.get_cell()[0, 0] / 8

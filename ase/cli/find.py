@@ -11,7 +11,7 @@ class CLICommand:
 
     Search through files known to ASE applying a query to filter the results.
 
-    See https://wiki.fysik.dtu.dk/ase/ase/db/db.html#querying for more
+    See https://ase-lib.org/ase/db/db.html#querying for more
     informations on how to construct the query string.
     """
 

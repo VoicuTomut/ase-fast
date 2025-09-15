@@ -1,10 +1,14 @@
-# fmt: off
+"""Tests for `ELK`."""
+
 import pytest
 
+from ase import Atoms
 from ase.build import bulk
+from ase.calculators.elk import ELK
 
 
 def systems():
+    """Generate `Atoms`."""
     yield bulk('Si')
     atoms = bulk('Fe')
     atoms.set_initial_magnetic_moments([1.0])
@@ -12,11 +16,13 @@ def systems():
 
 
 @pytest.mark.calculator_lite()
-@pytest.mark.parametrize('atoms', systems(),
-                         ids=lambda atoms: str(atoms.symbols))
+@pytest.mark.parametrize(
+    'atoms', systems(), ids=lambda atoms: str(atoms.symbols)
+)
 @pytest.mark.calculator('elk', tasks=0, ngridk=(3, 3, 3))
-def test_elk_bulk(factory, atoms):
-    calc = factory.calc()
+def test_elk_bulk(factory, atoms: Atoms) -> None:
+    """Test `ELK`."""
+    calc: ELK = factory.calc()
     atoms.calc = calc
     spinpol = atoms.get_initial_magnetic_moments().any()
     props = atoms.get_properties(['energy', 'forces'])
@@ -29,8 +35,12 @@ def test_elk_bulk(factory, atoms):
 
     # Since this is FileIO we tend to just load everything there is:
     expected_props = {
-        'energy', 'free_energy', 'forces', 'ibz_kpoints',
-        'eigenvalues', 'occupations'
+        'energy',
+        'free_energy',
+        'forces',
+        'ibz_kpoints',
+        'eigenvalues',
+        'occupations',
     }
 
     assert expected_props < set(props)
@@ -44,7 +54,8 @@ def test_elk_bulk(factory, atoms):
     x = slice(None)
     assert calc.get_eigenvalues(x, x) == pytest.approx(props['eigenvalues'])
     assert calc.get_occupation_numbers(x, x) == pytest.approx(
-        props['occupations'])
+        props['occupations']
+    )
     assert calc.get_spin_polarized() == spinpol
     assert calc.get_number_of_spins() == 1 + int(spinpol)
     assert calc.get_number_of_bands() == props['nbands']

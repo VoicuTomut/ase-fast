@@ -98,7 +98,7 @@ arguments can be used:
         * ``[(k11,k12,k13),(k21,k22,k23),...]``: Explicit (Nkpts x 3) array of k-points
           in units of the reciprocal lattice vectors (each with equal weight)
 
-.. _path: https://wiki.fysik.dtu.dk/ase/ase/dft/kpoints.html#ase.dft.kpoints.bandpath
+.. _path: https://ase-lib.org/ase/dft/kpoints.html#ase.dft.kpoints.bandpath
 
 
 Examples

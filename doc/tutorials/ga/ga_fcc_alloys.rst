@@ -31,7 +31,7 @@ Basic outline of the search
    algorithm.
 
 3. Choose suitable parameters like population size (general rule of thumb for
-   the population size: `log_2(N)` < pop size < `2log_2(N)`, where `N` is the
+   the population size: :math:`log_2(N)` < pop size < :math:`2log_2(N)`, where :math:`N` is the
    size of the phase space), convergence criteria etc.
 
 4. Create the initial population.
@@ -57,7 +57,7 @@ achieved in the algorithm is covered in
 ..
 
   defined for an alloy :mol:`ABC_2`: A + B + 2C -> :mol:`ABC_2`
-  as: `\Delta H_f = E_{ABC2} - E_A - E_B - 2E_C`
+  as: :math:`\Delta H_f = E_{ABC2} - E_A - E_B - 2E_C`
 
 
 .. _references:
