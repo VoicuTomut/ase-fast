@@ -28,4 +28,4 @@ for fname in glob.glob('Popt*2*.json'):
     plt.ylabel(r'Optimality measure $\bar \Delta$')
     plt.axis([0, 2000, -0.025, 0.4])
     plt.plot(x, y, 'bo')
-    plt.savefig('score-size-%s.svg' % tag, bbox_inches='tight')
+    plt.savefig(f'score-size-{tag}.svg', bbox_inches='tight')
