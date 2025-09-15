@@ -1,4 +1,3 @@
-# fmt: off
 import numpy as np
 
 from ase import Atoms
@@ -21,7 +20,7 @@ def test_bandstructure_transform_mcl(testdir):
     # alpha < 90.  We want the bandpath returned by that cell to yield the
     # exact same band structure as our own (alpha < 90) version of the
     # same cell.
-    cell = Cell.new([3., 5., 4., 90., 110., 90.])
+    cell = Cell.new([3.0, 5.0, 4.0, 90.0, 110.0, 90.0])
     lat = cell.get_bravais_lattice()
 
     density = 10.0
@@ -32,8 +31,9 @@ def test_bandstructure_transform_mcl(testdir):
     print(cell0.cellpar().round(3))
 
     with workdir('files', mkdir=True):
-        bs = calculate_band_structure(_atoms(cell),
-                                      cell.bandpath(density=density))
+        bs = calculate_band_structure(
+            _atoms(cell), cell.bandpath(density=density)
+        )
         bs.write('bs.json')
         # bs.plot(emin=0, emax=20, filename='fig.bs.svg')
 

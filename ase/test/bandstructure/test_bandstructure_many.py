@@ -1,4 +1,3 @@
-# fmt: off
 import pytest
 
 from ase import Atoms
@@ -7,10 +6,14 @@ from ase.lattice import all_variants
 from ase.spectrum.band_structure import calculate_band_structure
 
 
-@pytest.mark.parametrize("i, lat",
-                         [pytest.param(i, lat, id=lat.variant)
-                          for i, lat in enumerate(all_variants())
-                          if lat.ndim == 3])
+@pytest.mark.parametrize(
+    'i, lat',
+    [
+        pytest.param(i, lat, id=lat.variant)
+        for i, lat in enumerate(all_variants())
+        if lat.ndim == 3
+    ],
+)
 def test_lattice_bandstructure(testdir, i, lat, figure):
     xid = f'{i:02d}.{lat.variant}'
     path = lat.bandpath(density=10)
