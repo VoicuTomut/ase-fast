@@ -1,10 +1,10 @@
 import numpy as np
+import pytest
 
 import ase
 
 
 def test_mic():
-    tol = 1e-9
     cell = (
         np.array([[1.0, 0.0, 0.0], [0.5, np.sqrt(3) / 2, 0.0], [0.0, 0.0, 1.0]])
         * 10
@@ -37,175 +37,72 @@ def test_mic():
     # mic distance between atom 0 (image [0,1,0]) and 3
     d03T = np.linalg.norm(np.dot(rpos[3] - np.array([0, 1, 0]), cell))
 
-    # get_distance(mic=False)
-    assert abs(a.get_distance(0, 1, mic=False) - d01F) < tol
-    assert abs(a.get_distance(0, 2, mic=False) - d02F) < tol
-    assert abs(a.get_distance(0, 3, mic=False) - d03F) < tol
+    dists_mic = [0.0, d01T, d02T, d03T]
+    dists_nonmic = [0.0, d01F, d02F, d03F]
 
-    # get_distance(mic=True)
-    assert abs(a.get_distance(0, 1, mic=True) - d01T) < tol
-    assert abs(a.get_distance(0, 2, mic=True) - d02T) < tol
-    assert abs(a.get_distance(0, 3, mic=True) - d03T) < tol
+    def approx(thing):
+        return pytest.approx(thing, abs=1e-9)
+
+    for i in range(4):
+        assert a.get_distance(0, i, mic=False) == approx(dists_nonmic[i])
+        assert a.get_distance(0, i, mic=True) == approx(dists_mic[i])
 
     # get_distance(mic=False, vector=True)
-    assert all(
-        abs(
-            a.get_distance(0, 1, mic=False, vector=True)
-            - np.array([7.5, np.sqrt(18.75), 5.0])
-        )
-        < tol
+    assert a.get_distance(0, 1, mic=False, vector=True) == approx(
+        [7.5, np.sqrt(18.75), 5.0]
     )
-    assert all(
-        abs(
-            a.get_distance(0, 2, mic=False, vector=True)
-            - np.array([3.0, np.sqrt(3.0), 2.0])
-        )
-        < tol
+    assert a.get_distance(0, 2, mic=False, vector=True) == approx(
+        [3.0, np.sqrt(3.0), 2.0]
     )
 
     # get_distance(mic=True, vector=True)
-    assert np.all(
-        abs(
-            a.get_distance(0, 1, mic=True, vector=True)
-            - np.array([-2.5, np.sqrt(18.75), -5.0])
-        )
-        < tol
+    assert a.get_distance(0, 1, mic=True, vector=True) == approx(
+        [-2.5, np.sqrt(18.75), -5.0]
     )
-    assert np.all(
-        abs(
-            a.get_distance(0, 2, mic=True, vector=True)
-            - np.array([3.0, np.sqrt(3.0), 2.0])
-        )
-        < tol
+    assert a.get_distance(0, 2, mic=True, vector=True) == approx(
+        [3.0, np.sqrt(3.0), 2.0]
     )
 
     # get_all_distances(mic=False)
     all_dist = a.get_all_distances(mic=False)
-    assert abs(all_dist[0, 1] - d01F) < tol
-    assert abs(all_dist[0, 2] - d02F) < tol
-    assert abs(all_dist[0, 3] - d03F) < tol
-    assert all(abs(np.diagonal(all_dist)) < tol)
+    for i in range(4):
+        assert all_dist[0, i] == approx(dists_nonmic[i])
+    assert np.diagonal(all_dist) == approx(0.0)
 
     # get_all_distances(mic=True)
     all_dist_mic = a.get_all_distances(mic=True)
-    assert abs(all_dist_mic[0, 1] - d01T) < tol
-    assert abs(all_dist_mic[0, 2] - d02T) < tol
-    assert abs(all_dist_mic[0, 3] - d03T) < tol
-    assert all(abs(np.diagonal(all_dist)) < tol)
-
-    # get_distances(mic=False)
     for i in range(4):
-        assert all(
-            abs(a.get_distances(i, [0, 1, 2, 3], mic=False) - all_dist[i]) < tol
-        )
+        assert all_dist_mic[0, i] == approx(dists_mic[i])
+    assert np.diagonal(all_dist_mic) == approx(0.0)
 
-    # get_distances(mic=True)
-    assert all(
-        abs(a.get_distances(0, [0, 1, 2, 3], mic=True) - all_dist_mic[0]) < tol
-    )
-    assert all(
-        abs(a.get_distances(1, [0, 1, 2, 3], mic=True) - all_dist_mic[1]) < tol
-    )
-    assert all(
-        abs(a.get_distances(2, [0, 1, 2, 3], mic=True) - all_dist_mic[2]) < tol
-    )
-    assert all(
-        abs(a.get_distances(3, [0, 1, 2, 3], mic=True) - all_dist_mic[3]) < tol
-    )
-
-    # get_distances(mic=False, vec=True)
-    assert np.all(
-        abs(
-            a.get_distances(0, [0, 1, 2, 3], mic=False, vector=True)
-            - np.array(
-                [a.get_distance(0, i, vector=True) for i in [0, 1, 2, 3]]
-            )
+    for j in range(4):
+        assert a.get_distances(j, [0, 1, 2, 3], mic=False) == approx(
+            all_dist[j]
         )
-        < tol
-    )
-    assert np.all(
-        abs(
-            a.get_distances(1, [0, 1, 2, 3], mic=False, vector=True)
-            - np.array(
-                [a.get_distance(1, i, vector=True) for i in [0, 1, 2, 3]]
-            )
+        assert a.get_distances(j, [0, 1, 2, 3], mic=True) == approx(
+            all_dist_mic[j]
         )
-        < tol
-    )
-    assert np.all(
-        abs(
-            a.get_distances(2, [0, 1, 2, 3], mic=False, vector=True)
-            - np.array(
-                [a.get_distance(2, i, vector=True) for i in [0, 1, 2, 3]]
-            )
+        assert a.get_distances(
+            j, [0, 1, 2, 3], mic=False, vector=True
+        ) == approx(
+            np.array([a.get_distance(j, i, vector=True) for i in [0, 1, 2, 3]])
         )
-        < tol
-    )
-    assert np.all(
-        abs(
-            a.get_distances(3, [0, 1, 2, 3], mic=False, vector=True)
-            - np.array(
-                [a.get_distance(3, i, vector=True) for i in [0, 1, 2, 3]]
-            )
-        )
-        < tol
-    )
-
-    # get_distances(mic=True, vec=True)
-    assert np.all(
-        abs(
-            a.get_distances(0, [0, 1, 2, 3], mic=True, vector=True)
-            - np.array(
+        assert a.get_distances(
+            j, [0, 1, 2, 3], mic=True, vector=True
+        ) == approx(
+            np.array(
                 [
-                    a.get_distance(0, i, mic=True, vector=True)
+                    a.get_distance(j, i, mic=True, vector=True)
                     for i in [0, 1, 2, 3]
                 ]
             )
         )
-        < tol
-    )
-    assert np.all(
-        abs(
-            a.get_distances(1, [0, 1, 2, 3], mic=True, vector=True)
-            - np.array(
-                [
-                    a.get_distance(1, i, mic=True, vector=True)
-                    for i in [0, 1, 2, 3]
-                ]
-            )
-        )
-        < tol
-    )
-    assert np.all(
-        abs(
-            a.get_distances(2, [0, 1, 2, 3], mic=True, vector=True)
-            - np.array(
-                [
-                    a.get_distance(2, i, mic=True, vector=True)
-                    for i in [0, 1, 2, 3]
-                ]
-            )
-        )
-        < tol
-    )
-    assert np.all(
-        abs(
-            a.get_distances(3, [0, 1, 2, 3], mic=True, vector=True)
-            - np.array(
-                [
-                    a.get_distance(3, i, mic=True, vector=True)
-                    for i in [0, 1, 2, 3]
-                ]
-            )
-        )
-        < tol
-    )
 
     # set_distance
     a.set_distance(0, 1, 11.0, mic=False)
-    assert abs(a.get_distance(0, 1, mic=False) - 11.0) < tol
-    assert abs(a.get_distance(0, 1, mic=True) - np.sqrt(46)) < tol
+    assert a.get_distance(0, 1, mic=False) == approx(11.0)
+    assert a.get_distance(0, 1, mic=True) == approx(np.sqrt(46))
 
     # set_distance(mic=True)
     a.set_distance(0, 1, 3.0, mic=True)
-    assert abs(a.get_distance(0, 1, mic=True) - 3.0) < tol
+    assert a.get_distance(0, 1, mic=True) == approx(3.0)
