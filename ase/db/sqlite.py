@@ -222,7 +222,7 @@ class SQLite3Database(Database):
         self._metadata = {}
 
         cur = con.execute(
-            'SELECT COUNT(*) FROM sqlite_master WHERE name="systems"')
+            "SELECT COUNT(*) FROM sqlite_master WHERE name='systems'")
 
         if cur.fetchone()[0] == 0:
             for statement in init_statements:
@@ -234,21 +234,21 @@ class SQLite3Database(Database):
             self.version = VERSION
         else:
             cur = con.execute(
-                'SELECT COUNT(*) FROM sqlite_master WHERE name="user_index"')
+                "SELECT COUNT(*) FROM sqlite_master WHERE name='user_index'")
             if cur.fetchone()[0] == 1:
                 # Old version with "user" instead of "username" column
                 self.version = 1
             else:
                 try:
                     cur = con.execute(
-                        'SELECT value FROM information WHERE name="version"')
+                        "SELECT value FROM information WHERE name='version'")
                 except sqlite3.OperationalError:
                     self.version = 2
                 else:
                     self.version = int(cur.fetchone()[0])
 
                 cur = con.execute(
-                    'SELECT value FROM information WHERE name="metadata"')
+                    "SELECT value FROM information WHERE name='metadata'")
                 results = cur.fetchall()
                 if results:
                     self._metadata = json.loads(results[0][0])
@@ -264,7 +264,7 @@ class SQLite3Database(Database):
         self.initialized = True
 
     def _write(self, atoms, key_value_pairs, data, id):
-        ext_tables = key_value_pairs.pop("external_tables", {})
+        ext_tables = key_value_pairs.pop('external_tables', {})
         Database._write(self, atoms, key_value_pairs, data)
 
         mtime = now()
@@ -437,7 +437,7 @@ class SQLite3Database(Database):
         return id
 
     def get_last_id(self, cur):
-        cur.execute('SELECT seq FROM sqlite_sequence WHERE name="systems"')
+        cur.execute("SELECT seq FROM sqlite_sequence WHERE name='systems'")
         result = cur.fetchone()
         if result is not None:
             id = result[0]
@@ -515,7 +515,7 @@ class SQLite3Database(Database):
         external_tab = self._get_external_table_names()
         tables = {}
         for tab in external_tab:
-            row = self._read_external_table(tab, dct["id"])
+            row = self._read_external_table(tab, dct['id'])
             tables[tab] = row
 
         dct.update(tables)
@@ -817,23 +817,22 @@ class SQLite3Database(Database):
 
         taken_names = set(all_tables + all_properties + self.columnnames)
         if name in taken_names:
-            raise ValueError("External table can not be any of {}"
-                             "".format(taken_names))
+            raise ValueError(f"External table can not be any of {taken_names}")
 
         if self._external_table_exists(name):
             return
 
-        sql = f"CREATE TABLE IF NOT EXISTS {name} "
-        sql += f"(key TEXT, value {dtype}, id INTEGER, "
-        sql += "FOREIGN KEY (id) REFERENCES systems(id))"
-        sql2 = "INSERT INTO information VALUES (?, ?)"
+        sql = f'CREATE TABLE IF NOT EXISTS {name} '
+        sql += f'(key TEXT, value {dtype}, id INTEGER, '
+        sql += 'FOREIGN KEY (id) REFERENCES systems(id))'
+        sql2 = 'INSERT INTO information VALUES (?, ?)'
         with self.managed_connection() as con:
             cur = con.cursor()
             cur.execute(sql)
             # Insert an entry saying that there is a new external table
             # present and an entry with the datatype
-            cur.execute(sql2, ("external_table_name", name))
-            cur.execute(sql2, (name + "_dtype", dtype))
+            cur.execute(sql2, ('external_table_name', name))
+            cur.execute(sql2, (name + '_dtype', dtype))
 
     def delete_external_table(self, name):
         """Delete an external table."""
@@ -843,13 +842,13 @@ class SQLite3Database(Database):
         with self.managed_connection() as con:
             cur = con.cursor()
 
-            sql = f"DROP TABLE {name}"
+            sql = f'DROP TABLE {name}'
             cur.execute(sql)
 
-            sql = "DELETE FROM information WHERE value=?"
+            sql = 'DELETE FROM information WHERE value=?'
             cur.execute(sql, (name,))
-            sql = "DELETE FROM information WHERE name=?"
-            cur.execute(sql, (name + "_dtype",))
+            sql = 'DELETE FROM information WHERE name=?'
+            cur.execute(sql, (name + '_dtype',))
 
     def _convert_to_recognized_types(self, value):
         """Convert Numpy types to python types."""
@@ -865,17 +864,16 @@ class SQLite3Database(Database):
             # There is nothing to do
             return
 
-        id = entries.pop("id")
+        id = entries.pop('id')
         dtype = self._guess_type(entries)
         expected_dtype = self._get_value_type_of_table(cursor, name)
         if dtype != expected_dtype:
-            raise ValueError("The provided data type for table {} "
-                             "is {}, while it is initialized to "
-                             "be of type {}"
-                             "".format(name, dtype, expected_dtype))
+            raise ValueError(
+                f'The provided data type for table {name} is {dtype}, while '
+                f'it is initialized to be of type {expected_dtype}')
 
         # First we check if entries already exists
-        cursor.execute(f"SELECT key FROM {name} WHERE id=?", (id,))
+        cursor.execute(f'SELECT key FROM {name} WHERE id=?', (id,))
         updates = []
         for item in cursor.fetchall():
             value = entries.pop(item[0], None)
@@ -884,13 +882,13 @@ class SQLite3Database(Database):
                     (value, id, self._convert_to_recognized_types(item[0])))
 
         # Update entry if key and ID already exists
-        sql = f"UPDATE {name} SET value=? WHERE id=? AND key=?"
+        sql = f'UPDATE {name} SET value=? WHERE id=? AND key=?'
         cursor.executemany(sql, updates)
 
         # Insert the ones that does not already exist
         inserts = [(k, self._convert_to_recognized_types(v), id)
                    for k, v in entries.items()]
-        sql = f"INSERT INTO {name} VALUES (?, ?, ?)"
+        sql = f'INSERT INTO {name} VALUES (?, ?, ?)'
         cursor.executemany(sql, inserts)
 
     def _guess_type(self, entries):
@@ -901,22 +899,23 @@ class SQLite3Database(Database):
         all_types = [type(v) for v in values]
         if any(t != all_types[0] for t in all_types):
             typenames = [t.__name__ for t in all_types]
-            raise ValueError("Inconsistent datatypes in the table. "
-                             "given types: {}".format(typenames))
+            raise ValueError(
+                f'Inconsistent datatypes in the table. given types: {typenames}'
+            )
 
         val = values[0]
         if isinstance(val, int) or np.issubdtype(type(val), np.integer):
-            return "INTEGER"
+            return 'INTEGER'
         if isinstance(val, float) or np.issubdtype(type(val), np.floating):
-            return "REAL"
+            return 'REAL'
         if isinstance(val, str):
-            return "TEXT"
-        raise ValueError("Unknown datatype!")
+            return 'TEXT'
+        raise ValueError('Unknown datatype!')
 
     def _get_value_type_of_table(self, cursor, tab_name):
         """Return the expected value name."""
-        sql = "SELECT value FROM information WHERE name=?"
-        cursor.execute(sql, (tab_name + "_dtype",))
+        sql = 'SELECT value FROM information WHERE name=?'
+        cursor.execute(sql, (tab_name + '_dtype',))
         return cursor.fetchone()[0]
 
     def _read_external_table(self, name, id):
@@ -924,7 +923,7 @@ class SQLite3Database(Database):
 
         with self.managed_connection() as con:
             cur = con.cursor()
-            cur.execute(f"SELECT * FROM {name} WHERE id=?", (id,))
+            cur.execute(f'SELECT * FROM {name} WHERE id=?', (id,))
             items = cur.fetchall()
             dictionary = {item[0]: item[1] for item in items}
 
