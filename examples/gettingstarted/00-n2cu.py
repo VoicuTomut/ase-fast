@@ -1,7 +1,7 @@
 """.. _surface:
 
-Introduction: Nitrogen on copper
-================================
+ASE Introduction: Nitrogen on copper
+====================================
 
 This section gives a quick (and incomplete) overview of what ASE can do.
 
@@ -16,11 +16,12 @@ composite system.
 """
 
 # %%
-#Here is a picture of the system after the relaxation:
+# Here is a picture of the system after the relaxation:
 #
-#.. image:: ../../gettingstarted/surface.png
+# .. image:: ../../gettingstarted/surface.png
 #
-#Please have a look at the following script :download:`../../gettingstarted/N2Cu.py`:
+# Please have a look at the following script 
+# :download:`../../gettingstarted/N2Cu.py`:
 #
 from ase import Atoms
 from ase.build import add_adsorbate, fcc111
@@ -50,21 +51,21 @@ print('Adsorption energy:', e_slab + e_N2 - slab.get_potential_energy())
 
 # %%
 #
-#Assuming you have ASE setup correctly (:ref:`download_and_install`)
-#run the script::
+# Assuming you have ASE setup correctly (:ref:`download_and_install`)
+# run the script::
 #
 #  python N2Cu.py
 #
-#Please read below what the script does.
+# Please read below what the script does.
 #
-#Atoms
-#-----
+# Atoms
+# -----
 #
-#The :class:`~ase.Atoms` object is a collection of atoms.  Here
-#is how to define a N2 molecule by directly specifying the position of
-#two nitrogen atoms::
+# The :class:`~ase.Atoms` object is a collection of atoms.  Here
+# is how to define a N2 molecule by directly specifying the position of
+# two nitrogen atoms::
 
 from ase import Atoms
 
 d = 1.10
-molecule = Atoms('2N', positions=[(0., 0., 0.), (0., 0., d)])
+molecule = Atoms('2N', positions=[(0.0, 0.0, 0.0), (0.0, 0.0, d)])
