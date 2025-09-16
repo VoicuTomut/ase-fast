@@ -1,4 +1,4 @@
-""".. _surface:
+""".. _introduction:
 
 ASE Introduction: Nitrogen on copper
 ====================================
