@@ -188,19 +188,17 @@ bleeding-edge:
 
 
 doc:
-  image: registry.gitlab.com/ase/ase:ase-main
+  image: registry.gitlab.com/ase/ase:ase-full-monty
   before_script:
     - pip install scriv sphinx_book_theme sphinx-gallery
     - pip install --no-deps .[docs]
     - ase info
     - which sphinx-build
   script:
-     - echo hello
-     - mkdir web-html
-#    - scriv collect --keep || echo Not compiling changelog then  # Avoid error
-#    - python -m ase.utils.sphinx run # test scripts
-#    - sphinx-build -W doc doc/build
-#    - mv doc/build web-html
+    - scriv collect --keep || echo Not compiling changelog then  # Avoid error
+    - python -m ase.utils.sphinx run # test scripts
+    - sphinx-build -W doc doc/build
+    - mv doc/build web-html
   cache:
     paths:
       - $PIP_CACHE_DIR

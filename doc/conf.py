@@ -10,6 +10,7 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.intersphinx',
     'sphinx.ext.imgconverter',
+    'sphinx_gallery.gen_gallery',
 ]
 
 extlinks = {
@@ -74,3 +75,8 @@ Atoms.edit = lambda self: None
 """
 
 autodoc_mock_imports = ['kimpy']
+
+sphinx_gallery_conf = {
+    'examples_dirs': 'sphinxgallery-test',
+    'gallery_dirs': 'sphinxgallery-output',
+ }
