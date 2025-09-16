@@ -189,8 +189,6 @@ bleeding-edge:
 
 doc:
   image: registry.gitlab.com/ase/ase:ase-main
-  variables:
-    PIP_CACHE_DIR: "$CI_PROJECT_DIR/pip-cache-doc"
   before_script:
     - pip install scriv sphinx_book_theme
     - pip install --no-deps .[docs]
