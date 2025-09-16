@@ -198,7 +198,7 @@ Contents
     install
     gettingstarted/gettingstarted
     tutorials/tutorials
-    sphinxgallery-test/GALLERY_HEADER
+    examples_generated/index
     ase/ase
     cmdline
     tips

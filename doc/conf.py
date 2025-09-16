@@ -38,6 +38,16 @@ nitpick_ignore = [
     ('envvar', 'SIESTA_PP_PATH'),
     ('envvar', 'VASP_SCRIPT'),
 ]
+sphinx_gallery_conf = {
+    "filename_pattern": r"/*\.py",
+    #"copyfile_regex": r".*\.(xyz|dat)",
+    "examples_dirs": ["examples"],
+    "gallery_dirs": ["examples_generated"],
+    "min_reported_time": 60,
+    "reference_url": {"ase": None},
+    "remove_config_comments": True,
+    "prefer_full_module": ["ase"],
+}
 
 html_theme = 'sphinx_book_theme'
 html_logo = 'static/ase256.png'
@@ -75,8 +85,3 @@ Atoms.edit = lambda self: None
 """
 
 autodoc_mock_imports = ['kimpy']
-
-sphinx_gallery_conf = {
-    'examples_dirs': 'sphinxgallery-test',
-    'gallery_dirs': 'sphinxgallery-output',
- }
