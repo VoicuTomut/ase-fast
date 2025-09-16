@@ -3,8 +3,11 @@ Examples
 
 This directory contains examples of how to use ASE.
 
-For running the examples install ase and some extensions????
+For running the examples install ase.
 
 .. code-block:: bash
 
-    pip install ase[examples]
+    pip install ase
+
+Some more advanced examples might need additional packages.
+
