@@ -198,6 +198,7 @@ Contents
     install
     gettingstarted/gettingstarted
     tutorials/tutorials
+    examples_generated/index
     ase/ase
     cmdline
     tips
