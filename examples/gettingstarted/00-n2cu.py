@@ -20,7 +20,7 @@ composite system.
 #
 # .. image:: ../../gettingstarted/surface.png
 #
-# Please have a look at the following script 
+# Please have a look at the following script
 # :download:`../../gettingstarted/N2Cu.py`:
 #
 from ase import Atoms
@@ -65,7 +65,6 @@ print('Adsorption energy:', e_slab + e_N2 - slab.get_potential_energy())
 # is how to define a N2 molecule by directly specifying the position of
 # two nitrogen atoms::
 
-from ase import Atoms
 
 d = 1.10
 molecule = Atoms('2N', positions=[(0.0, 0.0, 0.0), (0.0, 0.0, d)])
