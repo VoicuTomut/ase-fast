@@ -190,7 +190,7 @@ bleeding-edge:
 doc:
   image: registry.gitlab.com/ase/ase:ase-main
   before_script:
-    - pip install scriv sphinx_book_theme
+    - pip install scriv sphinx_book_theme sphinx-gallery
     - pip install --no-deps .[docs]
     - ase info
     - which sphinx-build
