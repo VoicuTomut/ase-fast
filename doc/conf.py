@@ -41,7 +41,7 @@ nitpick_ignore = [
 sphinx_gallery_conf = {
     "filename_pattern": r"/*\.py",
     #"copyfile_regex": r".*\.(xyz|dat)",
-    "examples_dirs": ["examples"],
+    "examples_dirs": ["../examples"],
     "gallery_dirs": ["examples_generated"],
     "min_reported_time": 60,
     "reference_url": {"ase": None},
