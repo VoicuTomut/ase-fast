@@ -17,7 +17,8 @@ def test_match_to_lattice(lat: lattice.BravaisLattice, noise: float):
 
     ndim = lat.ndim
     cell = lat.tocell()
-    cell[:ndim, :ndim] += noise * rng.random((ndim, ndim))
+    eps = noise * rng.random((ndim, ndim))
+    cell[:ndim, :ndim] += eps  # type: ignore[index]
 
     match = min(
         lattice.match_to_lattice(cell, lat.name), key=lambda match: match.error

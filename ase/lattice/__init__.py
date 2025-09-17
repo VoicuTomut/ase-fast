@@ -41,12 +41,15 @@ class BravaisLattice(ABC):
     """
     # These parameters can be set by the @bravais decorator for a subclass.
     # (We could also use metaclasses to do this, but that's more abstract)
-    name = None  # e.g. 'CUB', 'BCT', 'ORCF', ...
-    longname = None  # e.g. 'cubic', 'body-centred tetragonal', ...
-    parameters = None  # e.g. ('a', 'c')
-    variants = None  # e.g. {'BCT1': <variant object>,
-    #                        'BCT2': <variant object>}
-    ndim = None
+    #
+    # We have to fight mypy so now we actually set initial values that are
+    # not None, unfortunately.
+    name: str = ''  # e.g. 'CUB', 'BCT', 'ORCF', ...
+    longname: str = ''  # e.g. 'cubic', 'body-centred tetragonal', ...
+    parameters: tuple = tuple()  # e.g. ('a', 'c')
+    variants: dict | None = None  # e.g. {'BCT1': <variant object>,
+    #                                     'BCT2': <variant object>}
+    ndim: int = 0
 
     def __init__(self, **kwargs):
         p = {}
