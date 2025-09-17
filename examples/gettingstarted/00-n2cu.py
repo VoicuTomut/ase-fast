@@ -184,9 +184,9 @@ slab_from_file = read('slab.xyz')
 # configuration. However, we can load a specific configuration by
 # doing::
 
-read('slab.traj')  # last configuration
-read('slab.traj', -1)  # same as above
-read('slab.traj', 0)  # first configuration
+read('N2Cu.traj')  # last configuration
+read('N2Cu.traj', -1)  # same as above
+read('N2Cu.traj', 0)  # first configuration
 
 
 # %%
