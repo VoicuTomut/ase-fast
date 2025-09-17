@@ -21,8 +21,8 @@ as python scripts or jupyter notebooks at the bottom of this page.
 
 # %%
 #
-# If you want to see an image of the system after relaxation,
-# please scroll down to the "Visualization" section.
+# You will be able to see an image of the system after relaxation,
+# later in the "Visualization" section.
 #
 # Please have a look at the following script:
 #
