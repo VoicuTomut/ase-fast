@@ -25,7 +25,7 @@ from ase.optimize import QuasiNewton
 from ase.optimize.fire import FIRE
 
 # %%
-# First, we create the initial state: An N$_{2}$ molecule on a Cu(111) slab
+# First, we create the initial state: An N\ :sub:`2`\  molecule on a Cu(111) slab
 
 # Set up a (4 x 4) two layer Cu (111) slab
 slab = fcc111('Cu', size=(4, 4, 2))
