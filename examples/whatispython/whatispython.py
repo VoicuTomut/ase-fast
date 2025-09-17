@@ -13,10 +13,11 @@ Executing Python code
 =====================
 You can execute Python code interactively by starting the interpreter like with
 the command ``python3`` and test it with any python command such as:
+
 """
 
 # %%
-print("hello")
+print('hello')
 
 
 # %%
@@ -70,10 +71,10 @@ print("hello")
 # A dict object is mapping from keys to values:
 
 # %%
-d = {"s": 0, "p": 1}
-d["d"] = 2
-print("the whole dictionary:", d)
-print("one entry of the dictionary:", d["p"])
+d = {'s': 0, 'p': 1}
+d['d'] = 2
+print('the whole dictionary:', d)
+print('one entry of the dictionary:', d['p'])
 
 # %%
 # In this example all keys are strings and all values are integers. Types can
@@ -83,10 +84,10 @@ print("one entry of the dictionary:", d["p"])
 # A ``list`` object is an ordered collection of arbitrary objects:
 
 # %%
-l = [1, ("gg", 7), "hmm", 1.2]
-print("the whole list:", l)
-print("one list element:", l[1])
-print("negative index:", l[-2])
+l = [1, ('gg', 7), 'hmm', 1.2]
+print('the whole list:', l)
+print('one list element:', l[1])
+print('negative index:', l[-2])
 
 # %%
 # Indexing a list with negative numbers counts from the end of the list, so
@@ -104,11 +105,11 @@ print("negative index:", l[-2])
 #    an assignment operator. This is demonstrated here:
 
 # %%
-a = ["q", "w"]
+a = ['q', 'w']
 b = a
-a.append("e")
-print("the original, changed list:", a)
-print("the second list:", b)
+a.append('e')
+print('the original, changed list:', a)
+print('the second list:', b)
 
 # %%
 # The line ``b = a`` gives a new name to the array, and both names now refer to
@@ -122,12 +123,12 @@ print("the second list:", b)
 # %%
 c = 42
 d = c + 5
-print("the first number:", c)
-print("the second number:", d)
+print('the first number:', c)
+print('the second number:', d)
 
 e = d
 e += 1
-print("second and third number:", (d, e))
+print('second and third number:', (d, e))
 
 # %%
 # .. note::
@@ -140,7 +141,7 @@ print("second and third number:", (d, e))
 # A loop in Python can be done like this:
 
 # %%
-things = ["a", 7]
+things = ['a', 7]
 for x in things:
     print(x)
 
