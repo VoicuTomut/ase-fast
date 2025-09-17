@@ -1,4 +1,4 @@
-""".. _introduction:
+""".. _pythonintroduction:
 
 What is Python?
 ===============
@@ -10,7 +10,8 @@ This section will give a very brief introduction to the Python language.
 
 Executing Python code
 =====================
-You can execute Python code interactively by starting the interpreter like with the command ``python3`` and test it with any python command such as:
+You can execute Python code interactively by starting the interpreter like with
+the command ``python3`` and test it with any python command such as:
 """
 
 # %%
@@ -183,7 +184,7 @@ print(a.m(3))
 # Importing modules
 # =================
 #
-# There are several ways to import modules (either ``.py`` files in your working directories or packages that are installed in your python environment):
+# There are several ways to import modules (either ``.py`` files in your working directoryy or packages that are installed in your python environment):
 
 # %%
 import numpy
