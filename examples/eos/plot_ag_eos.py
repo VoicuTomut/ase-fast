@@ -14,7 +14,10 @@ import numpy as np
 
 from ase import Atoms
 from ase.calculators.emt import EMT
+from ase.eos import EquationOfState
+from ase.io import read
 from ase.io.trajectory import Trajectory
+from ase.units import kJ
 
 a = 4.0  # approximate lattice constant
 b = a / 2
@@ -32,9 +35,6 @@ for x in np.linspace(0.95, 1.05, 5):
 # This writes a trajectory file containing five configurations of FCC silver
 # for five different lattice constants. Now, analyse the result with
 # the :class:`~ase.eos.EquationOfState` class:
-from ase.eos import EquationOfState  # noqa: E402
-from ase.io import read  # noqa: E402
-from ase.units import kJ  # noqa: E402
 
 configs = read('Ag.traj@0:5')  # read 5 configurations
 # Extract volumes and energies:
