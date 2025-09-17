@@ -7,25 +7,22 @@ This section gives a quick (and incomplete) overview of what ASE can do.
 You can download the code show in this tutorial
 (as valid for all new ase examples)
 as python scripts or jupyter notebooks at the bottom of this page.
+
+We will calculate the adsorption energy of a nitrogen
+molecule on a copper surface.
+This is done by calculating the total
+energy for the isolated slab and for the isolated molecule. The
+adsorbate is then added to the slab and relaxed, and the total energy
+for this composite system is calculated. The adsorption energy is
+obtained as the sum of the isolated energies minus the energy of the
+composite system.
+
+You will be able to see an image of the system after relaxation,
+later in the "Visualization" section.
+
+Please have a look at the following script:
 """
 
-# %%
-# We will calculate the adsorption energy of a nitrogen
-# molecule on a copper surface.
-# This is done by calculating the total
-# energy for the isolated slab and for the isolated molecule. The
-# adsorbate is then added to the slab and relaxed, and the total energy
-# for this composite system is calculated. The adsorption energy is
-# obtained as the sum of the isolated energies minus the energy of the
-# composite system.
-
-# %%
-#
-# You will be able to see an image of the system after relaxation,
-# later in the "Visualization" section.
-#
-# Please have a look at the following script:
-#
 from ase import Atoms
 from ase.build import add_adsorbate, fcc111
 from ase.calculators.emt import EMT
@@ -67,7 +64,7 @@ print('Adsorption energy:', e_slab + e_N2 - slab.get_potential_energy())
 # The :class:`~ase.Atoms` object is a collection of atoms.  Here
 # is how to define a N2 molecule by directly specifying the position of
 # two nitrogen atoms::
-
+#
 
 d = 1.10
 molecule = Atoms('2N', positions=[(0.0, 0.0, 0.0), (0.0, 0.0, d)])
@@ -76,14 +73,14 @@ molecule = Atoms('2N', positions=[(0.0, 0.0, 0.0), (0.0, 0.0, d)])
 # You can also build crystals using, for example, the lattice module
 # which returns :class:`~ase.Atoms` objects corresponding to
 # common crystal structures. Let us make a Cu (111) surface::
+#
 
 from ase.build import fcc111  # noqa E402
-
 slab = fcc111('Cu', size=(4, 4, 2), vacuum=10.0)
 
 # %%
 # Note that the # noqa behind the import is for our internal tests to pass for imports later in the python script, so you can savely ignore it.
-
+#
 # %%
 # Adding calculator
 # -----------------
@@ -93,9 +90,9 @@ slab = fcc111('Cu', size=(4, 4, 2), vacuum=10.0)
 #
 # We can attach a calculator to the previously created
 # :class:`~ase.Atoms` objects::
+#
 
 from ase.calculators.emt import EMT  # noqa E402
-
 slab.calc = EMT()
 molecule.calc = EMT()
 
@@ -103,6 +100,7 @@ molecule.calc = EMT()
 # and use it to calculate the total energies for the systems by using
 # the :meth:`~ase.Atoms.get_potential_energy` method from the
 # :class:`~ase.Atoms` class::
+#
 
 e_slab = slab.get_potential_energy()
 e_N2 = molecule.get_potential_energy()
@@ -114,6 +112,7 @@ e_N2 = molecule.get_potential_energy()
 # Let's use the :class:`~ase.optimize.QuasiNewton` minimizer to optimize the
 # structure of the N2 molecule adsorbed on the Cu surface. First add the
 # adsorbate to the Cu slab, for example in the on-top position::
+#
 
 h = 1.85
 add_adsorbate(slab, molecule, h, 'ontop')
@@ -123,6 +122,7 @@ add_adsorbate(slab, molecule, h, 'ontop')
 # the slab by using :class:`~ase.constraints.FixAtoms` from the
 # :mod:`~ase.constraints` module. Only the N2 molecule is then allowed
 # to relax to the equilibrium structure::
+#
 
 from ase.constraints import FixAtoms  # noqa E402
 
@@ -134,6 +134,7 @@ slab.set_constraint(constraint)
 # system and save the trajectory file. Run the minimizer with the
 # convergence criteria that the force on all atoms should be less than
 # some ``fmax``::
+#
 
 from ase.optimize import QuasiNewton  # noqa E402
 
@@ -154,6 +155,7 @@ dyn.run(fmax=0.05)
 #
 # Writing the atomic positions to a file is done with the
 # :func:`~ase.io.write` function::
+#
 
 from ase.io import write  # noqa: E402
 
@@ -173,6 +175,7 @@ write('slab.xyz', slab)
 # ========  ===========================
 #
 # Reading from a file is done like this::
+#
 
 from ase.io import read  # noqa: E402
 
@@ -183,6 +186,7 @@ slab_from_file = read('slab.xyz')
 # the :func:`~ase.io.write` function is to return the last
 # configuration. However, we can load a specific configuration by
 # doing::
+#
 
 read('N2Cu.traj')  # last configuration
 read('N2Cu.traj', -1)  # same as above
@@ -195,6 +199,7 @@ read('N2Cu.traj', 0)  # first configuration
 #
 # The simplest way to visualize the atoms is the :func:`~ase.visualize.view`
 # function::
+#
 
 from ase.visualize import view  # noqa: E402, F401, I001
 
@@ -231,6 +236,7 @@ from ase.visualize import view  # noqa: E402, F401, I001
 # step for the integration of Newton's law. We then perform the dynamics
 # by calling its :meth:`~ase.md.verlet.VelocityVerlet.run` method and
 # giving it the number of steps to take:
+#
 
 from ase.md.verlet import VelocityVerlet  # noqa: E402
 from ase import units  # noqa: E402
@@ -241,3 +247,4 @@ for i in range(10):
     kin = molecule.get_kinetic_energy()
     print('%2d: %.5f eV, %.5f eV, %.5f eV' % (i, pot + kin, pot, kin))
     dyn.run(steps=20)
+
