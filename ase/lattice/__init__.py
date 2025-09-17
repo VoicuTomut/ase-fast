@@ -1193,7 +1193,7 @@ class Match:
     error: float
 
     @cached_property
-    def orthogonality_defect(self):
+    def orthogonality_defect(self) -> float:
         cell = self.lat.tocell().complete()
         return np.prod(cell.lengths()) / cell.volume
 
@@ -1445,7 +1445,15 @@ class NormalizedLatticeMatcher:
         return self._check(TRI, *self.cellpar)
 
 
-def match_to_lattice(cell, latname: str, pbc=None):
+def match_to_lattice(cell, latname: str, pbc=None) -> list[Match]:
+    """Match cell to a particular Bravais lattice.
+
+    For a given input cell, attempt to represent it as a particular
+    lattice, such as 'FCC', 'ORC', 'ORCI', etc.  Return a list of
+    :class:`ase.lattice.Match` objects which can be compared
+    so as to get the best match according to metric tensor error
+    with respect to the input cell or orthogonality defect.
+    """
     from ase.geometry.bravais_type_engine import niggli_op_table
 
     cell = Cell.ascell(cell)
