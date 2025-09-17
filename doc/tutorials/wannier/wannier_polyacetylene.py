@@ -17,7 +17,7 @@ wan.localize()
 wan.save('poly.json')
 wan.translate_all_to_cell((2, 0, 0))
 for i in range(wan.nwannier):
-    wan.write_cube(i, 'polyacetylene_%i.cube' % i)
+    wan.write_cube(i, f'polyacetylene_{i}.cube')
 
 # Print Kohn-Sham bandstructure
 ef = calc.get_fermi_level()

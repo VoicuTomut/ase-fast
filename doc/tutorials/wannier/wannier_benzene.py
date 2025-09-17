@@ -8,4 +8,4 @@ atoms, calc = restart('benzene.gpw', txt=None)
 wan = Wannier(nwannier=15, calc=calc)
 wan.localize()
 for i in range(wan.nwannier):
-    wan.write_cube(i, 'benzene15_%i.cube' % i)
+    wan.write_cube(i, f'benzene15_{i}.cube')

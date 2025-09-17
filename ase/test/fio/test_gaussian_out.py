@@ -36,6 +36,12 @@ BUF_H2O = r"""
  SCF Done:  E(RHF) =  -75.9834173665     A.U. after   10 cycles
 """
 
+BUF_H2O_EXTERNAL = r"""
+ Recovered energy= -5.07022228673     dipole=      0.000000000000      0.000000000000     -0.899544724052
+ Energy=    -5.07022229     NIter=   0.
+ Dipole moment=       0.000000       0.000000      -0.899545
+"""  # noqa: E501
+
 BUF_H2O_MULLIKEN = r"""
  (Enter /opt/bwhpc/common/chem/gaussian/g16.C.01/x86_64-Intel-avx2-source/g16/l601.exe)
 ...
@@ -244,6 +250,19 @@ def test_match_magic():
     """Test if the file type can be guessed correctly."""
     bytebuf = BUF_H2O.encode('ascii')
     assert match_magic(bytebuf).name == 'gaussian-out'
+
+
+def test_gaussian_out_external():
+    """Test if energy and dipole moment from `external` are parsed correctly."""
+    buf = BUF_H2O + BUF_H2O_EXTERNAL
+    atoms = read(StringIO(buf), format='gaussian-out')
+    energy = atoms.get_potential_energy()
+    assert energy / units.Ha == pytest.approx(-5.07022228673)
+
+    np.testing.assert_allclose(
+        atoms.get_dipole_moment() / units.Debye,
+        [+0.000000000000, +0.000000000000, -0.899544724052],
+    )
 
 
 def test_gaussian_out_l601():

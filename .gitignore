@@ -33,3 +33,7 @@ ase/gui/po/ag.pot
 coverage-html
 
 .mypy_cache
+
+# Sphinx-gallery files
+examples_generated
+sg_execution_times.rst

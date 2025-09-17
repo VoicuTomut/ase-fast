@@ -43,12 +43,9 @@ with open('delta.csv', 'w') as f:
             for code in ['emt', 'exp', 'wien2k']
         )
         print(
-            f'{symbol},',
-            '{:.1f}, {:.1f}, {:.1f}'.format(
-                delta(*emt, *exp) * 1000,
-                delta(*emt, *wien2k) * 1000,
-                delta(*exp, *wien2k) * 1000,
-            ),
+            f'{symbol}, {delta(*emt, *exp) * 1000:.1f}, '
+            f'{delta(*emt, *wien2k) * 1000:.1f}, '
+            f'{delta(*exp, *wien2k) * 1000:.1f}',
             file=f,
         )
 

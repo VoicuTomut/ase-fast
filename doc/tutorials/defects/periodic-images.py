@@ -106,5 +106,5 @@ for i, j in [[-1, 0], [1, 0], [0, -1], [0, 1], [-1, 1], [1, -1]]:
 for i, j in product(range(-dim, dim + 1), repeat=2):
     fill_color = 'blue' if i == 0 and j == 0 else None
     myfig.add_cell(prim, [i, j], atom=atompos, fill_color=fill_color)
-myfig.annotate_figure('hexagonal lattice\n$r_1 = %.3f a$, $Z_1=6$' % s)
+myfig.annotate_figure(f'hexagonal lattice\n$r_1 = {s:.3f} a$, $Z_1=6$')
 plt.savefig('periodic-images-3.svg', bbox_inches='tight')

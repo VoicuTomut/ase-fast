@@ -249,9 +249,11 @@ float_keys = [
     'aggac',  # Fraction of gradient correction to correlation
     'aggax',  # Fraction of gradient correction to exchange
     'aldac',  # Fraction of LDA correlation energy
-    'amin',  #
-    'amix',  #
-    'amix_mag',  #
+    'amggac',  # parameter that multiplies the meta-GGA correlation functional
+    'amggax',  # parameter that multiplies the meta-GGA exchange functional
+    'amin',  # minimal mixing parameter in Kerker's initial approximatio
+    'amix',  # linear mixing parameter
+    'amix_mag',  # linear mixing parameter for the magnetization density
     'bmix',  # tags for mixing
     'bmix_mag',  #
     'cshift',  # Complex shift for dielectric tensor calculation (LOPTICS)
@@ -465,6 +467,8 @@ exp_keys = [
 
 string_keys = [
     'algo',  # algorithm: Normal (Davidson) | Fast | Very_Fast (RMM-DIIS)
+    'bandgap',  # determines the verbosity for reporting the bandgap info
+    'bseprec',  # precision of the time-evolution algorithm
     'gga',  # xc-type: PW PB LM or 91 (LDA if not set)
     'metagga',  #
     'prec',  # Precission of calculation (Low, Normal, Accurate)
@@ -486,6 +490,7 @@ int_keys = [
     'iniwav',  # initial electr wf. : 0-lowe 1-rand
     'isif',  # calculate stress and what to relax
     'ismear',  # part. occupancies: -5 Blochl -4-tet -1-fermi 0-gaus >0 MP
+    'isearch',  # line-search algorithm for ALGO = All
     'ispin',  # spin-polarized calculation
     'istart',  # startjob: 0-new 1-cont 2-samecut
     'isym',  # symmetry: 0-nonsym 1-usesym 2-usePAWsym

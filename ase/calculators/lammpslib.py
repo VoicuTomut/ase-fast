@@ -147,6 +147,19 @@ Keyword                                  Description
                          used with the kspace_* commands, which are sensitive
                          to the periodicity of the simulation box.
 
+``extra_cmd_args``       list of extra arguments for
+                         `lammps.lammps(cmd_args=...)`, e.g. for kokkos mliap on
+                         a gpu
+                         ```
+                         ("-k on g 1 -sf kk "
+                         "-pk kokkos neigh half newton on").split()
+                         ```
+
+``intializer``           callback function that does arbitrary LAMMPS python
+                         API initializtion tasks (e.g. calling
+                         `lammps.mliap.activate_mliapy`) and accepts a single
+                         positional argument, `self.lmp`.
+
 ``keep_alive``           Boolean
                          whether to keep the lammps routine alive for more
                          commands. Default is True.
@@ -281,6 +294,8 @@ xz and yz are the tilt of the lattice vectors, all to be edited.
                        'atom_modify map array sort 0 0'],
         amendments=None,
         post_changebox_cmds=None,
+        extra_cmd_args=(),
+        initializer=None,
         boundary=True,
         create_box=True,
         create_atoms=True,
@@ -656,11 +671,14 @@ xz and yz are the tilt of the lattice vectors, all to be edited.
             cmd_args = ['-echo', 'log', '-log', self.parameters.log_file,
                         '-screen', 'none', '-nocite']
 
-        self.cmd_args = cmd_args
+        self.cmd_args = cmd_args + list(self.parameters.extra_cmd_args)
 
         if self.lmp is None:
             self.lmp = lammps(self.parameters.lammps_name, self.cmd_args,
                               comm=self.parameters.comm)
+
+            if self.parameters.initializer is not None:
+                self.parameters.initializer(self.lmp)
 
         # Run header commands to set up lammps (units, etc.)
         for cmd in self.parameters.lammps_header:
