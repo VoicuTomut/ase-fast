@@ -31,7 +31,7 @@ for x in np.linspace(0.95, 1.05, 5):
 # %%
 # This writes a trajectory file containing five configurations of FCC silver
 # for five different lattice constants. Now, analyse the result with
-# the :class:`~ase.eos.EquationOfState` class: 
+# the :class:`~ase.eos.EquationOfState` class:
 from ase.eos import EquationOfState  # noqa: E402
 from ase.io import read  # noqa: E402
 from ase.units import kJ  # noqa: E402
