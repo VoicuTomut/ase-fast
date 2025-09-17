@@ -1,6 +1,6 @@
 # %%
 """
-.. _eos:
+.. _eos_example:
 
 =======================
 Equation of state (EOS)
