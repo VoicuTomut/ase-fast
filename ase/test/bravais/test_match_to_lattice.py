@@ -4,10 +4,13 @@ import pytest
 import ase.lattice as lattice
 
 
-@pytest.mark.parametrize('lat', [
-    lattice.ORCI(2.1, 3.2, 4.3),
-    lattice.CRECT(2.1, 80.0),
-])
+@pytest.mark.parametrize(
+    'lat',
+    [
+        lattice.ORCI(2.1, 3.2, 4.3),
+        lattice.CRECT(2.1, 80.0),
+    ],
+)
 @pytest.mark.parametrize('noise', [0.0, 1e-6, 1e-4, 1e-2, 1e-1])
 def test_match_to_lattice(lat: lattice.BravaisLattice, noise: float):
     rng = np.random.RandomState(42)
@@ -16,8 +19,9 @@ def test_match_to_lattice(lat: lattice.BravaisLattice, noise: float):
     cell = lat.tocell()
     cell[:ndim, :ndim] += noise * rng.random((ndim, ndim))
 
-    match = min(lattice.match_to_lattice(cell, lat.name),
-                key=lambda match: match.error)
+    match = min(
+        lattice.match_to_lattice(cell, lat.name), key=lambda match: match.error
+    )
 
     tolerance = 2 * noise + 1e-12
     assert 0.01 * noise <= match.error < tolerance
