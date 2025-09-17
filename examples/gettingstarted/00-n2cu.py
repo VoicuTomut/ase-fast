@@ -50,7 +50,6 @@ dyn.run(fmax=0.05)
 print('Adsorption energy:', e_slab + e_N2 - slab.get_potential_energy())
 
 # %%
-#
 # Assuming you have ASE setup correctly (:ref:`download_and_install`)
 # you can copy it into a python file (e.g. N2Cu.py) and run the script::
 #
@@ -76,10 +75,12 @@ molecule = Atoms('2N', positions=[(0.0, 0.0, 0.0), (0.0, 0.0, d)])
 #
 
 from ase.build import fcc111  # noqa E402
+
 slab = fcc111('Cu', size=(4, 4, 2), vacuum=10.0)
 
 # %%
-# Note that the # noqa behind the import is for our internal tests to pass for imports later in the python script, so you can savely ignore it.
+# Note that the # noqa behind the import is for our internal tests to pass
+# for imports later in the python script, so you can savely ignore it.
 #
 # %%
 # Adding calculator
@@ -93,6 +94,7 @@ slab = fcc111('Cu', size=(4, 4, 2), vacuum=10.0)
 #
 
 from ase.calculators.emt import EMT  # noqa E402
+
 slab.calc = EMT()
 molecule.calc = EMT()
 
@@ -247,4 +249,3 @@ for i in range(10):
     kin = molecule.get_kinetic_energy()
     print('%2d: %.5f eV, %.5f eV, %.5f eV' % (i, pot + kin, pot, kin))
     dyn.run(steps=20)
-
