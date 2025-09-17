@@ -31,7 +31,7 @@ for x in np.linspace(0.95, 1.05, 5):
 # %%
 # This writes a trajectory file containing five configurations of FCC silver
 # for five different lattice constants. Now, analyse the result with
-# the :class:`~ase.eos.EquationOfState` class:  
+# the :class:`~ase.eos.EquationOfState` class: 
 from ase.eos import EquationOfState  # noqa: E402
 from ase.io import read  # noqa: E402
 from ase.units import kJ  # noqa: E402
@@ -42,6 +42,7 @@ volumes = [ag.get_volume() for ag in configs]
 energies = [ag.get_potential_energy() for ag in configs]
 eos = EquationOfState(volumes, energies)
 v0, e0, B = eos.fit()
+print(B / kJ * 1.0e24, 'GPa')
 eos.plot('Ag-eos.png')
 
 # %%
