@@ -108,6 +108,7 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
+"examples/gettingstarted/00-n2cu.py"=["E402","F401"]
 "!doc/tutorials/**.py" = ["UP"]  # Only pyupgrade tutorials (for now)
 
 [tool.ruff.lint.pycodestyle]
