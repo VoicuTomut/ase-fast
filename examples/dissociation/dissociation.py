@@ -13,6 +13,8 @@ The first step is to find the relaxed structures of
 the initial and final states.
 """
 
+import matplotlib.animation as animation
+import matplotlib.pyplot as plt
 import numpy as np
 
 from ase import Atoms
@@ -23,9 +25,11 @@ from ase.io import read, write
 from ase.mep import NEB
 from ase.optimize import QuasiNewton
 from ase.optimize.fire import FIRE
+from ase.visualize.plot import plot_atoms
 
 # %%
-# First, we create the initial state: An N\ :sub:`2`\  molecule on a Cu(111) slab
+# First, we create the initial state: An N\ :sub:`2`\  molecule on a
+# Cu(111) slab
 
 # Set up a (4 x 4) two layer Cu (111) slab
 slab = fcc111('Cu', size=(4, 4, 2))
@@ -52,13 +56,11 @@ slab.calc = EMT()
 # We don't want to worry about the Cu degrees of freedom,
 # so fix these atoms:
 
-
 mask = [atom.symbol == 'Cu' for atom in slab]
 slab.set_constraint(FixAtoms(mask=mask))
 
 # %%
 # Then we relax the structure and write the trajectory into a file
-
 
 relax = QuasiNewton(slab)
 relax.run(fmax=0.05)
@@ -85,7 +87,6 @@ write('2N.traj', slab)
 #
 # First, we read the previous configurations
 
-
 initial = read('N2.traj')
 final = read('2N.traj')
 
@@ -104,13 +105,11 @@ for config in configs:
 # Next, we make the NEB object, and interpolate to guess
 # the intermediate steps
 
-
 band = NEB(configs)
 band.interpolate()
 
 # %%
 # Then we relax the configurations in the NEB object
-
 
 relax = FIRE(band)
 relax.run()
@@ -118,12 +117,57 @@ relax.run()
 # %%
 # Finally, we compare intermediate steps to the initial energy
 
-e0 = initial.get_potential_energy()
+energy_initial = initial.get_potential_energy()
+N2_distances = []
+energy_differences = []
 for i, config in enumerate(configs):
-    d = np.linalg.norm(config[-2].position - config[-1].position)
-    delta_energy = config.get_potential_energy() - e0
-    print(f'{i:>3}\td = {d:>4.3f}AA \tdelta energy = {delta_energy:>5.3f}eV')
+    N2_distance = np.linalg.norm(config[-2].position - config[-1].position)
+    delta_energy = config.get_potential_energy() - energy_initial
+    N2_distances.append(N2_distance)
+    energy_differences.append(delta_energy)
+    print(
+        f'{i:>3}\td = {N2_distance:>4.3f}AA '
+        f'\tdelta energy = {delta_energy:>5.3f}eV'
+    )
 
-# %% After the calculation is complete, the energy difference
+# %%
+# After the calculation is complete, the energy difference
 # with respect to the initial state is given for each image,
 # as well as the distance between the N atoms.
+#
+
+energy_differences = [e * 1.0e03 for e in energy_differences]  # in meV
+
+fig, axs = plt.subplots(
+    2,
+    1,
+    gridspec_kw={'height_ratios': [0.5, 1.0]},
+)
+
+axs[0].plot(N2_distances, energy_differences)
+scat = axs[0].scatter(N2_distances[0], energy_differences[0], s=10.0**2.0)
+axs[0].set_ylabel(r'$E(i) - E_{\mathrm{initial}}$ (meV)')
+axs[0].set_xlabel(r'$d_{\mathrm{N}-\mathrm{N}} (\AA)$')
+
+# Plot the atomic structure, focussing on the two Nitrogen atoms
+plot_atoms(config, axs[1], rotation='0x', show_unit_cell=0)
+axs[1].set_axis_off()
+axs[1].set_ylim(0.0, 5.642)
+axs[1].set_xlim(0.0, 14.833)
+
+
+def animate(i):
+    scat.set_offsets((N2_distances[i], energy_differences[i]))
+
+    # Remove the previous atomic plot
+    [p.remove() for p in axs[1].patches]
+    plot_atoms(configs[i], axs[1], rotation='0x', show_unit_cell=0)
+    axs[1].set_xlim(0.0, 14.833)
+    axs[1].set_ylim(0.0, 5.642)
+    axs[1].set_axis_off()
+    return (scat,)
+
+
+ani = animation.FuncAnimation(
+    fig, animate, repeat=True, frames=len(configs) - 1, interval=200
+)
