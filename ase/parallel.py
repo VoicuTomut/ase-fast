@@ -201,7 +201,6 @@ class AsapCommWrapper:
         return buf[0]
 
 
-
 world = None
 
 # Check for special MPI-enabled Python interpreters:
