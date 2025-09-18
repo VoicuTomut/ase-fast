@@ -37,3 +37,8 @@ coverage-html
 # Sphinx-gallery files
 examples_generated
 sg_execution_times.rst
+
+#
+examples/deltacodesdft/*.traj
+examples/deltacodesdft/*.csv
+examples/deltacodesdft/*.png
