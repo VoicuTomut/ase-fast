@@ -29,7 +29,7 @@ carbon (hydrogens are not explicit). Therefore:
 * keep molecules **rigid** during MD with :class:`FixLinearTriatomic`.
 """
 
-
+import matplotlib.pyplot as plt
 import numpy as np
 
 import ase.units as units
@@ -38,8 +38,6 @@ from ase.calculators.acn import ACN, m_me, r_cn, r_mec
 from ase.constraints import FixLinearTriatomic
 from ase.io import Trajectory
 from ase.md import Langevin
-
-import matplotlib.pyplot as plt
 from ase.visualize.plot import plot_atoms
 
 # %%
@@ -75,7 +73,7 @@ plot_atoms(
 ax.set_axis_off()
 plt.tight_layout()
 plt.show()
-fig.savefig('acn_single_molecule.png', dpi=300)
+
 
 # %%
 # Step 2: Set up small box of 27-molecules
@@ -104,7 +102,7 @@ plot_atoms(
 ax.set_axis_off()
 plt.tight_layout()
 plt.show()
-fig.savefig('acn_box_27.png', dpi=300)
+
 
 # %%
 # Step 3: Set constraints
@@ -132,7 +130,7 @@ md = Langevin(
     logfile=tag + '.log',
 )
 traj = Trajectory(tag + '.traj', 'w', atoms)
-md.attach(traj.write, interval=1)
+md.attach(traj.write, interval=10)
 md.run(5000)  # 5 ps @ 1 fs
 
 # %%
@@ -152,8 +150,7 @@ atoms.calc = ACN(rc=np.min(np.diag(atoms.cell)) / 2)
 
 # %%
 # Step 6: MD run for 216-molecules system
-# --------------------------------------
-
+# ---------------------------------------
 
 
 tag = 'acn_216mol_300K'
@@ -165,30 +162,30 @@ md = Langevin(
     logfile=tag + '.log',
 )
 traj = Trajectory(tag + '.traj', 'w', atoms)
-md.attach(traj.write, interval=1)
+md.attach(traj.write, interval=10)
 
 
 times_ps, epots, ekins, etots, temps = [], [], [], [], []
 sample_interval = 10  # sample every 10 MD steps for lighter plots
 
+
 def sample():
     # Time in ps (same as MDLogger: dyn.get_time() / (1000 * units.fs))
     t_ps = md.get_time() / (1000.0 * units.fs)
-    ep = atoms.get_potential_energy()   # eV total
-    ek = atoms.get_kinetic_energy()     # eV total
-    T = atoms.get_temperature()         # K
+    ep = atoms.get_potential_energy()  # eV total
+    ek = atoms.get_kinetic_energy()  # eV total
+    T = atoms.get_temperature()  # K
     times_ps.append(t_ps)
     epots.append(ep)
     ekins.append(ek)
     etots.append(ep + ek)
     temps.append(T)
 
+
 # initial sample at t=0
 sample()
 md.attach(sample, interval=sample_interval)
-md.run(3000)  # 6 ps @ 2 fs
-
-
+md.run(1000)  # 6 ps @ 2 fs
 
 # %%
 # Plot Instantaneous temperature vs time.
@@ -203,7 +200,7 @@ ax.legend(loc='best')
 ax.grid(True, linewidth=0.5, alpha=0.5)
 plt.tight_layout()
 plt.show()
-fig.savefig('acn_216_temp.png', dpi=300)
+
 
 # %%
 # Next steps
