@@ -68,7 +68,7 @@ from ase.optimize import QuasiNewton
 size = 10
 atoms = LatticeFCC(
     directions=[[1, 0, 0], [0, 1, 0], [0, 0, 1]],
-    symbol="Cu",
+    symbol='Cu',
     size=(size, size, size),
     pbc=True,
 )
@@ -92,13 +92,13 @@ def printenergy(a):
     epot = a.get_potential_energy() / len(a)
     ekin = a.get_kinetic_energy() / len(a)
     print(
-        f"Energy per atom: Epot ={epot:6.3f}eV  Ekin = {ekin:.3f}eV "
-        f"(T={ekin / (1.5 * units.kB):3.0f}K) Etot = {epot + ekin:.3f}eV"
+        f'Energy per atom: Epot ={epot:6.3f}eV  Ekin = {ekin:.3f}eV '
+        f'(T={ekin / (1.5 * units.kB):3.0f}K) Etot = {epot + ekin:.3f}eV'
     )
 
 
 # Now run the dynamics
-print("running a NVE simulation of fcc Cu")
+print('running a NVE simulation of fcc Cu')
 printenergy(atoms)
 for i in range(20):
     dyn.run(10)
@@ -160,7 +160,7 @@ T = 1500  # Kelvin
 # Set up a crystal
 atoms = LatticeFCC(
     directions=[[1, 0, 0], [0, 1, 0], [0, 0, 1]],
-    symbol="Cu",
+    symbol='Cu',
     size=(size, size, size),
     pbc=False,
 )
@@ -179,19 +179,19 @@ def printenergy(a=atoms):  # store a reference to atoms in the definition.
     epot = a.get_potential_energy() / len(a)
     ekin = a.get_kinetic_energy() / len(a)
     print(
-        f"Energy per atom: Epot ={epot:6.3f}eV  Ekin = {ekin:.3f}eV "
-        f"(T={ekin / (1.5 * units.kB):4.0f}K) Etot = {epot + ekin:.3f}eV"
+        f'Energy per atom: Epot ={epot:6.3f}eV  Ekin = {ekin:.3f}eV '
+        f'(T={ekin / (1.5 * units.kB):4.0f}K) Etot = {epot + ekin:.3f}eV'
     )
 
 
 dyn.attach(printenergy, interval=50)
 
 # We also want to save the positions of all atoms after every 100th time step.
-traj = Trajectory("fccCu_NPT.traj", "w", atoms)
+traj = Trajectory('fccCu_NPT.traj', 'w', atoms)
 dyn.attach(traj.write, interval=50)
 
 # Now run the dynamics
-print("running a NVT simulation of fcc Cu")
+print('running a NVT simulation of fcc Cu')
 printenergy()
 dyn.run(5000)
 
@@ -231,7 +231,7 @@ dyn.run(5000)
 # Set up a nanoparticle
 size = 4
 atoms = ClusterFCC(
-    "Cu",
+    'Cu',
     surfaces=[[1, 0, 0], [1, 1, 0], [1, 1, 1]],
     layers=(size, size, size),
     vacuum=4,
@@ -253,7 +253,7 @@ Stationary(atoms)  # zero linear momentum
 ZeroRotation(atoms)  # zero angular momentum
 
 # Run MD using the Velocity Verlet algorithm and save trajectory
-dyn = VelocityVerlet(atoms, 5 * units.fs, trajectory="nanoparticleCu_NVE.traj")
+dyn = VelocityVerlet(atoms, 5 * units.fs, trajectory='nanoparticleCu_NVE.traj')
 
 
 def printenergy(a=atoms):
@@ -261,14 +261,14 @@ def printenergy(a=atoms):
     epot = a.get_potential_energy() / len(a)
     ekin = a.get_kinetic_energy() / len(a)
     print(
-        f"Energy per atom: Epot = {epot:6.3f} eV  "
-        f"Ekin = {ekin:.3f} eV  "
-        f"(T = {ekin / (1.5 * units.kB):3.0f} K)  "
-        f"Etot = {epot + ekin:.3f} eV"
+        f'Energy per atom: Epot = {epot:6.3f} eV  '
+        f'Ekin = {ekin:.3f} eV  '
+        f'(T = {ekin / (1.5 * units.kB):3.0f} K)  '
+        f'Etot = {epot + ekin:.3f} eV'
     )
 
 
-print("running a NVE simulation of a Cu nanoparticle")
+print('running a NVE simulation of a Cu nanoparticle')
 printenergy()
 dyn.attach(printenergy, interval=10)
 dyn.run(2000)
