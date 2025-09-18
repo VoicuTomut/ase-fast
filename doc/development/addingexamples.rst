@@ -51,7 +51,7 @@ Location of Examples
 --------------------
 All examples are located in the ``examples`` folder. More advanced ASE tutorials
 can be found in the folder ``examples/tutorials``, which is most likely where 
-you want to add your contribution. There is also a ``examples/python`` folder
+you want to add your contribution. There is also an ``examples/python`` folder
 for python related tutorials.
 
 
