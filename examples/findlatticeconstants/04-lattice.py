@@ -122,11 +122,13 @@ print(f'a = {a0:.3f} Å, c = {c0:.3f} Å')
 ni = bulk('Ni', 'hcp', a=3.0, c=5.0)
 ni.calc = EMT()
 
-# %%
-# Note that the optimizer is applied on top of the StrainFilter, rather then
-# directly to the atoms. The filter presents an alternative view of the atomic
-# degrees of freedom: instead of modifying atomic positions to minimise target forces,
-# the `BFGS <https://en.wikipedia.org/wiki/Broyden%E2%80%93Fletcher%E2%80%93Goldfarb%E2%80%93Shanno_algorithm>`_ algorithm is allowed to modify lattice parameters to minimise target stress.
+# %% Note that the optimizer is applied on top of the StrainFilter,
+# rather then directly to the atoms. The filter presents an
+# alternative view of the atomic degrees of freedom: instead of
+# modifying atomic positions to minimise target forces, the `BFGS
+# <https://en.wikipedia.org/wiki/Broyden–Fletcher–Goldfarb–Shanno_algorithm>`_
+# algorithm is allowed to modify lattice parameters to minimise target
+# stress.
 
 sf = StrainFilter(ni)
 opt = BFGS(sf)
