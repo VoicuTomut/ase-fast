@@ -190,9 +190,11 @@ plt.show()
 # %%
 # Next steps
 # ----------
-# * View trajectories:
+# * View trajectories::
 #
-#   ``ase gui acn_27mol_300K.traj``
+#     ase gui acn_27mol_300K.traj
 #
-#   ``ase gui acn_216mol_300K.traj``
-# plot other thermodynamical quantities (p.e, k.e, and total energy)
+#     ase gui acn_216mol_300K.traj
+#
+# * Plot other thermodynamic quantities (p.e., k.e., and total energy).
+#
