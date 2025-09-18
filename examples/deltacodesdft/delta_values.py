@@ -30,11 +30,15 @@ Calculating Delta-values
 # :func:`ase.utils.deltacodesdft.delta` function:
 #
 # .. autofunction:: ase.utils.deltacodesdft.delta
+#
 # .. seealso::
 #
-# * Collection of ground-state elemental crystals: :ref:`dcdft`
-# * Equation-of-state module: :mod:`ase.eos`
-#
+#    * Collection of ground-state elemental crystals: :ref:`dcdft`
+#    * Equation-of-state module: :mod:`ase.eos`
+
+
+
+#%%
 # We get the WIEN2k and experimental numbers from
 # the :ref:`dcdft` ASE-collection
 # and we calculate the EMT EOS using this script:
