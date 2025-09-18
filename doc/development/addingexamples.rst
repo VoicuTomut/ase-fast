@@ -21,7 +21,7 @@ You can find the source code of existing examples in the `*examples/* folder <ht
 Sphinx-Gallery
 ==============
 We are using Sphinx-Gallery to test and display our examples.
-Every time a new example is added in Gitlab, all examples are
+Every time a change is proposed on Gitlab (to the code or the documentation), all examples are
 tested and errors are flagged.
 
 Tutorial Guidelines
