@@ -70,6 +70,7 @@ print('hello')
 #    * - ``dict``
 #      - Dictionary
 #      - ``{'a': 7.0, 23: True}``
+#
 # A dict object is mapping from keys to values:
 
 # %%
@@ -106,6 +107,7 @@ print('negative index:', l[-2])
 #    List and dictionary objects can change. Variables in Python are references
 #    to objects -- think of the ``=`` operator as a “naming operator”, not as
 #    an assignment operator. This is demonstrated here:
+#
 
 # %%
 a = ['q', 'w']
