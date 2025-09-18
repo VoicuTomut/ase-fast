@@ -15,7 +15,7 @@ Our examples are all part of the main ASE Gitlab_ repository.
 
 Please read and follow our contribution guidelines (:ref: contribute:).
 
-On Gitlab you can find existing examples in the examples folder.
+You can find the source code of existing examples in the `*examples/* folder <https://gitlab.com/ase/ase/-/tree/master/examples>`; these are rendered to pages in the `examples section of the online docs <https://ase-lib.org/examples_generated/index.html>`_.
 
 
 Sphinx-Gallery
