@@ -168,6 +168,7 @@ delta(15.08, 278.67 * 1e-24 * kJ, 5.31, 15.64, 248.71 * 1e-24 * kJ, 5.46)
 #
 # .. csv-table::
 #    :header: symbol, emt-exp, emt-wien2k, exp-wien2k
+#
 #   Pt, 3.5, 32.2, 35.9
 #   Al, 5.9, 8.6, 3.6
 #   Ni, 8.6, 12.5, 3.7
