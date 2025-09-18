@@ -193,7 +193,6 @@ read('N2Cu.traj')  # last configuration
 read('N2Cu.traj', -1)  # same as above
 read('N2Cu.traj', 0)  # first configuration
 
-
 # %%
 # Visualization
 # -------------
@@ -225,6 +224,18 @@ from ase.visualize import view  # noqa: E402, F401, I001
 #    view(slab, viewer='VMD', data=array)
 #
 #
+#
+# If you do not want a gui to open and plot this directly, you can do
+# this with plot_atoms in Matplotlib
+
+from ase.visualize.plot import plot_atoms #noqa: E402
+import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots()
+plot_atoms(slab_from_file, ax)
+ax.set_axis_off()
+
+# %%
 #
 # Molecular dynamics
 # ------------------
