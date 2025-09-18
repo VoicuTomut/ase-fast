@@ -41,16 +41,11 @@ Adding an Example
 You need to following to add an example:
 
 - a clone of your fork of the ase gitlab
-- a python environment with sphinx-gallery and sphinx-box-theme installed. You can install this with
-
-
-.. code-block:: console
-
-    $ pip install sphinx_book_theme --user
+- a python environment with relevant packages installed. These are defined in the ase "docs" dependency group and can be installed with
 
 .. code-block:: console
 
-    $ pip install sphinx-gallery --user
+    $ pip install ase[docs]
 
 Location of Examples
 --------------------
