@@ -73,14 +73,10 @@ molecule = Atoms('2N', positions=[(0.0, 0.0, 0.0), (0.0, 0.0, d)])
 # common crystal structures. Let us make a Cu (111) surface
 #
 
-from ase.build import fcc111  # noqa E402
+from ase.build import fcc111
 
 slab = fcc111('Cu', size=(4, 4, 2), vacuum=10.0)
 
-# %%
-# Note that the # noqa behind the import is for our internal tests to pass
-# for imports later in the python script, so you can savely ignore it.
-#
 # %%
 # Adding calculator
 # -----------------
@@ -92,7 +88,7 @@ slab = fcc111('Cu', size=(4, 4, 2), vacuum=10.0)
 # :class:`~ase.Atoms` objects
 #
 
-from ase.calculators.emt import EMT  # noqa E402
+from ase.calculators.emt import EMT
 
 slab.calc = EMT()
 molecule.calc = EMT()
@@ -125,7 +121,7 @@ add_adsorbate(slab, molecule, h, 'ontop')
 # to relax to the equilibrium structure
 #
 
-from ase.constraints import FixAtoms  # noqa E402
+from ase.constraints import FixAtoms
 
 constraint = FixAtoms(mask=[a.symbol != 'N' for a in slab])
 slab.set_constraint(constraint)
@@ -137,7 +133,7 @@ slab.set_constraint(constraint)
 # some ``fmax``
 #
 
-from ase.optimize import QuasiNewton  # noqa E402
+from ase.optimize import QuasiNewton
 
 dyn = QuasiNewton(slab, trajectory='N2Cu.traj')
 dyn.run(fmax=0.05)
@@ -158,7 +154,7 @@ dyn.run(fmax=0.05)
 # :func:`~ase.io.write` function
 #
 
-from ase.io import write  # noqa: E402
+from ase.io import write
 
 write('slab.xyz', slab)
 
@@ -178,7 +174,7 @@ write('slab.xyz', slab)
 # Reading from a file is done like this
 #
 
-from ase.io import read  # noqa: E402
+from ase.io import read
 
 slab_from_file = read('slab.xyz')
 
@@ -201,15 +197,11 @@ read('N2Cu.traj', 0)  # first configuration
 # function
 #
 
-from ase.visualize import view  # noqa: E402, F401, I001
+from ase.visualize import view
+
+view(slab)
 
 # %%
-#
-# .. code-block:: python
-#
-#    view(slab)
-#
-#
 #
 # This will pop up a :mod:`ase.gui` window.  Alternative viewers can be used
 # by specifying the optional keyword ``viewer=...`` - use one of
@@ -228,8 +220,10 @@ from ase.visualize import view  # noqa: E402, F401, I001
 # If you do not want a gui to open and plot this directly, you can do
 # this with plot_atoms in Matplotlib
 
-from ase.visualize.plot import plot_atoms #noqa: E402
+
 import matplotlib.pyplot as plt
+
+from ase.visualize.plot import plot_atoms
 
 fig, ax = plt.subplots()
 plot_atoms(slab_from_file, ax)
@@ -249,8 +243,8 @@ ax.set_axis_off()
 # giving it the number of steps to take:
 #
 
-from ase.md.verlet import VelocityVerlet  # noqa: E402
-from ase import units  # noqa: E402
+from ase import units
+from ase.md.verlet import VelocityVerlet
 
 dyn = VelocityVerlet(molecule, timestep=1.0 * units.fs)
 for i in range(10):
