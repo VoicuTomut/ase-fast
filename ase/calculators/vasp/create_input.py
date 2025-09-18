@@ -25,10 +25,11 @@ https://www.vasp.at/
 """
 
 import os
+import re
 import shutil
 import warnings
 from os.path import join
-from typing import List, Sequence, TextIO, Tuple, Union
+from typing import Any, List, Sequence, TextIO, Tuple, Union
 
 import numpy as np
 
@@ -1859,6 +1860,11 @@ class GenerateVaspInput:
 
     # The below functions are used to restart a calculation
 
+    @staticmethod
+    def set_if_none(collection: dict[str, Any], key: str, value: Any) -> None:
+        if collection[key] is None:
+            collection[key] = value
+
     def read_incar(self, filename):
         """Method that imports settings from INCAR file.
 
@@ -1893,42 +1899,40 @@ class GenerateVaspInput:
                     # First "#" denotes beginning of comment
                     # Add everything before comment as a string to custom dict
                     value = value.split('#', 1)[0].strip()
-                    self.input_params['custom'][key] = value
+                    self.set_if_none(self.inputs_params['custom'], key, value)
                 elif key in float_keys:
-                    self.float_params[key] = float(data[2])
+                    self.set_if_none(self.float_params, key, float(data[2]))
                 elif key in exp_keys:
-                    self.exp_params[key] = float(data[2])
+                    self.set_if_none(self.exp_params, key, float(data[2]))
                 elif key in string_keys:
-                    self.string_params[key] = str(data[2])
+                    self.set_if_none(self.string_params, key, str(data[2]))
                 elif key in int_keys:
                     if key == 'ispin':
                         # JRK added. not sure why we would want to leave ispin
                         # out
-                        self.int_params[key] = int(data[2])
+                        self.set_if_none(self.int_params, key, int(data[2]))
                         if int(data[2]) == 2:
                             self.spinpol = True
                     else:
-                        self.int_params[key] = int(data[2])
+                        self.set_if_none(self.int_params, key, int(data[2]))
                 elif key in bool_keys:
-                    val_char = data[2].lower().replace('.', '', 1)
-                    if val_char.startswith('t'):
-                        self.bool_params[key] = True
-                    elif val_char.startswith('f'):
-                        self.bool_params[key] = False
-                    else:
+                    try:
+                        bool_val = _from_vasp_bool(data[2])
+                    except ValueError as exc:
                         raise ValueError(f'Invalid value "{data[2]}" for bool '
-                                         f'key "{key}"')
+                                         f'key "{key}"') from exc
+                    self.set_if_none(self.bool_params, key, bool_val)
 
                 elif key in list_bool_keys:
-                    self.list_bool_params[key] = [
+                    self.set_if_none(self.list_bool_params, key, [
                         _from_vasp_bool(x)
                         for x in _args_without_comment(data[2:])
-                    ]
+                    ])
 
                 elif key in list_int_keys:
-                    self.list_int_params[key] = [
+                    self.set_if_none(self.list_int_params, key, [
                         int(x) for x in _args_without_comment(data[2:])
-                    ]
+                    ])
 
                 elif key in list_float_keys:
                     if key == 'magmom':
@@ -1945,38 +1949,41 @@ class GenerateVaspInput:
                             else:
                                 lst.append(float(data[i]))
                             i += 1
-                        self.list_float_params['magmom'] = lst
+                        self.set_if_none(self.list_float_params, 'magmom', lst)
                         lst = np.array(lst)
                         if self.atoms is not None:
                             self.atoms.set_initial_magnetic_moments(
                                 lst[self.resort])
                     else:
                         data = _args_without_comment(data)
-                        self.list_float_params[key] = [
+                        self.set_if_none(self.list_float_params, key, [
                             float(x) for x in data[2:]
-                        ]
+                        ])
                 elif key in special_keys:
                     if key == 'lreal':
-                        val_char = data[2].lower().replace('.', '', 1)
-                        if val_char.startswith('t'):
-                            self.bool_params[key] = True
-                        elif val_char.startswith('f'):
-                            self.bool_params[key] = False
-                        else:
+                        # can't use set_if_none since value might be in one of
+                        # two dicts
+                        if (self.bool_params.get(key) is not None or
+                            self.special_params.get(key) is not None):
+                            continue
+                        try:
+                            val = _from_vasp_bool(data[2])
+                            self.bool_params[key] = val
+                        except ValueError:
                             self.special_params[key] = data[2]
 
                 # non-registered keys
                 elif data[2].lower() in {'t', 'true', '.true.'}:
-                    self.bool_params[key] = True
+                    self.set_if_none(self.bool_params, key, True)
                 elif data[2].lower() in {'f', 'false', '.false.'}:
-                    self.bool_params[key] = False
+                    self.set_if_none(self.bool_params, key, False)
                 elif data[2].isdigit():
-                    self.int_params[key] = int(data[2])
+                    self.set_if_none(self.int_params, key, int(data[2]))
                 else:
                     try:
-                        self.float_params[key] = float(data[2])
+                        self.set_if_none(self.float_params, key, float(data[2]))
                     except ValueError:
-                        self.string_params[key] = data[2]
+                        self.set_if_none(self.string_params, key, data[2])
 
             except KeyError as exc:
                 raise KeyError(
@@ -2079,9 +2086,9 @@ def _from_vasp_bool(x):
 
     """
     assert isinstance(x, str)
-    if x.lower() == '.true.' or x.lower() == 't':
+    if re.search(r'^\.?[tT]', x):
         return True
-    elif x.lower() == '.false.' or x.lower() == 'f':
+    elif re.search(r'^\.?[fF]', x):
         return False
     else:
         raise ValueError(f'Value "{x}" not recognized as bool')
