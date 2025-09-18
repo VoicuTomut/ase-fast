@@ -29,6 +29,7 @@ Calculating Delta-values
 # :func:`ase.utils.deltacodesdft.delta` function:
 #
 # .. autofunction:: ase.utils.deltacodesdft.delta
+# :noindex:
 #
 # .. seealso::
 #
