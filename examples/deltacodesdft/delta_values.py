@@ -28,8 +28,9 @@ Calculating Delta-values
 # The :math:`\Delta` value can be calculated using the
 # :func:`ase.utils.deltacodesdft.delta` function:
 #
+#
 # .. autofunction:: ase.utils.deltacodesdft.delta
-# :noindex:
+#    :noindex:
 #
 # .. seealso::
 #
