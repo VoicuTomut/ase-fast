@@ -9,7 +9,7 @@ Contributions to ASE are very welcome and appreciated.
 
 GitLab repository
 =================
-Our examples are all part of ASE Gitlab_ repository.
+Our examples are all part of the main ASE Gitlab_ repository.
 
 .. _Gitlab: https://gitlab.com/ase/ase
 
