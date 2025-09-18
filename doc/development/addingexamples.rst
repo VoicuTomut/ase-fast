@@ -64,7 +64,7 @@ must contain a title in reStructuredText_.
 
 .. Note::
 
-   Please do not use any non-human written files such as .png files in the tutorials, generate them from scratch if possible. Also, do not add large files (> few 10s of Kb). Sphinx-gallery creates a downloadable ``.zip`` folder for all examples, so we want to keep it light. 
+   Please do not use any non-human written files such as .png files in the tutorials, generate them during the tutorial if possible. Also, do not add large files (> few 10s of Kb). Sphinx-gallery creates a downloadable ``.zip`` folder for all examples, so we want to keep it light. 
 
 Adding a ``.py`` file to the example folder will automatically make sphinx-gallery find it and it will be executed when building the gallery.
 
