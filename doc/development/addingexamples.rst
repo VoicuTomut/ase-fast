@@ -5,7 +5,6 @@ How to add an example
 =====================
 
 Contributions to ASE are very welcome and appreciated.
-Our examples are stored on gitlab.
 
 
 GitLab repository
