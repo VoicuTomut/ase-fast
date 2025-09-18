@@ -61,7 +61,7 @@ print('Adsorption energy:', e_slab + e_N2 - slab.get_potential_energy())
 #
 # The :class:`~ase.Atoms` object is a collection of atoms.  Here
 # is how to define a N2 molecule by directly specifying the position of
-# two nitrogen atoms::
+# two nitrogen atoms
 #
 
 d = 1.10
@@ -70,7 +70,7 @@ molecule = Atoms('2N', positions=[(0.0, 0.0, 0.0), (0.0, 0.0, d)])
 # %%
 # You can also build crystals using, for example, the lattice module
 # which returns :class:`~ase.Atoms` objects corresponding to
-# common crystal structures. Let us make a Cu (111) surface::
+# common crystal structures. Let us make a Cu (111) surface
 #
 
 from ase.build import fcc111  # noqa E402
@@ -89,7 +89,7 @@ slab = fcc111('Cu', size=(4, 4, 2), vacuum=10.0)
 # as it is very fast and hence useful for getting started.
 #
 # We can attach a calculator to the previously created
-# :class:`~ase.Atoms` objects::
+# :class:`~ase.Atoms` objects
 #
 
 from ase.calculators.emt import EMT  # noqa E402
@@ -100,7 +100,7 @@ molecule.calc = EMT()
 # %%
 # and use it to calculate the total energies for the systems by using
 # the :meth:`~ase.Atoms.get_potential_energy` method from the
-# :class:`~ase.Atoms` class::
+# :class:`~ase.Atoms` class
 #
 
 e_slab = slab.get_potential_energy()
@@ -112,7 +112,7 @@ e_N2 = molecule.get_potential_energy()
 #
 # Let's use the :class:`~ase.optimize.QuasiNewton` minimizer to optimize the
 # structure of the N2 molecule adsorbed on the Cu surface. First add the
-# adsorbate to the Cu slab, for example in the on-top position::
+# adsorbate to the Cu slab, for example in the on-top position
 #
 
 h = 1.85
@@ -122,7 +122,7 @@ add_adsorbate(slab, molecule, h, 'ontop')
 # In order to speed up the relaxation, let us keep the Cu atoms fixed in
 # the slab by using :class:`~ase.constraints.FixAtoms` from the
 # :mod:`~ase.constraints` module. Only the N2 molecule is then allowed
-# to relax to the equilibrium structure::
+# to relax to the equilibrium structure
 #
 
 from ase.constraints import FixAtoms  # noqa E402
@@ -134,7 +134,7 @@ slab.set_constraint(constraint)
 # Now attach the :class:`~ase.optimize.QuasiNewton` minimizer to the
 # system and save the trajectory file. Run the minimizer with the
 # convergence criteria that the force on all atoms should be less than
-# some ``fmax``::
+# some ``fmax``
 #
 
 from ase.optimize import QuasiNewton  # noqa E402
@@ -155,7 +155,7 @@ dyn.run(fmax=0.05)
 # ------------
 #
 # Writing the atomic positions to a file is done with the
-# :func:`~ase.io.write` function::
+# :func:`~ase.io.write` function
 #
 
 from ase.io import write  # noqa: E402
@@ -175,7 +175,7 @@ write('slab.xyz', slab)
 # ``py``    Python script
 # ========  ===========================
 #
-# Reading from a file is done like this::
+# Reading from a file is done like this
 #
 
 from ase.io import read  # noqa: E402
@@ -186,7 +186,7 @@ slab_from_file = read('slab.xyz')
 # If the file contains several configurations, the default behavior of
 # the :func:`~ase.io.write` function is to return the last
 # configuration. However, we can load a specific configuration by
-# doing::
+# doing
 #
 
 read('N2Cu.traj')  # last configuration
@@ -199,7 +199,7 @@ read('N2Cu.traj', 0)  # first configuration
 # -------------
 #
 # The simplest way to visualize the atoms is the :func:`~ase.visualize.view`
-# function::
+# function
 #
 
 from ase.visualize import view  # noqa: E402, F401, I001
@@ -217,8 +217,7 @@ from ase.visualize import view  # noqa: E402, F401, I001
 # 'ase.gui', 'gopenmol', 'vmd', or 'rasmol'. (Note that these alternative
 # viewers are not a part of ASE and will need to be installed by the user
 # separately.) The VMD viewer can take an optional ``data`` argument to
-# show 3D data::
-#
+# show 3D data
 #
 #
 # .. code-block:: python
