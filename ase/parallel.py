@@ -185,6 +185,23 @@ class MPI4PY:
         return self._returnval(a, b)
 
 
+class AsapCommWrapper:
+    """Compatibility hack to save people from trouble with older asap.
+
+    We can definitely remove this in 2027."""
+    def __init__(self, world):
+        self.world = world
+
+    def __getattr__(self, attr):
+        return getattr(self.world, attr)
+
+    def sum_scalar(self, a, root=-1):
+        buf = np.array([a])
+        self.world.sum(buf, root=root)
+        return buf[0]
+
+
+
 world = None
 
 # Check for special MPI-enabled Python interpreters:
@@ -198,6 +215,9 @@ elif '_asap' in sys.builtin_module_names:
     # We cannot import asap3.mpi here, as that creates an import deadlock
     import _asap
     world = _asap.Communicator()
+
+    if not hasattr(world, 'sum_scalar'):
+        world = AsapCommWrapper(world)
 
 # Check if MPI implementation has been imported already:
 elif '_gpaw' in sys.modules:
@@ -213,6 +233,10 @@ elif '_asap' in sys.modules:
         world = _asap.Communicator()
     except AttributeError:
         pass
+    else:
+        if not hasattr(world, 'sum_scalar'):
+            world = AsapCommWrapper(world)
+
 elif 'mpi4py' in sys.modules:
     world = MPI4PY()
 
