@@ -29,7 +29,7 @@ carbon (hydrogens are not explicit). Therefore:
 * keep molecules **rigid** during MD with :class:`FixLinearTriatomic`.
 """
 
-
+import matplotlib.pyplot as plt
 import numpy as np
 
 import ase.units as units
@@ -38,8 +38,6 @@ from ase.calculators.acn import ACN, m_me, r_cn, r_mec
 from ase.constraints import FixLinearTriatomic
 from ase.io import Trajectory
 from ase.md import Langevin
-
-import matplotlib.pyplot as plt
 from ase.visualize.plot import plot_atoms
 
 # %%
@@ -48,8 +46,6 @@ from ase.visualize.plot import plot_atoms
 # Build one CH3–C≡N as a linear triatomic “C–C–N”. The first carbon is
 # the methyl site; we assign it the CH3 mass. Rotate slightly to avoid
 # perfect alignment with the cell axes.
-
-
 pos = [[0, 0, -r_mec], [0, 0, 0], [0, 0, r_cn]]
 atoms = Atoms('CCN', positions=pos)
 atoms.rotate(30, 'x')
@@ -57,7 +53,6 @@ atoms.rotate(30, 'x')
 masses = atoms.get_masses()
 masses[0] = m_me
 atoms.set_masses(masses)
-
 
 mol = atoms.copy()
 mol.set_pbc(False)
@@ -75,14 +70,12 @@ plot_atoms(
 ax.set_axis_off()
 plt.tight_layout()
 plt.show()
-fig.savefig('acn_single_molecule.png', dpi=300)
 
 # %%
 # Step 2: Set up small box of 27-molecules
 # ----------------------------------------
 # Match density 0.776 g/cm^3 at 298 K. Compute cubic box length L from
 # mass and density. Build 3×3×3 supercell and enable PBC.
-
 density = 0.776 / 1e24  # g / Å^3
 L = ((masses.sum() / units.mol) / density) ** (1 / 3.0)
 
@@ -90,7 +83,6 @@ atoms.set_cell((L, L, L))
 atoms.center()
 atoms = atoms.repeat((3, 3, 3))
 atoms.set_pbc(True)
-
 
 box27 = atoms.copy()
 fig, ax = plt.subplots(figsize=(5, 5))
@@ -104,13 +96,11 @@ plot_atoms(
 ax.set_axis_off()
 plt.tight_layout()
 plt.show()
-fig.savefig('acn_box_27.png', dpi=300)
 
 # %%
 # Step 3: Set constraints
 # -----------------------
 # Keep each “C–C–N” rigid during MD using FixLinearTriatomic.
-
 nm = 27
 triples = [(3 * i, 3 * i + 1, 3 * i + 2) for i in range(nm)]
 atoms.constraints = FixLinearTriatomic(triples=triples)
@@ -120,7 +110,6 @@ atoms.constraints = FixLinearTriatomic(triples=triples)
 # --------------------------------------
 # Assign ACN with cutoff = half the smallest box edge. Langevin MD at
 # 300 K, 1 fs timestep. Save a frame every step.
-
 atoms.calc = ACN(rc=np.min(np.diag(atoms.cell)) / 2)
 
 tag = 'acn_27mol_300K'
@@ -132,7 +121,7 @@ md = Langevin(
     logfile=tag + '.log',
 )
 traj = Trajectory(tag + '.traj', 'w', atoms)
-md.attach(traj.write, interval=1)
+md.attach(traj.write, interval=10)
 md.run(5000)  # 5 ps @ 1 fs
 
 # %%
@@ -140,7 +129,6 @@ md.run(5000)  # 5 ps @ 1 fs
 # ------------------------------------------
 # Repeat 2×2×2 to reach 216 molecules. Reapply constraints and update
 # the ACN cutoff for the new cell.
-
 atoms.set_constraint()
 atoms = atoms.repeat((2, 2, 2))
 
@@ -152,10 +140,7 @@ atoms.calc = ACN(rc=np.min(np.diag(atoms.cell)) / 2)
 
 # %%
 # Step 6: MD run for 216-molecules system
-# --------------------------------------
-
-
-
+# ---------------------------------------
 tag = 'acn_216mol_300K'
 md = Langevin(
     atoms,
@@ -165,36 +150,34 @@ md = Langevin(
     logfile=tag + '.log',
 )
 traj = Trajectory(tag + '.traj', 'w', atoms)
-md.attach(traj.write, interval=1)
-
+md.attach(traj.write, interval=10)
 
 times_ps, epots, ekins, etots, temps = [], [], [], [], []
 sample_interval = 10  # sample every 10 MD steps for lighter plots
 
+
 def sample():
     # Time in ps (same as MDLogger: dyn.get_time() / (1000 * units.fs))
     t_ps = md.get_time() / (1000.0 * units.fs)
-    ep = atoms.get_potential_energy()   # eV total
-    ek = atoms.get_kinetic_energy()     # eV total
-    T = atoms.get_temperature()         # K
+    ep = atoms.get_potential_energy()  # eV total
+    ek = atoms.get_kinetic_energy()  # eV total
+    T = atoms.get_temperature()  # K
     times_ps.append(t_ps)
     epots.append(ep)
     ekins.append(ek)
     etots.append(ep + ek)
     temps.append(T)
 
+
 # initial sample at t=0
 sample()
 md.attach(sample, interval=sample_interval)
-md.run(3000)  # 6 ps @ 2 fs
-
-
+md.run(1000)  # 6 ps @ 2 fs
 
 # %%
 # Plot Instantaneous temperature vs time.
 # Does the system equilibrated well?
 # What is the average temperature? Should we run longer simulations?
-
 fig, ax = plt.subplots(figsize=(6, 4))
 ax.plot(times_ps, temps, label='T (K)')
 ax.set_xlabel('Time (ps)')
@@ -203,12 +186,10 @@ ax.legend(loc='best')
 ax.grid(True, linewidth=0.5, alpha=0.5)
 plt.tight_layout()
 plt.show()
-fig.savefig('acn_216_temp.png', dpi=300)
 
 # %%
 # Next steps
 # ----------
-
 # * View trajectories:
 #
 #   ``ase gui acn_27mol_300K.traj``
