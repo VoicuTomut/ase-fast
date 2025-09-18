@@ -21,8 +21,9 @@ Calculating Delta-values
 #
 # .. math::
 #
-#     \Delta = \sqrt{\frac{1}{V_b - V_a} \int_{V_a}^{V_b}
-#     \left[ E_1(V) - E_2(V) \right]^2 \, dV}
+#     \Delta = \sqrt{\frac{\int_{V_a}^{V_b}\left( E_1(V) - E_2(V) \right)^2 \, dV}{
+#     V_b - V_a}
+#     }
 #
 # where :math:`E_n(V)` is the energy per atom as a function of volume.
 # The :math:`\Delta` value can be calculated using the
@@ -51,7 +52,7 @@ for symbol in ['Al', 'Ni', 'Cu', 'Pd', 'Ag', 'Pt', 'Au']:
         atoms.get_potential_energy()
         traj.write(atoms)
 
-# %
+# %%
 # And fit to a Birch-Murnaghan EOS:
 
 import json
@@ -86,7 +87,7 @@ for path in Path().glob('*.traj'):
 
 Path('fit.json').write_text(json.dumps(data))
 
-# %
+# %%
 # Result for Pt using EMT:
 import matplotlib.pyplot as plt
 
@@ -101,7 +102,6 @@ for atoms in read('Pt.traj@:'):
 eos = EOS(V, E, 'birchmurnaghan')
 eos.fit(warn=False)
 
-# Simple plot, no fuss
 plt.figure()
 eos.plot()                      # draw onto the current axes
 ax = plt.gca()
