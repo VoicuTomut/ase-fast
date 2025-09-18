@@ -21,7 +21,8 @@ Calculating Delta-values
 #
 # .. math::
 #
-#     \Delta = \sqrt{\frac{1}{V_b - V_a} \int_{V_a}^{V_b} \left[ E_1(V) - E_2(V) \right]^2 \, dV}
+#     \Delta = \sqrt{\frac{1}{V_b - V_a} \int_{V_a}^{V_b}
+#     \left[ E_1(V) - E_2(V) \right]^2 \, dV}
 #
 # where :math:`E_n(V)` is the energy per atom as a function of volume.
 # The :math:`\Delta` value can be calculated using the
@@ -33,7 +34,7 @@ Calculating Delta-values
 # * Collection of ground-state elemental crystals: :ref:`dcdft`
 # * Equation-of-state module: :mod:`ase.eos`
 #
-# We get the WIEN2k and experimental numbers from 
+# We get the WIEN2k and experimental numbers from
 # the :ref:`dcdft` ASE-collection
 # and we calculate the EMT EOS using this script:
 
@@ -87,9 +88,10 @@ Path('fit.json').write_text(json.dumps(data))
 
 # %
 # Result for Pt using EMT:
+import matplotlib.pyplot as plt
+
 from ase.eos import EquationOfState as EOS
 from ase.io import read
-import matplotlib.pyplot as plt
 
 V, E = [], []
 for atoms in read('Pt.traj@:'):
@@ -155,8 +157,9 @@ plt.show()
 
 # %%
 # Now, we can calculate :math:`\Delta` between EMT and WIEN2k for Pt:
-from ase.utils.deltacodesdft import delta
 from ase.units import kJ
+from ase.utils.deltacodesdft import delta
+
 delta(15.08, 278.67 * 1e-24 * kJ, 5.31, 15.64, 248.71 * 1e-24 * kJ, 5.46)
 
 # %%
@@ -176,14 +179,13 @@ delta(15.08, 278.67 * 1e-24 * kJ, 5.31, 15.64, 248.71 * 1e-24 * kJ, 5.46)
 import json
 from pathlib import Path
 
-import matplotlib.pyplot as plt
-import numpy as np
-
 from ase.collections import dcdft
 from ase.eos import birchmurnaghan
 from ase.io import read
 from ase.units import kJ
 from ase.utils.deltacodesdft import delta
+import matplotlib.pyplot as plt
+import numpy as np
 
 # Read EMT data:
 data = json.loads(Path('fit.json').read_text())

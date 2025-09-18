@@ -109,7 +109,7 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "!doc/tutorials/**.py" = ["UP"]  # Only pyupgrade tutorials (for now)
-"!examples/deltacodesdft/**.py" = ["E402"]  
+"examples/deltacodesdft/delta_values.py" = ["E402","F811"]  
 
 [tool.ruff.lint.pycodestyle]
 max-line-length = 80
