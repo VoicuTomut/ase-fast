@@ -4,8 +4,7 @@ ASE Introduction: Nitrogen on copper
 ====================================
 
 This section gives a quick (and incomplete) overview of what ASE can do.
-You can download the code show in this tutorial
-(as valid for all new ase examples)
+You can download the code shown in this tutorial (and others in the same style)
 as python scripts or jupyter notebooks at the bottom of this page.
 
 We will calculate the adsorption energy of a nitrogen
