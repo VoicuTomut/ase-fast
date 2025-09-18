@@ -9,7 +9,7 @@ nitrogen molecule.
 
 # %%
 # Please look at the script
-# :download:`../tutorials/N2.py`:
+# :download:`../../tutorials/N2.py`:
 #
 from ase import Atoms
 from ase.calculators.emt import EMT
