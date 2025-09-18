@@ -103,7 +103,7 @@ eos = EOS(V, E, 'birchmurnaghan')
 eos.fit(warn=False)
 
 plt.figure()
-eos.plot()                      # draw onto the current axes
+eos.plot()  # draw onto the current axes
 ax = plt.gca()
 ax.set_xlim(14.0, 16.0)
 ax.set_xlabel('volume [Å^3/atom]')
