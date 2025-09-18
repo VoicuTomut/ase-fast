@@ -28,10 +28,10 @@ Tutorial Guidelines
 ===================
 When contributing a new example, it should roughly have the following structure:
 
-- Introduction: describe the task and the aim of the tutorial
+- Learning outcomes and Objectives: describe the task and the aim of the tutorial
 - Imports
 - Setup: load necessary data
-- Learning outcomes: describe the basic functionality of used functions and add links to the ASE documentation where needed
+- Task description: describe the basic functionality of used functions and add links to the ASE documentation where needed
 - Basic working example
 - Further information: links, literature, references to the documentation
 
@@ -73,6 +73,13 @@ Adding a ``.py`` file to the example folder will automatically make sphinx-galle
 
    When moving one of the old tutorials/examples to a sphinx-gallery example, please add a deprecation note and a link to the new example. 
 
+Linting
+^^^^^^^
+We use a linter that checks all the examples commited. Please check your example before commiting and apply the changes necessary so it passes a linter without complains.
+Your merge request will not be accepted unless all tests passed, which also includes linting.
+An example of a basic linter is Ruff_.
+
+.. _Ruff: https://github.com/astral-sh/ruff
 
 Building the Gallery
 --------------------
