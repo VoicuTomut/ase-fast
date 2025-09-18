@@ -34,8 +34,8 @@ The key objectives are:
 By the end of this tutorial, you should be able to set up your own MD
 simulations, monitor energy conservation, and visualize system evolution.
 
-1 Basic Molecular Dynamics Simulation
-=====================================
+Part 1: Basic Molecular Dynamics Simulation
+===========================================
 
 We start by creating a copper crystal, assigning random velocities
 corresponding to Maxwell Boltzmann Distribution at 300 K, and running dynamics
@@ -44,10 +44,12 @@ in the NVE ensemble (constant energy).
 """
 
 # %%
+import matplotlib.pyplot as plt
+import numpy as np
+
 # choose one of the following implementations of EMT:
 # included in ase
 # from ase.calculators.emt import EMT
-
 # faster performance
 from asap3 import EMT
 
@@ -63,6 +65,7 @@ from ase.md.velocitydistribution import (
 )
 from ase.md.verlet import VelocityVerlet
 from ase.optimize import QuasiNewton
+from ase.visualize.plot import plot_atoms
 
 # Set up initial positions of Cu atoms on Fcc crystal lattice
 size = 10
@@ -73,6 +76,20 @@ atoms = LatticeFCC(
     pbc=True,
 )
 
+# %%
+# Before setting up the MD simulation, we take a look at the initial structure:
+
+# %%
+fig, ax = plt.subplots(figsize=(5, 5))
+plot_atoms(atoms, ax, rotation=('45x,45y,0z'), show_unit_cell=2, radii=0.75)
+ax.set_axis_off()
+plt.tight_layout()
+plt.show()
+
+# %%
+# Now let's run the MD simulation and monitor the kinetic and potential energy
+# of the whole system:
+
 # Describe the interatomic interactions with the Effective Medium Theory (EMT)
 atoms.calc = EMT()
 
@@ -81,7 +98,8 @@ atoms.calc = EMT()
 MaxwellBoltzmannDistribution(atoms, temperature_K=300)
 
 # We use Velocity Verlet algorithm to integrate the Newton's equations.
-dyn = VelocityVerlet(atoms, 5 * units.fs)  # 5 fs time step.
+timestep_fs = 5
+dyn = VelocityVerlet(atoms, timestep_fs * units.fs)  # 5 fs time step.
 
 
 def printenergy(a):
@@ -89,53 +107,77 @@ def printenergy(a):
     Function to print the thermodynamical properties i.e potential energy,
     kinetic energy and total energy
     """
-    epot = a.get_potential_energy() / len(a)
-    ekin = a.get_kinetic_energy() / len(a)
+    epot = a.get_potential_energy()
+    ekin = a.get_kinetic_energy()
+    temp = a.get_temperature()
     print(
         f'Energy per atom: Epot ={epot:6.3f}eV  Ekin = {ekin:.3f}eV '
-        f'(T={ekin / (1.5 * units.kB):3.0f}K) Etot = {epot + ekin:.3f}eV'
+        f'(T={temp:.3f}K) Etot = {epot + ekin:.3f}eV'
     )
 
 
 # Now run the dynamics
 print('running a NVE simulation of fcc Cu')
 printenergy(atoms)
+# init lists to for energy vs time data
+time_ps, epot, ekin = [], [], []
+mdind = 0
+steps_per_block = 10
 for i in range(20):
-    dyn.run(10)
+    dyn.run(steps_per_block)
+    mdind += steps_per_block
     printenergy(atoms)
+    # save the energies of the current MD step
+    time_ps.append(mdind * timestep_fs / 1000.0)
+    epot.append(atoms.get_potential_energy())
+    ekin.append(atoms.get_kinetic_energy())
+
+etot = np.array(epot) + np.array(ekin)
+
+# Plot energies vs time
+fig, ax = plt.subplots(figsize=(6, 4))
+ax.plot(time_ps, epot, label='Potential energy')
+ax.plot(time_ps, ekin, label='Kinetic energy')
+ax.plot(time_ps, etot, label='Total energy')
+ax.set_xlabel('Time (ps)')
+ax.set_ylabel('Energy (eV)')
+ax.legend(loc='best')
+ax.grid(True, linewidth=0.5, alpha=0.5)
+plt.tight_layout()
+plt.show()
 
 # %%
 # Note how the total energy is conserved, but the kinetic energy quickly
 # drops to half the expected value. Why?
 #
-# What you learn here:
+# What you learned here:
+#
 # - How to set up a basic MD run.
 # - How to monitor the energy over time.
 # - That total energy is approximately conserved in NVE simulations, what is
-# the error in total energy?
+#   the error in total energy?
 #
-# Exercise 1: Tune the time step from 5fs to 10fs and 50fs, what you observe in
-# total energy?
-# Exercise 2: Change ``use_asap`` to ``True``, what differences do you see in
-# the computational performance?
+# Exercise: Tune the time step from 5fs to 10fs and 50fs, what changes do you
+# observe in total energy?
 
 
 # %%
-# 2 Constant temperature MD
-# =========================
+# Part 2: Constant temperature MD
+# ===============================
 #
-# In many cases, you want to control temperature (NVT ensemble).  This
-# can be done using a thermostat.
-# In this tutorial we will use Langevin thermostat.
-# In the previous examples, replace the line ``dyn = VelocityVerlet(...)`` with
+# In many cases, you want to control temperature (NVT ensemble). This
+# can be done using a thermostat, like -- in this tutorial -- Langevin
+# thermostat.
+# Compared to the previous example, we replace the line
+# ``dyn = VelocityVerlet(...)`` with
 #
 # ::
 #
 #   dyn = Langevin(atoms, timestep=5 * units.fs, temperature_K=T,
-#   friction=0.002)
+#   friction=0.02)
 #
-# where ``T`` is the desired temperature in Kelvin. You also need to import
-# Langevin, see the class below.
+# where ``T`` is the desired temperature in Kelvin. For that we also imported
+# the Langevin in the beginning.
 #
 # The Langevin dynamics will then slowly adjust the total energy of the
 # system so the temperature approaches the desired one.
@@ -154,7 +196,6 @@ for i in range(20):
 
 # %%
 size = 10
-
 T = 1500  # Kelvin
 
 # Set up a crystal
@@ -171,29 +212,36 @@ atoms.calc = EMT()
 # We want to run MD with constant energy using the Langevin algorithm
 # with a time step of 5 fs, the temperature T and the friction
 # coefficient to 0.02 atomic units.
-dyn = Langevin(atoms, timestep=5 * units.fs, temperature_K=T, friction=0.002)
-
-
-def printenergy(a=atoms):  # store a reference to atoms in the definition.
-    """Function to print the potential, kinetic and total energy."""
-    epot = a.get_potential_energy() / len(a)
-    ekin = a.get_kinetic_energy() / len(a)
-    print(
-        f'Energy per atom: Epot ={epot:6.3f}eV  Ekin = {ekin:.3f}eV '
-        f'(T={ekin / (1.5 * units.kB):4.0f}K) Etot = {epot + ekin:.3f}eV'
-    )
-
-
-dyn.attach(printenergy, interval=50)
+timestep_fs = 5
+dyn = Langevin(
+    atoms, timestep=timestep_fs * units.fs, temperature_K=T, friction=0.02
+)
 
 # We also want to save the positions of all atoms after every 100th time step.
 traj = Trajectory('fccCu_NPT.traj', 'w', atoms)
-dyn.attach(traj.write, interval=50)
 
 # Now run the dynamics
 print('running a NVT simulation of fcc Cu')
-printenergy()
-dyn.run(5000)
+printenergy(atoms)
+time_ps, temperature = [], []
+mdind = 0
+steps_per_block = 10
+for i in range(200):
+    dyn.run(steps_per_block)
+    mdind += steps_per_block
+    printenergy(atoms)
+    # save the temperature of the current MD step
+    time_ps.append(mdind * timestep_fs / 1000.0)
+    temperature.append(atoms.get_temperature())
+
+# Plot temperatures vs time
+fig, ax = plt.subplots(figsize=(6, 4))
+ax.plot(time_ps, temperature)
+ax.set_xlabel('Time (ps)')
+ax.set_ylabel('Temperature (K)')
+ax.grid(True, linewidth=0.5, alpha=0.5)
+plt.tight_layout()
+plt.show()
 
 # %%
 # After running the simulation, you can study the result with the
@@ -203,10 +251,11 @@ dyn.run(5000)
 #
 #   ase gui fccCu_NPT.traj
 #
-# Try plotting the kinetic energy. You will *not* see a well-defined
-# melting point due to finite size effects (including surface melting),
+# Try plotting the kinetic energy. Like in the temperature vs time plot you
+# will *not* see a well-defined melting point due to finite size effects
+# (including surface melting),
 # but you will probably see an almost flat region where the inside of
-# the system melts.  The outermost layers melt at a lower temperature.
+# the system melts. The outermost layers melt at a lower temperature.
 #
 # .. note::
 #
@@ -215,8 +264,8 @@ dyn.run(5000)
 #   just setting momenta corresponding to a temperature, as we did before.
 #
 #
-# 3 Isolated particle MD
-# ======================
+# Part 3: Isolated particle MD
+# ============================
 #
 # When simulating isolated particles with MD, it is sometimes preferable
 # to set random momenta corresponding to a specific temperature and let the
@@ -225,10 +274,9 @@ dyn.run(5000)
 # because the randomized momenta gave the center of mass a small but
 # non-zero velocity too.
 #
-# Let us see what happens when we propagate a nanoparticle for a long time:
+# Let us see what happens when we propagate a nanoparticle:
 
 # %%
-# Set up a nanoparticle
 size = 4
 atoms = ClusterFCC(
     'Cu',
@@ -255,28 +303,17 @@ ZeroRotation(atoms)  # zero angular momentum
 # Run MD using the Velocity Verlet algorithm and save trajectory
 dyn = VelocityVerlet(atoms, 5 * units.fs, trajectory='nanoparticleCu_NVE.traj')
 
-
-def printenergy(a=atoms):
-    """Function to print potential, kinetic, and total energy per atom."""
-    epot = a.get_potential_energy() / len(a)
-    ekin = a.get_kinetic_energy() / len(a)
-    print(
-        f'Energy per atom: Epot = {epot:6.3f} eV  '
-        f'Ekin = {ekin:.3f} eV  '
-        f'(T = {ekin / (1.5 * units.kB):3.0f} K)  '
-        f'Etot = {epot + ekin:.3f} eV'
-    )
-
-
 print('running a NVE simulation of a Cu nanoparticle')
-printenergy()
-dyn.attach(printenergy, interval=10)
-dyn.run(2000)
+printenergy(atoms)
+steps_per_block = 10
+for i in range(200):
+    dyn.run(steps_per_block)
+    printenergy(atoms)
 
 # %%
-# After running the simulation, use :ref:`ase-gui` to compare the results
-# with how it looks if you comment out either the line that says
-# ``Stationary(atoms)``, ``ZeroRotation(atoms)`` or both
+# After running the simulation, use :ref:`ase-gui` to compare the resulting
+# trajectory with how it looks if you comment out either the line that says
+# ``Stationary(atoms)``, ``ZeroRotation(atoms)`` or both:
 #
 # ::
 #
