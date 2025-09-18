@@ -6,6 +6,7 @@ What is Python?
 This section will give a very brief introduction to the Python language.
 
 .. tip::
+
    See also the `Python home page <https://www.python.org/>`_ for further
    information.
 
@@ -32,6 +33,7 @@ print('hello')
 #
 #
 # .. tip::
+#
 #    For a better interactive experience, consider ipython.
 #
 # Types
@@ -100,6 +102,7 @@ print('negative index:', l[-2])
 # cannot.
 #
 # .. note::
+#
 #    List and dictionary objects can change. Variables in Python are references
 #    to objects -- think of the ``=`` operator as a “naming operator”, not as
 #    an assignment operator. This is demonstrated here:
@@ -132,6 +135,7 @@ print('second and third number:', (d, e))
 
 # %%
 # .. note::
+#
 #    Another very important type is the ``ndarray`` type described here:
 #    `Numeric arrays in Python <https://ase-lib.org/numpy.html#numpy>`_. It is
 #    an array type for efficient numerics, and is heavily used in ASE.

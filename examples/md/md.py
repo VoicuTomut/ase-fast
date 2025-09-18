@@ -1,4 +1,4 @@
-""".. _md_tutorial:
+""".. _md_tutorials_basic:
 
 ==================
 Molecular dynamics
@@ -6,9 +6,9 @@ Molecular dynamics
 
 .. note::
 
-  These examples *can* be run without ``asap`` installed. In that case,
-  ASE’s Python implementation of the EMT calculator is used, but it is
-  much slower.
+  These examples *can* be run without ``asap3`` installed. In that case,
+  ASE’s Python implementation of the EMT calculator can be used instead, but it
+  is much slower.
 
 Goal
 ====
@@ -44,25 +44,29 @@ in the NVE ensemble (constant energy).
 """
 
 # %%
+# choose one of the following implementations of EMT:
+# included in ase
+# from ase.calculators.emt import EMT
+
+# faster performance
+from asap3 import EMT
+
 from ase import units
-from ase.lattice.cubic import FaceCenteredCubic
-from ase.md.velocitydistribution import MaxwellBoltzmannDistribution
+from ase.cluster.cubic import FaceCenteredCubic as ClusterFCC
+from ase.io.trajectory import Trajectory
+from ase.lattice.cubic import FaceCenteredCubic as LatticeFCC
+from ase.md.langevin import Langevin  # for later NPT simulations
+from ase.md.velocitydistribution import (
+    MaxwellBoltzmannDistribution,
+    Stationary,
+    ZeroRotation,
+)
 from ase.md.verlet import VelocityVerlet
-
-# Use Asap for a huge performance increase if it is installed
-use_asap = False
-
-if use_asap:
-    from asap3 import EMT
-
-    size = 10
-else:
-    from ase.calculators.emt import EMT
-
-    size = 3
+from ase.optimize import QuasiNewton
 
 # Set up initial positions of Cu atoms on Fcc crystal lattice
-atoms = FaceCenteredCubic(
+size = 10
+atoms = LatticeFCC(
     directions=[[1, 0, 0], [0, 1, 0], [0, 0, 1]],
     symbol="Cu",
     size=(size, size, size),
@@ -94,6 +98,7 @@ def printenergy(a):
 
 
 # Now run the dynamics
+print("running a NVE simulation of fcc Cu")
 printenergy(atoms)
 for i in range(20):
     dyn.run(10)
@@ -140,21 +145,20 @@ for i in range(20):
 # (no kinetic energy), and with a desired temperature above the melting
 # point. We will also save information about the atoms in a trajectory
 # file called ``moldyn3.traj``.
+#
+# .. note::
+#
+#   It is recommended to use the ``asap3`` implementation of the ``EMT``
+#   calculator here, because its performance benefits over the ``ase``
+#   implementation.
 
 # %%
-from asap3 import EMT  # Way too slow with ase.EMT !
-
-from ase import units
-from ase.io.trajectory import Trajectory
-from ase.lattice.cubic import FaceCenteredCubic
-from ase.md.langevin import Langevin
-
 size = 10
 
 T = 1500  # Kelvin
 
 # Set up a crystal
-atoms = FaceCenteredCubic(
+atoms = LatticeFCC(
     directions=[[1, 0, 0], [0, 1, 0], [0, 0, 1]],
     symbol="Cu",
     size=(size, size, size),
@@ -183,10 +187,11 @@ def printenergy(a=atoms):  # store a reference to atoms in the definition.
 dyn.attach(printenergy, interval=50)
 
 # We also want to save the positions of all atoms after every 100th time step.
-traj = Trajectory("moldyn3.traj", "w", atoms)
+traj = Trajectory("fccCu_NPT.traj", "w", atoms)
 dyn.attach(traj.write, interval=50)
 
 # Now run the dynamics
+print("running a NVT simulation of fcc Cu")
 printenergy()
 dyn.run(5000)
 
@@ -196,7 +201,7 @@ dyn.run(5000)
 #
 # ::
 #
-#   ase gui moldyn3.traj
+#   ase gui fccCu_NPT.traj
 #
 # Try plotting the kinetic energy. You will *not* see a well-defined
 # melting point due to finite size effects (including surface melting),
@@ -223,34 +228,16 @@ dyn.run(5000)
 # Let us see what happens when we propagate a nanoparticle for a long time:
 
 # %%
-from ase import units
-from ase.cluster.cubic import FaceCenteredCubic
-from ase.md.velocitydistribution import (
-    MaxwellBoltzmannDistribution,
-    Stationary,
-    ZeroRotation,
-)
-from ase.md.verlet import VelocityVerlet
-from ase.optimize import QuasiNewton
-
-use_asap = False
-
-if use_asap:
-    from asap3 import EMT
-
-    size = 4
-else:
-    from ase.calculators.emt import EMT
-
-    size = 2
-
 # Set up a nanoparticle
-atoms = FaceCenteredCubic(
+size = 4
+atoms = ClusterFCC(
     "Cu",
     surfaces=[[1, 0, 0], [1, 1, 0], [1, 1, 1]],
     layers=(size, size, size),
     vacuum=4,
 )
+# asap3 requires a non-zero cell even if pbc are not applied
+atoms.cell = [40] * 3
 atoms.set_pbc(False)  # isolated cluster (explicit, for clarity)
 
 # Describe the interatomic interactions with the Effective Medium Theory
@@ -266,7 +253,7 @@ Stationary(atoms)  # zero linear momentum
 ZeroRotation(atoms)  # zero angular momentum
 
 # Run MD using the Velocity Verlet algorithm and save trajectory
-dyn = VelocityVerlet(atoms, 5 * units.fs, trajectory="moldyn4.traj")
+dyn = VelocityVerlet(atoms, 5 * units.fs, trajectory="nanoparticleCu_NVE.traj")
 
 
 def printenergy(a=atoms):
@@ -281,6 +268,7 @@ def printenergy(a=atoms):
     )
 
 
+print("running a NVE simulation of a Cu nanoparticle")
 printenergy()
 dyn.attach(printenergy, interval=10)
 dyn.run(2000)
@@ -292,7 +280,7 @@ dyn.run(2000)
 #
 # ::
 #
-#   ase gui moldyn4.traj
+#   ase gui nanoparticleCu_NVE.traj
 #
 # Try playing the movie with a high frame rate and set frame skipping to a
 # low number. Can you spot the subtle difference?
