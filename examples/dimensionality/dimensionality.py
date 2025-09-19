@@ -30,7 +30,8 @@ print(sum([e.score for e in intervals]))
 print(m.dimtype, m.h, m.score, m.a, m.b)
 
 atoms.set_tags(m.components)
-view(atoms)
+# Visualize the structure
+# view(atoms)
 
 # %%
 # Coloring the atoms by their tags shows the distinct bonded clusters, which in
@@ -64,13 +65,15 @@ print('counts:', [(k, len(v)) for k, v in sorted(result.items())])
 for dim, components in result.items():
     for atoms in components:
         print(dim)
-        view(atoms, block=True)
+        # Visualize the structure
+        # view(atoms, block=True)
 
 # %%
 # The method is described in the article:
 #
 #  | P.M. Larsen, M. Pandey, M. Strange, and K. W. Jacobsen
-#  | :doi:`Definition of a scoring parameter to identify low-dimensional materials components <10.1103/PhysRevMaterials.3.034003>`
+#  | :doi:`Definition of a scoring parameter to identify low-dimensional
+#  materials components <10.1103/PhysRevMaterials.3.034003>`
 #  | Phys. Rev. Materials 3 034003, 2019
 #
 # A preprint is available :arxiv:`here <1808.02114>`.
@@ -82,6 +85,6 @@ for dim, components in result.items():
 #
 #
 # .. autofunction:: ase.geometry.dimensionality.analyze_dimensionality
-#
+#   :noindex:
 # .. autofunction:: ase.geometry.dimensionality.isolate_components
-
+#   :noindex:
