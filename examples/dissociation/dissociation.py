@@ -102,14 +102,17 @@ for config in configs:
     config.set_constraint(constraint)
 
 # %%
-# Next, we make the NEB object, and interpolate to guess
+# Next, we make the NEB object, and call its interpolate() method to guess
 # the intermediate steps
 
 band = NEB(configs)
 band.interpolate()
 
 # %%
-# Then we relax the configurations in the NEB object
+# Then we relax the configurations in the NEB object. We can use same FIRE
+# optimization class we might apply to optimize an Atoms object; NEB presents
+# appropriate degrees of freedom and gradients for this to optimise multiple
+# configurations simultaneously.
 
 relax = FIRE(band)
 relax.run()
@@ -139,8 +142,7 @@ for i, config in enumerate(configs):
 energy_differences = [e * 1.0e03 for e in energy_differences]  # in meV
 
 fig, axs = plt.subplots(
-    2,
-    1,
+    nrows=2,
     gridspec_kw={'height_ratios': [0.5, 1.0]},
 )
 
