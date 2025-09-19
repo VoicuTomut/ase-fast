@@ -72,7 +72,8 @@ for dim, components in result.items():
 # The method is described in the article:
 #
 #  | P.M. Larsen, M. Pandey, M. Strange, and K. W. Jacobsen
-#  | "Definition of a scoring parameter to identify low-dimensional materials components"
+#  | "Definition of a scoring parameter to identify 
+#  | low-dimensional materials components"
 #  | Phys. Rev. Materials 3 034003, 2019
 #  | :doi:`10.1103/PhysRevMaterials.3.034003`
 #
