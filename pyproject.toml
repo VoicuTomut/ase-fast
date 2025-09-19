@@ -42,7 +42,7 @@ Issues = 'https://gitlab.com/ase/ase/issues/'
 ase = 'ase.cli.main:main'
 
 [project.optional-dependencies]
-docs = ['sphinx', 'sphinx_book_theme', 'sphinx-gallery', 'pillow']
+docs = ['sphinx', 'sphinx_book_theme', 'sphinxcontrib-video', 'sphinx-gallery', 'pillow']
 test = ['pytest>=7.0.0', 'pytest-xdist>=2.1.0']
 spglib = ['spglib>=1.9']
 lint = ['mypy', 'ruff', 'coverage', 'types-docutils', 'types-PyMySQL', 'flake8']
