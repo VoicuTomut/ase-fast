@@ -57,7 +57,7 @@ print(atoms[0])
 # Throughout this tutorial, we will be using matplotlib to visualize the
 # structures. Note, however, that in practice using the view function
 # or opening structures in the :mod:`ase gui <ase.gui>`
-#  directly from the terminal with ``ase gui structure.xyz``
+# directly from the terminal with ``ase gui structure.xyz``
 # gives the an interactive view, which might
 # be more convenient.
 
