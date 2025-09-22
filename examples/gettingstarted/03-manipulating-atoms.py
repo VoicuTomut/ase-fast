@@ -14,7 +14,6 @@ with ASE.
 # We will set up a one layer slab of four Ni atoms with one Ag adatom.
 # Define the slab atoms:
 
-
 from math import sqrt
 
 from ase import Atoms
