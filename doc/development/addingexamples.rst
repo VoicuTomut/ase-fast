@@ -13,9 +13,9 @@ Our examples are all part of the main ASE Gitlab_ repository.
 
 .. _Gitlab: https://gitlab.com/ase/ase
 
-Please read and follow our contribution guidelines (:ref: contribute:).
+Please read and follow our contribution guidelines (:ref:`contribute`).
 
-You can find the source code of existing examples in the examples_ folder these are rendered to pages in the `examples section of the online docs'_ <https://ase-lib.org/examples_generated/index.html>`_.
+You can find the source code of existing examples in the :git:`examples` folder these are rendered to pages in the `examples section of the online docs'_ <https://ase-lib.org/examples_generated/index.html>`_.
 
 .. _examples: https://gitlab.com/ase/ase/-/tree/master/examples
 
@@ -50,7 +50,7 @@ You need to following to add an example:
 
 Location of Examples
 --------------------
-All examples are located in the ``examples`` folder. More advanced ASE tutorials
+All examples are located in the :git:`examples` folder. More advanced ASE tutorials
 can be found in the folder ``examples/tutorials``, which is most likely where 
 you want to add your contribution. There is also an ``examples/python`` folder
 for python related tutorials.
@@ -78,9 +78,25 @@ Linting
 ^^^^^^^
 We use a linter that checks all the examples commited. Please check your example before commiting and apply the changes necessary so it passes a linter without complains.
 Your merge request will not be accepted unless all tests passed, which also includes linting.
-An example of a basic linter is Ruff_.
+The linter we are using for our CI check is Ruff_.
 
 .. _Ruff: https://github.com/astral-sh/ruff
+
+You can simply install it with pip:
+
+.. code-block:: console
+
+    $ pip install ruff
+
+Before opening a merge request for your example, please make sure that these two checks are passed when executed in the ase folder:
+
+.. code-block:: console
+
+    $ ruff check
+
+.. code-block:: console
+
+    $ ruff format
 
 Building the Gallery
 --------------------
