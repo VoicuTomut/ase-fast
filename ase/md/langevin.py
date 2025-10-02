@@ -57,8 +57,8 @@ class Langevin(MolecularDynamics):
             numpy.random.standard_normal.
 
         **kwargs : dict, optional
-            Additional arguments passed to :class:~ase.md.md.MolecularDynamics
-            base class.
+            Additional arguments passed to
+            :class:`~ase.md.md.MolecularDynamics` base class.
 
         The temperature and friction are normally scalars, but in principle one
         quantity per atom could be specified by giving an array.
