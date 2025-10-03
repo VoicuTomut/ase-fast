@@ -4,6 +4,15 @@
 Dimensionality analysis
 =======================
 
+.. note::
+
+  We are currently moving to a new way to display our examples.
+  For this example we have an updated version, which you 
+  can find :ref:`here <dim_examples>`.
+  The example on this page is deprecated and will be removed 
+  once all examples have been moved to 
+  the new format.
+
 This is a example of analysis of the dimensionality of a structure using
 the :func:`ase.geometry.dimensionality.analyze_dimensionality` function. This is
 useful for finding low-dimensional materials, such as 1D chain-like

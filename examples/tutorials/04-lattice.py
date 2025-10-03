@@ -1,6 +1,7 @@
-"""
+""".. _lattice_constant_example:
+
 Finding lattice constants using EOS and the stress tensor
-#########################################################
+=========================================================
 
 """
 
