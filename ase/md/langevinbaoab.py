@@ -18,36 +18,45 @@ https://doi.org/10.1063/1.1755657
 Parameters
 ----------
 atoms: Atoms
-    atoms object for dynaics
+    Atoms object for dynaics.
 timestep: float
-    timestep (ASE native units) for time propagation
+    Timestep (ASE native units) for time propagation.
 temperature_K: float, optional
-    constant temperature in K to apply.  Enables N[VP]T.
-externalstress: float, ndarray(3), narray(6), narray((3, 3)) optional
-    constant stress (i.e. negative of pressure, so _negative_ values lead to
-    compression) to apply, in ASE native units. Enables NP[TH].  Note that
-    barostat will keep mean stress _including kinetic (i.e. ideal gas)
-    contribution_ equal to this value.  Only scalars are allowed if
-    hydrostatic is True
+    Constant temperature to apply, in K. Enables constant temperature
+    dynamics with NVT or NPT, otherwise dynamics are NVE or NPH
+    (depending on `externalstress`).
+externalstress: float, ndarray(3), narray(6), narray((3, 3)), optional
+    Constant stress to apply, in ASE native units. Enables variable cell
+    dynamics with constant NPH or NPT (depending on `temperature_K`).
+    Note that stress is negative of pressure, so _negative_ values lead to
+    compression. Note also that barostat will keep mean stress _including
+    kinetic (i.e. ideal gas) contribution_ equal to this value.  Only scalars
+    are allowed if `hydrostatic` is True.
 T_tau: float, optional
-    time constant for temperature Langevin. Defaults to 50 * `timestep` if not
-    specified
+    Time constant for position degree of freedom Langevin. Defaults to 50 *
+    `timestep` if not specified.
 P_tau: float, optional
-    time constant for pressure (variable cell) Langevin. Defaults to
-    20 * `T_tau` if T_tau is provided, otherwise 1000 * `timestep`.  A value
-    of 0 turns off Langevin thermalization of cell DOF
+    Time constant for variable cell dynamics (cell fluctuation period
+    used to set P_mass heuristic for NPH, and both flucutation period and
+    Langevin timescale for NPT). Defaults to 20 * `T_tau` if T_tau is provided,
+    otherwise 1000 * `timestep`.
 P_mass: float, optional
-    mass used for cell volume dynamics. Default heuristic value to aim for
-    fluctuation period of P_tau / 4.  Default heuristic will fail if `P_tau`
-    is not > 0.
+    Mass used for cell volume dynamics. Default is a heuristic value that aims
+    for fluctuation period of `P_tau / 4`.
 P_mass_factor: float, default 1.0
-    factor to multiply heuristic P_mass
+    Factor to multiply heuristic `P_mass`.
+disable_cell_langevin: bool, default False
+    Turn off Langevin thermalization of cell DOF even if `temperature_K` is
+    not `None`.  Variable cell will still be done if `externalstress` is not
+    `None`, in which case cell equilibration will rely on interaction between
+    cell and position DOFs.
 hydrostatic: bool, default False
-    allow only hydrostaic strain.
+    Allow only hydrostaic strain (i.e. preserve cell _shape_ but allow overall
+    scaling of volume).
 initial_nsteps: int, default 0
-    initial nsteps to set (for sensible output in continuations)
+    Initial nsteps to set (for sensible output in continuations).
 **kwargs: dict
-    additional ase.md.md.MolecularDynamics kwargs
+    Additional ase.md.md.MolecularDynamics kwargs.
 """
 
 import warnings
@@ -72,6 +81,7 @@ class LangevinBAOAB(MolecularDynamics):
         P_tau=None,
         P_mass=None,
         P_mass_factor=None,
+        disable_cell_langevin=False,
         rng=None,
         hydrostatic=False,
         initial_nsteps=0,
@@ -82,6 +92,7 @@ class LangevinBAOAB(MolecularDynamics):
         self.externalstress = externalstress
         self.P_mass = P_mass
         self.P_mass_factor = P_mass_factor if P_mass_factor is not None else 1.0
+        self.disable_cell_langevin = disable_cell_langevin
         self.rng = rng
 
         self.nsteps = initial_nsteps
@@ -97,6 +108,8 @@ class LangevinBAOAB(MolecularDynamics):
                     f"Fixed temperature requires `T_tau`, got '{T_tau}'"
                 )
         self.T_tau = T_tau
+        if self.T_tau is not None and self.T_tau <= 0:
+            raise ValueError(f'Invalid T_tau {self.T_tau} <= 0')
 
         self.hydrostatic = None
         if self.externalstress is not None:
@@ -148,6 +161,8 @@ class LangevinBAOAB(MolecularDynamics):
                         f'T_tau, defaulting to 1000 * timestep = {P_tau}'
                     )
         self.P_tau = P_tau
+        if self.P_tau is not None and self.P_tau <= 0:
+            raise ValueError(f'Invalid P_tau {self.P_tau} <= 0')
 
         # default contribution to effective gamma used in _BAOAB_OU that comes
         # from barostat from 2nd term in RHS of Quigley Eq. (5b)
@@ -155,17 +170,59 @@ class LangevinBAOAB(MolecularDynamics):
 
         if self.externalstress is not None:
             self.p_eps = 0.0
-            # Hope that ASE get_number_of_degrees_of_freedom gives correct value.
-            # It's not, for example, completely obvious what should be
-            # done about the 3 overall translation DOFs, since conventional
-            # Langevin does not actually preserve those (i.e. violates
-            # conservation of momentum). See, e.g.,
+            # Hope that ASE Atoms.get_number_of_degrees_of_freedom() gives
+            # correct value.  It's not, for example, completely obvious what
+            # should be # done about the 3 overall translation DOFs, since
+            # conventional # Langevin does not actually preserve those (i.e.
+            # violates conservation of momentum). See, e.g.,
             #     https://doi.org/10.1063/5.0286750
             # for discussion of variants, e.g. DPD pairwise-force thermostat
             if len(self.atoms.constraints()) != 0:
-                warnings.warn("WARNING: LangevinBAOAB has not been "
-                              "tested with constraints")
+                warnings.warn('WARNING: LangevinBAOAB has not been '
+                              'tested with constraints')
             self.Ndof = self.atoms.get_number_of_degrees_of_freedom()
+
+            if self.P_mass is None:
+                # set P_mass with heuristic
+                #
+                # originally tried expression from Quigley Eq. 17
+                #    W = 3 N k_B T / (2 pi / tau)^2
+                # empirically didn't work at all
+                #
+                # instead, using empirical value based on tests
+                # of various P_mass, supercell sizes
+                #
+                # supercell of 4 atom Al FCC cell
+                # VARY P_mass: looks like tau \prop sqrt(P_mass)
+                # sc 3 P_mass 1000  T 300 period 34.01360544217687
+                # sc 3 P_mass 10000 T 300 period 91.74311926605505
+                # VARY sc: looks like tau \prop 1/sqrt(N^1/3)
+                # sc 2 P_mass 10000.0 T 400 period 104.16666666666667 (32 atoms)
+                # sc 3 P_mass 10000.0 T 400 period 92.5925925925926  (108 atoms)
+                # sc 4 P_mass 10000.0 T 400 period 66.66666666666667 (256 atoms)
+                # tau = C * sqrt(P_mass) / N**(1/6)
+                # 66 fs for N = 4 * 4^3 = 256, P_mass = 10^4
+                # 66 fs = C * 10000**0.5 / 256.0**(1.0/6.0)
+                # C = 66 fs / (10000**0.5 / 256.0**(1.0/6.0))
+                # C = 1.6630957858612323 fs
+                # P_mass = ((tau / C) * N**(1/6)) ** 2
+                #
+                # note that constant here may be very system (bulk modulus?) dependent
+                if not self.P_tau > 0:
+                    raise ValueError('Heuristic used for P_mass requires P_tau > 0')
+                C = 1.66 * units.fs
+                self.barostat_mass_use = (
+                    ((self.P_tau / 4.0) / C) * (len(self.atoms) ** (1.0 / 6.0))
+                ) ** 2
+                self.barostat_mass_use *= self.P_mass_factor
+                if from_init:
+                    warnings.warn(
+                        'Using heuristic P_mass '
+                        f'{self.barostat_mass_use} '
+                        f'from P_tau {self.P_tau}'
+                    )
+            else:
+                self.barostat_mass_use = self.P_mass
 
         self.set_temperature(temperature_K, from_init=True)
 
@@ -184,86 +241,46 @@ class LangevinBAOAB(MolecularDynamics):
         """
         self.temperature_K = temperature_K
 
-        # set P_mass with heuristic
-        #
-        # originally tried expression from Quigley Eq. 17
-        #    W = 3 N k_B T / (2 pi / tau)^2
-        # didn't work at all
-        #
-        # instead, using empirical value based on tests
-        # of various P_mass, supercell sizes
-        #
-        # supercell of 4 atom Al FCC cell
-        # VARY P_mass: looks like tau \prop sqrt(P_mass)
-        # sc 3 P_mass 1000  T 300 period 34.01360544217687
-        # sc 3 P_mass 10000 T 300 period 91.74311926605505
-        # VARY sc: looks like tau \prop 1/sqrt(N^1/3)
-        # sc 2 P_mass 10000.0 T 400 period 104.16666666666667 (32 atoms)
-        # sc 3 P_mass 10000.0 T 400 period 92.5925925925926  (108 atoms)
-        # sc 4 P_mass 10000.0 T 400 period 66.66666666666667 (256 atoms)
-        # tau = C * sqrt(P_mass) / N**(1/6)
-        # 66 fs for N = 4 * 4^3 = 256, P_mass = 10^4
-        # 66 fs = C * 10000**0.5 / 256.0**(1.0/6.0)
-        # C = 66 fs / (10000**0.5 / 256.0**(1.0/6.0))
-        # C = 1.6630957858612323 fs
-        # P_mass = ((tau / C) * N**(1/6)) ** 2
-
-        if self.externalstress is not None and self.P_mass is None:
-            if not self.P_tau > 0:
-                raise ValueError('Heuristic used for P_mass requires P_tau > 0')
-            C = 1.66 * units.fs
-            self.barostat_mass_use = (
-                ((self.P_tau / 4.0) / C) * (len(self.atoms) ** (1.0 / 6.0))
-            ) ** 2
-            self.barostat_mass_use *= self.P_mass_factor
-            if from_init:
-                warnings.warn(
-                    'Using heuristic P_mass '
-                    f'{self.barostat_mass_use} '
-                    f'from P_tau {self.P_tau}'
-                )
-        else:
-            self.barostat_mass_use = self.P_mass
-
-        # store quantities for BAOAB
-        self.gamma = 0.0
-        if self.temperature_K is not None:
-            self.BAOAB_prefactor = 0.0
-            if self.T_tau != 0:
-                self.gamma = 1.0 / self.T_tau
-                # sigma from before Eq. 4 of Leimkuhler
-                sigma = np.sqrt(
-                    2.0 * self.gamma * units.kB * self.temperature_K
-                )
-                # prefactor from after Eq. 6
-                self.BAOAB_prefactor = (
-                    sigma / np.sqrt(2.0 * self.gamma)
-                ) * np.sqrt(1.0 - np.exp(-2.0 * self.gamma * self.dt))
-                # does not include sqrt(mass), since that is different for
-                # each atom type
-
-        # initialize deformation gradient dynamical variables
-        if self.externalstress is not None:
+        if self.temperature_K is None:
+            # disable thermostat
+            self.gamma = 0.0
             self.barostat_gamma = 0.0
-            if self.P_tau != 0:
-                if self.temperature_K is None:
-                    raise RuntimeError(
-                        'Got thermalized barostat with P_tau '
-                        f'{self.P_tau} != 0, also need '
-                        'temperature_K which was not specified'
-                    )
-                self.barostat_gamma = 1.0 / self.P_tau
-                sigma = np.sqrt(
-                    2.0 * self.barostat_gamma * units.kB * self.temperature_K
+            return
+
+        ############################################################
+        # position related quantities
+        if self.T_tau is None or self.T_tau <= 0:
+            raise RuntimeError(
+                f'Got temperature {self.temperature_K}, but Langevin '
+                f'time-scale T_tau {self.T_tau} is invalud'
+            )
+        self.gamma = 1.0 / self.T_tau
+        # sigma from before Eq. 4 of Leimkuhler
+        sigma = np.sqrt(
+            2.0 * self.gamma * units.kB * self.temperature_K
+        )
+        # prefactor from after Eq. 6
+        self.BAOAB_prefactor = (
+            sigma / np.sqrt(2.0 * self.gamma)
+        ) * np.sqrt(1.0 - np.exp(-2.0 * self.gamma * self.dt))
+        # does not include sqrt(mass), since that is different for
+        # each atom type
+
+        ############################################################
+        # cell related quantities
+        if self.externalstress is not None and not self.disable_cell_langevin:
+            self.barostat_gamma = 1.0 / self.P_tau
+            sigma = np.sqrt(
+                2.0 * self.barostat_gamma * units.kB * self.temperature_K
+            )
+            self._barostat_BAOAB_prefactor = (
+                (sigma / np.sqrt(2.0 * self.barostat_gamma))
+                * np.sqrt(
+                    1.0 - np.exp(-2.0 * self.barostat_gamma * self.dt)
                 )
-                self._barostat_BAOAB_prefactor = (
-                    (sigma / np.sqrt(2.0 * self.barostat_gamma))
-                    * np.sqrt(
-                        1.0 - np.exp(-2.0 * self.barostat_gamma * self.dt)
-                    )
-                    * np.sqrt(self.barostat_mass_use)
-                )
-                # _does_ include sqrt(mass) factor
+                * np.sqrt(self.barostat_mass_use)
+            )
+            # _does_ include sqrt(mass) factor
 
     def _update_accel(self):
         """Update position-acceleration from current positions via forces"""

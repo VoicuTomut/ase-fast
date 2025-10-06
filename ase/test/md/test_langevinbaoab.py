@@ -74,36 +74,38 @@ def test_LangevinBAOAB_NVT(tmp_path, atoms, calc):
 def test_LangevinBAOAB_NPT(tmp_path, atoms, calc):
     atoms.calc = calc
     rng = np.random.default_rng(seed=5)
-    dyn = LangevinBAOAB(
-        atoms,
-        timestep=timestep,
-        temperature_K=300,
-        T_tau=50 * timestep,
-        externalstress=-1.0 * u_GPa,
-        logfile=logfile,
-        rng=rng,
-        trajectory=str(tmp_path / 'test.traj'),
-    )
-    dyn.run(n_steps)
+    # expect warning about using heuristics for T_tau and/or P_tau
+    with pytest.raises(UserWarning):
+        dyn = LangevinBAOAB(
+            atoms,
+            timestep=timestep,
+            temperature_K=300,
+            T_tau=50 * timestep,
+            externalstress=-1.0 * u_GPa,
+            logfile=logfile,
+            rng=rng,
+            trajectory=str(tmp_path / 'test.traj'),
+        )
+        dyn.run(n_steps)
 
-    traj = ase.io.read(tmp_path / 'test.traj', ':')
+        traj = ase.io.read(tmp_path / 'test.traj', ':')
 
-    # atoms moved
-    assert np.any(
-        traj[0].get_scaled_positions() != traj[-1].get_scaled_positions()
-    ), "atoms didn't move"
+        # atoms moved
+        assert np.any(
+            traj[0].get_scaled_positions() != traj[-1].get_scaled_positions()
+        ), "atoms didn't move"
 
-    # fixed shape, variable vol
-    ratio = traj[-1].cell[0, 0] / traj[0].cell[0, 0]
-    print('ratio', ratio)
-    print('initial cell')
-    print(traj[0].cell)
-    print('final cell')
-    print(traj[-1].cell)
-    assert np.abs(ratio - 1.0) > 1e-6, "cell size didn't change"
-    assert np.all(np.abs(traj[0].cell * ratio - traj[-1].cell) < 1e-6), (
-        'cell shape changed'
-    )
+        # fixed shape, variable vol
+        ratio = traj[-1].cell[0, 0] / traj[0].cell[0, 0]
+        print('ratio', ratio)
+        print('initial cell')
+        print(traj[0].cell)
+        print('final cell')
+        print(traj[-1].cell)
+        assert np.abs(ratio - 1.0) > 1e-6, "cell size didn't change"
+        assert np.all(np.abs(traj[0].cell * ratio - traj[-1].cell) < 1e-6), (
+            'cell shape changed'
+        )
 
 
 ####################################################################################################
@@ -114,31 +116,33 @@ def test_LangevinBAOAB_NsT(tmp_path, atoms, calc):
     atoms.calc = calc
     rng = np.random.default_rng(seed=7)
     externalstress_GPa = -np.asarray([0.2, 0.4, 0.6, 0.1, 0.0, 0.0])
-    dyn = LangevinBAOAB(
-        atoms,
-        timestep=timestep,
-        temperature_K=300,
-        T_tau=50 * timestep,
-        externalstress=externalstress_GPa * u_GPa,
-        hydrostatic=False,
-        logfile=logfile,
-        rng=rng,
-        trajectory=str(tmp_path / 'test.traj'),
-    )
-    dyn.run(n_steps)
+    # expect warning about using heuristics for T_tau and/or P_tau
+    with pytest.raises(UserWarning):
+        dyn = LangevinBAOAB(
+            atoms,
+            timestep=timestep,
+            temperature_K=300,
+            T_tau=50 * timestep,
+            externalstress=externalstress_GPa * u_GPa,
+            hydrostatic=False,
+            logfile=logfile,
+            rng=rng,
+            trajectory=str(tmp_path / 'test.traj'),
+        )
+        dyn.run(n_steps)
 
-    traj = ase.io.read(tmp_path / 'test.traj', ':')
+        traj = ase.io.read(tmp_path / 'test.traj', ':')
 
-    # atoms and cell changed
-    assert np.any(
-        traj[0].get_scaled_positions() != traj[-1].get_scaled_positions()
-    ), "atoms didn't move"
-    assert np.all(np.abs(traj[0].cell - traj[-1].cell) > 1e-6), (
-        "cell shape didn't change"
-    )
+        # atoms and cell changed
+        assert np.any(
+            traj[0].get_scaled_positions() != traj[-1].get_scaled_positions()
+        ), "atoms didn't move"
+        assert np.all(np.abs(traj[0].cell - traj[-1].cell) > 1e-6), (
+            "cell shape didn't change"
+        )
 
-    # make sure there was no rotation
-    # ai @ F = af
-    F = np.linalg.inv(traj[0].cell) @ traj[-1].cell
-    u, p = scipy.linalg.polar(F)
-    assert np.allclose(u, np.eye(3), atol=0.01)
+        # make sure there was no rotation
+        # ai @ F = af
+        F = np.linalg.inv(traj[0].cell) @ traj[-1].cell
+        u, p = scipy.linalg.polar(F)
+        assert np.allclose(u, np.eye(3), atol=0.01)
