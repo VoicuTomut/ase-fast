@@ -101,7 +101,7 @@ class LangevinBAOAB(MolecularDynamics):
             # run constant T, need rng and T_tau
             if self.rng is None:
                 raise RuntimeError(
-                    "Fixed temperature requires `rng` for Langevin, "
+                    'Fixed temperature requires `rng` for Langevin, '
                     f"got '{rng}'"
                 )
             if T_tau is None:
@@ -181,8 +181,10 @@ class LangevinBAOAB(MolecularDynamics):
             #     https://doi.org/10.1063/5.0286750
             # for discussion of variants, e.g. DPD pairwise-force thermostat
             if len(self.atoms.constraints()) != 0:
-                warnings.warn('WARNING: LangevinBAOAB has not been '
-                              'tested with constraints')
+                warnings.warn(
+                    'WARNING: LangevinBAOAB has not been '
+                    'tested with constraints'
+                )
             self.Ndof = self.atoms.get_number_of_degrees_of_freedom()
 
             if self.P_mass is None:
@@ -213,8 +215,9 @@ class LangevinBAOAB(MolecularDynamics):
                 # note that constant here may be very system (bulk modulus?)
                 # dependent
                 if not self.P_tau > 0:
-                    raise ValueError('Heuristic used for P_mass requires '
-                                     'P_tau > 0')
+                    raise ValueError(
+                        'Heuristic used for P_mass requires P_tau > 0'
+                    )
                 C = 1.66 * units.fs
                 self.barostat_mass_use = (
                     ((self.P_tau / 4.0) / C) * (len(self.atoms) ** (1.0 / 6.0))
@@ -259,13 +262,11 @@ class LangevinBAOAB(MolecularDynamics):
             )
         self.gamma = 1.0 / self.T_tau
         # sigma from before Eq. 4 of Leimkuhler
-        sigma = np.sqrt(
-            2.0 * self.gamma * units.kB * self.temperature_K
-        )
+        sigma = np.sqrt(2.0 * self.gamma * units.kB * self.temperature_K)
         # prefactor from after Eq. 6
-        self.BAOAB_prefactor = (
-            sigma / np.sqrt(2.0 * self.gamma)
-        ) * np.sqrt(1.0 - np.exp(-2.0 * self.gamma * self.dt))
+        self.BAOAB_prefactor = (sigma / np.sqrt(2.0 * self.gamma)) * np.sqrt(
+            1.0 - np.exp(-2.0 * self.gamma * self.dt)
+        )
         # does not include sqrt(mass), since that is different for
         # each atom type
 
@@ -278,9 +279,7 @@ class LangevinBAOAB(MolecularDynamics):
             )
             self._barostat_BAOAB_prefactor = (
                 (sigma / np.sqrt(2.0 * self.barostat_gamma))
-                * np.sqrt(
-                    1.0 - np.exp(-2.0 * self.barostat_gamma * self.dt)
-                )
+                * np.sqrt(1.0 - np.exp(-2.0 * self.barostat_gamma * self.dt))
                 * np.sqrt(self.barostat_mass_use)
             )
             # _does_ include sqrt(mass) factor
