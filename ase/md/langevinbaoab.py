@@ -6,6 +6,11 @@ configurational molecular sampling via Langevin dynamics",
 J. Chem. Phys. 138 174102 (2013).
 https://doi.org/10.1063/1.4802990
 
+There is some evidence that other time integration schemes, e.g. BAOA,
+maybe be better (https://pubs.acs.org/doi/full/10.1021/acs.jctc.2c00585),
+and it may be straightforward to add these, but none are not currently
+supported .
+
 Langevin-Hoover from Quigley and Probert "Langevin dynamics in constant
 pressure extended systems", J. Chem. Phys 120 11432 (2004).
 https://doi.org/10.1063/1.1755657
@@ -37,7 +42,7 @@ P_mass: float, optional
     is not > 0.
 P_mass_factor: float, default 1.0
     factor to multiply heuristic P_mass
-hydrostatic: bool, default True
+hydrostatic: bool, default False
     allow only hydrostaic strain.
 initial_nsteps: int, default 0
     initial nsteps to set (for sensible output in continuations)
@@ -45,7 +50,7 @@ initial_nsteps: int, default 0
     additional ase.md.md.MolecularDynamics kwargs
 """
 
-import logging
+import warnings
 
 import numpy as np
 from scipy.linalg import expm
@@ -68,7 +73,7 @@ class LangevinBAOAB(MolecularDynamics):
         P_mass=None,
         P_mass_factor=None,
         rng=None,
-        hydrostatic=True,
+        hydrostatic=False,
         initial_nsteps=0,
         **kwargs,
     ):
@@ -93,7 +98,7 @@ class LangevinBAOAB(MolecularDynamics):
                 )
         self.T_tau = T_tau
 
-        self.hydrostatic = True
+        self.hydrostatic = None
         if self.externalstress is not None:
             self.hydrostatic = hydrostatic
 
@@ -106,7 +111,7 @@ class LangevinBAOAB(MolecularDynamics):
                 # external stress must be scalar
                 if s != (1,):
                     raise ValueError(
-                        'externalstress must be scalar, '
+                        'externalstress must be scalar when hydrostatic, '
                         f"got '{self.externalstress}' with shape "
                         f'{self.externalstress.shape}'
                     )
@@ -132,13 +137,13 @@ class LangevinBAOAB(MolecularDynamics):
             if P_tau is None:
                 if self.T_tau is not None:
                     P_tau = 20.0 * self.T_tau
-                    logging.warning(
+                    warnings.warn(
                         'Got externalstress but missing P_tau, got '
                         f'T_tau, defaulting to 20 * T_tau = {P_tau}'
                     )
                 else:
                     P_tau = 1000.0 * self.dt
-                    logging.warning(
+                    warnings.warn(
                         'Got externalstress but missing P_tau and '
                         f'T_tau, defaulting to 1000 * timestep = {P_tau}'
                     )
@@ -150,10 +155,17 @@ class LangevinBAOAB(MolecularDynamics):
 
         if self.externalstress is not None:
             self.p_eps = 0.0
-            # a little unclear if 3 need to be subtracted (due to conservation
-            # of center of mass), or if Langevin, which jiggles CoM, makes that
-            # incorrect
-            self.Ndof = len(self.atoms) * 3.0  # - 3.0
+            # Hope that ASE get_number_of_degrees_of_freedom gives correct value.
+            # It's not, for example, completely obvious what should be
+            # done about the 3 overall translation DOFs, since conventional
+            # Langevin does not actually preserve those (i.e. violates
+            # conservation of momentum). See, e.g.,
+            #     https://doi.org/10.1063/5.0286750
+            # for discussion of variants, e.g. DPD pairwise-force thermostat
+            if len(self.atoms.constraints()) != 0:
+                warnings.warn("WARNING: LangevinBAOAB has not been "
+                              "tested with constraints")
+            self.Ndof = self.atoms.get_number_of_degrees_of_freedom()
 
         self.set_temperature(temperature_K, from_init=True)
 
@@ -205,7 +217,7 @@ class LangevinBAOAB(MolecularDynamics):
             ) ** 2
             self.barostat_mass_use *= self.P_mass_factor
             if from_init:
-                logging.warning(
+                warnings.warn(
                     'Using heuristic P_mass '
                     f'{self.barostat_mass_use} '
                     f'from P_tau {self.P_tau}'
