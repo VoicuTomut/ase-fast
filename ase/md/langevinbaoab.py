@@ -101,11 +101,14 @@ class LangevinBAOAB(MolecularDynamics):
             # run constant T, need rng and T_tau
             if self.rng is None:
                 raise RuntimeError(
-                    f"Fixed temperature requires `rng`, got '{rng}'"
+                    "Fixed temperature requires `rng` for Langevin, "
+                    f"got '{rng}'"
                 )
             if T_tau is None:
-                raise RuntimeError(
-                    f"Fixed temperature requires `T_tau`, got '{T_tau}'"
+                T_tau = 50.0 * self.dt
+                warnings.warn(
+                    'Got `temperature_K` but missing `T_tau`, '
+                    f'defaulting to 50 * `timstep` = {T_tau}'
                 )
         self.T_tau = T_tau
         if self.T_tau is not None and self.T_tau <= 0:
@@ -151,14 +154,14 @@ class LangevinBAOAB(MolecularDynamics):
                 if self.T_tau is not None:
                     P_tau = 20.0 * self.T_tau
                     warnings.warn(
-                        'Got externalstress but missing P_tau, got '
-                        f'T_tau, defaulting to 20 * T_tau = {P_tau}'
+                        'Got `externalstresse but missing `P_tau`, got '
+                        f'`T_tau`, defaulting to 20 * `T_tau` = {P_tau}'
                     )
                 else:
                     P_tau = 1000.0 * self.dt
                     warnings.warn(
-                        'Got externalstress but missing P_tau and '
-                        f'T_tau, defaulting to 1000 * timestep = {P_tau}'
+                        'Got `externalstress` but missing `P_taue and '
+                        f'`T_tau`, defaulting to 1000 * `timestep` = {P_tau}'
                     )
         self.P_tau = P_tau
         if self.P_tau is not None and self.P_tau <= 0:
@@ -207,20 +210,20 @@ class LangevinBAOAB(MolecularDynamics):
                 # C = 1.6630957858612323 fs
                 # P_mass = ((tau / C) * N**(1/6)) ** 2
                 #
-                # note that constant here may be very system (bulk modulus?) dependent
+                # note that constant here may be very system (bulk modulus?)
+                # dependent
                 if not self.P_tau > 0:
-                    raise ValueError('Heuristic used for P_mass requires P_tau > 0')
+                    raise ValueError('Heuristic used for P_mass requires '
+                                     'P_tau > 0')
                 C = 1.66 * units.fs
                 self.barostat_mass_use = (
                     ((self.P_tau / 4.0) / C) * (len(self.atoms) ** (1.0 / 6.0))
                 ) ** 2
+                warnings.warn(
+                    'Using heuristic P_mass {self.barostat_mass_use} '
+                    f'from P_tau {self.P_tau}'
+                )
                 self.barostat_mass_use *= self.P_mass_factor
-                if from_init:
-                    warnings.warn(
-                        'Using heuristic P_mass '
-                        f'{self.barostat_mass_use} '
-                        f'from P_tau {self.P_tau}'
-                    )
             else:
                 self.barostat_mass_use = self.P_mass
 
