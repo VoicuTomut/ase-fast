@@ -3,6 +3,16 @@
 Equilibrating an MD box of acetonitrile
 =======================================
 
+.. note::
+
+  We are currently moving to a new way to display our examples.
+  For this example we have an updated version, which you 
+  can find :ref:`here <acn_md_tutorial>`.
+  The example on this page is deprecated and will be removed 
+  once all examples have been moved to 
+  the new format.
+
+
 In this tutorial we see how to perform a thermal equilibration of an MD
 box of classical acetonitrile molecules using the Langevin module and 
 the implementation of an acetonitrile force field in ASE.  
