@@ -28,8 +28,8 @@ class OptimizableFilter(Optimizable):
     def set_x(self, x):
         self.filterobj.set_positions(x.reshape(-1, 3))
 
-    def get_minus_gradient(self):
-        return self.filterobj.get_forces().ravel()
+    def get_gradient(self):
+        return -self.filterobj.get_forces().ravel()
 
     @cached_property
     def _use_force_consistent_energy(self):

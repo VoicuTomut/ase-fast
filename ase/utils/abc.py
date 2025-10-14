@@ -21,6 +21,9 @@ class Optimizable(ABC):
         """Set flat ndarray as current coordinates."""
 
     @abstractmethod
+    def get_gradient(self):
+        ...
+
     def get_minus_gradient(self) -> np.ndarray:
         """Return gradient at current coordinates as flat ndarray.
 
@@ -31,6 +34,7 @@ class Optimizable(ABC):
         # We can probably weed out most such reshapings.
         # Grep for the above expression in order to find places that should
         # be updated.
+        return -self.get_gradient()
 
     @abstractmethod
     def get_value(self) -> float:
