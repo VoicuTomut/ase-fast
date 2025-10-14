@@ -123,8 +123,7 @@ class LBFGS(Optimizer):
         Use the given forces, update the history and calculate the next step --
         then take it"""
 
-        forces = self._get_gradient(forces)
-
+        forces = self._get_minus_gradient(forces)
         pos = self.optimizable.get_x()
         self.update(pos, forces, self.r0, self.f0)
 
@@ -230,7 +229,7 @@ class LBFGS(Optimizer):
         self.optimizable.set_x(x)
         self.force_calls += 1
         # Remember that forces are minus the gradient!
-        return -self.optimizable.get_gradient()
+        return -self.optimizable.get_minus_gradient()
 
     def line_search(self, r, g, e):
         p_size = np.sqrt((self.p**2).sum())

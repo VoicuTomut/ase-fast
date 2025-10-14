@@ -32,7 +32,8 @@ class BoothFunctionOptimizable(Optimizable):
         a, b = self.ab(*self.xy)
         return a * a + b * b
 
-    def get_gradient(self):
+    def get_minus_gradient(self):
+        x, y = self.xy
         a, b = self.ab(*self.xy)
         # XXX negative gradient
         return -np.array([2 * a + 4 * b, 4 * a + 2 * b])

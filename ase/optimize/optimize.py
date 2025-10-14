@@ -34,7 +34,7 @@ class OptimizableAtoms(Optimizable):
     def set_x(self, x):
         self.atoms.set_positions(x.reshape(-1, 3))
 
-    def get_gradient(self):
+    def get_minus_gradient(self):
         return self.atoms.get_forces().ravel()
 
     @cached_property
@@ -176,13 +176,13 @@ class BaseDynamics(IOContext):
         with self._opentraj() as traj:
             return len(traj) == 0
 
-    def _get_gradient(self, forces=None):
+    def _get_minus_gradient(self, forces=None):
         if forces is not None:
             warnings.warn('Please do not pass forces to step().  '
                           'This argument will be removed in '
                           'ase 3.28.0.')
             return forces.ravel()
-        return self.optimizable.get_gradient()
+        return self.optimizable.get_minus_gradient()
 
     def get_number_of_steps(self):
         return self.nsteps
@@ -319,7 +319,7 @@ class Dynamics(BaseDynamics):
         self.max_steps = self.nsteps + steps
 
         # compute the initial step
-        gradient = self.optimizable.get_gradient()
+        gradient = self.optimizable.get_minus_gradient()
 
         # log the initial step
         if self.nsteps == 0:
@@ -334,7 +334,7 @@ class Dynamics(BaseDynamics):
                 self.call_observers()
 
         # check convergence
-        gradient = self.optimizable.get_gradient()
+        gradient = self.optimizable.get_minus_gradient()
         is_converged = self.converged(gradient)
         yield is_converged
 
@@ -345,12 +345,12 @@ class Dynamics(BaseDynamics):
             self.nsteps += 1
 
             # log the step
-            gradient = self.optimizable.get_gradient()
+            gradient = self.optimizable.get_minus_gradient()
             self.log(gradient)
             self.call_observers()
 
             # check convergence
-            gradient = self.optimizable.get_gradient()
+            gradient = self.optimizable.get_minus_gradient()
             is_converged = self.converged(gradient)
             yield is_converged
 

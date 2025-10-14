@@ -250,9 +250,8 @@ class GPMin(Optimizer, GaussianProcess):
         self.noise = ratio * self.kernel.weight
 
     def step(self, f=None):
-        gradient = self._get_gradient(f)
+        gradient = self._get_minus_gradient(f)
         optimizable = self.optimizable
-
         f = gradient.reshape(-1, 3)
 
         r0 = optimizable.get_x()
@@ -262,7 +261,7 @@ class GPMin(Optimizer, GaussianProcess):
         r1 = self.relax_model(r0)
         optimizable.set_x(r1)
         e1 = optimizable.get_value()
-        f1 = optimizable.get_gradient()
+        f1 = optimizable.get_minus_gradient()
         self.function_calls += 1
         self.force_calls += 1
         count = 0
@@ -272,7 +271,7 @@ class GPMin(Optimizer, GaussianProcess):
 
             optimizable.set_x(r1)
             e1 = optimizable.get_value()
-            f1 = optimizable.get_gradient()
+            f1 = optimizable.get_minus_gradient()
             self.function_calls += 1
             self.force_calls += 1
             if self.converged(f1):

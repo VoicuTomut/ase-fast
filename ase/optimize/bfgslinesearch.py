@@ -106,10 +106,9 @@ class BFGSLineSearch(Optimizer):
         self.rep_count = 0
 
     def step(self, forces=None):
-        gradient = self._get_gradient(forces)
+        gradient = self._get_minus_gradient(forces)
         optimizable = self.optimizable
 
-        gradient = optimizable.get_gradient()
         r = optimizable.get_x()
         g = -gradient / self.alpha
         p0 = self.p
@@ -180,7 +179,7 @@ class BFGSLineSearch(Optimizer):
         self.force_calls += 1
         # Remember that forces are minus the gradient!
         # Scale the problem as SciPy uses I as initial Hessian.
-        gradient = self.optimizable.get_gradient()
+        gradient = self.optimizable.get_minus_gradient()
         return -gradient / self.alpha
 
     def replay_trajectory(self, traj):

@@ -21,13 +21,13 @@ class Optimizable(ABC):
         """Set flat ndarray as current coordinates."""
 
     @abstractmethod
-    def get_gradient(self) -> np.ndarray:
+    def get_minus_gradient(self) -> np.ndarray:
         """Return gradient at current coordinates as flat ndarray.
 
         NOTE: Currently this is still the (flat) "forces" i.e.
         the negative gradient.  This must be fixed before the optimizable
         API is done."""
-        # Callers who want Nx3 will do ".get_gradient().reshape(-1, 3)".
+        # Callers who want Nx3 will do ".get_minus_gradient().reshape(-1, 3)".
         # We can probably weed out most such reshapings.
         # Grep for the above expression in order to find places that should
         # be updated.
