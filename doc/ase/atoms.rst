@@ -367,9 +367,6 @@ Other methods
 List of all Methods
 ===================
 
-.. autoclass:: ase.atoms.BaseAtoms
-
 .. autoclass:: Atoms
-   :show-inheritance:
    :inherited-members:
    :members:
