@@ -26,7 +26,12 @@ from ase.symbols import Symbols, symbols2numbers
 from ase.utils import deprecated, string2index
 
 
-class BaseAtoms:
+class _LimitedAtoms:
+    """Atoms object with limited methods and attributes.
+
+    This class is only for smooth transition from ASE3 to ASE4 and not intended
+    to be used for any other purposes by users.
+    """
     ase_objtype = 'atoms'  # For JSONability
 
     def __init__(self, symbols=None,
@@ -1734,7 +1739,7 @@ class BaseAtoms:
         gui.run()
 
 
-class Atoms(BaseAtoms):
+class Atoms(_LimitedAtoms):
     """Atoms object.
 
     The Atoms object can represent an isolated molecule, or a
