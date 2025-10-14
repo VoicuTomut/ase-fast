@@ -181,6 +181,8 @@ class Dynamics(BaseDynamics):
     This inheritance level can probably be eliminated by merging it with
     Optimizer, since by now, the only significant thing it provides
     is the implementation of irun() suitable for optimizations.
+
+    This class is an implementation detail and may change or be removed.
     """
 
     def __init__(self, atoms: Atoms, *args, **kwargs):
