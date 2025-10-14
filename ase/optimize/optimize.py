@@ -67,7 +67,6 @@ class OptimizableAtoms(Optimizable):
         return 3 * len(self.atoms)
 
 
-
 class BaseDynamics(IOContext):
     """Common superclass for optimization and MD.
 
