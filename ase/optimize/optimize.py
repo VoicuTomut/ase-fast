@@ -77,15 +77,15 @@ class BaseDynamics(IOContext):
     since Optimizers only require Optimizables.
     """
     def __init__(
-            self,
-            atoms: Atoms,
-            logfile: Optional[Union[IO, Path, str]] = None,
-            trajectory: Optional[Union[str, Path]] = None,
-            append_trajectory: bool = False,
-            master: Optional[bool] = None,
-            comm=world,
-            *,
-            loginterval: int = 1,
+        self,
+        atoms: Atoms,
+        logfile: Optional[Union[IO, Path, str]] = None,
+        trajectory: Optional[Union[str, Path]] = None,
+        append_trajectory: bool = False,
+        master: Optional[bool] = None,
+        comm=world,
+        *,
+        loginterval: int = 1,
     ):
         self.atoms = atoms
         self.logfile = self.openfile(file=logfile, comm=comm, mode='a')
