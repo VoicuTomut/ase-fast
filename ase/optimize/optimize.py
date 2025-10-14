@@ -319,7 +319,7 @@ class Dynamics(BaseDynamics):
         self.max_steps = self.nsteps + steps
 
         # compute the initial step
-        gradient = self.optimizable.get_minus_gradient()
+        gradient = self.optimizable.get_gradient()
 
         # log the initial step
         if self.nsteps == 0:
@@ -334,7 +334,7 @@ class Dynamics(BaseDynamics):
                 self.call_observers()
 
         # check convergence
-        gradient = self.optimizable.get_minus_gradient()
+        gradient = self.optimizable.get_gradient()
         is_converged = self.converged(gradient)
         yield is_converged
 
@@ -345,12 +345,12 @@ class Dynamics(BaseDynamics):
             self.nsteps += 1
 
             # log the step
-            gradient = self.optimizable.get_minus_gradient()
+            gradient = self.optimizable.get_gradient()
             self.log(gradient)
             self.call_observers()
 
             # check convergence
-            gradient = self.optimizable.get_minus_gradient()
+            gradient = self.optimizable.get_gradient()
             is_converged = self.converged(gradient)
             yield is_converged
 
