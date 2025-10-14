@@ -27,120 +27,6 @@ from ase.utils import deprecated, string2index
 
 
 class BaseAtoms:
-    """Atoms object.
-
-    The Atoms object can represent an isolated molecule, or a
-    periodically repeated structure.  It has a unit cell and
-    there may be periodic boundary conditions along any of the three
-    unit cell axes.
-    Information about the atoms (atomic numbers and position) is
-    stored in ndarrays.  Optionally, there can be information about
-    tags, momenta, masses, magnetic moments and charges.
-
-    In order to calculate energies, forces and stresses, a calculator
-    object has to attached to the atoms object.
-
-    Parameters
-    ----------
-    symbols : str | list[str] | list[Atom]
-        Chemical formula, a list of chemical symbols, or list of
-        :class:`~ase.Atom` objects (mutually exclusive with ``numbers``).
-
-        - ``'H2O'``
-        - ``'COPt12'``
-        - ``['H', 'H', 'O']``
-        - ``[Atom('Ne', (x, y, z)), ...]``
-
-    positions : list[tuple[float, float, float]]
-        Atomic positions in Cartesian coordinates
-        (mutually exclusive with ``scaled_positions``).
-        Anything that can be converted to an ndarray of shape (n, 3) works:
-        [(x0, y0, z0), (x1, y1, z1), ...].
-    scaled_positions : list[tuple[float, float, float]]
-        Atomic positions in units of the unit cell
-        (mutually exclusive with ``positions``).
-    numbers : list[int]
-        Atomic numbers (mutually exclusive with ``symbols``).
-    tags : list[int]
-        Special purpose tags.
-    momenta : list[tuple[float, float, float]]
-        Momenta for all atoms in Cartesian coordinates
-        (mutually exclusive with ``velocities``).
-    velocities : list[tuple[float, float, float]]
-        Velocities for all atoms in Cartesian coordinates
-        (mutually exclusive with ``momenta``).
-    masses : list[float]
-        Atomic masses in atomic units.
-    magmoms : list[float] | list[tuple[float, float, float]]
-        Magnetic moments.  Can be either a single value for each atom
-        for collinear calculations or three numbers for each atom for
-        non-collinear calculations.
-    charges : list[float]
-        Initial atomic charges.
-    cell : 3x3 matrix or length 3 or 6 vector, default: (0, 0, 0)
-        Unit cell vectors.  Can also be given as just three
-        numbers for orthorhombic cells, or 6 numbers, where
-        first three are lengths of unit cell vectors, and the
-        other three are angles between them (in degrees), in following order:
-        [len(a), len(b), len(c), angle(b,c), angle(a,c), angle(a,b)].
-        First vector will lie in x-direction, second in xy-plane,
-        and the third one in z-positive subspace.
-    celldisp : tuple[float, float, float], default: (0, 0, 0)
-        Unit cell displacement vector. To visualize a displaced cell
-        around the center of mass of a Systems of atoms.
-    pbc : bool | tuple[bool, bool, bool], default: False
-        Periodic boundary conditions flags.
-
-        - ``True``
-        - ``False``
-        - ``0``
-        - ``1``
-        - ``(1, 1, 0)``
-        - ``(True, False, False)``
-
-    constraint : constraint object(s)
-        One or more ASE constraints applied during structure optimization.
-    info : dict | None, default: None
-        Dictionary with additional information about the system.
-        The following keys may be used by ASE:
-
-        - spacegroup: :class:`~ase.spacegroup.Spacegroup` instance
-        - unit_cell: 'conventional' | 'primitive' | int | 3 ints
-        - adsorbate_info: Information about special adsorption sites
-
-        Items in the info attribute survives copy and slicing and can
-        be stored in and retrieved from trajectory files given that the
-        key is a string, the value is JSON-compatible and, if the value is a
-        user-defined object, its base class is importable.  One should
-        not make any assumptions about the existence of keys.
-
-    Examples
-    --------
-    >>> from ase import Atom
-
-    N2 molecule (These three are equivalent):
-
-    >>> d = 1.104  # N2 bondlength
-    >>> a = Atoms('N2', [(0, 0, 0), (0, 0, d)])
-    >>> a = Atoms(numbers=[7, 7], positions=[(0, 0, 0), (0, 0, d)])
-    >>> a = Atoms([Atom('N', (0, 0, 0)), Atom('N', (0, 0, d))])
-
-    FCC gold:
-
-    >>> a = 4.05  # Gold lattice constant
-    >>> b = a / 2
-    >>> fcc = Atoms('Au',
-    ...             cell=[(0, b, b), (b, 0, b), (b, b, 0)],
-    ...             pbc=True)
-
-    Hydrogen wire:
-
-    >>> d = 0.9  # H-H distance
-    >>> h = Atoms('H', positions=[(0, 0, 0)],
-    ...           cell=(d, 0, 0),
-    ...           pbc=(1, 0, 0))
-    """
-
     ase_objtype = 'atoms'  # For JSONability
 
     def __init__(self, symbols=None,
@@ -1849,13 +1735,120 @@ class BaseAtoms:
 
 
 class Atoms(BaseAtoms):
-    """Atoms object with calculators and related methods.
+    """Atoms object.
+
+    The Atoms object can represent an isolated molecule, or a
+    periodically repeated structure.  It has a unit cell and
+    there may be periodic boundary conditions along any of the three
+    unit cell axes.
+    Information about the atoms (atomic numbers and position) is
+    stored in ndarrays.  Optionally, there can be information about
+    tags, momenta, masses, magnetic moments and charges.
+
+    In order to calculate energies, forces and stresses, a calculator
+    object has to attached to the atoms object.
 
     Parameters
     ----------
+    symbols : str | list[str] | list[Atom]
+        Chemical formula, a list of chemical symbols, or list of
+        :class:`~ase.Atom` objects (mutually exclusive with ``numbers``).
+
+        - ``'H2O'``
+        - ``'COPt12'``
+        - ``['H', 'H', 'O']``
+        - ``[Atom('Ne', (x, y, z)), ...]``
+
+    positions : list[tuple[float, float, float]]
+        Atomic positions in Cartesian coordinates
+        (mutually exclusive with ``scaled_positions``).
+        Anything that can be converted to an ndarray of shape (n, 3) works:
+        [(x0, y0, z0), (x1, y1, z1), ...].
+    scaled_positions : list[tuple[float, float, float]]
+        Atomic positions in units of the unit cell
+        (mutually exclusive with ``positions``).
+    numbers : list[int]
+        Atomic numbers (mutually exclusive with ``symbols``).
+    tags : list[int]
+        Special purpose tags.
+    momenta : list[tuple[float, float, float]]
+        Momenta for all atoms in Cartesian coordinates
+        (mutually exclusive with ``velocities``).
+    velocities : list[tuple[float, float, float]]
+        Velocities for all atoms in Cartesian coordinates
+        (mutually exclusive with ``momenta``).
+    masses : list[float]
+        Atomic masses in atomic units.
+    magmoms : list[float] | list[tuple[float, float, float]]
+        Magnetic moments.  Can be either a single value for each atom
+        for collinear calculations or three numbers for each atom for
+        non-collinear calculations.
+    charges : list[float]
+        Initial atomic charges.
+    cell : 3x3 matrix or length 3 or 6 vector, default: (0, 0, 0)
+        Unit cell vectors.  Can also be given as just three
+        numbers for orthorhombic cells, or 6 numbers, where
+        first three are lengths of unit cell vectors, and the
+        other three are angles between them (in degrees), in following order:
+        [len(a), len(b), len(c), angle(b,c), angle(a,c), angle(a,b)].
+        First vector will lie in x-direction, second in xy-plane,
+        and the third one in z-positive subspace.
+    celldisp : tuple[float, float, float], default: (0, 0, 0)
+        Unit cell displacement vector. To visualize a displaced cell
+        around the center of mass of a Systems of atoms.
+    pbc : bool | tuple[bool, bool, bool], default: False
+        Periodic boundary conditions flags.
+
+        - ``True``
+        - ``False``
+        - ``0``
+        - ``1``
+        - ``(1, 1, 0)``
+        - ``(True, False, False)``
+
+    constraint : constraint object(s)
+        One or more ASE constraints applied during structure optimization.
     calculator : :class:`~ase.calculators.calculator.BaseCalculator`
         ASE calculator to obtain energies and atomic forces.
+    info : dict | None, default: None
+        Dictionary with additional information about the system.
+        The following keys may be used by ASE:
 
+        - spacegroup: :class:`~ase.spacegroup.Spacegroup` instance
+        - unit_cell: 'conventional' | 'primitive' | int | 3 ints
+        - adsorbate_info: Information about special adsorption sites
+
+        Items in the info attribute survives copy and slicing and can
+        be stored in and retrieved from trajectory files given that the
+        key is a string, the value is JSON-compatible and, if the value is a
+        user-defined object, its base class is importable.  One should
+        not make any assumptions about the existence of keys.
+
+    Examples
+    --------
+    >>> from ase import Atom
+
+    N2 molecule (These three are equivalent):
+
+    >>> d = 1.104  # N2 bondlength
+    >>> a = Atoms('N2', [(0, 0, 0), (0, 0, d)])
+    >>> a = Atoms(numbers=[7, 7], positions=[(0, 0, 0), (0, 0, d)])
+    >>> a = Atoms([Atom('N', (0, 0, 0)), Atom('N', (0, 0, d))])
+
+    FCC gold:
+
+    >>> a = 4.05  # Gold lattice constant
+    >>> b = a / 2
+    >>> fcc = Atoms('Au',
+    ...             cell=[(0, b, b), (b, 0, b), (b, b, 0)],
+    ...             pbc=True)
+
+    Hydrogen wire:
+
+    >>> d = 0.9  # H-H distance
+    >>> h = Atoms('H', positions=[(0, 0, 0)],
+    ...           cell=(d, 0, 0),
+    ...           pbc=(1, 0, 0))
     """
     def __init__(self, symbols=None, *args, calculator=None, **kwargs) -> None:
         super().__init__(symbols, *args, **kwargs)
