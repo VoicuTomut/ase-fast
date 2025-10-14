@@ -91,7 +91,7 @@ class SciPyOptimizer(Optimizer):
 
         # Remember that forces are minus the gradient!
         # Scale the problem as SciPy uses I as initial Hessian.
-        return -self.optimizable.get_minus_gradient() / self.H0
+        return self.optimizable.get_gradient() / self.H0
 
     def callback(self, x):
         """Callback function to be run after each iteration by SciPy
@@ -106,7 +106,7 @@ class SciPyOptimizer(Optimizer):
         """
         if self.nsteps < self.max_steps:
             self.nsteps += 1
-        gradient = self.optimizable.get_minus_gradient()
+        gradient = self.optimizable.get_gradient()
         self.log(gradient)
         self.call_observers()
         if self.converged(gradient):
@@ -118,7 +118,7 @@ class SciPyOptimizer(Optimizer):
         try:
             # As SciPy does not log the zeroth iteration, we do that manually
             if self.nsteps == 0:
-                gradient = self.optimizable.get_minus_gradient()
+                gradient = self.optimizable.get_gradient()
                 self.log(gradient)
                 self.call_observers()
 
@@ -128,7 +128,7 @@ class SciPyOptimizer(Optimizer):
             self.call_fmin(fmax / self.H0, steps)
         except Converged:
             pass
-        gradient = self.optimizable.get_minus_gradient()
+        gradient = self.optimizable.get_gradient()
         return self.converged(gradient)
 
     def dump(self, data):
@@ -263,7 +263,7 @@ class SciPyGradientlessOptimizer(Optimizer):
         call something similar before as well.
         """
         # We can't assume that forces are available!
-        # f = self.optimizable.get_minus_gradient().reshape(-1, 3)
+        # f = self.optimizable.get_gradient().reshape(-1, 3)
         # self.log(f)
         self.call_observers()
         # if self.converged(f):
