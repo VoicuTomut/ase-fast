@@ -105,12 +105,11 @@ class BFGSLineSearch(Optimizer):
         self.e0 = None
         self.rep_count = 0
 
-    def step(self, forces=None):
-        gradient = self._get_minus_gradient(forces)
+    def step(self, gradient=None):
         optimizable = self.optimizable
-
+        gradient = self._get_gradient(gradient)
         r = optimizable.get_x()
-        g = -gradient / self.alpha
+        g = gradient / self.alpha
         p0 = self.p
         self.update(r, g, self.r0, self.g0, p0)
         # o,v = np.linalg.eigh(self.B)
@@ -177,10 +176,9 @@ class BFGSLineSearch(Optimizer):
         """Gradient of the objective function for use of the optimizers"""
         self.optimizable.set_x(x)
         self.force_calls += 1
-        # Remember that forces are minus the gradient!
         # Scale the problem as SciPy uses I as initial Hessian.
-        gradient = self.optimizable.get_minus_gradient()
-        return -gradient / self.alpha
+        gradient = self.optimizable.get_gradient()
+        return gradient / self.alpha
 
     def replay_trajectory(self, traj):
         """Initialize hessian from old trajectory."""
