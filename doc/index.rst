@@ -198,6 +198,7 @@ Contents
     install
     gettingstarted/gettingstarted
     tutorials/tutorials
+    examples_generated/index
     ase/ase
     cmdline
     tips
@@ -211,7 +212,7 @@ Contents
 
 .. |ABACUS| image:: static/abacus.png
    :target: https://gitlab.com/1041176461/ase-abacus
-   :align: middle 
+   :align: middle
 .. |abinit| image:: static/abinit.png
    :target: ase/calculators/abinit.html
    :align: middle

@@ -159,7 +159,7 @@ class FreeElectrons(Calculator):
         return self.eigenvalues[kpt].copy()
 
     def get_fermi_level(self):
-        v = self.atoms.get_volume() / Bohr**3
+        v = self.atoms.cell.complete().volume / Bohr**3
         kF = (self.parameters.nvalence / v * 3 * np.pi**2)**(1 / 3)
         return 0.5 * kF**2 * Ha
 
