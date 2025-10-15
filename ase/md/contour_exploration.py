@@ -381,9 +381,9 @@ class ContourExploration(Dynamics):
         return potentiostat_step_size
 
     def step(self, f=None):
-        self._ignored(f)
         atoms = self._actual_atoms
-        f = atoms.get_forces()
+        if f is None:
+            f = atoms.get_forces()
 
         # get the velocity vector and old kinetic energy for momentum rescaling
         velocities = atoms.get_velocities()
