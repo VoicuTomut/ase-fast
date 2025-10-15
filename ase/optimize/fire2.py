@@ -185,6 +185,7 @@ class FIRE2(Optimizer):
 
             def old_clip_velocity(v):
                 # Original implementation of clip_velocity(), can we remove?
+                # Let's remove it in 2026 unless assertion crashes etc.
                 v = v.reshape(-1, 3)
                 v_tmp = []
                 for car_dir in range(3):
