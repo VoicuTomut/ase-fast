@@ -145,9 +145,8 @@ class FIRE2(Optimizer):
         self.v, self.dt = self.load()
 
     def step(self, f=None):
-        self._ignored(f)
+        gradient = self._get_gradient(f)
         optimizable = self.optimizable
-        gradient = optimizable.get_gradient()
 
         if self.v is None:
             self.v = np.zeros(optimizable.ndofs())

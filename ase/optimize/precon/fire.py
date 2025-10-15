@@ -74,9 +74,9 @@ class PreconFIRE(Optimizer):
         self.v, self.dt = self.load()
 
     def step(self, f=None):
-        self._ignored(f)
         atoms = self._actual_atoms
-        f = atoms.get_forces()
+        if f is None:
+            f = atoms.get_forces()
         r = atoms.get_positions()
 
         if self.precon is not None:

@@ -109,10 +109,12 @@ class BaseDynamics(IOContext):
 
         self.trajectory = trajectory
 
-    def _ignored(self, forces):
+    def _get_gradient(self, forces=None):
         if forces is not None:
             warnings.warn('The forces argument in step(...) is ignored '
                           'and forces are (currently) recalculated.')
+            return forces.ravel()
+        return self.optimizable.get_gradient()
 
     def get_number_of_steps(self):
         return self.nsteps
@@ -387,6 +389,11 @@ class Optimizer(Dynamics):
         else:
             self.read()
             self.comm.barrier()
+
+    def _gradient(self, gradient=None):
+        if gradient is None:
+            gradient = self.optimizable.get_gradient()
+        return gradient
 
     def read(self):
         raise NotImplementedError

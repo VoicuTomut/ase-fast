@@ -205,9 +205,9 @@ class PreconLBFGS(Optimizer):
 
         Use the given forces, update the history and calculate the next step --
         then take it"""
-        self._ignored(f)
         r = self._actual_atoms.get_positions()
-        f = self._actual_atoms.get_forces()
+        if f is None:
+            f = self._actual_atoms.get_forces()
 
         previously_reset_hessian = self._just_reset_hessian
         self.update(r, f, self.r0, self.f0)

@@ -123,9 +123,8 @@ class LBFGS(Optimizer):
         Use the given forces, update the history and calculate the next step --
         then take it"""
 
-        self._ignored(forces)
+        forces = self._get_gradient(forces)
 
-        forces = self.optimizable.get_gradient()
         pos = self.optimizable.get_x()
         self.update(pos, forces, self.r0, self.f0)
 
