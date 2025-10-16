@@ -111,8 +111,9 @@ class BaseDynamics(IOContext):
 
     def _get_gradient(self, forces=None):
         if forces is not None:
-            warnings.warn('The forces argument in step(...) is ignored '
-                          'and forces are (currently) recalculated.')
+            warnings.warn('Please do not pass forces to step().  '
+                          'This argument will be removed in '
+                          'ase 3.28.0.')
             return forces.ravel()
         return self.optimizable.get_gradient()
 
