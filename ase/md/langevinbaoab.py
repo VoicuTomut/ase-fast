@@ -92,8 +92,11 @@ class LangevinBAOAB(MolecularDynamics):
 
         self._set_externalstress_hydrostatic(externalstress, hydrostatic)
         self.disable_cell_langevin = disable_cell_langevin
-        self.rng = (rng if isinstance(rng, np.random.Generator)
-                        else np.random.default_rng(rng))
+        self.rng = (
+            rng
+            if isinstance(rng, np.random.Generator)
+            else np.random.default_rng(rng)
+        )
 
         if temperature_K is not None:
             # run constant T, need rng and T_tau
@@ -192,9 +195,7 @@ class LangevinBAOAB(MolecularDynamics):
             elif stress_shape == (3,):
                 externalstress = np.diag(externalstress)
             elif stress_shape == (6,):
-                externalstress = voigt_6_to_full_3x3_stress(
-                    externalstress
-                )
+                externalstress = voigt_6_to_full_3x3_stress(externalstress)
             elif stress_shape != (3, 3):
                 raise ValueError(
                     'externalstress must be scalar, 3-vector (diagonal), '
@@ -266,9 +267,7 @@ class LangevinBAOAB(MolecularDynamics):
             # note that constant here may be very system (bulk modulus?)
             # dependent
             if not self.P_tau > 0:
-                raise ValueError(
-                    'Heuristic used for P_mass requires P_tau > 0'
-                )
+                raise ValueError('Heuristic used for P_mass requires P_tau > 0')
             C = 1.66 * units.fs
             barostat_mass = (
                 ((self.P_tau / 4.0) / C) * (len(self.atoms) ** (1.0 / 6.0))

@@ -1,4 +1,3 @@
-
 import numpy as np
 import pytest
 import scipy
@@ -47,6 +46,7 @@ def atoms():
 ####################################################################################################
 # NVT - atoms move, fixed cell
 
+
 def test_LangevinBAOAB_NVT(tmp_path, atoms, calc):
     atoms.calc = calc
     rng = np.random.default_rng(seed=5)
@@ -70,6 +70,7 @@ def test_LangevinBAOAB_NVT(tmp_path, atoms, calc):
 
 ####################################################################################################
 # NPT - atoms move, cell changes volume but not shape
+
 
 def test_LangevinBAOAB_NPT(tmp_path, atoms, calc):
     atoms.calc = calc
@@ -106,6 +107,7 @@ def test_LangevinBAOAB_NPT(tmp_path, atoms, calc):
     assert np.all(np.abs(traj[0].cell * ratio - traj[-1].cell) < 1e-6), (
         'cell shape changed'
     )
+
 
 ####################################################################################################
 # NsT - atoms move, cell changes volume and shape
@@ -155,8 +157,8 @@ def test_LangevinBAOAB_NsH(tmp_path, atoms, calc):
     # log barostat quantities in atoms object so conservation of enthalpy can
     # be checked
     def log_barostat():
-        atoms.info["p_eps"] = dyn.p_eps
-        atoms.info["barostat_mass"] = dyn.barostat_mass
+        atoms.info['p_eps'] = dyn.p_eps
+        atoms.info['barostat_mass'] = dyn.barostat_mass
 
     externalstress_GPa = 0.0
     MaxwellBoltzmannDistribution(atoms, temperature_K=300, rng=rng)
@@ -174,23 +176,31 @@ def test_LangevinBAOAB_NsH(tmp_path, atoms, calc):
     dyn.run(n_steps * 3)
     traj = ase.io.read(tmp_path / 'test.traj', ':')
 
-    E = np.asarray([atoms.get_potential_energy() + atoms.get_kinetic_energy()
-                    for atoms in traj])
+    E = np.asarray(
+        [
+            atoms.get_potential_energy() + atoms.get_kinetic_energy()
+            for atoms in traj
+        ]
+    )
 
     P = -externalstress_GPa * u_GPa
     V = np.asarray([atoms.get_volume() for atoms in traj])
 
-    d_p_eps = [np.asarray(atoms.info.get("p_eps", 0.0)) for atoms in traj]
-    d_p_eps = [p_eps.reshape((int(np.sqrt(p_eps.size)),
-                              int(np.sqrt(p_eps.size)))) for p_eps in d_p_eps]
-    barostat_mass = traj[-1].info["barostat_mass"]
-    KE_cell = np.asarray([np.trace(p_eps @ p_eps.T) / (barostat_mass * 2)
-                          for p_eps in d_p_eps])
+    d_p_eps = [np.asarray(atoms.info.get('p_eps', 0.0)) for atoms in traj]
+    d_p_eps = [
+        p_eps.reshape((int(np.sqrt(p_eps.size)), int(np.sqrt(p_eps.size))))
+        for p_eps in d_p_eps
+    ]
+    barostat_mass = traj[-1].info['barostat_mass']
+    KE_cell = np.asarray(
+        [np.trace(p_eps @ p_eps.T) / (barostat_mass * 2) for p_eps in d_p_eps]
+    )
 
     H = E + P * V + KE_cell
 
-    assert np.max(E) - np.min(E) > 3.0 * (np.max(H) - np.min(H)), \
-            "enthalpy is not conserved much better than energy"
+    assert np.max(E) - np.min(E) > 3.0 * (np.max(H) - np.min(H)), (
+        'enthalpy is not conserved much better than energy'
+    )
 
     # atoms and cell changed
     assert np.any(
