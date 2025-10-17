@@ -1,65 +1,3 @@
-"""Time integrator using Langevin for positions and Langevin-Hoover
-(variable volume, fixed cell shape only) for cell with BAOAB time propagation
-
-BAOAB algorithm from Leimkuhler and Matthews "Robust and efficient
-configurational molecular sampling via Langevin dynamics",
-J. Chem. Phys. 138 174102 (2013).
-https://doi.org/10.1063/1.4802990
-
-There is some evidence that other time integration schemes, e.g. BAOA,
-may be better (https://pubs.acs.org/doi/full/10.1021/acs.jctc.2c00585),
-and it may be straightforward to add these, but none are not currently
-supported .
-
-Langevin-Hoover from Quigley and Probert "Langevin dynamics in constant
-pressure extended systems", J. Chem. Phys 120 11432 (2004).
-https://doi.org/10.1063/1.1755657
-
-Parameters
-----------
-atoms: Atoms
-    Atoms object for dynamics.
-timestep: float
-    Timestep (ASE native units) for time propagation.
-temperature_K: float, optional
-    Constant temperature to apply, in K. Enables constant temperature
-    dynamics with NVT or NPT, otherwise dynamics are NVE or NPH
-    (depending on `externalstress`).
-externalstress: float, ndarray(3), narray(6), narray((3, 3)), optional
-    Constant stress to apply, in ASE native units. Enables variable cell
-    dynamics with constant NPH or NPT (depending on `temperature_K`).
-    Note that stress is negative of pressure, so _negative_ values lead to
-    compression. Note also that barostat will keep mean stress _including
-    kinetic (i.e. ideal gas) contribution_ equal to this value.  Only scalars
-    are allowed if `hydrostatic` is True.
-hydrostatic: bool, default False
-    Allow only hydrostaic strain (i.e. preserve cell _shape_ but allow overall
-    scaling of volume).
-T_tau: float, optional
-    Time constant for position degree of freedom Langevin. Defaults to 50 *
-    `timestep` if not specified.
-P_tau: float, optional
-    Time constant for variable cell dynamics (cell fluctuation period
-    used to set P_mass heuristic for NPH, and both flucutation period and
-    Langevin timescale for NPT). Defaults to 20 * `T_tau` if T_tau is provided,
-    otherwise 1000 * `timestep`.
-P_mass: float, optional
-    Mass used for variable cell dynamics. Default is a heuristic value that aims
-    for fluctuation period of `P_tau / 4`.
-P_mass_factor: float, default 1.0
-    Factor to multiply heuristic `P_mass`.
-disable_cell_langevin: bool, default False
-    Turn off Langevin thermalization of cell DOF even if `temperature_K` is
-    not `None`.  Variable cell will still be done if `externalstress` is not
-    `None`, in which case cell equilibration will rely on interaction between
-    cell and position DOFs.
-rng: np.random.Generator or argument to np.random.default_rng, default None
-    Random number generator to use for Langevin random force, required if
-    Langevin is enabled, or integer to be used as seed for new Generator.
-**kwargs: dict
-    Additional ase.md.md.MolecularDynamics kwargs.
-"""
-
 import warnings
 
 import numpy as np
@@ -71,6 +9,68 @@ from ase.stress import voigt_6_to_full_3x3_stress
 
 
 class LangevinBAOAB(MolecularDynamics):
+    """Time integrator using Langevin for positions and Langevin-Hoover
+    (variable volume, fixed cell shape only) for cell with BAOAB time propagation
+
+    BAOAB algorithm from Leimkuhler and Matthews "Robust and efficient
+    configurational molecular sampling via Langevin dynamics",
+    J. Chem. Phys. 138 174102 (2013).
+    https://doi.org/10.1063/1.4802990
+
+    There is some evidence that other time integration schemes, e.g. BAOA,
+    may be better (https://pubs.acs.org/doi/full/10.1021/acs.jctc.2c00585),
+    and it may be straightforward to add these, but none are not currently
+    supported .
+
+    Langevin-Hoover from Quigley and Probert "Langevin dynamics in constant
+    pressure extended systems", J. Chem. Phys 120 11432 (2004).
+    https://doi.org/10.1063/1.1755657
+
+    Parameters
+    ----------
+    atoms: Atoms
+        Atoms object for dynamics.
+    timestep: float
+        Timestep (ASE native units) for time propagation.
+    temperature_K: float, optional
+        Constant temperature to apply, in K. Enables constant temperature
+        dynamics with NVT or NPT, otherwise dynamics are NVE or NPH
+        (depending on `externalstress`).
+    externalstress: float, ndarray(3), narray(6), narray((3, 3)), optional
+        Constant stress to apply, in ASE native units. Enables variable cell
+        dynamics with constant NPH or NPT (depending on `temperature_K`).
+        Note that stress is negative of pressure, so _negative_ values lead to
+        compression. Note also that barostat will keep mean stress _including
+        kinetic (i.e. ideal gas) contribution_ equal to this value.  Only scalars
+        are allowed if `hydrostatic` is True.
+    hydrostatic: bool, default False
+        Allow only hydrostaic strain (i.e. preserve cell _shape_ but allow overall
+        scaling of volume).
+    T_tau: float, optional
+        Time constant for position degree of freedom Langevin. Defaults to 50 *
+        `timestep` if not specified.
+    P_tau: float, optional
+        Time constant for variable cell dynamics (cell fluctuation period
+        used to set P_mass heuristic for NPH, and both flucutation period and
+        Langevin timescale for NPT). Defaults to 20 * `T_tau` if T_tau is provided,
+        otherwise 1000 * `timestep`.
+    P_mass: float, optional
+        Mass used for variable cell dynamics. Default is a heuristic value that aims
+        for fluctuation period of `P_tau / 4`.
+    P_mass_factor: float, default 1.0
+        Factor to multiply heuristic `P_mass`.
+    disable_cell_langevin: bool, default False
+        Turn off Langevin thermalization of cell DOF even if `temperature_K` is
+        not `None`.  Variable cell will still be done if `externalstress` is not
+        `None`, in which case cell equilibration will rely on interaction between
+        cell and position DOFs.
+    rng: np.random.Generator or argument to np.random.default_rng, default None
+        Random number generator to use for Langevin random force, required if
+        Langevin is enabled, or integer to be used as seed for new Generator.
+    **kwargs: dict
+        Additional ase.md.md.MolecularDynamics kwargs.
+    """
+
     def __init__(
         self,
         atoms,
