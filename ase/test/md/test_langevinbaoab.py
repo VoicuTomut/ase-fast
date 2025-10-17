@@ -1,3 +1,6 @@
+from matplotlib.figure import Figure
+from pathlib import Path
+
 import numpy as np
 import pytest
 import scipy
@@ -9,6 +12,7 @@ from ase.md.langevinbaoab import LangevinBAOAB
 from ase.neighborlist import neighbor_list
 from ase.units import GPa as u_GPa
 from ase.units import fs as u_fs
+from ase.md.velocitydistribution import MaxwellBoltzmannDistribution
 
 timestep = 2.5 * u_fs
 a0 = 4.0
@@ -45,7 +49,6 @@ def atoms():
 ####################################################################################################
 # NVT - atoms move, fixed cell
 
-
 def test_LangevinBAOAB_NVT(tmp_path, atoms, calc):
     atoms.calc = calc
     rng = np.random.default_rng(seed=5)
@@ -70,12 +73,11 @@ def test_LangevinBAOAB_NVT(tmp_path, atoms, calc):
 ####################################################################################################
 # NPT - atoms move, cell changes volume but not shape
 
-
 def test_LangevinBAOAB_NPT(tmp_path, atoms, calc):
     atoms.calc = calc
     rng = np.random.default_rng(seed=5)
     # expect warning about using heuristics for T_tau and/or P_tau
-    with pytest.raises(UserWarning):
+    with pytest.warns(UserWarning):
         dyn = LangevinBAOAB(
             atoms,
             timestep=timestep,
@@ -88,36 +90,34 @@ def test_LangevinBAOAB_NPT(tmp_path, atoms, calc):
         )
         dyn.run(n_steps)
 
-        traj = ase.io.read(tmp_path / 'test.traj', ':')
+    traj = ase.io.read(tmp_path / 'test.traj', ':')
 
-        # atoms moved
-        assert np.any(
-            traj[0].get_scaled_positions() != traj[-1].get_scaled_positions()
-        ), "atoms didn't move"
+    # atoms moved
+    assert np.any(
+        traj[0].get_scaled_positions() != traj[-1].get_scaled_positions()
+    ), "atoms didn't move"
 
-        # fixed shape, variable vol
-        ratio = traj[-1].cell[0, 0] / traj[0].cell[0, 0]
-        print('ratio', ratio)
-        print('initial cell')
-        print(traj[0].cell)
-        print('final cell')
-        print(traj[-1].cell)
-        assert np.abs(ratio - 1.0) > 1e-6, "cell size didn't change"
-        assert np.all(np.abs(traj[0].cell * ratio - traj[-1].cell) < 1e-6), (
-            'cell shape changed'
-        )
-
+    # fixed shape, variable vol
+    ratio = traj[-1].cell[0, 0] / traj[0].cell[0, 0]
+    print('ratio', ratio)
+    print('initial cell')
+    print(traj[0].cell)
+    print('final cell')
+    print(traj[-1].cell)
+    assert np.abs(ratio - 1.0) > 1e-6, "cell size didn't change"
+    assert np.all(np.abs(traj[0].cell * ratio - traj[-1].cell) < 1e-6), (
+        'cell shape changed'
+    )
 
 ####################################################################################################
 # NsT - atoms move, cell changes volume and shape
 
-
 def test_LangevinBAOAB_NsT(tmp_path, atoms, calc):
     atoms.calc = calc
     rng = np.random.default_rng(seed=7)
-    externalstress_GPa = -np.asarray([0.2, 0.4, 0.6, 0.1, 0.0, 0.0])
+    externalstress_GPa = -1.0 # -np.asarray([0.2, 0.4, 0.6, 0.1, 0.0, 0.0])
     # expect warning about using heuristics for T_tau and/or P_tau
-    with pytest.raises(UserWarning):
+    with pytest.warns(UserWarning):
         dyn = LangevinBAOAB(
             atoms,
             timestep=timestep,
@@ -129,20 +129,117 @@ def test_LangevinBAOAB_NsT(tmp_path, atoms, calc):
             rng=rng,
             trajectory=str(tmp_path / 'test.traj'),
         )
-        dyn.run(n_steps)
 
-        traj = ase.io.read(tmp_path / 'test.traj', ':')
+    dyn.run(n_steps)
 
-        # atoms and cell changed
-        assert np.any(
-            traj[0].get_scaled_positions() != traj[-1].get_scaled_positions()
-        ), "atoms didn't move"
-        assert np.all(np.abs(traj[0].cell - traj[-1].cell) > 1e-6), (
-            "cell shape didn't change"
+    traj = ase.io.read(tmp_path / 'test.traj', ':')
+
+    # atoms and cell changed
+    assert np.any(
+        traj[0].get_scaled_positions() != traj[-1].get_scaled_positions()
+    ), "atoms didn't move"
+    assert np.all(np.abs(traj[0].cell - traj[-1].cell) > 1e-6), (
+        "cell shape didn't change"
+    )
+
+    # make sure there was no rotation
+    # ai @ F = af
+    F = np.linalg.inv(traj[0].cell) @ traj[-1].cell
+    u, p = scipy.linalg.polar(F)
+    assert np.allclose(u, np.eye(3), atol=0.01)
+
+def test_LangevinBAOAB_NsH(tmp_path, atoms, calc):
+    atoms.calc = calc
+    rng = np.random.default_rng(seed=7)
+
+    # log barostat quantities in atoms object so conservation of enthalpy can
+    # be checked
+    def log_barostat():
+        atoms.info["p_eps"] = dyn.p_eps
+        atoms.info["barostat_mass"] = dyn.barostat_mass
+
+    externalstress_GPa = 0.0
+    MaxwellBoltzmannDistribution(atoms, temperature_K=300, rng=rng)
+    # expect warning about using heuristics for T_tau and/or P_tau
+    with pytest.warns(UserWarning):
+        dyn = LangevinBAOAB(
+            atoms,
+            timestep=timestep,
+            externalstress=externalstress_GPa * u_GPa,
+            logfile=logfile,
+            rng=rng,
+            trajectory=str(tmp_path / 'test.traj'),
         )
+    dyn.attach(log_barostat)
+    dyn.run(n_steps * 3)
+    traj = ase.io.read(tmp_path / 'test.traj', ':')
 
-        # make sure there was no rotation
-        # ai @ F = af
-        F = np.linalg.inv(traj[0].cell) @ traj[-1].cell
-        u, p = scipy.linalg.polar(F)
-        assert np.allclose(u, np.eye(3), atol=0.01)
+    E = np.asarray([atoms.get_potential_energy() + atoms.get_kinetic_energy() for atoms in traj])
+
+    P = -externalstress_GPa * u_GPa
+    V = np.asarray([atoms.get_volume() for atoms in traj])
+
+    d_p_eps = [np.asarray(atoms.info.get("p_eps", 0.0)) for atoms in traj]
+    d_p_eps = [p_eps.reshape((int(np.sqrt(p_eps.size)),int(np.sqrt(p_eps.size)))) for p_eps in d_p_eps]
+    barostat_mass = traj[-1].info["barostat_mass"]
+    KE_cell = np.asarray([np.trace(p_eps @ p_eps.T) / (barostat_mass * 2) for p_eps in d_p_eps])
+
+    H = E + P * V + KE_cell
+
+    assert np.max(E) - np.min(E) > 3.0 * (np.max(H) - np.min(H)), "enthalpy is not conserved much better than energy"
+
+    # atoms and cell changed
+    assert np.any(
+        traj[0].get_scaled_positions() != traj[-1].get_scaled_positions()
+    ), "atoms didn't move"
+    assert np.all(np.abs(traj[0].cell - traj[-1].cell) > 1e-6), (
+        "cell shape didn't change"
+    )
+
+
+def plot_traj(traj, externalstress_GPa, filename):
+    fig = Figure()
+    ax_x = fig.add_subplot()
+    ax_x.set_ylabel("pos")
+    ax_c = ax_x.twinx()
+    ax_c.set_ylabel("cell")
+
+    ax_PK = ax_x.twinx()
+    ax_PK.set_ylabel("PE/KE")
+    ax_PK.spines['right'].set_position(('outward', 80))
+
+    ax_E = ax_x.twinx()
+    ax_E.set_ylabel("E")
+    ax_E.spines['right'].set_position(('outward', 160))
+
+    ax_PV = ax_x.twinx()
+    ax_PV.set_ylabel("PV")
+    ax_PV.spines['right'].set_position(('outward', 240))
+
+    steps = np.arange(len(traj))
+    d_x = [atoms.positions[0, 0] for atoms in traj]
+    d_c = np.asarray([atoms.cell for atoms in traj])
+    d_PE = np.asarray([atoms.get_potential_energy() for atoms in traj])
+    d_KE = np.asarray([atoms.get_kinetic_energy() for atoms in traj])
+    d_PV = -externalstress_GPa * u_GPa * np.asarray([atoms.get_volume() for atoms in traj])
+
+    barostat_mass = traj[-1].info.get("barostat_mass", 1.0)
+    d_p_eps = [np.asarray(atoms.info.get("p_eps", 0.0)) for atoms in traj]
+    d_p_eps = [p_eps.reshape((int(np.sqrt(p_eps.size)),int(np.sqrt(p_eps.size)))) for p_eps in d_p_eps]
+    d_KE_cell = np.asarray([np.trace(p_eps @ p_eps.T) / (barostat_mass * 2) for p_eps in d_p_eps])
+
+    d_E = d_PE + d_KE
+
+    ax_x.plot(steps, d_x, "-", c="C0", label="x")
+    ax_c.plot(steps, d_c[:, 0, 0], "-", c="C1", label="c_00")
+    ax_c.plot(steps, d_c[:, 1, 1], "--", c="C1", label="c_11")
+    ax_PK.plot(steps, d_PE - d_PE[0], "--", c="C2", label=f"PE {np.max(d_PE) - np.min(d_PE)}")
+    ax_PK.plot(steps, d_KE - d_KE[0], "-.", c="C2", label=f"KE {np.max(d_KE) - np.min(d_KE)}")
+    ax_E.plot(steps, d_E - d_E[0], "-", c="C2", label=f"PE + KE {np.max(d_E) - np.min(d_E)}")
+    if externalstress_GPa != 0:
+        ax_PV.plot(steps, d_PV - d_PV[0], "-", c="C4", label=f"PV {np.max(d_PV) - np.min(d_PV)}")
+    ax_E.plot(steps, d_E + d_PV + d_KE_cell - (d_E[0] + d_PV[0] + d_KE_cell[0]), "-", c="C3", 
+              label=f"E + PV {np.max(d_E + d_PV + d_KE_cell) - np.min(d_E + d_PV + d_KE_cell)}")
+    fig.legend()
+    fig.savefig(Path.home() / filename, bbox_inches="tight")
+

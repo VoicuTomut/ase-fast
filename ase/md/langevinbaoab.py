@@ -88,7 +88,7 @@ class LangevinBAOAB(MolecularDynamics):
         rng=None,
         **kwargs,
     ):
-        MolecularDynamics.__init__(self, atoms, timestep, **kwargs)
+        super().__init__(atoms, timestep, **kwargs)
 
         self._set_externalstress_hydrostatic(externalstress, hydrostatic)
         self.disable_cell_langevin = disable_cell_langevin
@@ -134,7 +134,7 @@ class LangevinBAOAB(MolecularDynamics):
             # violates conservation of momentum). See, e.g.,
             #     https://doi.org/10.1063/5.0286750
             # for discussion of variants, e.g. DPD pairwise-force thermostat
-            if len(self.atoms.constraints()) != 0:
+            if len(self.atoms.constraints) != 0:
                 warnings.warn(
                     'WARNING: LangevinBAOAB has not been '
                     'tested with constraints'
@@ -399,7 +399,7 @@ class LangevinBAOAB(MolecularDynamics):
             additional contribution to effective gamma used for drag on
             velocities, e.g. from Langevin-Hoover
         """
-        if self.gamma == 0 and drag_gamma_mod == 0:
+        if self.gamma == 0 and np.all(drag_gamma_mod == 0):
             return
 
         vel = self.atoms.get_velocities()
