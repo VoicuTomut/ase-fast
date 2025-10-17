@@ -10,7 +10,8 @@ from ase.stress import voigt_6_to_full_3x3_stress
 
 class LangevinBAOAB(MolecularDynamics):
     """Time integrator using Langevin for positions and Langevin-Hoover
-    (variable volume, fixed cell shape only) for cell with BAOAB time propagation
+    (variable volume, fixed cell shape only) for cell with BAOAB time
+    propagation
 
     BAOAB algorithm from Leimkuhler and Matthews "Robust and efficient
     configurational molecular sampling via Langevin dynamics",
@@ -41,29 +42,29 @@ class LangevinBAOAB(MolecularDynamics):
         dynamics with constant NPH or NPT (depending on `temperature_K`).
         Note that stress is negative of pressure, so _negative_ values lead to
         compression. Note also that barostat will keep mean stress _including
-        kinetic (i.e. ideal gas) contribution_ equal to this value.  Only scalars
-        are allowed if `hydrostatic` is True.
+        kinetic (i.e. ideal gas) contribution_ equal to this value.  Only
+        scalars are allowed if `hydrostatic` is True.
     hydrostatic: bool, default False
-        Allow only hydrostaic strain (i.e. preserve cell _shape_ but allow overall
-        scaling of volume).
+        Allow only hydrostaic strain (i.e. preserve cell _shape_ but allow
+        overall scaling of volume).
     T_tau: float, optional
         Time constant for position degree of freedom Langevin. Defaults to 50 *
         `timestep` if not specified.
     P_tau: float, optional
         Time constant for variable cell dynamics (cell fluctuation period
         used to set P_mass heuristic for NPH, and both flucutation period and
-        Langevin timescale for NPT). Defaults to 20 * `T_tau` if T_tau is provided,
-        otherwise 1000 * `timestep`.
+        Langevin timescale for NPT). Defaults to 20 * `T_tau` if T_tau is
+        provided, otherwise 1000 * `timestep`.
     P_mass: float, optional
-        Mass used for variable cell dynamics. Default is a heuristic value that aims
-        for fluctuation period of `P_tau / 4`.
+        Mass used for variable cell dynamics. Default is a heuristic value that
+        aims for fluctuation period of `P_tau / 4`.
     P_mass_factor: float, default 1.0
         Factor to multiply heuristic `P_mass`.
     disable_cell_langevin: bool, default False
         Turn off Langevin thermalization of cell DOF even if `temperature_K` is
         not `None`.  Variable cell will still be done if `externalstress` is not
-        `None`, in which case cell equilibration will rely on interaction between
-        cell and position DOFs.
+        `None`, in which case cell equilibration will rely on interaction
+        between cell and position DOFs.
     rng: np.random.Generator or argument to np.random.default_rng, default None
         Random number generator to use for Langevin random force, required if
         Langevin is enabled, or integer to be used as seed for new Generator.
@@ -142,7 +143,7 @@ class LangevinBAOAB(MolecularDynamics):
 
             self._set_barostat_mass(P_mass, P_mass_factor)
 
-        # must call _after_ var cell quantities are set, because actual 
+        # must call _after_ var cell quantities are set, because actual
         # parameters used in dynamics depend on temperature, so this function
         # needs to know P_tau, etc
         self.set_temperature(temperature_K, from_init=True)
@@ -429,7 +430,8 @@ class LangevinBAOAB(MolecularDynamics):
     def _barostat_BAOAB_OU(self):
         """Do a barostat BAOAB Ornstein-Uhlenbeck cell volume Langevin full
         step"""
-        if self.barostat_gamma == 0: # i.e. temperature_K is None or disable_cell_langevin
+        if self.barostat_gamma == 0:
+            # i.e. temperature_K is None or disable_cell_langevin
             return
 
         self.p_eps *= np.exp(-self.barostat_gamma * self.dt)
