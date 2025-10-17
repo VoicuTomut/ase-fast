@@ -152,7 +152,6 @@ class LangevinBAOAB(MolecularDynamics):
         if self.externalstress is not None:
             self._update_force_eps()
 
-
     def _set_externalstress_hydrostatic(self, externalstress, hydrostatic):
         """Set self.externalstress of correct shape and self.hydrostatic
 
@@ -204,7 +203,6 @@ class LangevinBAOAB(MolecularDynamics):
                 )
         self.externalstress = externalstress
 
-
     def _set_P_tau(self, P_tau):
         """Set self.P_tau from value, or default based on self.T_tau or self.dt
 
@@ -227,7 +225,6 @@ class LangevinBAOAB(MolecularDynamics):
                     f'`T_tau`, defaulting to 1000 * `timestep` = {P_tau}'
                 )
         self.P_tau = P_tau
-
 
     def _set_barostat_mass(self, P_mass, P_mass_factor):
         """Set self.barostat_mass based on P_mass and P_mass_factor, as well as
@@ -285,7 +282,6 @@ class LangevinBAOAB(MolecularDynamics):
 
         self.barostat_mass = barostat_mass
 
-
     def set_temperature(self, temperature_K, from_init=False):
         """Set the internal parameters that depend on temperature
 
@@ -296,10 +292,11 @@ class LangevinBAOAB(MolecularDynamics):
         """
         self.temperature_K = temperature_K
 
+        # default to thermostats (for positions and cell DOFs) disabled
+        self.gamma = 0.0
+        self.barostat_gamma = 0.0
+
         if self.temperature_K is None:
-            # disable thermostat
-            self.gamma = 0.0
-            self.barostat_gamma = 0.0
             return
 
         ############################################################
@@ -432,7 +429,7 @@ class LangevinBAOAB(MolecularDynamics):
     def _barostat_BAOAB_OU(self):
         """Do a barostat BAOAB Ornstein-Uhlenbeck cell volume Langevin full
         step"""
-        if self.barostat_gamma == 0:
+        if self.barostat_gamma == 0: # i.e. temperature_K is None or disable_cell_langevin
             return
 
         self.p_eps *= np.exp(-self.barostat_gamma * self.dt)
