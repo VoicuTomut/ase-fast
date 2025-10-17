@@ -1,5 +1,3 @@
-from matplotlib.figure import Figure
-from pathlib import Path
 
 import numpy as np
 import pytest
@@ -9,10 +7,10 @@ import ase.io
 from ase.atoms import Atoms
 from ase.calculators.morse import MorsePotential
 from ase.md.langevinbaoab import LangevinBAOAB
+from ase.md.velocitydistribution import MaxwellBoltzmannDistribution
 from ase.neighborlist import neighbor_list
 from ase.units import GPa as u_GPa
 from ase.units import fs as u_fs
-from ase.md.velocitydistribution import MaxwellBoltzmannDistribution
 
 timestep = 2.5 * u_fs
 a0 = 4.0
@@ -112,10 +110,11 @@ def test_LangevinBAOAB_NPT(tmp_path, atoms, calc):
 ####################################################################################################
 # NsT - atoms move, cell changes volume and shape
 
+
 def test_LangevinBAOAB_NsT(tmp_path, atoms, calc):
     atoms.calc = calc
     rng = np.random.default_rng(seed=7)
-    externalstress_GPa = -1.0 # -np.asarray([0.2, 0.4, 0.6, 0.1, 0.0, 0.0])
+    externalstress_GPa = -1.0  # -np.asarray([0.2, 0.4, 0.6, 0.1, 0.0, 0.0])
     # expect warning about using heuristics for T_tau and/or P_tau
     with pytest.warns(UserWarning):
         dyn = LangevinBAOAB(
@@ -148,6 +147,7 @@ def test_LangevinBAOAB_NsT(tmp_path, atoms, calc):
     u, p = scipy.linalg.polar(F)
     assert np.allclose(u, np.eye(3), atol=0.01)
 
+
 def test_LangevinBAOAB_NsH(tmp_path, atoms, calc):
     atoms.calc = calc
     rng = np.random.default_rng(seed=7)
@@ -174,19 +174,23 @@ def test_LangevinBAOAB_NsH(tmp_path, atoms, calc):
     dyn.run(n_steps * 3)
     traj = ase.io.read(tmp_path / 'test.traj', ':')
 
-    E = np.asarray([atoms.get_potential_energy() + atoms.get_kinetic_energy() for atoms in traj])
+    E = np.asarray([atoms.get_potential_energy() + atoms.get_kinetic_energy()
+                    for atoms in traj])
 
     P = -externalstress_GPa * u_GPa
     V = np.asarray([atoms.get_volume() for atoms in traj])
 
     d_p_eps = [np.asarray(atoms.info.get("p_eps", 0.0)) for atoms in traj]
-    d_p_eps = [p_eps.reshape((int(np.sqrt(p_eps.size)),int(np.sqrt(p_eps.size)))) for p_eps in d_p_eps]
+    d_p_eps = [p_eps.reshape((int(np.sqrt(p_eps.size)),
+                              int(np.sqrt(p_eps.size)))) for p_eps in d_p_eps]
     barostat_mass = traj[-1].info["barostat_mass"]
-    KE_cell = np.asarray([np.trace(p_eps @ p_eps.T) / (barostat_mass * 2) for p_eps in d_p_eps])
+    KE_cell = np.asarray([np.trace(p_eps @ p_eps.T) / (barostat_mass * 2)
+                          for p_eps in d_p_eps])
 
     H = E + P * V + KE_cell
 
-    assert np.max(E) - np.min(E) > 3.0 * (np.max(H) - np.min(H)), "enthalpy is not conserved much better than energy"
+    assert np.max(E) - np.min(E) > 3.0 * (np.max(H) - np.min(H)), \
+            "enthalpy is not conserved much better than energy"
 
     # atoms and cell changed
     assert np.any(
