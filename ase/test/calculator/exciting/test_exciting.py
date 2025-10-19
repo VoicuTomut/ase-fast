@@ -2,6 +2,7 @@
 """Test file for exciting ASE calculator."""
 
 import xml.etree.ElementTree as ET
+from unittest.mock import patch
 
 import numpy as np
 import pytest
@@ -18,9 +19,9 @@ import ase.calculators.exciting.runner
 # vectors in a cartesian basis set.
 
 LDA_VWN_AR_INFO_OUT = """
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-+ Starting initialization                                                      +
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++ Starting initialization                                                     +
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
  Lattice vectors (cartesian) :
      10.3360193975     10.3426010725      0.0054547264
@@ -90,13 +91,13 @@ LDA_VWN_AR_INFO_OUT = """
 
  Using multisecant Broyden potential mixing
 
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-+ Ending initialization                                                        +
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++ Ending initialization                                                       +
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-+ SCF iteration number :    1                                                  +
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++ SCF iteration number :    1                                                 +
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  Total energy                               :      -527.82493279
  _______________________________________________________________
  Fermi energy                               :        -0.20111449
@@ -130,10 +131,10 @@ LDA_VWN_AR_INFO_OUT = """
         valence-band maximum at    1      0.0000  0.0000  0.0000
      conduction-band minimum at    1      0.0000  0.0000  0.0000
 
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-| Convergency criteria checked for the last 2 iterations                       +
-| Convergence targets achieved. Performing final SCF iteration                 +
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+| Convergency criteria checked for the last 2 iterations                      +
+| Convergence targets achieved. Performing final SCF iteration                +
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  Total energy                               :      -527.81796101
  _______________________________________________________________
  Fermi energy                               :        -0.20044598
@@ -167,33 +168,41 @@ LDA_VWN_AR_INFO_OUT = """
         valence-band maximum at    1      0.0000  0.0000  0.0000
      conduction-band minimum at    1      0.0000  0.0000  0.0000
 
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-+ Self-consistent loop stopped                                                 +
-| EXCITING NITROGEN-14 stopped                                                 =
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++ Self-consistent loop stopped                                                +
+| EXCITING NITROGEN-14 stopped                                                =
 """
 
 
 @pytest.fixture()
 def nitrogen_trioxide_atoms():
     """Pytest fixture that creates ASE Atoms cell for other tests."""
-    return ase.Atoms('NO3',
-                     cell=[[2, 2, 0], [0, 4, 0], [0, 0, 6]],
-                     scaled_positions=[(0, 0, 0), (0.25, 0.25, 0),
-                                       (0, 0, 0.75), (0.5, 0.5, 0.5)],
-                     pbc=True)
+    return ase.Atoms(
+        'NO3',
+        cell=[[2, 2, 0], [0, 4, 0], [0, 0, 6]],
+        scaled_positions=[
+            (0, 0, 0),
+            (0.25, 0.25, 0),
+            (0, 0, 0.75),
+            (0.5, 0.5, 0.5),
+        ],
+        pbc=True,
+    )
 
 
 def test_ground_state_template_init(excitingtools):
     """Test initialization of the ExcitingGroundStateTemplate class."""
     gs_template_obj = (
-        ase.calculators.exciting.exciting.ExcitingGroundStateTemplate())
+        ase.calculators.exciting.exciting.ExcitingGroundStateTemplate()
+    )
     assert gs_template_obj.name == 'exciting'
     assert len(gs_template_obj.implemented_properties) == 2
     assert 'energy' in gs_template_obj.implemented_properties
 
 
 def test_ground_state_template_write_input(
-        tmp_path, nitrogen_trioxide_atoms, excitingtools):
+    tmp_path, nitrogen_trioxide_atoms, excitingtools
+):
     """Test the write input method of ExcitingGroundStateTemplate.
 
     We test is by writing a ground state calculation and a bandstructure
@@ -208,6 +217,7 @@ def test_ground_state_template_write_input(
     from excitingtools.input.bandstructure import (
         band_structure_input_from_ase_atoms_obj,
     )
+
     expected_path = tmp_path / 'input.xml'
     # Expected number of points in the bandstructure.
     expected_number_of_special_points = 12
@@ -215,9 +225,11 @@ def test_ground_state_template_write_input(
     binary_path = tmp_path / 'exciting_binary'
 
     gs_template_obj = (
-        ase.calculators.exciting.exciting.ExcitingGroundStateTemplate())
+        ase.calculators.exciting.exciting.ExcitingGroundStateTemplate()
+    )
     exciting_profile = ase.calculators.exciting.exciting.ExcitingProfile(
-        command=str(binary_path))
+        command=str(binary_path)
+    )
     gs_template_obj.write_input(
         profile=exciting_profile,
         directory=tmp_path,
@@ -228,12 +240,17 @@ def test_ground_state_template_write_input(
             'ground_state_input': {
                 'rgkmax': 8.0,
                 'do': 'fromscratch',
-                "ngridk": [6, 6, 6],
+                'ngridk': [6, 6, 6],
                 'xctype': 'GGA_PBE_SOL',
-                'vkloff': [0, 0, 0]},
+                'vkloff': [0, 0, 0],
+            },
             'properties_input': {
                 'bandstructure': band_structure_input_from_ase_atoms_obj(
-                    nitrogen_trioxide_atoms, steps=bandstructure_steps)}})
+                    nitrogen_trioxide_atoms, steps=bandstructure_steps
+                )
+            },
+        },
+    )
     # Let's assert the file we just wrote exists.
     assert expected_path.exists()
     # Let's assert it's what we expect.
@@ -243,11 +260,15 @@ def test_ground_state_template_write_input(
     # the ASE Atoms object like species data but this is tested already in
     # test/io/exciting/test_exciting.py.
     coords_list = element_tree.findall('./structure/species/atom')
-    positions = np.array([[float(x)
-                           for x in coords_list[i].get('coord').split()]
-                          for i in range(len(coords_list))])
+    positions = np.array(
+        [
+            [float(x) for x in coords_list[i].get('coord').split()]
+            for i in range(len(coords_list))
+        ]
+    )
     assert positions == pytest.approx(
-        nitrogen_trioxide_atoms.get_scaled_positions())
+        nitrogen_trioxide_atoms.get_scaled_positions()
+    )
 
     # Ensure that the exciting calculator properites (e.g. functional type have
     # been set).
@@ -256,8 +277,9 @@ def test_ground_state_template_write_input(
     assert element_tree.getroot()[2].attrib['xctype'] == 'GGA_PBE_SOL'
     assert element_tree.getroot()[2].attrib['rgkmax'] == '8.0'
     # Ensure the bandstructure path is correct:
-    band_path = element_tree.findall(
-        './properties/bandstructure/plot1d/path')[0]
+    band_path = element_tree.findall('./properties/bandstructure/plot1d/path')[
+        0
+    ]
     assert band_path.tag == 'path'
     assert int(band_path.get('steps')) == bandstructure_steps
     assert len(list(band_path)) == expected_number_of_special_points
@@ -269,15 +291,20 @@ def test_ground_state_template_read_results(tmp_path, excitingtools):
     # we copy an example exciting INFO.out file into the global variable
     # LDA_VWN_AR_INFO_OUT.
     output_file_path = tmp_path / 'info.xml'
-    with open(output_file_path, "w", encoding="utf8") as xml_file:
+    with open(output_file_path, 'w', encoding='utf8') as xml_file:
         xml_file.write(LDA_VWN_AR_INFO_OUT)
 
     gs_template_obj = (
-        ase.calculators.exciting.exciting.ExcitingGroundStateTemplate())
-    results = gs_template_obj.read_results(tmp_path)
-    final_scl_iteration = list(results["scl"].keys())[-1]
-    assert pytest.approx(float(results["scl"][
-        final_scl_iteration]["Hartree energy"])) == 205.65454603
+        ase.calculators.exciting.exciting.ExcitingGroundStateTemplate()
+    )
+    results_dict = gs_template_obj.read_results(tmp_path)
+    final_scl_iteration = list(results_dict['scl'].keys())[-1]
+    assert (
+        pytest.approx(
+            float(results_dict['scl'][final_scl_iteration]['Hartree energy'])
+        )
+        == 205.65454603
+    )
 
 
 def test_get_total_energy_and_bandgap(excitingtools):
@@ -286,21 +313,19 @@ def test_get_total_energy_and_bandgap(excitingtools):
     # and only contains values for the total energy and bandgap.
     results_dict = {
         'scl': {
-            '1':
-                {
-                    'Total energy': '-240.3',
-                    'Estimated fundamental gap': 2.0,
-                },
-            '2':
-                {
-                    'Total energy': '-242.3',
-                    'Estimated fundamental gap': 3.1,
-                }
+            '1': {
+                'Total energy': '-240.3',
+                'Estimated fundamental gap': 2.0,
+            },
+            '2': {
+                'Total energy': '-242.3',
+                'Estimated fundamental gap': 3.1,
+            },
         }
-
     }
     results_obj = ase.calculators.exciting.exciting.ExcitingGroundStateResults(
-        results_dict)
+        results_dict
+    )
     assert pytest.approx(results_obj.total_energy()) == -242.3
     assert pytest.approx(results_obj.band_gap()) == 3.1
 
@@ -308,13 +333,72 @@ def test_get_total_energy_and_bandgap(excitingtools):
 def test_ground_state_calculator_init(tmpdir, excitingtools):
     """Test initiliazation of the ExcitingGroundStateCalculator"""
     ground_state_input_dict = {
-        "rgkmax": 8.0,
-        "do": "fromscratch",
-        "ngridk": [6, 6, 6],
-        "xctype": "GGA_PBE_SOL",
-        "vkloff": [0, 0, 0]}
+        'rgkmax': 8.0,
+        'do': 'fromscratch',
+        'ngridk': [6, 6, 6],
+        'xctype': 'GGA_PBE_SOL',
+        'vkloff': [0, 0, 0],
+    }
     calc_obj = ase.calculators.exciting.exciting.ExcitingGroundStateCalculator(
         runner=ase.calculators.exciting.runner.SimpleBinaryRunner(
-            "exciting_serial", ['./'], 1, tmpdir, ['']),
-        ground_state_input=ground_state_input_dict, directory=tmpdir)
-    assert calc_obj.parameters["ground_state_input"]["rgkmax"] == 8.0
+            'exciting_serial', ['./'], 1, tmpdir, ['']
+        ),
+        ground_state_input=ground_state_input_dict,
+        directory=tmpdir,
+    )
+    assert calc_obj.parameters['ground_state_input']['rgkmax'] == 8.0
+
+
+def test_calculate(tmpdir, excitingtools, nitrogen_trioxide_atoms):
+    """Test that the base class calculate method works for this calculator."""
+    ground_state_input_dict = {
+        'rgkmax': 8.0,
+        'do': 'fromscratch',
+        'ngridk': [6, 6, 6],
+        'xctype': 'GGA_PBE_SOL',
+        'vkloff': [0, 0, 0],
+    }
+    # Create an exciting binary runner, we will patch the run method of this
+    # object so a command is not run by subprocess run.
+    calc_runner = ase.calculators.exciting.runner.SimpleBinaryRunner(
+        binary='./',
+        run_argv=[''],
+        omp_num_threads=1,
+        directory=tmpdir,
+        args=[''],
+    )
+    # We will not run a DFT calculation but we still want to create
+    # an INFO.OUT file though.
+    output_file_path = tmpdir / 'info.xml'
+    with open(output_file_path, 'w', encoding='utf8') as xml_file:
+        xml_file.write(LDA_VWN_AR_INFO_OUT)
+
+    with patch.object(calc_runner, 'run', return_value=None):
+        calc_obj = (
+            ase.calculators.exciting.exciting.ExcitingGroundStateCalculator(
+                runner=calc_runner,
+                ground_state_input=ground_state_input_dict,
+                directory=tmpdir,
+            )
+        )
+        calc_obj.calculate(
+            atoms=nitrogen_trioxide_atoms, properties=None, system_changes=None
+        )
+
+        results_obj = (
+            ase.calculators.exciting.exciting.ExcitingGroundStateResults(
+                calc_obj.results
+            )
+        )
+
+        assert (
+            float(
+                calc_obj.results['scl'][results_obj.final_scl_iteration][
+                    'valence'
+                ]
+            )
+            == 8.0
+        )
+
+        assert pytest.approx(results_obj.band_gap()) == 0.36095838
+        assert pytest.approx(results_obj.total_energy()) == -527.81796101
