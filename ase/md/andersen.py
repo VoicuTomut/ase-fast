@@ -46,7 +46,8 @@ class Andersen(MolecularDynamics):
             with the same signature as ``numpy.random.random``.
 
         **kwargs : dict, optional
-            Additional arguments passed to :class:~ase.md.md.MolecularDynamics
+            Additional arguments passed to
+            :class:`~ase.md.md.MolecularDynamics`
             base class.
 
         The temperature is imposed by stochastic collisions with a heat bath

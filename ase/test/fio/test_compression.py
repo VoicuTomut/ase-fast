@@ -3,7 +3,6 @@
 Read and write on compressed files.
 """
 
-import os
 import os.path
 
 import numpy as np

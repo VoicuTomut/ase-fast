@@ -1,4 +1,4 @@
-""".. _introduction:
+""".. _introductionexample:
 
 ASE Introduction: Nitrogen on copper
 ====================================

@@ -67,9 +67,15 @@ class OptimizableAtoms(Optimizable):
         return 3 * len(self.atoms)
 
 
-class Dynamics(IOContext):
-    """Base-class for all MD and structure optimization classes."""
+class BaseDynamics(IOContext):
+    """Common superclass for optimization and MD.
 
+    This class implements logfile, trajectory, and observer handling.
+    It should do as little as possible other than that.
+
+    We should try to remove the "atoms" parameter from this class,
+    since Optimizers only require Optimizables.
+    """
     def __init__(
         self,
         atoms: Atoms,
@@ -81,39 +87,7 @@ class Dynamics(IOContext):
         *,
         loginterval: int = 1,
     ):
-        """Dynamics object.
-
-        Parameters
-        ----------
-        atoms : Atoms object
-            The Atoms object to operate on.
-
-        logfile : file object, Path, or str
-            If *logfile* is a string, a file with that name will be opened.
-            Use '-' for stdout.
-
-        trajectory : Trajectory object, str, or Path
-            Attach a trajectory object. If *trajectory* is a string/Path, a
-            Trajectory will be constructed. Use *None* for no trajectory.
-
-        append_trajectory : bool
-            Defaults to False, which causes the trajectory file to be
-            overwriten each time the dynamics is restarted from scratch.
-            If True, the new structures are appended to the trajectory
-            file instead.
-
-        master : bool
-            Defaults to None, which causes only rank 0 to save files. If set to
-            true, this rank will save files.
-
-        comm : Communicator object
-            Communicator to handle parallel file reading and writing.
-
-        loginterval : int, default: 1
-            Only write a log line for every *loginterval* time steps.
-        """
         self.atoms = atoms
-        self.optimizable = atoms.__ase_optimizable__()
         self.logfile = self.openfile(file=logfile, comm=comm, mode='a')
         self.observers: List[Tuple[Callable, int, Tuple, Dict[str, Any]]] = []
         self.nsteps = 0
@@ -130,13 +104,10 @@ class Dynamics(IOContext):
             self.attach(
                 trajectory,
                 interval=loginterval,
-                atoms=self.optimizable,
+                atoms=self.atoms.__ase_optimizable__(),
             )
 
         self.trajectory = trajectory
-
-    def todict(self) -> Dict[str, Any]:
-        raise NotImplementedError
 
     def get_number_of_steps(self):
         return self.nsteps
@@ -202,6 +173,56 @@ class Dynamics(IOContext):
                     call = True
             if call:
                 function(*args, **kwargs)
+
+
+class Dynamics(BaseDynamics):
+    """Historical base-class for MD and structure optimization classes.
+
+    This inheritance level can probably be eliminated by merging it with
+    Optimizer, since by now, the only significant thing it provides
+    is the implementation of irun() suitable for optimizations.
+
+    This class is an implementation detail and may change or be removed.
+    """
+
+    def __init__(self, atoms: Atoms, *args, **kwargs):
+        """Dynamics object.
+
+        Parameters
+        ----------
+        atoms : Atoms object
+            The Atoms object to operate on.
+
+        logfile : file object, Path, or str
+            If *logfile* is a string, a file with that name will be opened.
+            Use '-' for stdout.
+
+        trajectory : Trajectory object, str, or Path
+            Attach a trajectory object. If *trajectory* is a string/Path, a
+            Trajectory will be constructed. Use *None* for no trajectory.
+
+        append_trajectory : bool
+            Defaults to False, which causes the trajectory file to be
+            overwriten each time the dynamics is restarted from scratch.
+            If True, the new structures are appended to the trajectory
+            file instead.
+
+        master : bool
+            Defaults to None, which causes only rank 0 to save files. If set to
+            true, this rank will save files.
+
+        comm : Communicator object
+            Communicator to handle parallel file reading and writing.
+
+        loginterval : int, default: 1
+            Only write a log line for every *loginterval* time steps.
+        """
+        super().__init__(atoms, *args, **kwargs)
+        self.atoms = atoms
+        self.optimizable = atoms.__ase_optimizable__()
+
+    def todict(self) -> Dict[str, Any]:
+        raise NotImplementedError
 
     def irun(self, steps=DEFAULT_MAX_STEPS):
         """Run dynamics algorithm as generator.

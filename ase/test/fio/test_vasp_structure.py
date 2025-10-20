@@ -5,7 +5,6 @@ import unittest
 import numpy as np
 import pytest
 
-import ase
 import ase.build
 import ase.io
 from ase.build import graphene_nanoribbon
