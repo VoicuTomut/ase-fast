@@ -42,8 +42,8 @@ class LangevinBAOAB(MolecularDynamics):
         Constant stress to apply, in ASE native units. Enables variable cell
         dynamics with constant NPH or NPT (depending on `temperature_K`).
         Note that stress is negative of pressure, so _negative_ values lead to
-        compression. Note also that barostat will keep mean stress _including
-        kinetic (i.e. ideal gas) contribution_ equal to this value.  Only
+        compression. Note also that barostat will keep mean stress **including
+        kinetic (i.e. ideal gas) contribution** equal to this value.  Only
         scalars are allowed if `hydrostatic` is True.
     hydrostatic: bool, default False
         Allow only hydrostatic strain (i.e. preserve cell _shape_ but allow
