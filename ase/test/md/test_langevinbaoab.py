@@ -76,7 +76,9 @@ def test_LangevinBAOAB_NPT(tmp_path, atoms, calc):
     atoms.calc = calc
     rng = np.random.default_rng(seed=5)
     # expect warning about using heuristics for T_tau and/or P_tau
-    with pytest.warns(UserWarning):
+    P_tau_warning = r'Got `externalstress` but missing `P_tau`, got `T_tau`,'
+    P_mass_warning = 'Using heuristic P_mass'
+    with pytest.warns(UserWarning, match=P_tau_warning + '|' + P_mass_warning):
         dyn = LangevinBAOAB(
             atoms,
             timestep=timestep,
@@ -88,7 +90,8 @@ def test_LangevinBAOAB_NPT(tmp_path, atoms, calc):
             rng=rng,
             trajectory=str(tmp_path / 'test.traj'),
         )
-        dyn.run(n_steps)
+
+    dyn.run(n_steps)
 
     traj = ase.io.read(tmp_path / 'test.traj', ':')
 
@@ -119,7 +122,9 @@ def test_LangevinBAOAB_NsT(tmp_path, atoms, calc):
     rng = np.random.default_rng(seed=7)
     externalstress_GPa = -1.0  # -np.asarray([0.2, 0.4, 0.6, 0.1, 0.0, 0.0])
     # expect warning about using heuristics for T_tau and/or P_tau
-    with pytest.warns(UserWarning):
+    P_tau_warning = r'Got `externalstress` but missing `P_tau`, got `T_tau`,'
+    P_mass_warning = 'Using heuristic P_mass'
+    with pytest.warns(UserWarning, match=P_tau_warning + '|' + P_mass_warning):
         dyn = LangevinBAOAB(
             atoms,
             timestep=timestep,

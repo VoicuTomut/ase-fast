@@ -10,8 +10,8 @@ from ase.stress import voigt_6_to_full_3x3_stress
 
 class LangevinBAOAB(MolecularDynamics):
     """Time integrator using Langevin for positions and Langevin-Hoover
-    (variable volume, fixed cell shape only) for cell with BAOAB time
-    propagation
+    for cell (fixed cell, fixed cell shape + variable volume, or fully
+    variable cell) with BAOAB time propagation
 
     BAOAB algorithm from Leimkuhler and Matthews "Robust and efficient
     configurational molecular sampling via Langevin dynamics",
@@ -45,7 +45,7 @@ class LangevinBAOAB(MolecularDynamics):
         kinetic (i.e. ideal gas) contribution_ equal to this value.  Only
         scalars are allowed if `hydrostatic` is True.
     hydrostatic: bool, default False
-        Allow only hydrostaic strain (i.e. preserve cell _shape_ but allow
+        Allow only hydrostatic strain (i.e. preserve cell _shape_ but allow
         overall scaling of volume).
     T_tau: float, optional
         Time constant for position degree of freedom Langevin. Defaults to 50 *
@@ -59,15 +59,17 @@ class LangevinBAOAB(MolecularDynamics):
         Mass used for variable cell dynamics. Default is a heuristic value that
         aims for fluctuation period of `P_tau / 4`.
     P_mass_factor: float, default 1.0
-        Factor to multiply heuristic `P_mass`.
+        Factor to multiply heuristic `P_mass` if no user `P_mass` value is
+        explicitly provided
     disable_cell_langevin: bool, default False
         Turn off Langevin thermalization of cell DOF even if `temperature_K` is
         not `None`.  Variable cell will still be done if `externalstress` is not
         `None`, in which case cell equilibration will rely on interaction
         between cell and position DOFs.
     rng: np.random.Generator or argument to np.random.default_rng, default None
-        Random number generator to use for Langevin random force, required if
-        Langevin is enabled, or integer to be used as seed for new Generator.
+        Random number generator for Langevin forces, or integer used as seed
+        for new Generator.  If None, a random seed will be generated and
+        reported for future reproducibility of run
     **kwargs: dict
         Additional ase.md.md.MolecularDynamics kwargs.
     """
@@ -174,14 +176,13 @@ class LangevinBAOAB(MolecularDynamics):
 
         # promote to ndarray to simplify code below
         externalstress = np.asarray(externalstress)
-        if len(externalstress.shape) == 0:
+        if externalstress.shape == ():
             externalstress = externalstress.reshape((-1))
-        stress_shape = externalstress.shape
 
         # reshape to scalar (iff hydrostatic) or 3x3 matrix (general var cell)
         if self.hydrostatic:
             # external stress must be scalar
-            if stress_shape != (1,):
+            if externalstress.shape != (1,):
                 raise ValueError(
                     'externalstress must be scalar when hydrostatic, '
                     f"got '{externalstress}' with shape "
@@ -190,19 +191,23 @@ class LangevinBAOAB(MolecularDynamics):
             externalstress = externalstress[0]
         else:
             # external stress must end up as 3x3 matrix
-            if stress_shape == (1,):
-                externalstress = externalstress * np.identity(3)
-            elif stress_shape == (3,):
-                externalstress = np.diag(externalstress)
-            elif stress_shape == (6,):
-                externalstress = voigt_6_to_full_3x3_stress(externalstress)
-            elif stress_shape != (3, 3):
-                raise ValueError(
-                    'externalstress must be scalar, 3-vector (diagonal), '
-                    '6-vector (Voigt), or 3x3 matrix, '
-                    f'got "{externalstress}" with shape '
-                    f'{externalstress.shape}'
-                )
+            match externalstress.shape:
+                case (1,):
+                    externalstress = externalstress * np.identity(3)
+                case (3,):
+                    externalstress = np.diag(externalstress)
+                case (6,):
+                    externalstress = voigt_6_to_full_3x3_stress(externalstress)
+                case (3, 3):
+                    pass
+                case '_':
+                    raise ValueError(
+                        'externalstress must be scalar, 3-vector (diagonal), '
+                        '6-vector (Voigt), or 3x3 matrix, '
+                        f'got "{externalstress}" with shape '
+                        f'{externalstress.shape}'
+                    )
+
         self.externalstress = externalstress
 
     def _set_P_tau(self, P_tau):
@@ -217,7 +222,7 @@ class LangevinBAOAB(MolecularDynamics):
             if self.T_tau is not None:
                 P_tau = 20.0 * self.T_tau
                 warnings.warn(
-                    'Got `externalstresse but missing `P_tau`, got '
+                    'Got `externalstress` but missing `P_tau`, got '
                     f'`T_tau`, defaulting to 20 * `T_tau` = {P_tau}'
                 )
             else:
@@ -273,7 +278,7 @@ class LangevinBAOAB(MolecularDynamics):
                 ((self.P_tau / 4.0) / C) * (len(self.atoms) ** (1.0 / 6.0))
             ) ** 2
             warnings.warn(
-                'Using heuristic P_mass {barostat_mass} '
+                f'Using heuristic P_mass {barostat_mass} '
                 f'from P_tau {self.P_tau}'
             )
             barostat_mass *= P_mass_factor
