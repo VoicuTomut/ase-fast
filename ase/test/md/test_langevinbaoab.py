@@ -76,9 +76,11 @@ def test_LangevinBAOAB_NPT(tmp_path, atoms, calc):
     atoms.calc = calc
     rng = np.random.default_rng(seed=5)
     # expect warning about using heuristics for T_tau and/or P_tau
-    P_tau_warning = r'Got `externalstress` but missing `P_tau`, got `T_tau`,'
-    P_mass_warning = 'Using heuristic P_mass'
-    with pytest.warns(UserWarning, match=P_tau_warning + '|' + P_mass_warning):
+    warnings = [
+        r'Got `externalstress` but missing `P_tau`, got `T_tau`,',
+        r'Using heuristic P_mass',
+    ]
+    with pytest.warns(UserWarning, match='|'.join(warnings)):
         dyn = LangevinBAOAB(
             atoms,
             timestep=timestep,
@@ -122,9 +124,11 @@ def test_LangevinBAOAB_NsT(tmp_path, atoms, calc):
     rng = np.random.default_rng(seed=7)
     externalstress_GPa = -1.0  # -np.asarray([0.2, 0.4, 0.6, 0.1, 0.0, 0.0])
     # expect warning about using heuristics for T_tau and/or P_tau
-    P_tau_warning = r'Got `externalstress` but missing `P_tau`, got `T_tau`,'
-    P_mass_warning = 'Using heuristic P_mass'
-    with pytest.warns(UserWarning, match=P_tau_warning + '|' + P_mass_warning):
+    warnings = [
+        r'Got `externalstress` but missing `P_tau`, got `T_tau`,',
+        r'Using heuristic P_mass',
+    ]
+    with pytest.warns(UserWarning, match='|'.join(warnings)):
         dyn = LangevinBAOAB(
             atoms,
             timestep=timestep,
@@ -168,7 +172,11 @@ def test_LangevinBAOAB_NsH(tmp_path, atoms, calc):
     externalstress_GPa = 0.0
     MaxwellBoltzmannDistribution(atoms, temperature_K=300, rng=rng)
     # expect warning about using heuristics for T_tau and/or P_tau
-    with pytest.warns(UserWarning):
+    warnings = [
+        r'Got `externalstress` but missing `P_tau` and `T_tau`,',
+        r'Using heuristic P_mass',
+    ]
+    with pytest.warns(UserWarning, match='|'.join(warnings)):
         dyn = LangevinBAOAB(
             atoms,
             timestep=timestep,
@@ -214,3 +222,24 @@ def test_LangevinBAOAB_NsH(tmp_path, atoms, calc):
     assert np.all(np.abs(traj[0].cell - traj[-1].cell) > 1e-6), (
         "cell shape didn't change"
     )
+
+
+def test_LangevinBAOAB_seed(tmp_path, atoms, calc):
+    atoms.calc = calc
+    # expect warning about using heuristics for T_tau and/or P_tau
+    warnings = [
+        r'No rng provided, generated one with',
+        r'Got `externalstress` but missing `P_tau`, got `T_tau`,',
+        'Using heuristic P_mass',
+    ]
+    with pytest.warns(UserWarning, match='|'.join(warnings)):
+        _ = LangevinBAOAB(
+            atoms,
+            timestep=timestep,
+            temperature_K=300,
+            T_tau=50 * timestep,
+            externalstress=-1.0 * u_GPa,
+            hydrostatic=True,
+            logfile=logfile,
+            trajectory=str(tmp_path / 'test.traj'),
+        )

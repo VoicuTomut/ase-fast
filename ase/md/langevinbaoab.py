@@ -1,3 +1,4 @@
+import secrets
 import warnings
 
 import numpy as np
@@ -94,19 +95,24 @@ class LangevinBAOAB(MolecularDynamics):
 
         self._set_externalstress_hydrostatic(externalstress, hydrostatic)
         self.disable_cell_langevin = disable_cell_langevin
-        self.rng = (
-            rng
-            if isinstance(rng, np.random.Generator)
-            else np.random.default_rng(rng)
-        )
 
         if temperature_K is not None:
             # run constant T, need rng and T_tau
-            if not isinstance(self.rng, np.random.Generator):
-                raise RuntimeError(
-                    'Fixed temperature requires np.random.Generator `rng` for '
-                    f'Langevin, got "{rng}"'
+            if rng is None:
+                # procedure recommended in
+                # https://blog.scientific-python.org/numpy/numpy-rng/#random-number-generation-with-numpy
+                seed = secrets.randbits(128)
+                rng = np.random.default_rng(seed)
+                warnings.warn(
+                    f'No rng provided, generated one with seed={seed} from '
+                    'secrets.randbits',
                 )
+            elif not isinstance(rng, np.random.Generator):
+                self.rng = np.random.default_rng(rng)
+            else:
+                # already a Generator
+                self.rng = rng
+
             if T_tau is None:
                 T_tau = 50.0 * self.dt
                 warnings.warn(
@@ -228,7 +234,7 @@ class LangevinBAOAB(MolecularDynamics):
             else:
                 P_tau = 1000.0 * self.dt
                 warnings.warn(
-                    'Got `externalstress` but missing `P_tau and '
+                    'Got `externalstress` but missing `P_tau` and '
                     f'`T_tau`, defaulting to 1000 * `timestep` = {P_tau}'
                 )
         self.P_tau = P_tau
