@@ -122,7 +122,7 @@ ax.set_axis_off()
 # Now, we will make an interface with Ni(111) and water.
 # First we need a layer of water. One layer of water is constructed in the
 # following
-# script and saved in the file ``WL.traj``.
+# script and saved in the file ``water.traj``.
 
 import numpy as np
 
@@ -145,8 +145,8 @@ p = np.array(
     ]
 )
 c = np.array([[8.490373, 0.0, 0.0], [0.0, 4.901919, 0.0], [0.0, 0.0, 26.93236]])
-W = Atoms('4(OH2)', positions=p, cell=c, pbc=[1, 1, 0])
-W.write('WL.traj')
+water = Atoms('4(OH2)', positions=p, cell=c, pbc=[1, 1, 0])
+water.write('water.traj')
 
 # %%
 # With the atoms object saved as trajectory file,
@@ -154,7 +154,7 @@ W.write('WL.traj')
 
 from ase.io import read
 
-W = read('WL.traj')
+water = read('water.traj')
 
 # %%
 # Visualization
@@ -163,13 +163,13 @@ W = read('WL.traj')
 # ASE gui as show above. Here, we are using matplotlib again.
 
 fig, ax = plt.subplots()
-plot_atoms(W, ax)
+plot_atoms(water, ax)
 ax.set_axis_off()
 
 # %%
 # and let's look at the unit cell.
 
-print(W.cell)
+print(water.cell)
 
 # %%
 # Creating a Ni slab
@@ -194,27 +194,27 @@ print(slab.cell)
 # percent difference, if we rotate one of the cells 90 degrees in the plane.
 # Let's rotate the cell:
 
-W.cell = [W.cell[1, 1], W.cell[0, 0], 0.0]
+water.cell = [water.cell[1, 1], water.cell[0, 0], 0.0]
 
 fig, ax = plt.subplots()
-plot_atoms(W, ax)
+plot_atoms(water, ax)
 ax.set_axis_off()
 
 # %%
 # Let's also :meth:`~ase.Atoms.rotate` the molecules:
 
-W.rotate(90, 'z', center=(0, 0, 0))
+water.rotate(90, 'z', center=(0, 0, 0))
 
 fig, ax = plt.subplots()
-plot_atoms(W, ax)
+plot_atoms(water, ax)
 ax.set_axis_off()
 
 # %%
 # Now we can wrap the atoms into the cell
 
-W.wrap()
+water.wrap()
 fig, ax = plt.subplots()
-plot_atoms(W, ax)
+plot_atoms(water, ax)
 ax.set_axis_off()
 
 # %%
@@ -226,17 +226,17 @@ ax.set_axis_off()
 # scaled with the unit cell. The default is *scale_atoms=False* indicating that
 # the cartesian coordinates remain the same when the cell is changed.
 
-W.set_cell(slab.cell, scale_atoms=True)
-zmin = W.positions[:, 2].min()
+water.set_cell(slab.cell, scale_atoms=True)
+zmin = water.positions[:, 2].min()
 zmax = slab.positions[:, 2].max()
-W.positions += (0, 0, zmax - zmin + 1.5)
+water.positions += (0, 0, zmax - zmin + 1.5)
 
 # %%
 # Adding one Structure to the Other
 # ---------------------------------
-# Finally we use extend to copy the water onto the slab:
+# Finally we add the water onto the slab:
 
-interface = slab + W
+interface = slab + water
 interface.center(vacuum=6, axis=2)
 interface.write('NiH2O.traj')
 
