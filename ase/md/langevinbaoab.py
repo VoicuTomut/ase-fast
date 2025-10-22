@@ -37,36 +37,36 @@ class LangevinBAOAB(MolecularDynamics):
     temperature_K: float, optional
         Constant temperature to apply, in K. Enables constant temperature
         dynamics with NVT or NPT, otherwise dynamics are NVE or NPH
-        (depending on `externalstress`).
+        (depending on ``externalstress``).
     externalstress: float, ndarray(3), narray(6), narray((3, 3)), optional
         Constant stress to apply, in ASE native units. Enables variable cell
-        dynamics with constant NPH or NPT (depending on `temperature_K`).
+        dynamics with constant NPH or NPT (depending on ``temperature_K``).
         Note that stress is negative of pressure, so _negative_ values lead to
         compression. Note also that barostat will keep mean stress **including
         kinetic (i.e. ideal gas) contribution** equal to this value.  Only
-        scalars are allowed if `hydrostatic` is True.
+        scalars are allowed if ``hydrostatic`` is True.
     hydrostatic: bool, default False
         Allow only hydrostatic strain (i.e. preserve cell _shape_ but allow
         overall scaling of volume).
     T_tau: float, optional
         Time constant for position degree of freedom Langevin. Defaults to 50 *
-        `timestep` if not specified.
+        ``timestep`` if not specified.
     P_tau: float, optional
         Time constant for variable cell dynamics (cell fluctuation period
         used to set P_mass heuristic for NPH, and both flucutation period and
-        Langevin timescale for NPT). Defaults to 20 * `T_tau` if T_tau is
-        provided, otherwise 1000 * `timestep`.
+        Langevin timescale for NPT). Defaults to 20 * ``T_tau`` if T_tau is
+        provided, otherwise 1000 * ``timestep``.
     P_mass: float, optional
         Mass used for variable cell dynamics. Default is a heuristic value that
-        aims for fluctuation period of `P_tau / 4`.
+        aims for fluctuation period of ``P_tau / 4``.
     P_mass_factor: float, default 1.0
-        Factor to multiply heuristic `P_mass` if no user `P_mass` value is
+        Factor to multiply heuristic ``P_mass`` if no user ``P_mass`` value is
         explicitly provided
     disable_cell_langevin: bool, default False
-        Turn off Langevin thermalization of cell DOF even if `temperature_K` is
-        not `None`.  Variable cell will still be done if `externalstress` is not
-        `None`, in which case cell equilibration will rely on interaction
-        between cell and position DOFs.
+        Turn off Langevin thermalization of cell DOF even if ``temperature_K``
+        is not ``None``.  Variable cell will still be done if
+        ``externalstress`` is not ``None``, in which case cell equilibration
+        will rely on interaction between cell and position DOFs.
     rng: np.random.Generator or argument to np.random.default_rng, default None
         Random number generator for Langevin forces, or integer used as seed
         for new Generator.  If None, a random seed will be generated and
