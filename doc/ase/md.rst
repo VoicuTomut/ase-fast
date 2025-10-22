@@ -148,20 +148,23 @@ in temperature changes.  If external work is done on the system, the
 temperature is likely to rise significantly.
 
 
+The ``VelocityVerlet`` dynamics class implements the NVE ensemble.
+It requires two arguments, the atoms and the time step.  Choosing
+a too large time step will immediately be obvious, as the energy will
+increase with time, often very rapidly.
+
+Example: See the tutorial :ref:`md_tutorial`.
+
+It is also possible to use :class:`ase.md.langevinbaoab.LangevinBAOAB`
+by running without a target pressure or stress; this class is described
+:ref:`below <langevin-baoab-description>`.
+
 Velocity Verlet dynamics
 ------------------------
 
 .. module:: ase.md.verlet
 
 .. autoclass:: VelocityVerlet
-
-
-``VelocityVerlet`` is the only dynamics implementing the NVE ensemble.
-It requires two arguments, the atoms and the time step.  Choosing
-a too large time step will immediately be obvious, as the energy will
-increase with time, often very rapidly.
-
-Example: See the tutorial :ref:`md_tutorial`.
 
 
 Constant NVT simulations (the canonical ensemble)
@@ -219,6 +222,9 @@ Berendsen NVT dynamics
     efficient for initializing a system to the correct initial
     temperature.  *Disadvantage*: Almost completely supresses
     fluctuations in the total energy.
+
+It is also possible to use :ref:`Langevin BAOAB <langevin-baoab-description>`
+dynamics in the NVT ensemble by setting no external stress.
 
 
 Langevin dynamics
@@ -394,6 +400,18 @@ Full Martyna-Tobias-Klein (MTK) dynamics
     volume and shape of the unit cell, as proposed by Martyna, Tobias and Klein 
     (see above).
 
+.. _langevin-baoab-description:
+Langevin-Hoover BAOAB dynamics
+    An implementation of NPT dynamics combining Leimkuhler BAOAB
+    construction of Langevin algorithm with Langevin-Hoover barostat
+    of Quigley and Probert. (This class can also be used in NVE, NPH
+    or NVT ensemble depending by setting different combinations of
+    parameters.)
+
+    1) :doi:`B. Leimkuhler and C. Matthews, J. Chem. Phys. 138 174102 (2013). <https://doi.org/10.1063/1.4802990>`
+
+    2) :doi:`D. Quigley and M. I. J. Probert, J. Chem. Phys 120 11432 (2004). <https://doi.org/10.1063/1.1755657>`
+
 Melchionna NPT dynamics
     An implementation of NPT dynamics combining a Nosé-Hoover
     thermostat with a Parinello-Rahman barostat, according to
@@ -411,6 +429,7 @@ Melchionna NPT dynamics
     3) :doi:`B. L. Holian, A. J. De Groot, W. G. Hoover, and C. G. Hoover, Phys. Rev. A 41, p. 4552 (1990). <10.1103/physreva.41.4552>`
 
     4) :doi:`F. D. Di Tolla and M. Ronchetti, Phys. Rev. E 48, p. 1726 (1993). <10.1103/PhysRevE.48.1726>`
+
 
        
 Berendsen NPT dynamics
@@ -458,7 +477,8 @@ Full Martyna-Tobias-Klein (MTK) dynamics
 
 
 Langevin-Hoover BAOAB dynamics
--------------------------------------
+------------------------------
+
 .. module:: ase.md.langevinbaoab
    :no-index:
 
