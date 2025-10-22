@@ -401,6 +401,7 @@ Full Martyna-Tobias-Klein (MTK) dynamics
     (see above).
 
 .. _langevin-baoab-description:
+
 Langevin-Hoover BAOAB dynamics
     An implementation of NPT dynamics combining Leimkuhler BAOAB
     construction of Langevin algorithm with Langevin-Hoover barostat
