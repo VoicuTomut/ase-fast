@@ -457,7 +457,7 @@ Full Martyna-Tobias-Klein (MTK) dynamics
 .. autoclass:: MTKNPT
 
 
-Langevin BAOAB variable cell dynamics
+Langevin-Hoover BAOAB dynamics
 -------------------------------------
 .. module:: ase.md.langevinbaoab
    :no-index:
