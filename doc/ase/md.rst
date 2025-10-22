@@ -156,8 +156,8 @@ increase with time, often very rapidly.
 Example: See the tutorial :ref:`md_tutorial`.
 
 It is also possible to use :class:`ase.md.langevinbaoab.LangevinBAOAB`
-by running without a target pressure or stress; this class is described
-:ref:`below <langevin-baoab-description>`.
+for NVE or NPH (variable cell) by running without a target temperature;
+this class is described :ref:`below <langevin-baoab-description>`.
 
 Velocity Verlet dynamics
 ------------------------
@@ -223,9 +223,9 @@ Berendsen NVT dynamics
     temperature.  *Disadvantage*: Almost completely supresses
     fluctuations in the total energy.
 
-It is also possible to use :ref:`Langevin BAOAB <langevin-baoab-description>`
-dynamics in the NVT ensemble by setting no external stress.
-
+It is also possible to use :class:`ase.md.langevinbaoab.LangevinBAOAB`
+dynamics in the NVT ensemble by setting no external stress; this class
+is described :ref:`Langevin BAOAB <langevin-baoab-description>`
 
 Langevin dynamics
 -----------------
