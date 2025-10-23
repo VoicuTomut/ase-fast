@@ -391,11 +391,6 @@ class Optimizer(Dynamics):
             self.read()
             self.comm.barrier()
 
-    def _gradient(self, gradient=None):
-        if gradient is None:
-            gradient = self.optimizable.get_gradient()
-        return gradient
-
     def read(self):
         raise NotImplementedError
 
