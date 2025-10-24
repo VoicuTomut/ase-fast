@@ -1,4 +1,4 @@
-""" .. _python_numeric_arrays:
+""".. _python_numeric_arrays:
 
 ========================
 Numeric arrays in Python
@@ -23,6 +23,7 @@ Some examples from everyday ASE-life here ...
 """
 
 import numpy as np
+
 a = np.zeros((3, 2))
 a[:, 1] = 1.0
 a[1] = 2.0
@@ -31,9 +32,7 @@ print(a.shape)
 print(a.ndim)
 
 # %%
-#The conventions of numpy's linear algebra package:
-
-import numpy as np
+# The conventions of numpy's linear algebra package:
 
 # --- Basic array example ---
 a = np.zeros((3, 2))
@@ -71,17 +70,18 @@ print('Eigenvector check (all):', np.allclose(np.dot(H, U), eps * U))
 
 # %%
 # The rules for multiplying 1D arrays with 2D arrays:
-# 
+#
 # * 1D arrays and treated like shape (1, N) arrays (row vectors).
 # * left and right multiplications are treated identically.
 # * A length :math:`m` *row* vector can be multiplied with an :math:`n \times m`
 #   matrix, producing the same result as if replaced by a matrix with
 #   :math:`n` copies of the vector as rows.
-# * A length :math:`n` *column* vector can be multiplied with an :math:`n \times m`
+# * A length :math:`n` *column* vector can be multiplied with
+#   an :math:`n \times m`
 #   matrix, producing the same result as if replaced by a matrix with
 #   :math:`m` copies of the vector as columns.
 #
-#Thus, for the arrays below:
+# Thus, for the arrays below:
 
 # --- 1D vs 2D multiplication rules ---
 M = np.arange(5 * 6).reshape(5, 6)  # A matrix of shape (5, 6)
@@ -92,11 +92,11 @@ v16 = v6[None, :]  # Row vector (1, 6)
 
 # %%
 # The following identities hold::
-# 
+#
 #   v6 * M == v16 * M == M * v6 == M * v16 == M * v16.repeat(5, 0)
 #   v51 * M == M * v51 == M * v51.repeat(6, 1)
-# 
-# The same rules apply for adding and subtracting 1D arrays to 
+#
+# The same rules apply for adding and subtracting 1D arrays to
 # from 2D arrays.
 
 # Identities
