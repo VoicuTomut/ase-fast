@@ -31,7 +31,6 @@ guess for the atomic positions in Ångström.  For example
 
 """
 
-
 from ase import Atoms
 
 atoms = Atoms('N2', positions=[[0, 0, -1], [0, 0, 1]])
