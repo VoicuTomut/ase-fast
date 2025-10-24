@@ -57,14 +57,14 @@ generate an initial guess for rotation of a methyl group around the CC bond.
 from ase.build import molecule
 from ase.calculators.emt import EMT
 from ase.mep import NEB
-from ase.optimize.fire import FIRE as QuasiNewton
+from ase.optimize.fire import FIRE
 
 # Create the molecule.
 initial = molecule('C2H6')
 # Attach calculators
 initial.calc = EMT()
 # Relax the molecule
-relax = QuasiNewton(initial)
+relax = FIRE(initial)
 relax.run(fmax=0.05)
 
 # %%
@@ -108,9 +108,9 @@ neb = NEB(images)
 neb.interpolate()
 
 # Run NEB calculation.
-qn = QuasiNewton(neb, trajectory='ethane_linear.traj')
+qn = FIRE(neb, trajectory='ethane_linear.traj')
 qn.run(fmax=0.05)
-# You can add a logfile to the QuasiNewton optimizer by adding
+# You can add a logfile to the FIRE optimizer by adding
 # e.g. `logfile='ethane_linear.log` to save the printed output.
 
 # %%
@@ -130,7 +130,7 @@ qn.run(fmax=0.05)
 # Optimise molecule.
 initial = molecule('C2H6')
 initial.calc = EMT()
-relax = QuasiNewton(initial, logfile='opt.log')
+relax = FIRE(initial, logfile='opt.log')
 relax.run(fmax=0.05)
 
 # Create final state.
@@ -153,7 +153,7 @@ neb = NEB(images)
 neb.interpolate('idpp')
 
 # Run NEB calculation.
-qn = QuasiNewton(neb, trajectory='ethane_idpp.traj')
+qn = FIRE(neb, trajectory='ethane_idpp.traj')
 qn.run(fmax=0.05)
 
 # %%
@@ -179,7 +179,7 @@ from ase.calculators.emt import EMT
 from ase.constraints import FixAtoms
 from ase.lattice.cubic import FaceCenteredCubic
 from ase.mep import NEB
-from ase.optimize.fire import FIRE as QuasiNewton
+from ase.optimize.fire import FIRE as FIRE
 
 # Set the number of images you want.
 nimages = 5
@@ -214,12 +214,12 @@ z2 = 6.439
 # Add the adatom to the list of atoms and set constraints of surface atoms.
 slab += Atoms('N', [((x2 + x1) / 2, y1, z1 + 1.5)])
 mask = [atom.symbol == 'Pt' for atom in slab]
-slab.set_constraint(FixAtoms(mask=mask))
+FixAtoms(mask=slab.symbols == 'Pt')
 
 # Optimise the initial state: atom below step.
 initial = slab.copy()
 initial.calc = EMT()
-relax = QuasiNewton(initial, logfile='opt.log')
+relax = FIRE(initial, logfile='opt.log')
 relax.run(fmax=0.05)
 
 # %%
@@ -235,7 +235,7 @@ ax.set_axis_off()
 slab[-1].position = (x3, y2 + 1.0, z2 + 3.5)
 final = slab.copy()
 final.calc = EMT()
-relax = QuasiNewton(final, logfile='opt.log')
+relax = FIRE(final, logfile='opt.log')
 relax.run(fmax=0.05)
 
 # %%
@@ -266,7 +266,7 @@ neb = NEB(images)
 neb.interpolate('idpp')
 
 # Run NEB calculation.
-qn = QuasiNewton(neb, trajectory='N_diffusion.traj')
+qn = FIRE(neb, trajectory='N_diffusion.traj')
 qn.run(fmax=0.05)
 
 # %%
@@ -275,8 +275,8 @@ qn.run(fmax=0.05)
 #
 # To again illustrate the potential speedup, the following script
 # uses the linear interpolation.
-# This takes 24 iterations to find a transition
-# state, compared to 13 using the IDPP interpolation.
+# This takes more iterations to find a transition
+# state, compared to using the IDPP interpolation.
 # We start from the initial and final state we generated above.
 
 # Create a list of images for interpolation.
@@ -294,5 +294,5 @@ neb = NEB(images)
 neb.interpolate()
 
 # Run NEB calculation.
-qn = QuasiNewton(neb, trajectory='N_diffusion_lin.traj')
+qn = FIRE(neb, trajectory='N_diffusion_lin.traj')
 qn.run(fmax=0.05)
