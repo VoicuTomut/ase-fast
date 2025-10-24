@@ -1,5 +1,15 @@
 Introduction to ASE databases
 =============================
+
+.. note::
+
+  We are currently moving to a new way to display our examples.
+  For this example we have an updated version, which you
+  can find :ref:`here <intro_ase_db>`.
+  The example on this page is deprecated and will be removed
+  once all examples have been moved to
+  the new format.
+
 ASE has its own database format that can be used for storing and retrieving
 atoms (and associated data) in a compact and convenient way. In this exercise
 we will see how to create databases and how to interact with them through
