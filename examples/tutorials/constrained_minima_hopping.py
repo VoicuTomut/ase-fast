@@ -142,8 +142,10 @@ atoms.set_constraint([fix, bond_constraint, z_plane_constraint])
 # -------------------------------
 # We keep totalsteps small so the example runs quickly in CI.
 # Outputs:
+#
 # - hop.log: text progress
 # - minima.traj: accepted local minima
+
 mh = MinimaHopping(
     atoms,
     T0=1500.0,  # initial MD "temperature" (K)
