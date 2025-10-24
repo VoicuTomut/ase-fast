@@ -15,7 +15,7 @@ use this calculator.
 
 from os import PathLike
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any, Dict, Mapping, Optional
 
 import ase.io.exciting
 from ase.calculators.calculator import PropertyNotImplementedError
@@ -131,10 +131,9 @@ class ExcitingGroundStateTemplate(CalculatorTemplate):
         # Create a copy of the parameters dictionary so we don't
         # modify the callers dictionary.
         parameters_dict = parameters
-        assert set(parameters_dict.keys()) == {
-            'title', 'species_path', 'ground_state_input',
-            'properties_input'}, \
-            'Keys should be defined by ExcitingGroundState calculator'
+        required_keys = {
+            'title', 'species_path', 'ground_state_input'}
+        assert required_keys <= set(parameters_dict)
         file_name = Path(directory) / 'input.xml'
         species_path = parameters_dict.pop('species_path')
         title = parameters_dict.pop('title')
@@ -156,18 +155,18 @@ class ExcitingGroundStateTemplate(CalculatorTemplate):
             profile) -> SubprocessRunResults:
         """Given an exciting calculation profile, execute the calculation.
 
-        :param directory: Directory in which to execute the calculator
-            exciting_calculation: Base method `execute` expects a profile,
-            however it is simply used to execute the program, therefore we
-            just pass a SimpleBinaryRunner.
+        When executing an exciting calculation, you need to call run on an
+        exciting binary runner which is stored as the profile variable. The
+        binary runner at initialization will set all of the directory
+        information so we don't use this variable again here.
+
+        :param directory: Not used but comes from the base class.
         :param profile: This name comes from the superclass CalculatorTemplate.
-                It contains machine specific information to run the
-                calculation.
+            It should be an instance of an exciting.runner.SimpleBinaryRunner.
 
         :return: Results of the subprocess.run command.
         """
-        return profile.run(directory, f"{directory}/input.xml", None,
-                           erorrfile=self.errorname)
+        return profile.run()
 
     def read_results(self, directory: PathLike) -> Mapping[str, Any]:
         """Parse results from each ground state output file.
@@ -176,7 +175,9 @@ class ExcitingGroundStateTemplate(CalculatorTemplate):
 
         :param directory: Directory path to output file from exciting
             simulation.
-        :return: Dictionary containing important output properties.
+        :return: dictionary of results. This can be fed into
+            ExcitingGroundStateResults if the user wants to access properties
+            more easily.
         """
         results = {}
         for file_name in self.output_names:
@@ -206,7 +207,8 @@ class ExcitingGroundStateResults:
         # TODO(Alex) We should a common list of keys somewhere
         # such that parser -> results -> getters are consistent
         return float(
-            self.results['scl'][self.final_scl_iteration]['Total energy']
+            self.results['scl'][self.final_scl_iteration][
+                'Total energy']
         )
 
     def band_gap(self) -> float:
@@ -265,19 +267,23 @@ class ExcitingGroundStateCalculator(GenericFileIOCalculator):
         directory='./',
         species_path='./',
         title='ASE-generated input',
+        parameters: Optional[Dict[str, Any]] = None,
     ):
         self.runner = runner
         # Package data to be passed to
         # ExcitingGroundStateTemplate.write_input(..., input_parameters, ...)
         # Structure not included, as it's passed when one calls .calculate
-        # method directly
-        self.exciting_inputs = {
+        # method directly.
+        required_params = {
             'title': title,
             'species_path': species_path,
-            'ground_state_input': ground_state_input,
-        }
-        self.directory = Path(directory)
-
+            'ground_state_input': ground_state_input}
+        # Set parameters to an empty dict if it is None (or Falsey). This
+        # is needed for the next line.
+        parameters = parameters or {}
+        # Add key, value paris from required_params if they are not defined
+        # in parmaters.
+        parameters = required_params | parameters
         # GenericFileIOCalculator expects a `profile`
         # containing machine-specific settings, however, in exciting's case,
         # the species file are defined in the input XML (hence passed in the
@@ -289,5 +295,5 @@ class ExcitingGroundStateCalculator(GenericFileIOCalculator):
             profile=runner,
             template=ExcitingGroundStateTemplate(),
             directory=directory,
-            parameters=self.exciting_inputs,
+            parameters=parameters,
         )

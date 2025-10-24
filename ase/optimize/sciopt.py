@@ -62,7 +62,7 @@ class SciPyOptimizer(Optimizer):
 
         """
         restart = None
-        Optimizer.__init__(self, atoms, restart, logfile, trajectory, **kwargs)
+        super().__init__(atoms, restart, logfile, trajectory, **kwargs)
         self.force_calls = 0
         self.callback_always = callback_always
         self.H0 = alpha
@@ -107,8 +107,7 @@ class SciPyOptimizer(Optimizer):
         if self.nsteps < self.max_steps:
             self.nsteps += 1
         gradient = self.optimizable.get_gradient()
-        f = gradient.reshape(-1, 3)
-        self.log(f)
+        self.log(gradient)
         self.call_observers()
         if self.converged(gradient):
             raise Converged
@@ -238,7 +237,7 @@ class SciPyGradientlessOptimizer(Optimizer):
 
         """
         restart = None
-        Optimizer.__init__(self, atoms, restart, logfile, trajectory, **kwargs)
+        super().__init__(atoms, restart, logfile, trajectory, **kwargs)
         self.function_calls = 0
         self.callback_always = callback_always
 
@@ -330,7 +329,7 @@ class SciPyFminPowell(SciPyGradientlessOptimizer):
             How much to change x to initially. Defaults to 0.04.
         """
         direc = kwargs.pop('direc', None)
-        SciPyGradientlessOptimizer.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         if direc is None:
             self.direc = np.eye(len(self.x0()), dtype=float) * 0.04

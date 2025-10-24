@@ -1,4 +1,4 @@
-""".. _introduction:
+""".. _introductionexample:
 
 ASE Introduction: Nitrogen on copper
 ====================================
@@ -199,9 +199,11 @@ read('N2Cu.traj', 0)  # first configuration
 
 from ase.visualize import view
 
-view(slab)
-
 # %%
+#
+# .. code-block:: python
+#
+#    view(slab)
 #
 # This will pop up a :mod:`ase.gui` window.  Alternative viewers can be used
 # by specifying the optional keyword ``viewer=...`` - use one of

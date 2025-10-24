@@ -116,7 +116,7 @@ class FIRE2(Optimizer):
             :class:`~ase.optimize.optimize.Optimizer`.
 
        """
-        Optimizer.__init__(self, atoms, restart, logfile, trajectory, **kwargs)
+        super().__init__(atoms, restart, logfile, trajectory, **kwargs)
 
         self.dt = dt
 
@@ -145,18 +145,14 @@ class FIRE2(Optimizer):
         self.v, self.dt = self.load()
 
     def step(self, f=None):
+        gradient = self._get_gradient(f)
         optimizable = self.optimizable
 
-        if f is None:
-            f = optimizable.get_gradient().reshape(-1, 3)
-
         if self.v is None:
-            self.v = np.zeros(optimizable.ndofs()).reshape(-1, 3)
+            self.v = np.zeros(optimizable.ndofs())
         else:
-
-            vf = np.vdot(f, self.v)
+            vf = np.vdot(gradient, self.v)
             if vf > 0.0:
-
                 self.Nsteps += 1
                 if self.Nsteps > self.Nmin:
                     self.dt = min(self.dt * self.finc, self.dtmax)
@@ -167,39 +163,54 @@ class FIRE2(Optimizer):
                 self.a = self.astart
 
                 dr = - 0.5 * self.dt * self.v
-                r = optimizable.get_x().reshape(-1, 3)
-                optimizable.set_x((r + dr).ravel())
+                r = optimizable.get_x()
+                optimizable.set_x(r + dr)
                 self.v[:] *= 0.0
 
         # euler semi implicit
-        f = optimizable.get_gradient().reshape(-1, 3)
-        self.v += self.dt * f
+        gradient = optimizable.get_gradient()
+        self.v += self.dt * gradient
 
         if self.use_abc:
             self.a = max(self.a, 1e-10)
             abc_multiplier = 1. / (1. - (1. - self.a)**(self.Nsteps + 1))
-            v_mix = ((1.0 - self.a) * self.v + self.a * f / np.sqrt(
-                np.vdot(f, f)) * np.sqrt(np.vdot(self.v, self.v)))
+            v_mix = ((1.0 - self.a) * self.v + self.a * gradient / np.sqrt(
+                np.vdot(gradient, gradient)) * np.sqrt(np.vdot(self.v,
+                                                               self.v)))
             self.v = abc_multiplier * v_mix
+
+            def clip_velocity(vel):
+                max_velocity = self.maxstep / self.dt
+                return vel.clip(-max_velocity, max_velocity)
+
+            def old_clip_velocity(v):
+                # Original implementation of clip_velocity(), can we remove?
+                # Let's remove it in 2026 unless assertion crashes etc.
+                v = v.reshape(-1, 3)
+                v_tmp = []
+                for car_dir in range(3):
+                    v_i = np.where(
+                        np.abs(v[:, car_dir]) * self.dt > self.maxstep,
+                        (self.maxstep / self.dt) *
+                        (v[:, car_dir] / np.abs(v[:, car_dir])),
+                        v[:, car_dir])
+                    v_tmp.append(v_i)
+                return np.array(v_tmp).T.ravel()
 
             # Verifying if the maximum distance an atom
             #  moved is larger than maxstep, for ABC-FIRE the check
             #  is done independently for each cartesian direction
-            if np.all(self.v):
-                v_tmp = []
-                for car_dir in range(3):
-                    v_i = np.where(np.abs(self.v[:, car_dir]) *
-                                   self.dt > self.maxstep,
-                                   (self.maxstep / self.dt) *
-                                   (self.v[:, car_dir] /
-                                   np.abs(self.v[:, car_dir])),
-                                   self.v[:, car_dir])
-                    v_tmp.append(v_i)
-                self.v = np.array(v_tmp).T
-
+            #
+            # Make sure old and new clip_velocity() agree:
+            v1 = clip_velocity(self.v)
+            if np.all(self.v) and len(self.v) % 3 == 0:
+                v2 = old_clip_velocity(self.v)
+                assert abs(v1 - v2).max() < 1e-12
+            self.v = v1
         else:
-            self.v = ((1.0 - self.a) * self.v + self.a * f / np.sqrt(
-                np.vdot(f, f)) * np.sqrt(np.vdot(self.v, self.v)))
+            self.v = ((1.0 - self.a) * self.v + self.a * gradient / np.sqrt(
+                np.vdot(gradient, gradient)) * np.sqrt(np.vdot(self.v,
+                                                               self.v)))
 
         dr = self.dt * self.v
 
@@ -210,7 +221,7 @@ class FIRE2(Optimizer):
             if normdr > self.maxstep:
                 dr = self.maxstep * dr / normdr
 
-        r = optimizable.get_x().reshape(-1, 3)
-        optimizable.set_x((r + dr).ravel())
+        r = optimizable.get_x()
+        optimizable.set_x(r + dr)
 
         self.dump((self.v, self.dt))

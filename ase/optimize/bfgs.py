@@ -72,10 +72,11 @@ class BFGS(Optimizer):
         self.alpha = alpha
         if self.alpha is None:
             self.alpha = self.defaults['alpha']
-        Optimizer.__init__(self, atoms=atoms, restart=restart,
-                           logfile=logfile, trajectory=trajectory,
-                           append_trajectory=append_trajectory,
-                           **kwargs)
+        super().__init__(
+            atoms=atoms, restart=restart,
+            logfile=logfile, trajectory=trajectory,
+            append_trajectory=append_trajectory,
+            **kwargs)
 
     def initialize(self):
         # initial hessian
@@ -94,10 +95,8 @@ class BFGS(Optimizer):
             self.H, self.pos0, self.forces0, self.maxstep = file
 
     def step(self, gradient=None):
+        gradient = self._get_gradient(gradient)
         optimizable = self.optimizable
-
-        if gradient is None:
-            gradient = optimizable.get_gradient()
 
         pos = optimizable.get_x()
         dpos, steplengths = self.prepare_step(pos, gradient)

@@ -3,13 +3,13 @@
 # flake8: noqa
 import numpy as np
 
-pymin = min
-pymax = max
+
+def standard_gradient_norm(array):
+    return np.linalg.norm(array.reshape(-1, 3), axis=1).max()
 
 
 class LineSearch:
-    def __init__(self, xtol=1e-14):
-
+    def __init__(self, xtol=1e-14, get_gradient_norm=standard_gradient_norm):
         self.xtol = xtol
         self.task = 'START'
         self.isave = np.zeros((2,), np.intc)
@@ -18,6 +18,7 @@ class LineSearch:
         self.gc = 0
         self.case = 0
         self.old_stp = 0
+        self.get_gradient_norm = get_gradient_norm
 
     def _line_search(self, func, myfprime, xk, pk, gfk, old_fval, old_old_fval,
                      maxstep=.2, c1=.23, c2=0.46, xtrapl=1.1, xtrapu=4.,
@@ -389,9 +390,7 @@ class LineSearch:
 
     def determine_step(self, stp):
         dr = stp - self.old_stp
-        x = np.reshape(self.pk, (-1, 3))
-        steplengths = ((dr * x)**2).sum(1)**0.5
-        maxsteplength = pymax(steplengths)
+        maxsteplength = self.get_gradient_norm(self.pk * dr)
         if maxsteplength >= self.maxstep:
             dr *= self.maxstep / maxsteplength
         stp = self.old_stp + dr
