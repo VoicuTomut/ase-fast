@@ -1,6 +1,11 @@
 import numpy as np
 import pytest
 
+import ase.optimize
+from ase.optimize.sciopt import (
+    SciPyFminBFGS,
+    SciPyFminCG,
+)
 from ase.utils.abc import Optimizable
 
 
@@ -28,7 +33,6 @@ class BoothFunctionOptimizable(Optimizable):
         return a * a + b * b
 
     def get_gradient(self):
-        x, y = self.xy
         a, b = self.ab(*self.xy)
         # XXX negative gradient
         return -np.array([2 * a + 4 * b, 4 * a + 2 * b])
@@ -43,14 +47,36 @@ class BoothFunctionOptimizable(Optimizable):
         return np.linalg.norm(gradient)
 
 
-def test_booth():
-    from ase.optimize.bfgs import BFGS
+optimizers = [
+    'BFGS',
+    'BFGSLineSearch',
+    'MDMin',
+    'FIRE',
+    'FIRE2',
+    'LBFGS',
+    'LBFGSLineSearch',
+    'GoodOldQuasiNewton',
+    # 'GPMin',
+    # Maybe we should not test GPMin.  It probably needs a lot of knowledge
+    # and might not well suited for generic problems.
+    'ODE12r',
+    SciPyFminCG,
+    SciPyFminBFGS,
+]
 
+
+@pytest.mark.parametrize('optname', optimizers)
+def test_booth(optname):
     x0 = [1.234, 2.345]
     target = BoothFunctionOptimizable(x0)
 
     eps = 1e-8
-    with BFGS(target) as opt:
+    if isinstance(optname, str):
+        optcls = getattr(ase.optimize, optname)
+    else:
+        optcls = optname
+
+    with optcls(target) as opt:
         opt.run(fmax=eps)
 
     assert target.xy == pytest.approx([1, 3], abs=eps)

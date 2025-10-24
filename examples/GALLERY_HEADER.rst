@@ -1,3 +1,5 @@
+.. _examplesgallery:
+
 Examples
 ========
 
@@ -10,4 +12,5 @@ For running the examples install ase.
     pip install ase
 
 Some more advanced examples might need additional packages.
+
 

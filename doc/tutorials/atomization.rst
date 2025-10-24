@@ -2,6 +2,16 @@
 Atomization energy
 ==================
 
+.. note::
+
+  We are currently moving to a new way to display our examples.
+  For this example we have an updated version, which you 
+  can find :ref:`here <atomization>`.
+  The example on this page is deprecated and will be removed 
+  once all examples have been moved to 
+  the new format.
+
+
 The following script will calculate the atomization energy of a
 nitrogen molecule:
 

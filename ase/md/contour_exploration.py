@@ -382,7 +382,6 @@ class ContourExploration(Dynamics):
 
     def step(self, f=None):
         atoms = self._actual_atoms
-
         if f is None:
             f = atoms.get_forces()
 

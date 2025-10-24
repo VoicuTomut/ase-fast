@@ -247,12 +247,12 @@ Hexagonal unit cell:
 
 Attributes that can be edited directly are:
 
-* :meth:`~Atoms.numbers`
-* :meth:`~Atoms.symbols`
-* :meth:`~Atoms.positions`
-* :meth:`~Atoms.cell`
-* :meth:`~Atoms.pbc`
-* :meth:`~Atoms.constraints`
+* :attr:`~Atoms.numbers`
+* :attr:`~Atoms.symbols`
+* :attr:`~Atoms.positions`
+* :attr:`~Atoms.cell`
+* :attr:`~Atoms.pbc`
+* :attr:`~Atoms.constraints`
 
 
 
@@ -368,4 +368,5 @@ List of all Methods
 ===================
 
 .. autoclass:: Atoms
+   :inherited-members:
    :members:

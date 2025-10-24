@@ -4,6 +4,16 @@
 Finding lattice constants using EOS and the stress tensor
 =========================================================
 
+.. note::
+
+  We are currently moving to a new way to display our examples.
+  For this example we have an updated version, which you 
+  can find :ref:`here <lattice_constant_example>`.
+  The example on this page is deprecated and will be removed 
+  once all examples have been moved to 
+  the new format.
+
+
 .. seealso::
 
    :ref:`eos`.

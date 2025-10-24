@@ -15,7 +15,11 @@ TOL = 1e-6
 # The corresponding data as an ASE Atoms object.
 DATA = ase.Atoms(
     "Cu3",
-    cell=np.array([[7.22, 0, 0], [1, 10.83, 0], [1, 1, 14.44]]),
+    cell=np.array([
+        [7.22, 0, 0],
+        [0.815351, 10.845465, 0],
+        [1, 1.262623, 14.41941]
+    ]),
     positions=np.array(
         [
             [1.04833333, 0.965, 0.9025],

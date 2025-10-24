@@ -13,6 +13,15 @@
 Manipulating atoms
 ==================
 
+.. note::
+
+  We are currently moving to a new way to display our examples.
+  For this example we have an updated version, which you 
+  can find in :ref:`manipulatingatoms`.
+  The example on this website is deprecated and will be removed 
+  once all examples have been moved to 
+  the new format.
+
 
 Ag adatom on Ni slab
 ====================
