@@ -1,6 +1,16 @@
 Nanoparticle
 ============
 
+.. note::
+
+  We are currently moving to a new way to display our examples.
+  For this example we have an updated version, which you
+  can find in :ref:`nanoparticle`.
+  The example on this website is deprecated and will be removed
+  once all examples have been moved to
+  the new format.
+
+
 ASE provides a module, :mod:`ase.cluster`, to set up
 metal nanoparticles with common crystal forms.
 Please have a quick look at the documentation.
