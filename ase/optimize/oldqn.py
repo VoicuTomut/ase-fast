@@ -158,7 +158,7 @@ class GoodOldQuasiNewton(Optimizer):
 
         """
 
-        Optimizer.__init__(self, atoms, restart, logfile, trajectory, **kwargs)
+        super().__init__(atoms, restart, logfile, trajectory, **kwargs)
 
         self.eps = 1e-12
         self.hessianupdate = hessianupdate
@@ -290,13 +290,10 @@ class GoodOldQuasiNewton(Optimizer):
     def step(self, forces=None):
         """ Do one QN step
         """
-
-        if forces is None:
-            forces = self.optimizable.get_gradient().reshape(-1, 3)
+        forces = self._get_gradient(forces)
 
         pos = self.optimizable.get_x()
         G = -self.optimizable.get_gradient()
-
         energy = self.optimizable.get_value()
 
         if hasattr(self, 'oldenergy'):
@@ -426,8 +423,8 @@ class GoodOldQuasiNewton(Optimizer):
 
     def get_hessian_inertia(self, eigenvalues):
         # return number of negative modes
-        self.write_log("eigenvalues {:2.2f} {:2.2f} {:2.2f} ".format(
-            eigenvalues[0], eigenvalues[1], eigenvalues[2]))
+        txt = ' '.join(f'{eig:2.2f}' for eig in eigenvalues[:3])
+        self.write_log(f'eigenvalues {txt}')
         n = 0
         while eigenvalues[n] < 0:
             n += 1

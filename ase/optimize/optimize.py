@@ -109,6 +109,14 @@ class BaseDynamics(IOContext):
 
         self.trajectory = trajectory
 
+    def _get_gradient(self, forces=None):
+        if forces is not None:
+            warnings.warn('Please do not pass forces to step().  '
+                          'This argument will be removed in '
+                          'ase 3.28.0.')
+            return forces.ravel()
+        return self.optimizable.get_gradient()
+
     def get_number_of_steps(self):
         return self.nsteps
 

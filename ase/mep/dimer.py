@@ -1031,6 +1031,7 @@ class MinModeTranslate(Optimizer):
 
     def step(self, f=None):
         """Perform the optimization step."""
+
         atoms = self.dimeratoms
         if f is None:
             f = atoms.get_forces()
