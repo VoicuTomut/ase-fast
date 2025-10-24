@@ -1,6 +1,16 @@
 Atoms and calculators
 =====================
 
+.. note::
+
+  We are currently moving to a new way to display our examples.
+  For this example we have an updated version, which you 
+  can find in :ref:`atomscalculators`.
+  The example on this website is deprecated and will be removed 
+  once all examples have been moved to 
+  the new format.
+
+
 ASE allows atomistic calculations to be scripted with different
 computational codes. In this introductory exercise, we go through the
 basic concepts and workflow of ASE and will eventually
