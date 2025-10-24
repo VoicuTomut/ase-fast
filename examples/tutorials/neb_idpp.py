@@ -1,47 +1,53 @@
 """.. _neb_idpp_tutorial:
 
-=============================================================================================
-NEB with IDPP: Image Dependent Pair Potential for improved interpolation of NEB initial guess
-=============================================================================================
+======================
+NEB with IDPP: |subst|
+======================
+
+.. |subst| replace:: Image Dependent Pair Potential
+                     for improved interpolation of NEB initial guess
 
 Reference: S. Smidstrup, A. Pedersen, K. Stokbro and H. Jonsson,
-:doi:`Improved initial guess for minimum energy path calculations <10.1063/1.4878664>`,
+:doi:`Improved initial guess for minimum energy path calculations
+<10.1063/1.4878664>`,
 J. Chem. Phys. 140, 214106 (2014).
 
-Use of the Nudged Elastic Band 
+Use of the Nudged Elastic Band
 (NEB) method for transition state search
-is dependent upon generating an initial guess 
-for the images lying between the initial and final states. The most 
-simple approach is to use linear interpolation of the 
-atomic coordinates. However, this can be problematic as the quality 
-of the interpolated path can ofter be far from the real one. 
+is dependent upon generating an initial guess
+for the images lying between the initial and final states. The most
+simple approach is to use linear interpolation of the
+atomic coordinates. However, this can be problematic as the quality
+of the interpolated path can ofter be far from the real one.
 The implication being
 that a lot of time is spent in the NEB routine optimising the shape of
-the path, before the transition state is homed-in upon. 
+the path, before the transition state is homed-in upon.
 
-The image dependent pair potential (IDPP) is a method that has been 
-developed to provide an improvement to the initial guess for the NEB path. 
-The IDPP method uses the bond distance between the atoms involved in 
+The image dependent pair potential (IDPP) is a method that has been
+developed to provide an improvement to the initial guess for the NEB path.
+The IDPP method uses the bond distance between the atoms involved in
 the transition state to create target structures for the images, rather
-than interpolating the atomic positions. By defining an objective function in terms
-of the distances between atoms, the NEB algorithm is used with this 
+than interpolating the atomic positions.
+By defining an objective function in terms
+of the distances between atoms, the NEB algorithm is used with this
 image dependent pair potential to create the initial guess for the
 full NEB calculation.
 
 .. note::
 
    The examples below utilise the EMT calculator for illustrative purposes, the
-   results should not be over interpreted. 
+   results should not be over interpreted.
 
 This tutorial includes example NEB calculations for two different systems.
-First, it starts with a simple NEB of Ethane comparing IDPP to the standard linear 
-approach. The second example is for a N atom on a Pt step edge. 
+First, it starts with a simple NEB of Ethane comparing IDPP
+to the standard linear approach.
+The second example is for a N atom on a Pt step edge.
 
-Example 1: Ethane 
+Example 1: Ethane
 =================
 
-This example illustrates the use of the IDPP interpolation scheme to 
-generate an initial guess for rotation of a methyl group around the CC bond. 
+This example illustrates the use of the IDPP interpolation scheme to
+generate an initial guess for rotation of a methyl group around the CC bond.
 
 
 1.1 Generate Initial and Final State
@@ -64,8 +70,9 @@ relax.run(fmax=0.05)
 # %%
 # Let's look at the relaxed molecule.
 
-from ase.visualize.plot import plot_atoms
 import matplotlib.pyplot as plt
+
+from ase.visualize.plot import plot_atoms
 
 fig, ax = plt.subplots()
 plot_atoms(initial, ax, rotation=('90x,0y,90z'))
@@ -74,7 +81,7 @@ ax.set_axis_off()
 # %%
 # Now we can create the final state.
 # Since we want to look at the rotation
-# of the methyl group, we switch the position of the 
+# of the methyl group, we switch the position of the
 # Hydrogen atoms on one methyl group.
 # Then, we setup and run the NEB calculation.
 
@@ -101,15 +108,14 @@ neb = NEB(images)
 neb.interpolate()
 
 # Run NEB calculation.
-qn = QuasiNewton(
-    neb, trajectory='ethane_linear.traj'
-)
+qn = QuasiNewton(neb, trajectory='ethane_linear.traj')
 qn.run(fmax=0.05)
 # You can add a logfile to the QuasiNewton optimizer by adding
 # e.g. `logfile='ethane_linear.log` to save the printed output.
 
 # %%
-# Using the standard linear interpolation approach, as in the following example, we can see
+# Using the standard linear interpolation approach,
+# as in the following example, we can see
 # that 47 iterations are required to find the transition state.
 
 
@@ -117,9 +123,9 @@ qn.run(fmax=0.05)
 # 1.3 Image Dependent Pair Potential
 # ----------------------------------
 #
-# However if we modify our script slightly and use the IDPP method to find the initial
-# guess, we can see that the number of iterations required to find the transition
-# state is reduced to 7. 
+# However if we modify our script slightly and use the IDPP method to
+# find the initial guess, we can see that the number of iterations
+# required to find the transition state is reduced to 7.
 
 # Optimise molecule.
 initial = molecule('C2H6')
@@ -157,13 +163,13 @@ qn.run(fmax=0.05)
 # Example 2: N Diffusion over a Step Edge
 # =======================================
 #
-# Often we are interested in generating an initial guess for a surface reaction. 
+# Often we are interested in generating an initial guess for a surface reaction.
 #
 # 2.1 Generate Initial and Final State
 # ------------------------------------
 # The first part of this example
 # illustrates how we can optimise our initial and final state structures
-# before using the IDPP interpolation to generate our initial guess 
+# before using the IDPP interpolation to generate our initial guess
 # for the NEB calculation:
 
 import numpy as np
@@ -224,7 +230,7 @@ plot_atoms(initial, ax, rotation=('0x,0y,0z'))
 ax.set_axis_off()
 
 # %%
-# We can now create and optimise the final state by 
+# We can now create and optimise the final state by
 # moving the atom above the step.
 slab[-1].position = (x3, y2 + 1.0, z2 + 3.5)
 final = slab.copy()
@@ -268,9 +274,9 @@ qn.run(fmax=0.05)
 # ---------------------------------
 #
 # To again illustrate the potential speedup, the following script
-# uses the linear interpolation. 
+# uses the linear interpolation.
 # This takes 24 iterations to find a transition
-# state, compared to 13 using the IDPP interpolation. 
+# state, compared to 13 using the IDPP interpolation.
 # We start from the initial and final state we generated above.
 
 # Create a list of images for interpolation.
@@ -288,9 +294,5 @@ neb = NEB(images)
 neb.interpolate()
 
 # Run NEB calculation.
-qn = QuasiNewton(
-    neb, trajectory='N_diffusion_lin.traj'
-)
+qn = QuasiNewton(neb, trajectory='N_diffusion_lin.traj')
 qn.run(fmax=0.05)
-
-

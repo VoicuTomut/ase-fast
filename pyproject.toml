@@ -111,6 +111,7 @@ ignore = [
 "examples/gettingstarted/00-n2cu.py"=["E402","F401","I001"]
 "!doc/tutorials/**.py" = ["UP"]  # Only pyupgrade tutorials (for now)
 "examples/dimensionality/dimensionality.py"=["E402","F811","F401"]
+"examples/tutorials/neb_idpp.py"=["E402"] # ,"F811","F401"]
 
 [tool.ruff.lint.pycodestyle]
 max-line-length = 80
