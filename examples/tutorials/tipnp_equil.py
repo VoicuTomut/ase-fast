@@ -14,11 +14,9 @@ ASE."""
 #   a realistic use.
 
 # %%
-import numpy as np
-
 import ase.units as units
-from ase import Atoms
-from ase.calculators.tip3p import TIP3P, angleHOH, rOH
+from ase.build import molecule
+from ase.calculators.tip3p import TIP3P
 from ase.constraints import FixBondLengths
 from ase.io.trajectory import Trajectory
 from ase.md import Langevin
@@ -26,22 +24,19 @@ from ase.md import Langevin
 # %%
 # Let's first create a starting point of the simulaiton.
 # We will create a water box at 20 °C density.
-x = angleHOH * np.pi / 180 / 2
-pos = [
-    [0, 0, 0],
-    [0, rOH * np.cos(x), rOH * np.sin(x)],
-    [0, rOH * np.cos(x), -rOH * np.sin(x)],
-]
-atoms = Atoms('OH2', positions=pos)
-
-vol = ((18.01528 / 6.022140857e23) / (0.9982 / 1e24)) ** (1 / 3.0)
-atoms.set_cell((vol, vol, vol))
+atoms = molecule('H2O')
+density = 0.9982  # denisty of water in g/cm^3 at 20°C
+box_length = ((atoms.get_masses().sum() / units.mol) / (density * 1e-24)) ** (
+    1 / 3
+)  # box length in Å
+atoms.set_cell((box_length, box_length, box_length))
 atoms.center()
 # Repeat the water molecule we just created to end up with a PBC cell
-atoms = atoms.repeat((3, 3, 3))
+atoms *= (3, 3, 3)
 atoms.set_pbc(True)
 
-# %% # We can visualise the starting box
+# %%
+# We can visualise the starting box
 import matplotlib.pyplot as plt
 
 from ase.visualize.plot import plot_atoms
@@ -87,11 +82,11 @@ md.run(4)  # please use 4000 to better equilibrate
 # Repeat box and equilibrate further.
 tag = 'tip3p_216mol_equil'
 atoms.set_constraint()  # repeat not compatible with FixBondLengths currently.
-atoms = atoms.repeat((2, 2, 2))
+atoms *= (2, 2, 2)
 atoms.constraints = FixBondLengths(
     [
         (3 * i + j, 3 * i + (j + 1) % 3)
-        for i in range(int(len(atoms) / 3))
+        for i in range(len(atoms) // 3)
         for j in [0, 1, 2]
     ]
 )
