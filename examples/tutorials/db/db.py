@@ -16,7 +16,7 @@ with 1, 2 and 3 layers and we will use database files to store the results.
 
 # %%
 # sphinx_gallery_start_ignore
-import run
+__import__("run")
 # sphinx_gallery_end_ignore
 
 # %%
