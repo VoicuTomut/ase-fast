@@ -213,7 +213,6 @@ z2 = 6.439
 
 # Add the adatom to the list of atoms and set constraints of surface atoms.
 slab += Atoms('N', [((x2 + x1) / 2, y1, z1 + 1.5)])
-mask = [atom.symbol == 'Pt' for atom in slab]
 FixAtoms(mask=slab.symbols == 'Pt')
 
 # Optimise the initial state: atom below step.
