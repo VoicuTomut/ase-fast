@@ -112,6 +112,8 @@ ignore = [
 "examples/gettingstarted/03-manipulating-atoms.py"=["E402"]
 "!doc/tutorials/**.py" = ["UP"]  # Only pyupgrade tutorials (for now)
 "examples/tutorials/dimensionality.py"=["E402","F811","F401"]
+"examples/tutorials/tipnp_equil.py"=["E402"]
+
 
 [tool.ruff.lint.pycodestyle]
 max-line-length = 80
