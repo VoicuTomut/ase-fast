@@ -182,6 +182,22 @@ mhplot = MHPlot()
 mhplot.save_figure('summary.png')
 
 # %%
+# This will make a summary figure, which should see above.
+# As the search is inherently random, yours will look different
+# than this if you used a different random seed
+# (and this will look different each time the documentation is rebuilt).
+# In this figure, you will see on the :math:`E_\mathrm{pot}` axes the energy
+# levels of the conformers found. The flat bars represent the energy at the
+# end of each local optimization step. The checkmark indicates the local
+# minimum was accepted; red arrows indicate it was rejected for the three
+# possible reasons. The black path between steps is the potential energy
+# during the molecular dynamics (MD) portion of the step; the dashed line
+# is the local optimization on termination of the MD step.
+# Note the y axis is broken to allow different energy scales
+# between the local minima and the space explored in the MD simulations.
+# The :math:`T` and :math:`E_\mathrm{diff}` plots show the values of
+# the self-adjusting parameters as the algorithm progresses.
+#
 # Further Examples
 # ----------------
 # You can find an example of the implementation of this for real adsorbates
