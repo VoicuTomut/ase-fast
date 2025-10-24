@@ -5,7 +5,33 @@ Numeric arrays in Python
 ========================
 
 Examples demonstrating NumPy usage in ASE documentation.
+
+Links to NumPy's webpage:
+
+* `Numpy and Scipy Documentation`_
+* `Numpy user guide <https://docs.scipy.org/doc/numpy/user/index.html>`_
+
+
+.. _Numpy and Scipy Documentation: https://docs.scipy.org/doc/
+
+ASE makes heavy use of an extension to Python called NumPy.  The
+NumPy module defines an ``ndarray`` type that can hold large arrays of
+uniform multidimensional numeric data.  An array is similar to a
+``list`` or a ``tuple``, but it is a lot more powerful and efficient.
+
+Some examples from everyday ASE-life here ...
 """
+
+import numpy as np
+a = np.zeros((3, 2))
+a[:, 1] = 1.0
+a[1] = 2.0
+print(a)
+print(a.shape)
+print(a.ndim)
+
+# %%
+#The conventions of numpy's linear algebra package:
 
 import numpy as np
 
@@ -43,12 +69,35 @@ print(
 )
 print('Eigenvector check (all):', np.allclose(np.dot(H, U), eps * U))
 
+# %%
+# The rules for multiplying 1D arrays with 2D arrays:
+# 
+# * 1D arrays and treated like shape (1, N) arrays (row vectors).
+# * left and right multiplications are treated identically.
+# * A length :math:`m` *row* vector can be multiplied with an :math:`n \times m`
+#   matrix, producing the same result as if replaced by a matrix with
+#   :math:`n` copies of the vector as rows.
+# * A length :math:`n` *column* vector can be multiplied with an :math:`n \times m`
+#   matrix, producing the same result as if replaced by a matrix with
+#   :math:`m` copies of the vector as columns.
+#
+#Thus, for the arrays below:
+
 # --- 1D vs 2D multiplication rules ---
 M = np.arange(5 * 6).reshape(5, 6)  # A matrix of shape (5, 6)
 v5 = np.arange(5) + 10  # A vector of length 5
 v51 = v5[:, None]  # Column vector (5, 1)
 v6 = np.arange(6) - 12  # A vector of length 6
 v16 = v6[None, :]  # Row vector (1, 6)
+
+# %%
+# The following identities hold::
+# 
+#   v6 * M == v16 * M == M * v6 == M * v16 == M * v16.repeat(5, 0)
+#   v51 * M == M * v51 == M * v51.repeat(6, 1)
+# 
+# The same rules apply for adding and subtracting 1D arrays to 
+# from 2D arrays.
 
 # Identities
 print('v6 * M == M * v6?', np.allclose(v6 * M, M * v6))
