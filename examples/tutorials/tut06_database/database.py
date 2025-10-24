@@ -13,10 +13,10 @@ Setting up a database
 ---------------------
 To construct a database we first need some atomic structures so let's quickly
 create some. As you have seen the ASE command line tool provides many convenient
-commands and in particular we can use the ``build`` command to create some atomic
-structures. Remember, if you are unsure how to use a particular command you can
-always append ``-h`` to the particular command (ie. ``ase build -h``) to see the
-help for that particular command.
+commands and in particular we can use the ``build`` command to create some
+atomic structures. Remember, if you are unsure how to use a particular command
+you can always append ``-h`` to the particular command (ie. ``ase build -h``)
+to see the help for that particular command.
 
 We choose to build silicon, germanium and carbon in the diamond crystal
 structure for which ASE already knows the lattice constants:
@@ -41,7 +41,7 @@ This has created an ASE database name :file:`database.db`.
    Create your own set of 3 interesting materials either using the ``ase build``
    command or the techniques from the exercise "Crystals and band structure"
    and convert them into a ASE database named :file:`database.db`. You can also
-   build Si, Ge and C like we do here. 
+   build Si, Ge and C like we do here.
 
 
 Inspecting a database
@@ -51,7 +51,8 @@ We can inspect the database using the ``db`` command::
   $ ase db database.db
 
 which will display three entries, one for each structure. From this point
-it is advised to bring up the help for the ``db`` command every time you need it.
+it is advised to bring up the help for the ``db`` command every time you need
+it.
 
 From the help we can see that it is possible to make selections (queries in
 database lingo) in the database by::
@@ -89,7 +90,7 @@ a database we can use the :class:`ase.database.connect` method which
 returns a database object from which we can make selections::
 
   from ase.db import connect
-  
+
   db = connect('database.db')
   for row in db.select():
       atoms = row.toatoms()
@@ -127,8 +128,8 @@ is retrieved by using the ``row.toatoms()`` method.
 .. admonition:: Exercise
 
    Using a python script, print the formula for each row in your database.
-   
-   
+
+
 Write new entries to a database using Python
 --------------------------------------------
 A new entry in the database can be written using the ``write()`` method of
@@ -136,7 +137,8 @@ a database object.
 
 .. admonition:: Exercise
 
-   Loop through all materials, relax them (see exercise "Structure Optimization")
+   Loop through all materials, relax them
+   (see exercise "Structure Optimization")
    and save the relaxed structure as a new entry in the database with an
    added column relaxed equal to ``True`` that we can use later for selecting
    only these materials.
@@ -176,10 +178,11 @@ The database can also be visualized in a browser by using::
   $ ase database database.db -w
   $ firefox http://0.0.0.0:5000/
 
-This opens a local webserver which can be opened in firefox like above. The layout
-can be customized further than our simple example however this would probably be
-too much for now. To see a more advanced example of such a web interfaced database
-in action you can check out the 2D database https://cmrdb.fysik.dtu.dk/c2db.
+This opens a local webserver which can be opened in firefox like above. The
+layout can be customized further than our simple example however this would
+probably be too much for now. To see a more advanced example of such a web
+interfaced database in action you can check out the 2D database
+https://cmrdb.fysik.dtu.dk/c2db.
 
 Adsorbates on metals
 --------------------
