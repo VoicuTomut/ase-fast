@@ -12,8 +12,16 @@ with 1, 2 and 3 layers and we will use database files to store the results.
 .. seealso::
 
     The :mod:`ase.db` module documentation.
+"""
 
+# %%
+# sphinx_gallery_start_ignore
+import run
+# sphinx_gallery_end_ignore
 
+# %%
+
+r"""
 |cu1o| |cu2o| |cu3o|
 
 .. |cu1o| image:: cu1o.png
