@@ -4,6 +4,15 @@
 Surface adsorption study using the ASE database
 ===============================================
 
+.. note::
+
+  We are currently moving to a new way to display our examples.
+  For this example we have an updated version, which you
+  can find :ref:`here <db_tutorial>`.
+  The example on this page is deprecated and will be removed
+  once all examples have been moved to
+  the new format.
+
 In this tutorial we will adsorb C, N and O on 7 different FCC(111) surfaces
 with 1, 2 and 3 layers and we will use database files to store the results.
 

@@ -1,6 +1,6 @@
 # %%
 """
-.. _db tutorial:
+.. _db_tutorial:
 
 ===============================================
 Surface adsorption study using the ASE database
