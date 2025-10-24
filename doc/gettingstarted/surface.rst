@@ -3,6 +3,16 @@
 Introduction: Nitrogen on copper
 ================================
 
+.. note::
+
+  We are currently moving to a new way to display our examples.
+  For this example we have an updated version, which you 
+  can find :ref:`here <introductionexample>`.
+  The example on this page is deprecated and will be removed 
+  once all examples have been moved to 
+  the new format.
+
+
 This section gives a quick (and incomplete) overview of what ASE can do.
 
 We will calculate the adsorption energy of a nitrogen
