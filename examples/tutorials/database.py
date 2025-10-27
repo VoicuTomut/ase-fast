@@ -18,7 +18,7 @@ atomic structures. Remember, if you are unsure how to use a particular command
 you can always append ``-h`` to the particular command (ie. ``ase build -h``)
 to see the help for that particular command.
 
-We choose to build silicon, germanium and carbon in the diamond crystal
+We choose to build aluminium, copper and gold in the diamond crystal
 structure for which ASE already knows the lattice constants:
 
 ::
