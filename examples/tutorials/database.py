@@ -96,16 +96,14 @@ for f in structures:
 # Opening a database using a Python script
 # ----------------------------------------
 # To open a database using Python, we can use the :class:`ase.database.connect`
-#  method which returns a database object from which we can make selections::
-#
-#  from ase.db import connect
-#
-#  db = connect('database.db')
-#  for row in db.select():
-#      atoms = row.toatoms()
-#      print(atoms)
-#
-#
+#  method which returns a database object from which we can make selections:
+
+db = connect('database.db')
+for row in db.select():
+    atoms = row.toatoms()
+    print(atoms)
+
+# %%
 # We can make selections in the database using ``db.select(some_selection)``
 # which returns all rows matching ``some_selection``. In this case
 # ``some_selection`` was omitted which means that we select all rows in
