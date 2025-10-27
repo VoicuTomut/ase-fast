@@ -33,7 +33,8 @@ class MinimaHopping:
         'timestep': 1.0,  # fs, timestep for MD simulations
         'optimizer': QuasiNewton,  # local optimizer to use
         'minima_traj': 'minima.traj',  # storage file for minima list
-        'fmax': 0.05}  # eV/A, max force for optimizations
+        'fmax': 0.05,  # eV/A, max force for optimizations
+        'rng': None}
 
     def __init__(self, atoms, **kwargs):
         """Initialize with an ASE atoms object and keyword arguments."""
@@ -52,6 +53,7 @@ class MinimaHopping:
         self._previous_energy = None
         self._temperature = self._T0
         self._Ediff = self._Ediff0
+        
 
     def __call__(self, totalsteps=None, maxtemp=None):
         """Run the minima hopping algorithm. Can specify stopping criteria
@@ -314,7 +316,8 @@ class MinimaHopping:
         if not thermalized:
             MaxwellBoltzmannDistribution(self._atoms,
                                          temperature_K=self._temperature,
-                                         force_temp=True)
+                                         force_temp=True,
+                                         rng=self._rng)
         traj = io.Trajectory('md%05i.traj' % self._counter, 'a',
                              self._atoms)
         dyn = VelocityVerlet(self._atoms, timestep=self._timestep * units.fs)

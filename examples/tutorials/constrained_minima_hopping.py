@@ -53,8 +53,10 @@ from ase.io import read
 from ase.optimize.minimahopping import MHPlot, MinimaHopping
 from ase.visualize.plot import plot_atoms
 
-# Make results reproducible across doc builds
-np.random.seed(42)
+# Make results reproducible across doc builds. We will pass this random
+# number generator to the MinimaHopping algorithm.
+seed=42
+rng=np.random.default_rng(seed)
 
 # %%
 # Build a fixed Pt(110) slab
@@ -63,10 +65,14 @@ np.random.seed(42)
 slab = fcc110(
     'Pt', size=(3, 2, 3), vacuum=12.0
 )  # (x, y, z repeats), ~ few hundred atoms at most
-slab.pbc = (True, True, True)
+print(slab.pbc)
+
+# %%
+# This sets the desired periodic boundary conditions to be periodic in 
+# x- and y-direction.
 
 # Fix the whole slab (only the adsorbate will move in this minimal example).
-fix = FixAtoms(mask=[sym == 'Pt' for sym in slab.get_chemical_symbols()])
+fix = FixAtoms(mask=slab.symbols == 'Pt')
 slab.set_constraint(fix)
 
 # %%
@@ -122,13 +128,11 @@ ax.set_axis_off()
 #   - a2 can be an atom index, a fixed point (x,y,z), or a plane (A,B,C,D).
 #
 # Spring constants here are modest to guide but not dominate the dynamics.
-symbols = atoms.get_chemical_symbols()
-cu_indices = [i for i, s in enumerate(symbols) if s == 'Cu']
-i_cu0, i_cu1 = cu_indices
+i_cu0, i_cu1 = atoms.symbols.search('Cu')
 
 # contraint #1
 bond_constraint = Hookean(
-    a1=i_cu0, a2=i_cu1, k=5.0, rt=2.6
+    a1=i_cu0, a2=int(i_cu1), k=5.0, rt=2.6
 )  # eV/Å^2, threshold 2.6 Å
 # contraint #2
 z_plane_constraint = Hookean(
@@ -153,10 +157,11 @@ mh = MinimaHopping(
     mdmin=2,  # MD stop criterion
     logfile='hop.log',
     minima_traj='minima.traj',
+    rng=rng
 )
 
 # Run a few steps only for documentation builds.
-mh(totalsteps=5)
+mh(totalsteps=10) 
 print(
     'Minima hopping finished.'
     "See 'hop.log' and 'minima.traj' in the working directory."
