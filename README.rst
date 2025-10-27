@@ -5,6 +5,8 @@ Atomic Simulation Environment
     :target: https://ase-lib.org/
     :align: center
 
+|
+
 .. image:: https://badge.fury.io/py/ase.svg
     :target: https://pypi.org/project/ase/
 
