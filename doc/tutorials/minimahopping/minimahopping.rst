@@ -4,6 +4,16 @@
 Constrained minima hopping (global optimization)
 ================================================
 
+.. note::
+
+  We are currently moving to a new way to display our examples.
+  For this example we have an updated version, which you 
+  can find :ref:`here <minima_hopping>`.
+  The example on this page is deprecated and will be removed 
+  once all examples have been moved to 
+  the new format.
+
+
 This is an example of a search for a global optimum geometric configuration using the minima hopping algorithm, along with the Hookean class of constraints. This type of approach is useful in searching for the global optimum position of adsorbates on a surface while enforcing that the adsorbates' identity is preserved.
 
 The below example looks at finding the optimum configuration of a :mol:`Cu_2` adsorbate on a fixed Pt (110) surface. Although this is not a physically relevant simulation --- these elements (Cu, Pt) were chosen only because they work with the EMT calculator -- one can imagine replacing the :mol:`Cu_2` adsorbate with CO, for example, to find its optimum binding configuration under the constraint that the CO does not dissociate into separate C and O adsorbates.
