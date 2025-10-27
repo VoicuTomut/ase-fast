@@ -146,16 +146,18 @@ for row in db.select():
 # added column relaxed equal to ``True`` that we can use later for selecting
 # only these materials. A new entry in the database can be written using the
 # ``write()`` method of a database object.
-
-# %%
-#  CAUTION: To relax crystals we have to specify that the cell parameters
+#
+# .. admonition:: Hint
+#
+#  To relax crystals we have to specify that the cell parameters
 #  should be relaxed as well. This is done by wrapping
-#  :class:`ase.filters.FrechetCellFilter` around the atoms object like::
+#  :class:`ase.filters.FrechetCellFilter` around the atoms object like
+#  ::
 #
-#      filter = FrechetCellFilter(atoms)
+#    filter = FrechetCellFilter(atoms)
 #
-#   and feeding ``filter`` into the optimization routine see
-#   ``help(FrechetCellFilter)`` for more explanation.
+#  and feeding ``filter`` into the optimization routine see
+#  ``help(FrechetCellFilter)`` for more explanation.
 
 for row in db.select():
     atoms = row.toatoms()
@@ -178,7 +180,7 @@ for row in db.select():
 # --------------------------------
 # Now we want to calculate some data and include the data in the database
 # which can be done using the ``update`` method of the database object.
-# Then use the `atoms.get_potential_energy()` method to calculate the
+# Then use the ``atoms.get_potential_energy()`` method to calculate the
 # energy of the materials and store it under the ``energy`` keyword.
 
 
