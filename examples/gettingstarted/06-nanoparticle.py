@@ -115,12 +115,12 @@ efermi = calc.get_fermi_level()
 # We also mark the Fermi level in the plot.
 #
 
-plt.figure()
-plt.axvline(efermi, color='k', label=r'$E_{\mathrm{Fermi}}$ [eV]')
-plt.plot(energies, weights)
-plt.xlabel(r'$E - E_{\mathrm{Fermi}}$ [eV]')
-plt.ylabel('DOS [1/eV]')
-plt.legend()
+fig, ax = plt.subplots()
+ax.axvline(efermi, color='k', label=r'$E_{\mathrm{Fermi}}$ [eV]')
+ax.plot(energies, weights)
+ax.set_xlabel(r'$E - E_{\mathrm{Fermi}}$ [eV]')
+ax.set_ylabel('DOS [1/eV]')
+ax.legend()
 plt.show()
 
 
