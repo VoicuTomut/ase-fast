@@ -23,16 +23,16 @@ structure for which ASE already knows the lattice constants:
 
 ::
 
-  $ ase build -x diamond Si
-  $ ase build -x diamond Ge
-  $ ase build -x diamond C
+  $ ase build -x fcc Al
+  $ ase build -x fcc Cu
+  $ ase build -x fcc Au
 
-This creates three files: :file:`Si.json`, :file:`Ge.json` and :file:`C.json`.
+This creates three files: :file:`Al.json`, :file:`Cu.json` and :file:`Au.json`.
 If you want to, you can inspect them with ASE's ``gui`` command, however we
 want to construct a database containing these structures. To do this we can use
 ``convert``::
 
-  $ ase convert Si.json C.json Ge.json database.db
+  $ ase convert Al.json Cu.json Au.json database.db
 
 This has created an ASE database name :file:`database.db`.
 
@@ -42,18 +42,16 @@ convert them into a ASE database named :file:`database.db` using the following:
 
 from pathlib import Path
 
-from gpaw import GPAW, PW
-
 from ase.build import bulk
-from ase.constraints import ExpCellFilter
+from ase.calculators.emt import EMT
 from ase.db import connect
-from ase.dft.bandgap import bandgap
+from ase.filters import FrechetCellFilter
 from ase.optimize import BFGS
 
 dbfile = Path('database.db')
 dbfile.unlink(missing_ok=True)
 
-structures = ['Si', 'Ge', 'C']
+structures = ['Al', 'Cu', 'Au']
 db = connect('database.db')
 
 for f in structures:
@@ -75,12 +73,12 @@ for f in structures:
 # From the help we can see that it is possible to make selections (queries in
 # database lingo) in the database by::
 #
-#    $ ase db database.db Si
+#    $ ase db database.db Al
 #
 # which will show all structures containing silicon. To see the details of a
 # particular row we can do::
 #
-#  $ ase db database.db Si -l
+#  $ ase db database.db Al -l
 #
 # From which we can get an overview of the stored data. We can also view all
 # structures in a database using::
@@ -89,7 +87,7 @@ for f in structures:
 #
 # or if we want to view a single one we can do::
 #
-#  $ ase gui database.db@Si
+#  $ ase gui database.db@Al
 #
 # where everything after the @ is interpreted as a query.
 
@@ -154,46 +152,44 @@ for f in structures:
 # %%
 #  CAUTION: To relax crystals we have to specify that the cell parameters
 #  should be relaxed as well. This is done by wrapping
-#  :class:`ase.constraints.ExpCellFilter` around the atoms object like::
+#  :class:`ase.filters.FrechetCellFilter` around the atoms object like::
 #
-#      filter = ExpCellFilter(atoms)
+#      filter = FrechetCellFilter(atoms)
 #
 #   and feeding ``filter`` into the optimization routine see
-#   ``help(ExpCellFilter)`` for more explanation.
+#   ``help(FrechetCellFilter)`` for more explanation.
 
 for row in db.select():
     atoms = row.toatoms()
-    calc = GPAW(
-        mode=PW(400), kpts=(4, 4, 4), txt=f'{row.formula}-gpaw.txt', xc='LDA'
-    )
+    calc = EMT()
     atoms.calc = calc
     atoms.get_stress()
-    filter = ExpCellFilter(atoms)
+    filter = FrechetCellFilter(atoms)
     opt = BFGS(filter)
     opt.run(fmax=0.05)
     db.write(atoms=atoms, relaxed=True)
 
+# %%
+# Here, we are using EMT, which is a force-field calculator. This is not
+# accurate enough for production level computations. For production level
+# computations, self consistent calculations, such as using GPAW, have to
+# be used.
 
 # %%
 # Adding data to existing database
 # --------------------------------
 # Now we want to calculate some data and include the data in the database
 # which can be done using the ``update`` method of the database object.
-# To do so, we loop through all materials in the database and make a
-# self consistent calculation using GPAW in plane wave mode for all materials.
-# Then use the :class:`ase.dft.bandgap.bandgap()` method to calculate the
-# bandgap of the materials and store it under the ``bandgap`` keyword.
+# Then use the `atoms.get_potential_energy()` method to calculate the
+# energy of the materials and store it under the ``energy`` keyword.
 
 
 for row in db.select(relaxed=True):
     atoms = row.toatoms()
-    calc = GPAW(
-        mode=PW(400), kpts=(4, 4, 4), txt=f'{row.formula}-gpaw.txt', xc='LDA'
-    )
+    calc = EMT()
     atoms.calc = calc
-    atoms.get_potential_energy()
-    bg, _, _ = bandgap(calc=atoms.calc)
-    db.update(row.id, bandgap=bg)
+    e = atoms.get_potential_energy()
+    db.update(row.id, data={'energy': e})
 
 # %%
 # Now, we can inspect the  database again using the
