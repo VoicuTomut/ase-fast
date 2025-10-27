@@ -3,6 +3,7 @@ Atomic Simulation Environment
 
 .. image:: https://gitlab.com/ase/ase/-/raw/master/doc/static/ase256.png
     :target: https://ase-lib.org/
+    :align: center
 
 ASE is a set of tools and Python modules for setting up, manipulating,
 running, visualizing and analyzing atomistic simulations.
