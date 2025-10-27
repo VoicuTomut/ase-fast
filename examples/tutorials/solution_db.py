@@ -9,7 +9,7 @@ from ase.dft.bandgap import bandgap
 from ase.optimize import BFGS
 
 dbfile = Path('database.db')
-dbfile.unlink(missing_ok = True)
+dbfile.unlink(missing_ok=True)
 
 structures = ['Si', 'Ge', 'C']
 db = connect('database.db')
