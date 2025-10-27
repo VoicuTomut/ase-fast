@@ -193,5 +193,5 @@ the online ASE-DB tutorial at https://ase-lib.org/tutorials/db/db.html.
 Solutions
 ---------
 
-.. literalinclude:: solution/solution.py
+.. literalinclude:: solution_db.py
 """
