@@ -61,8 +61,7 @@ for f in structures:
 # Inspecting a database on the command line
 # -----------------------------------------
 # We can inspect the database using the ``db`` command::
-
-# %%
+#
 #  $ ase db database.db
 
 # %%
@@ -73,7 +72,7 @@ for f in structures:
 # From the help we can see that it is possible to make selections (queries in
 # database lingo) in the database by::
 #
-#    $ ase db database.db Al
+#  $ ase db database.db Al
 #
 # which will show all structures containing silicon. To see the details of a
 # particular row we can do::
