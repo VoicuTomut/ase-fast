@@ -53,6 +53,8 @@ from ase.io import read
 from ase.optimize.minimahopping import MHPlot, MinimaHopping
 from ase.visualize.plot import plot_atoms
 
+# sphinx_gallery_thumbnail_number = -1
+
 # Make results reproducible across doc builds. We will pass this random
 # number generator to the MinimaHopping algorithm.
 seed = 42
