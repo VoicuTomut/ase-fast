@@ -55,8 +55,8 @@ from ase.visualize.plot import plot_atoms
 
 # Make results reproducible across doc builds. We will pass this random
 # number generator to the MinimaHopping algorithm.
-seed=42
-rng=np.random.default_rng(seed)
+seed = 42
+rng = np.random.default_rng(seed)
 
 # %%
 # Build a fixed Pt(110) slab
@@ -68,7 +68,7 @@ slab = fcc110(
 print(slab.pbc)
 
 # %%
-# This sets the desired periodic boundary conditions to be periodic in 
+# This sets the desired periodic boundary conditions to be periodic in
 # x- and y-direction.
 
 # Fix the whole slab (only the adsorbate will move in this minimal example).
@@ -157,11 +157,11 @@ mh = MinimaHopping(
     mdmin=2,  # MD stop criterion
     logfile='hop.log',
     minima_traj='minima.traj',
-    rng=rng
+    rng=rng,
 )
 
 # Run a few steps only for documentation builds.
-mh(totalsteps=10) 
+mh(totalsteps=10)
 print(
     'Minima hopping finished.'
     "See 'hop.log' and 'minima.traj' in the working directory."

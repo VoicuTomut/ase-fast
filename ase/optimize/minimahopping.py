@@ -53,7 +53,6 @@ class MinimaHopping:
         self._previous_energy = None
         self._temperature = self._T0
         self._Ediff = self._Ediff0
-        
 
     def __call__(self, totalsteps=None, maxtemp=None):
         """Run the minima hopping algorithm. Can specify stopping criteria
