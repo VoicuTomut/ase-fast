@@ -113,7 +113,6 @@ ax.set_xlim(14.0, 16.0)
 ax.set_xlabel('volume [Å^3/atom]')
 ax.set_ylabel('energy [eV/atom]')
 plt.tight_layout()
-plt.show()
 
 # %%
 # Result for Pt using EMT compared to experiment and WIEN2k
