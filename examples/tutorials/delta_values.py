@@ -41,10 +41,11 @@ Calculating Delta-values
 # the :ref:`dcdft` ASE-collection
 # and we calculate the EMT EOS using this script:
 
+import numpy as np
+
 from ase.calculators.emt import EMT
 from ase.collections import dcdft
 from ase.io import Trajectory
-import numpy as np
 
 for symbol in ['Al', 'Ni', 'Cu', 'Pd', 'Ag', 'Pt', 'Au']:
     traj = Trajectory(f'{symbol}.traj', 'w')
