@@ -44,10 +44,11 @@ Calculating Delta-values
 from ase.calculators.emt import EMT
 from ase.collections import dcdft
 from ase.io import Trajectory
+import numpy as np
 
 for symbol in ['Al', 'Ni', 'Cu', 'Pd', 'Ag', 'Pt', 'Au']:
     traj = Trajectory(f'{symbol}.traj', 'w')
-    for s in range(94, 108, 7):
+    for s in np.linspace(92, 108, 13):
         atoms = dcdft[symbol]
         atoms.set_cell(atoms.cell * (s / 100) ** (1 / 3), scale_atoms=True)
         atoms.calc = EMT()
