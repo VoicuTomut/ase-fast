@@ -31,11 +31,13 @@ with 1, 2 and 3 layers and we will use database files to store the results.
 
 # sphinx_gallery_start_ignore
 from ase.io import write
+
 # sphinx_gallery_end_ignore
 from ase.build import bulk
 from ase.calculators.emt import EMT
 from ase.db import connect
 from ase.eos import calculate_eos
+
 #
 from ase.build import add_adsorbate, fcc111
 from ase.constraints import FixAtoms
@@ -117,6 +119,7 @@ ads_db = connect('ads.db')
 ads_syms = ['C', 'N', 'O']
 nlayers = [1, 2, 3]
 
+
 def optimize_adsorbate(symb, alat, nlayer, ads):
     atoms = fcc111(symb, (1, 1, nlayer), a=alat)
     add_adsorbate(atoms, ads, height=1.0, position='fcc')
@@ -132,7 +135,7 @@ def optimize_adsorbate(symb, alat, nlayer, ads):
 
 
 for row in bulk_db.select():
-    alat = row.cell[0, 1] * 2   # lattice constant
+    alat = row.cell[0, 1] * 2  # lattice constant
     symb = row.symbols[0]
     for nlayer in nlayers:
         for ads in ads_syms:
@@ -155,7 +158,7 @@ for row in bulk_db.select():
 # the inner loop:
 #
 # .. highlight:: python
-# 
+#
 # ::
 #
 #    for row in db1.select():
@@ -207,6 +210,7 @@ for row in bulk_db.select():
 
 refs_db = connect('refs.db')
 
+
 def clean_surface_reference(symb, alat, nlayer):
     atoms = fcc111(symb, (1, 1, nlayer), a=alat)
     atoms.calc = EMT()
@@ -216,7 +220,7 @@ def clean_surface_reference(symb, alat, nlayer):
 
 # Clean slabs:
 for row in bulk_db.select():
-    alat = row.cell[0, 1] * 2   # lattice constant
+    alat = row.cell[0, 1] * 2  # lattice constant
     symb = row.symbols[0]
     for nlayer in nlayers:
         myid = refs_db.reserve(layers=nlayer, surf=symb, ads='clean')
@@ -271,8 +275,9 @@ for ads in ads_syms:
 # (`ea.py`):
 
 for row in ads_db.select():
-    e_ads = refs_db.get(formula=row.ads).energy         # atoms
-    e_clean = refs_db.get(surf=row.surf, layers=row.layers, ads='clean').energy     # clean surface
+    e_ads = refs_db.get(formula=row.ads).energy  # atoms
+    e_clean = refs_db.get(surf=row.surf, layers=row.layers,
+                          ads='clean').energy  # clean surface
     ea = row.energy - e_ads - e_clean
     h = row.positions[-1, 2] - row.positions[-2, 2]
     ads_db.update(row.id, ea=ea, height=h)
