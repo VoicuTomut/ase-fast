@@ -52,7 +52,7 @@ dbfile = Path('database.db')
 dbfile.unlink(missing_ok=True)
 
 structures = ['Al', 'Cu', 'Au']
-db = connect('database.db')
+db = connect(dbfile)
 
 for structure in structures:
     db.write(bulk(structure))
@@ -97,7 +97,7 @@ for structure in structures:
 # To open a database using Python, we can use the :class:`ase.database.connect`
 #  method which returns a database object from which we can make selections:
 
-db = connect('database.db')
+db = connect(dbfile)
 for row in db.select():
     atoms = row.toatoms()
     print(atoms)
