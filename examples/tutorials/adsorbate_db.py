@@ -30,17 +30,16 @@ with 1, 2 and 3 layers and we will use database files to store the results.
 # elements where the :mod:`EMT <ase.calculators.emt>` potential works well using
 # `bulk.db`:
 
-from ase.io import write
-from ase.build import bulk
-from ase.calculators.emt import EMT
-from ase.db import connect
-from ase.eos import calculate_eos
+from ase import Atoms
 
 #
-from ase.build import add_adsorbate, fcc111
+from ase.build import add_adsorbate, bulk, fcc111
+from ase.calculators.emt import EMT
 from ase.constraints import FixAtoms
+from ase.db import connect
+from ase.eos import calculate_eos
+from ase.io import write
 from ase.optimize import BFGS
-from ase import Atoms
 
 bulk_syms = ['Al', 'Ni', 'Cu', 'Pd', 'Ag', 'Pt', 'Au']
 bulk_db = connect('bulk.db')
