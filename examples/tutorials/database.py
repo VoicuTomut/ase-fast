@@ -54,8 +54,8 @@ dbfile.unlink(missing_ok=True)
 structures = ['Al', 'Cu', 'Au']
 db = connect('database.db')
 
-for f in structures:
-    db.write(bulk(f))
+for structure in structures:
+    db.write(bulk(structure))
 
 # %%
 # Inspecting a database on the command line
