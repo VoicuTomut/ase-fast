@@ -29,10 +29,18 @@ with 1, 2 and 3 layers and we will use database files to store the results.
 # elements where the :mod:`EMT <ase.calculators.emt>` potential works well using
 # `bulk.db`:
 
+# sphinx_gallery_start_ignore
+from ase.io import write
+# sphinx_gallery_end_ignore
 from ase.build import bulk
 from ase.calculators.emt import EMT
 from ase.db import connect
 from ase.eos import calculate_eos
+#
+from ase.build import add_adsorbate, fcc111
+from ase.constraints import FixAtoms
+from ase.optimize import BFGS
+from ase import Atoms
 
 bulk_syms = ['Al', 'Ni', 'Cu', 'Pd', 'Ag', 'Pt', 'Au']
 bulk_db = connect('bulk.db')
@@ -104,9 +112,6 @@ for symb in bulk_syms:
 # Now we do the adsorption calculations:
 #
 
-from ase.build import add_adsorbate, fcc111
-from ase.constraints import FixAtoms
-from ase.optimize import BFGS
 
 ads_db = connect('ads.db')
 ads_syms = ['C', 'N', 'O']
@@ -199,8 +204,6 @@ for row in bulk_db.select():
 # Let's also calculate the energy of the clean surfaces and the isolated
 # adsorbates (`refs.py`):
 
-from ase import Atoms
-from ase.build import fcc111
 
 refs_db = connect('refs.db')
 
@@ -293,7 +296,6 @@ for row in ads_db.select():
 
 # %%
 # sphinx_gallery_start_ignore
-from ase.io import write
 for nlayer in nlayers:
     atoms = ads_db.get(surf='Cu', ads='O', layers=row.layers).toatoms()
     atoms_sc = atoms * (2, 2, 1)
