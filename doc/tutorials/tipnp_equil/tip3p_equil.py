@@ -49,7 +49,7 @@ atoms = atoms.repeat((2, 2, 2))
 atoms.constraints = FixBondLengths(
     [
         (3 * i + j, 3 * i + (j + 1) % 3)
-        for i in range(len(atoms) / 3)
+        for i in range(int(len(atoms) / 3))
         for j in [0, 1, 2]
     ]
 )

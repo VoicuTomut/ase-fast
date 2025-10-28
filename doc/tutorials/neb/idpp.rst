@@ -4,6 +4,15 @@
 Image Dependent Pair Potential for improved interpolation of NEB initial guess
 ==============================================================================
 
+.. note::
+
+  We are currently moving to a new way to display our examples.
+  For this example we have an updated version, which you 
+  can find :ref:`here <neb_idpp_tutorial>`.
+  The example on this page is deprecated and will be removed 
+  once all examples have been moved to 
+  the new format.
+
 Reference: S. Smidstrup, A. Pedersen, K. Stokbro and H. Jonsson,
 Improved initial guess for minimum energy path calculations,
 J. Chem. Phys. 140, 214106 (2014).

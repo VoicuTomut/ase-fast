@@ -2,6 +2,15 @@
 
 Equilibrating a TIPnP Water Box
 ===============================
+.. note::
+
+  We are currently moving to a new way to display our examples.
+  For this example we have an updated version, which you 
+  can find :ref:`here <tipnp water box equilibration example>`.
+  The example on this page is deprecated and will be removed 
+  once all examples have been moved to 
+  the new format.
+
 
 This tutorial shows how to use the TIP3P and TIP4P force fields in
 ASE.
