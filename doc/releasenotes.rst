@@ -1573,7 +1573,7 @@ Version 3.15.0
   :ref:`Turbomole <turbomole qmmm>` and :mod:`DFTB+ <ase.calculators.dftb>`
   as the QM part.
 
-* New :ref:`db tutorial` tutorial.
+* New :ref:`adsorbate_db tutorial` tutorial.
 
 * :mod:`ase.gui`:  Improved atom colouring options; support the Render Scene (povray) and Ctrl+R rotation features again; updated German and Chinese translations.
 
