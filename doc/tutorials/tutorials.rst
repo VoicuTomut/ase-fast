@@ -35,13 +35,6 @@ Basic property calculations
    eos/eos
    lattice_constant
 
-Surface adsorption
-^^^^^^^^^^^^^^^^^^
-.. toctree::
-   :maxdepth: 1
-
-   db/db
-
 Global optimization
 ^^^^^^^^^^^^^^^^^^^
 .. toctree::

@@ -1,5 +1,5 @@
 """
-.. _adsorbate_db:
+.. _adsorbate_db tutorials:
 
 ===============================================
 Surface adsorption study using the ASE database
@@ -16,11 +16,12 @@ with 1, 2 and 3 layers and we will use database files to store the results.
 # sphinx_gallery_thumbnail_path = 'Cu1O.png'
 
 # %%
-# |Cu1O| |Cu2O| |Cu3O|
 #
-# .. |Cu1O| image:: Cu1O.png
-# .. |Cu2O| image:: Cu2O.png
-# .. |Cu3O| image:: Cu3O.png
+# .. centered:: |Cu1O| |Cu2O| |Cu3O|
+#
+# .. |Cu1O| image:: ../../../examples/tutorials/Cu1O.png
+# .. |Cu2O| image:: ../../../examples/tutorials/Cu2O.png
+# .. |Cu3O| image:: ../../../examples/tutorials/Cu3O.png
 
 # %%
 # Bulk
@@ -300,8 +301,8 @@ for row in ads_db.select():
 
 # %%
 for nlayer in nlayers:
-    atoms = ads_db.get(surf='Cu', ads='O', layers=row.layers).toatoms()
-    atoms_sc = atoms * (2, 2, 1)
+    atoms = ads_db.get(surf='Cu', ads='O', layers=nlayer).toatoms()
+    atoms_sc = atoms * (4, 4, 1)
     renderer = write(f'Cu{nlayer}O.pov', atoms_sc, rotation='-80x')
     if renderer is not None:
         renderer.render()
