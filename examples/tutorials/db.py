@@ -34,8 +34,10 @@ from ase.calculators.emt import EMT
 from ase.db import connect
 from ase.eos import calculate_eos
 
+bulk_syms = ['Al', 'Ni', 'Cu', 'Pd', 'Ag', 'Pt', 'Au']
+
 db = connect('bulk.db')
-for symb in ['Al', 'Ni', 'Cu', 'Pd', 'Ag', 'Pt', 'Au']:
+for symb in bulk_sym:
     atoms = bulk(symb, 'fcc')
     atoms.calc = EMT()
     eos = calculate_eos(atoms)
@@ -109,9 +111,11 @@ from ase.optimize import BFGS
 db1 = connect('bulk.db')
 db2 = connect('ads.db')
 
+ads_syms = ['C', 'N', 'O']
+nlayers = [1, 2, 3]
 
-def run(symb, a, n, ads):
-    atoms = fcc111(symb, (1, 1, n), a=a)
+def optimize_adsorbate(symb, alat, nlayer, ads):
+    atoms = fcc111(symb, (1, 1, nlayer), a=alat)
     add_adsorbate(atoms, ads, height=1.0, position='fcc')
 
     # Constrain all atoms except the adsorbate:
@@ -125,12 +129,12 @@ def run(symb, a, n, ads):
 
 
 for row in db1.select():
-    a = row.cell[0, 1] * 2
+    alat = row.cell[0, 1] * 2   # lattice constant
     symb = row.symbols[0]
-    for n in [1, 2, 3]:
-        for ads in 'CNO':
-            atoms = run(symb, a, n, ads)
-            db2.write(atoms, layers=n, surf=symb, ads=ads)
+    for nlayer in nlayers:
+        for ads in ads_sym:
+            atoms = optimize_adsorbate(symb, alat, nlayer, ads)
+            db2.write(atoms, layers=nlayer, surf=symb, ads=ads)
 
 # %%
 # We now have a new database file with 63 rows::
@@ -204,8 +208,8 @@ db1 = connect('bulk.db')
 db2 = connect('ads.db')
 
 
-def run(symb, a, n):
-    atoms = fcc111(symb, (1, 1, n), a=a)
+def clean_surface_reference(symb, alat, nlayer):
+    atoms = fcc111(symb, (1, 1, nlayer), a=alat)
     atoms.calc = EMT()
     atoms.get_forces()
     return atoms
@@ -213,20 +217,20 @@ def run(symb, a, n):
 
 # Clean slabs:
 for row in db1.select():
-    a = row.cell[0, 1] * 2
+    alat = row.cell[0, 1] * 2   # lattice constant
     symb = row.symbols[0]
-    for n in [1, 2, 3]:
-        id = db2.reserve(layers=n, surf=symb, ads='clean')
-        if id is not None:
-            atoms = run(symb, a, n)
-            db2.write(atoms, id=id, layers=n, surf=symb, ads='clean')
+    for nlayer in nlayers:
+        myid = db2.reserve(layers=nlayer, surf=symb, ads='clean')
+        if myid is not None:
+            atoms = clean_surface_reference(symb, a, n)
+            db2.write(atoms, id=myid, layers=n, surf=symb, ads='clean')
 
 # Atoms:
-for ads in 'CNO':
-    a = Atoms(ads)
-    a.calc = EMT()
-    a.get_potential_energy()
-    db2.write(a)
+for ads in ads_syms:
+    atoms = Atoms(ads)
+    atoms.calc = EMT()
+    atoms.get_potential_energy()
+    db2.write(atoms)
 
 # ::
 #
@@ -270,7 +274,12 @@ from ase.db import connect
 refs = connect('refs.db')     
 db = connect('ads.db')
 
+for row in refs.select():
+    for key in row:
+        print(key, row[key])
+
 for row in db.select():
+   print(row)
    e_ads = refs.get(ads=row.ads).energy
    e_clean = refs.get(surf=row.surf, layers=row.layers, ads='clean').energy
    ea = row.energy - e_ads - e_clean
