@@ -40,5 +40,5 @@ examples_generated
 sg_execution_times.rst
 
 #
-examples/deltacodesdft/*.csv
-examples/deltacodesdft/*.json
+examples/*.csv
+examples/*.json
