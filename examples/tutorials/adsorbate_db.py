@@ -12,14 +12,16 @@ with 1, 2 and 3 layers and we will use database files to store the results.
 .. seealso::
 
     The :mod:`ase.db` module documentation.
+
 """
+# sphinx_gallery_thumbnail_path = 'Cu1O.png'
 
 # %%
-# |cu1o| |cu2o| |cu3o|
+# |Cu1O| |Cu2O| |Cu3O|
 #
-# .. |cu1o| image:: cu1o.png
-# .. |cu2o| image:: cu2o.png
-# .. |cu3o| image:: cu3o.png
+# .. |Cu1O| image:: Cu1O.png
+# .. |Cu2O| image:: Cu2O.png
+# .. |Cu3O| image:: Cu3O.png
 
 # %%
 # Bulk
@@ -29,10 +31,7 @@ with 1, 2 and 3 layers and we will use database files to store the results.
 # elements where the :mod:`EMT <ase.calculators.emt>` potential works well using
 # `bulk.db`:
 
-# sphinx_gallery_start_ignore
 from ase.io import write
-
-# sphinx_gallery_end_ignore
 from ase.build import bulk
 from ase.calculators.emt import EMT
 from ase.db import connect
@@ -49,6 +48,7 @@ bulk_db = connect('bulk.db')
 
 for symb in bulk_syms:
     atoms = bulk(symb, 'fcc')
+
     atoms.calc = EMT()
     eos = calculate_eos(atoms)
     v, e, B = eos.fit()  # find minimum
@@ -300,11 +300,9 @@ for row in ads_db.select():
 #    parameters for C, N and O are not intended for real work!
 
 # %%
-# sphinx_gallery_start_ignore
 for nlayer in nlayers:
     atoms = ads_db.get(surf='Cu', ads='O', layers=row.layers).toatoms()
     atoms_sc = atoms * (2, 2, 1)
     renderer = write(f'Cu{nlayer}O.pov', atoms_sc, rotation='-80x')
     if renderer is not None:
         renderer.render()
-# sphinx_gallery_end_ignore
