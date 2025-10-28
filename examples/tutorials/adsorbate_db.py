@@ -297,7 +297,7 @@ from ase.io import write
 for nlayer in nlayers:
     atoms = ads_db.get(surf='Cu', ads='O', layers=row.layers).toatoms()
     atoms_sc = atoms * (2, 2, 1)
-    renderer = write(f'Cu{nlayer}O.png', atoms_sc, rotation='-80x')
+    renderer = write(f'Cu{nlayer}O.pov', atoms_sc, rotation='-80x')
     if renderer is not None:
         renderer.render()
 # sphinx_gallery_end_ignore
