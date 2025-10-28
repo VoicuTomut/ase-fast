@@ -274,9 +274,10 @@ for ads in ads_syms:
 # (`ea.py`):
 
 for row in ads_db.select():
+    # atoms
     e_ads = refs_db.get(formula=row.ads).energy  # atoms
-    e_clean = refs_db.get(surf=row.surf, layers=row.layers,
-                          ads='clean').energy  # clean surface
+    # clean surface
+    e_clean = refs_db.get(surf=row.surf, layers=row.layers, ads='clean').energy
     ea = row.energy - e_ads - e_clean
     h = row.positions[-1, 2] - row.positions[-2, 2]
     ads_db.update(row.id, ea=ea, height=h)
