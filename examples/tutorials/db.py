@@ -35,9 +35,9 @@ from ase.db import connect
 from ase.eos import calculate_eos
 
 bulk_syms = ['Al', 'Ni', 'Cu', 'Pd', 'Ag', 'Pt', 'Au']
+bulk_db = connect('bulk.db')
 
-db = connect('bulk.db')
-for symb in bulk_sym:
+for symb in bulk_syms:
     atoms = bulk(symb, 'fcc')
     atoms.calc = EMT()
     eos = calculate_eos(atoms)
@@ -45,7 +45,9 @@ for symb in bulk_sym:
     # Do one more calculation at the minimum and write to database:
     atoms.cell *= (v / atoms.get_volume()) ** (1 / 3)
     atoms.get_potential_energy()
-    db.write(atoms, bm=B)
+    myid = bulk_db.reserve(bm=B)
+    if myid is not None:
+        bulk_db.write(atoms, id=myid, bm=B)
 
 # %%
 # .. highlight:: bash
@@ -103,14 +105,10 @@ for symb in bulk_sym:
 #
 
 from ase.build import add_adsorbate, fcc111
-from ase.calculators.emt import EMT
 from ase.constraints import FixAtoms
-from ase.db import connect
 from ase.optimize import BFGS
 
-db1 = connect('bulk.db')
-db2 = connect('ads.db')
-
+ads_db = connect('ads.db')
 ads_syms = ['C', 'N', 'O']
 nlayers = [1, 2, 3]
 
@@ -128,13 +126,15 @@ def optimize_adsorbate(symb, alat, nlayer, ads):
     return atoms
 
 
-for row in db1.select():
+for row in bulk_db.select():
     alat = row.cell[0, 1] * 2   # lattice constant
     symb = row.symbols[0]
     for nlayer in nlayers:
-        for ads in ads_sym:
+        for ads in ads_syms:
             atoms = optimize_adsorbate(symb, alat, nlayer, ads)
-            db2.write(atoms, layers=nlayer, surf=symb, ads=ads)
+            myid = ads_db.reserve(layers=nlayer, surf=symb, ads=ads)
+            if myid is not None:
+                ads_db.write(atoms, id=myid, layers=nlayer, surf=symb, ads=ads)
 
 # %%
 # We now have a new database file with 63 rows::
@@ -201,12 +201,8 @@ for row in db1.select():
 
 from ase import Atoms
 from ase.build import fcc111
-from ase.calculators.emt import EMT
-from ase.db import connect
 
-db1 = connect('bulk.db')
-db2 = connect('ads.db')
-
+refs_db = connect('refs.db')
 
 def clean_surface_reference(symb, alat, nlayer):
     atoms = fcc111(symb, (1, 1, nlayer), a=alat)
@@ -216,21 +212,23 @@ def clean_surface_reference(symb, alat, nlayer):
 
 
 # Clean slabs:
-for row in db1.select():
+for row in bulk_db.select():
     alat = row.cell[0, 1] * 2   # lattice constant
     symb = row.symbols[0]
     for nlayer in nlayers:
-        myid = db2.reserve(layers=nlayer, surf=symb, ads='clean')
+        myid = refs_db.reserve(layers=nlayer, surf=symb, ads='clean')
         if myid is not None:
-            atoms = clean_surface_reference(symb, a, n)
-            db2.write(atoms, id=myid, layers=n, surf=symb, ads='clean')
+            atoms = clean_surface_reference(symb, alat, nlayer)
+            refs_db.write(atoms, id=myid, layers=nlayer, surf=symb, ads='clean')
 
 # Atoms:
 for ads in ads_syms:
     atoms = Atoms(ads)
     atoms.calc = EMT()
     atoms.get_potential_energy()
-    db2.write(atoms)
+    myid = refs_db.reserve(ads=ads)
+    if myid is not None:
+        refs_db.write(atoms, id=myid, ads=ads)
 
 # ::
 #
@@ -269,22 +267,12 @@ for ads in ads_syms:
 # Now we have what we need to calculate the adsorption energies and heights
 # (`ea.py`):
 
-from ase.db import connect    
-
-refs = connect('refs.db')     
-db = connect('ads.db')
-
-for row in refs.select():
-    for key in row:
-        print(key, row[key])
-
-for row in db.select():
-   print(row)
-   e_ads = refs.get(ads=row.ads).energy
-   e_clean = refs.get(surf=row.surf, layers=row.layers, ads='clean').energy
-   ea = row.energy - e_ads - e_clean
-   h = row.positions[-1, 2] - row.positions[-2, 2]
-   db.update(row.id, ea=ea, height=h)
+for row in ads_db.select():
+    e_ads = refs_db.get(formula=row.ads).energy         # atoms
+    e_clean = refs_db.get(surf=row.surf, layers=row.layers, ads='clean').energy     # clean surface
+    ea = row.energy - e_ads - e_clean
+    h = row.positions[-1, 2] - row.positions[-2, 2]
+    ads_db.update(row.id, ea=ea, height=h)
 
 # %%
 # Here are the results for three layers of Pt::
@@ -305,14 +293,11 @@ for row in db.select():
 
 # %%
 # sphinx_gallery_start_ignore
-from ase.io import read, write
-print(read(f'ads.db@CuO'))
-for n in [1, 2, 3]:
-    a = read(f'ads.db@Cu{n}O')
-    a *= (2, 2, 1)
-    renderer = write(f'cu{n}o.pov', a, rotation='-80x')
+from ase.io import write
+for nlayer in nlayers:
+    atoms = ads_db.get(surf='Cu', ads='O', layers=row.layers).toatoms()
+    atoms_sc = atoms * (2, 2, 1)
+    renderer = write(f'Cu{nlayer}O.png', atoms_sc, rotation='-80x')
     if renderer is not None:
         renderer.render()
 # sphinx_gallery_end_ignore
-
-
