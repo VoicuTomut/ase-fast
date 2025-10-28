@@ -43,9 +43,12 @@ atoms = Atoms('N2', positions=[[0, 0, -1], [0, 0, 1]])
 
 from ase.visualize import view
 
-view(atoms)
-
 # %%
+#
+# .. code-block:: python
+#
+#    view(atoms)
+#
 # Equivalently we can save the atoms in some format, often ASE's own
 # :mod:`~ase.io.trajectory` format:
 #
@@ -67,11 +70,6 @@ write('myatoms.traj', atoms)
 # feel free to get an overview:
 #
 #  $ ase --help
-#
-# .. admonition: Exercise
-#
-#   Write a script which sets up and saves an :mol:`N_2` molecule,
-#   then visualize it.
 #
 #
 # Calculators
