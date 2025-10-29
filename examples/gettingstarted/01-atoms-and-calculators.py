@@ -150,14 +150,14 @@ print('Forces', f)
 
 from ase.io.trajectory import Trajectory
 
-traj = Trajectory('mytrajectory.traj', 'w')
-traj.write(atoms)
+with Trajectory('mytrajectory.traj', 'w') as traj:
+    traj.write(atoms)
 
 # %%
 # Now, we can displace one of the atoms in small steps to trace out a binding
 # energy curve :math:`E(d)` around the equilibrium
-# distance.  We safe each step to a trajectory file so that we can evaluate
-# the results later on separately.
+# distance.  We safe each step to a single trajectory file so that we can
+# evaluate the results later on separately.
 #
 
 atoms = Atoms('N2', positions=[[0, 0, -1], [0, 0, 1]])
@@ -165,20 +165,19 @@ atoms = Atoms('N2', positions=[[0, 0, -1], [0, 0, 1]])
 calc = EMT()
 atoms.calc = calc
 
-traj = Trajectory('binding_curve.traj', 'w')
-
 step = 0.1
 nsteps = int(6 / step)
 
-for i in range(nsteps):
-    d = 0.5 + i * step
-    atoms.positions[1, 2] = atoms.positions[0, 2] + d
+with Trajectory('binding_curve.traj', 'w') as traj:
+    for i in range(nsteps):
+        d = 0.5 + i * step
+        atoms.positions[1, 2] = atoms.positions[0, 2] + d
 
-    e = atoms.get_potential_energy()
-    f = atoms.get_forces()
-    print('distance, energy', d, e)
-    print('force', f)
-    traj.write(atoms)
+        e = atoms.get_potential_energy()
+        f = atoms.get_forces()
+        print('distance, energy', d, e)
+        print('force', f)
+        traj.write(atoms)
 
 # %%
 # As before, you can use the command line interface to visualize
