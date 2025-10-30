@@ -40,26 +40,31 @@ Calculating Delta-values
 # the :ref:`dcdft` ASE-collection
 # and we calculate the EMT EOS using this script:
 
+from pathlib import Path
+
 import numpy as np
 
 from ase.calculators.emt import EMT
 from ase.collections import dcdft
 from ase.io import Trajectory
 
+trajfiles = []
+
 for symbol in ['Al', 'Ni', 'Cu', 'Pd', 'Ag', 'Pt', 'Au']:
-    traj = Trajectory(f'{symbol}.traj', 'w')
-    for s in np.linspace(92, 108, 13):
-        atoms = dcdft[symbol]
-        atoms.set_cell(atoms.cell * (s / 100) ** (1 / 3), scale_atoms=True)
-        atoms.calc = EMT()
-        atoms.get_potential_energy()
-        traj.write(atoms)
+    trajfile = Path(f'{symbol}.traj')
+    with Trajectory(trajfile, 'w') as traj:
+        for s in range(94, 108, 2):
+            atoms = dcdft[symbol]
+            atoms.set_cell(atoms.cell * (s / 100) ** (1 / 3), scale_atoms=True)
+            atoms.calc = EMT()
+            atoms.get_potential_energy()
+            traj.write(atoms)
+    trajfiles.append(trajfile)
 
 # %%
 # And fit to a Birch-Murnaghan EOS:
 
 import json
-from pathlib import Path
 
 from ase.eos import EquationOfState as EOS
 from ase.io import read
@@ -71,6 +76,7 @@ def fit(symbol: str) -> tuple[float, float, float, float]:
     for atoms in read(f'{symbol}.traj@:'):
         V.append(atoms.get_volume() / len(atoms))
         E.append(atoms.get_potential_energy() / len(atoms))
+
     eos = EOS(V, E, 'birchmurnaghan')
     eos.fit(warn=False)
     e0, B, Bp, v0 = eos.eos_parameters
@@ -78,7 +84,7 @@ def fit(symbol: str) -> tuple[float, float, float, float]:
 
 
 data = {}  # Dict[str, Dict[str, float]]
-for path in Path().glob('*.traj'):
+for path in trajfiles:
     symbol = path.stem
     e0, v0, B, Bp = fit(symbol)
     data[symbol] = {
@@ -94,8 +100,6 @@ Path('fit.json').write_text(json.dumps(data))
 # Result for Pt using EMT:
 import matplotlib.pyplot as plt
 
-from ase.eos import EquationOfState as EOS
-from ase.io import read
 
 V, E = [], []
 for atoms in read('Pt.traj@:'):
@@ -105,9 +109,9 @@ for atoms in read('Pt.traj@:'):
 eos = EOS(V, E, 'birchmurnaghan')
 eos.fit(warn=False)
 
-plt.figure()
-eos.plot()  # draw onto the current axes
-ax = plt.gca()
+fig = plt.figure()
+ax = fig.gca()
+eos.plot(ax=ax)  # draw onto the current axes
 ax.set_xlim(14.0, 16.0)
 ax.set_xlabel('volume [Å^3/atom]')
 ax.set_ylabel('energy [eV/atom]')
