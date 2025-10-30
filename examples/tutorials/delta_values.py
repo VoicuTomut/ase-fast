@@ -98,8 +98,8 @@ Path('fit.json').write_text(json.dumps(data))
 
 # %%
 # Result for Pt using EMT:
-import matplotlib.pyplot as plt
 
+import matplotlib.pyplot as plt
 
 V, E = [], []
 for atoms in read('Pt.traj@:'):
@@ -186,7 +186,6 @@ delta(15.08, 278.67 * 1e-24 * kJ, 5.31, 15.64, 248.71 * 1e-24 * kJ, 5.46)
 import json
 from pathlib import Path
 
-import matplotlib.pyplot as plt
 import numpy as np
 
 from ase.collections import dcdft
