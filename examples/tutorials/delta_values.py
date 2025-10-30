@@ -183,16 +183,7 @@ delta(15.08, 278.67 * 1e-24 * kJ, 5.31, 15.64, 248.71 * 1e-24 * kJ, 5.46)
 #   Ag, 1.9, 22.4, 21.3
 #   Cu, 2.7, 11.9, 9.5
 
-import json
-from pathlib import Path
-
-import numpy as np
-
-from ase.collections import dcdft
 from ase.eos import birchmurnaghan
-from ase.io import read
-from ase.units import kJ
-from ase.utils.deltacodesdft import delta
 
 # Read EMT data:
 data = json.loads(Path('fit.json').read_text())
