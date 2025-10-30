@@ -195,8 +195,8 @@ for symbol in data:
     data[symbol].update(dcdft_dct)
 
 for name in ['volume', 'B', 'Bp']:
-    with open(name + '.csv', 'w') as f:
-        print('# symbol, emt, exp, wien2k', file=f)
+    with open(name + '.csv', 'w') as fd:
+        print('# symbol, emt, exp, wien2k', file=fd)
         for symbol, dct in data.items():
             values = [
                 dct[code + '_' + name] for code in ['emt', 'exp', 'wien2k']
@@ -206,11 +206,11 @@ for name in ['volume', 'B', 'Bp']:
             print(
                 f'{symbol},',
                 ', '.join(f'{value:.2f}' for value in values),
-                file=f,
+                file=fd,
             )
 
-with open('delta.csv', 'w') as f:
-    print('# symbol, emt-exp, emt-wien2k, exp-wien2k', file=f)
+with open('delta.csv', 'w') as fd:
+    print('# symbol, emt-exp, emt-wien2k, exp-wien2k', file=fd)
     for symbol, dct in data.items():
         # Get v0, B, Bp:
         emt, exp, wien2k = (
@@ -221,7 +221,7 @@ with open('delta.csv', 'w') as f:
             f'{symbol}, {delta(*emt, *exp) * 1000:.1f}, '
             f'{delta(*emt, *wien2k) * 1000:.1f}, '
             f'{delta(*exp, *wien2k) * 1000:.1f}',
-            file=f,
+            file=fd,
         )
 
         if symbol == 'Pt':
