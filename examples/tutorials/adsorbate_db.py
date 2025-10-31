@@ -48,7 +48,6 @@ path_to_bulk_db = Path('bulk.db')
 path_to_bulk_db.unlink(missing_ok=True)
 # use context manage to ensure that connection is closed afterwards
 with connect(path_to_bulk_db) as bulk_db:
-
     for symb in bulk_syms:
         atoms = bulk(symb, 'fcc')
 
@@ -138,7 +137,6 @@ def optimize_adsorbate(symb, alat, nlayer, ads):
 path_to_ads_db.unlink(missing_ok=True)
 # again use context-manager
 with connect(path_to_ads_db) as ads_db:
-
     for row in bulk_db.select():
         alat = row.cell[0, 1] * 2  # lattice constant
         symb = row.symbols[0]
@@ -147,8 +145,9 @@ with connect(path_to_ads_db) as ads_db:
                 atoms = optimize_adsorbate(symb, alat, nlayer, ads)
                 myid = ads_db.reserve(layers=nlayer, surf=symb, ads=ads)
                 if myid is not None:
-                    ads_db.write(atoms, id=myid, layers=nlayer,
-                                 surf=symb, ads=ads)
+                    ads_db.write(
+                        atoms, id=myid, layers=nlayer, surf=symb, ads=ads
+                    )
 
 # %%
 # We now have a new database file with 63 rows::
@@ -214,7 +213,6 @@ path_to_refs_db.unlink(missing_ok=True)
 with connect(path_to_refs_db) as refs_db:
     # connect bulk_db for reading
     with connect(path_to_bulk_db) as bulk_db:
-
         for row in bulk_db.select():
             alat = row.cell[0, 1] * 2  # lattice constant
             symb = row.symbols[0]
@@ -222,8 +220,9 @@ with connect(path_to_refs_db) as refs_db:
                 myid = refs_db.reserve(layers=nlayer, surf=symb, ads='clean')
                 if myid is not None:
                     atoms = clean_surface_reference(symb, alat, nlayer)
-                    refs_db.write(atoms, id=myid, layers=nlayer,
-                                  surf=symb, ads='clean')
+                    refs_db.write(
+                        atoms, id=myid, layers=nlayer, surf=symb, ads='clean'
+                    )
 
     # isolated atoms:
     for ads in ads_syms:
@@ -283,13 +282,13 @@ with connect(path_to_refs_db) as refs_db:
 with connect(path_to_ads_db) as ads_db:
     # connect to refs_db for reading
     with connect(path_to_refs_db) as refs_db:
-
         for row in ads_db.select():
             # atoms
             e_ads = refs_db.get(formula=row.ads).energy
             # clean surface
-            e_clean = refs_db.get(surf=row.surf, layers=row.layers,
-                                  ads='clean').energy
+            e_clean = refs_db.get(
+                surf=row.surf, layers=row.layers, ads='clean'
+            ).energy
             ea = row.energy - e_ads - e_clean
             h = row.positions[-1, 2] - row.positions[-2, 2]
             ads_db.update(row.id, ea=ea, height=h)
@@ -310,7 +309,6 @@ with connect(path_to_ads_db) as ads_db:
 # Finally, we can load specific structures of the database and create figures:
 
 with connect(path_to_ads_db) as ads_db:
-
     for nlayer in nlayers:
         atoms = ads_db.get(surf='Cu', ads='O', layers=nlayer).toatoms()
         atoms_sc = atoms * (4, 4, 1)
