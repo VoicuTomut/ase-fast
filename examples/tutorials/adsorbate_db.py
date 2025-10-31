@@ -28,8 +28,8 @@ with 1, 2 and 3 layers and we will use database files to store the results.
 # ----
 #
 # First, we calculate the equilibrium bulk FCC lattice constants for the seven
-# elements where the :mod:`EMT <ase.calculators.emt>` potential works well using
-# `bulk.db`:
+# elements where the :mod:`EMT <ase.calculators.emt>` potential works well
+# starting from the `bulk.db` database:
 
 from ase import Atoms
 
@@ -110,7 +110,8 @@ for symb in bulk_syms:
 # Adsorbates
 # ----------
 #
-# Now we do the adsorption calculations:
+# Now we do the adsorption calculations and store the results
+# in the `ads.db` database:
 #
 
 
@@ -204,7 +205,7 @@ for row in bulk_db.select():
 # ------------------
 #
 # Let's also calculate the energy of the clean surfaces and the isolated
-# adsorbates (`refs.py`):
+# adsorbates and store them in the `refs.db` database:
 
 
 refs_db = connect('refs.db')
@@ -300,6 +301,7 @@ for row in ads_db.select():
 #    parameters for C, N and O are not intended for real work!
 
 # %%
+# Finally, we can load specific structures of the database and create figures:
 for nlayer in nlayers:
     atoms = ads_db.get(surf='Cu', ads='O', layers=nlayer).toatoms()
     atoms_sc = atoms * (4, 4, 1)
