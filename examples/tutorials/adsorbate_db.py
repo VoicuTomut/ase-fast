@@ -30,6 +30,8 @@ with 1, 2 and 3 layers and we will use database files to store the results.
 # computational affordable calculator. We store the resulting configurations
 # together with its bulk modulus data in the database ``bulk.db``:
 
+from pathlib import Path
+
 from ase import Atoms
 from ase.build import add_adsorbate, bulk, fcc111
 from ase.calculators.emt import EMT
@@ -38,7 +40,6 @@ from ase.db import connect
 from ase.eos import calculate_eos
 from ase.io import write
 from ase.optimize import BFGS
-from pathlib import Path
 
 bulk_syms = ['Al', 'Ni', 'Cu', 'Pd', 'Ag', 'Pt', 'Au']
 path_to_bulk_db = Path('bulk.db')
@@ -137,6 +138,7 @@ def optimize_adsorbate(symb, alat, nlayer, ads):
 path_to_ads_db.unlink(missing_ok=True)
 # again use context-manager
 with connect(path_to_ads_db) as ads_db:
+
     for row in bulk_db.select():
         alat = row.cell[0, 1] * 2  # lattice constant
         symb = row.symbols[0]
@@ -212,6 +214,7 @@ path_to_refs_db.unlink(missing_ok=True)
 with connect(path_to_refs_db) as refs_db:
     # connect bulk_db for reading
     with connect(path_to_bulk_db) as bulk_db:
+
         for row in bulk_db.select():
             alat = row.cell[0, 1] * 2  # lattice constant
             symb = row.symbols[0]
@@ -280,9 +283,10 @@ with connect(path_to_refs_db) as refs_db:
 with connect(path_to_ads_db) as ads_db:
     # connect to refs_db for reading
     with connect(path_to_refs_db) as refs_db:
+
         for row in ads_db.select():
             # atoms
-            e_ads = refs_db.get(formula=row.ads).energy  # atoms
+            e_ads = refs_db.get(formula=row.ads).energy
             # clean surface
             e_clean = refs_db.get(surf=row.surf, layers=row.layers,
                                   ads='clean').energy
@@ -306,12 +310,12 @@ with connect(path_to_ads_db) as ads_db:
 # Finally, we can load specific structures of the database and create figures:
 
 with connect(path_to_ads_db) as ads_db:
+
     for nlayer in nlayers:
         atoms = ads_db.get(surf='Cu', ads='O', layers=nlayer).toatoms()
         atoms_sc = atoms * (4, 4, 1)
         renderer = write(f'Cu{nlayer}O.pov', atoms_sc, rotation='-80x')
-        if renderer is not None:
-            renderer.render()
+        renderer.render()
 
 # %%
 # .. note::
