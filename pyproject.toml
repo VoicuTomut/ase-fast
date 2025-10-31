@@ -110,8 +110,12 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "examples/gettingstarted/00-n2cu.py"=["E402","F401","I001"]
 "examples/gettingstarted/03-manipulating-atoms.py"=["E402"]
+"examples/gettingstarted/06-nanoparticle.py"=["E402"]
 "!doc/tutorials/**.py" = ["UP"]  # Only pyupgrade tutorials (for now)
+"examples/tutorials/delta_values.py" = ["E402","F811"]
+"examples/tutorials/neb_idpp.py"=["E402"]
 "examples/tutorials/dimensionality.py"=["E402","F811","F401"]
+"examples/tutorials/tipnp_equil.py"=["E402"]
 
 [tool.ruff.lint.pycodestyle]
 max-line-length = 80

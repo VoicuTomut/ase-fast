@@ -197,7 +197,6 @@ with connect(path_to_ads_db) as ads_db:
 
 
 path_to_refs_db = Path('refs.db')
-refs_db = connect('refs.db')
 
 
 def clean_surface_reference(symb, alat, nlayer):
@@ -305,6 +304,7 @@ with connect(path_to_ads_db) as ads_db:
 
 # %%
 # Finally, we can load specific structures of the database and create figures:
+
 with connect(path_to_ads_db) as ads_db:
     for nlayer in nlayers:
         atoms = ads_db.get(surf='Cu', ads='O', layers=nlayer).toatoms()

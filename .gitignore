@@ -5,6 +5,7 @@ MANIFEST
 .DS_Store
 */.DS_Store
 *.traj
+*.png
 /build
 /ase.egg-info
 /ase/db/static/jsmol
@@ -41,3 +42,7 @@ coverage-html
 # Sphinx-gallery files
 examples_generated
 sg_execution_times.rst
+
+#
+examples/*.csv
+examples/*.json

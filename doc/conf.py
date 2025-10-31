@@ -47,6 +47,7 @@ sphinx_gallery_conf = {
     'reference_url': {'ase': None},
     'remove_config_comments': True,
     'prefer_full_module': ['ase'],
+    'within_subsection_order': 'FileNameSortKey',
 }
 
 html_theme = 'sphinx_book_theme'
