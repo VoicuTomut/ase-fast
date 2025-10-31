@@ -240,8 +240,8 @@ for ads in ads_syms:
 
 # ::
 #
-# The previous code snippet can be turned into (save as ``refs.py``) and run
-# on the command line. The results look similar to the following:
+# The previous code snippet can be turned into a script (save as ``refs.py``)
+# and run on the command line. The results look similar to the following:
 #
 #    $ python refs.py
 #    $ ase db ads.db -n
