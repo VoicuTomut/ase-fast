@@ -38,25 +38,28 @@ from ase.db import connect
 from ase.eos import calculate_eos
 from ase.io import write
 from ase.optimize import BFGS
+from pathlib import Path
 
 bulk_syms = ['Al', 'Ni', 'Cu', 'Pd', 'Ag', 'Pt', 'Au']
-bulk_db = connect('bulk.db')
+path_to_bulk_db = Path('bulk.db')
 
-for symb in bulk_syms:
-    atoms = bulk(symb, 'fcc')
+# clean up if there is an old file
+path_to_bulk_db.unlink(missing_ok=True)
+# use context manage to ensure that connection is closed afterwards
+with connect(path_to_bulk_db) as bulk_db:
 
-    atoms.calc = EMT()
-    eos = calculate_eos(atoms)
-    v, e, B = eos.fit()  # find minimum
-    # Do one more calculation at the minimum and write to database:
-    atoms.cell *= (v / atoms.get_volume()) ** (1 / 3)
-    atoms.get_potential_energy()
-    if not list(bulk_db.select(formula=atoms.symbols[0])):
+    for symb in bulk_syms:
+        atoms = bulk(symb, 'fcc')
+
+        atoms.calc = EMT()
+        eos = calculate_eos(atoms)
+        v, e, B = eos.fit()  # find minimum
+        # do one more calculation at the minimum and write to database:
+        atoms.cell *= (v / atoms.get_volume()) ** (1 / 3)
+        atoms.get_potential_energy()
         bulk_db.write(atoms, bm=B)
 
 # %%
-# Here we used ``list(bulk_db.select(formula=atoms.symbols[0]))`` to check
-# whether the bulk atoms structure is already in the database.
 #
 # .. highlight:: bash
 #
@@ -111,7 +114,7 @@ for symb in bulk_syms:
 # Now we do the adsorption calculations and store the results
 # in the ``ads.db`` database:
 
-ads_db = connect('ads.db')
+path_to_ads_db = Path('ads.db')
 ads_syms = ['C', 'N', 'O']
 nlayers = [1, 2, 3]
 
@@ -130,15 +133,20 @@ def optimize_adsorbate(symb, alat, nlayer, ads):
     return atoms
 
 
-for row in bulk_db.select():
-    alat = row.cell[0, 1] * 2  # lattice constant
-    symb = row.symbols[0]
-    for nlayer in nlayers:
-        for ads in ads_syms:
-            atoms = optimize_adsorbate(symb, alat, nlayer, ads)
-            myid = ads_db.reserve(layers=nlayer, surf=symb, ads=ads)
-            if myid is not None:
-                ads_db.write(atoms, id=myid, layers=nlayer, surf=symb, ads=ads)
+# clean up if there is an old file
+path_to_ads_db.unlink(missing_ok=True)
+# again use context-manager
+with connect(path_to_ads_db) as ads_db:
+    for row in bulk_db.select():
+        alat = row.cell[0, 1] * 2  # lattice constant
+        symb = row.symbols[0]
+        for nlayer in nlayers:
+            for ads in ads_syms:
+                atoms = optimize_adsorbate(symb, alat, nlayer, ads)
+                myid = ads_db.reserve(layers=nlayer, surf=symb, ads=ads)
+                if myid is not None:
+                    ads_db.write(atoms, id=myid, layers=nlayer,
+                                 surf=symb, ads=ads)
 
 # %%
 # We now have a new database file with 63 rows::
@@ -188,6 +196,7 @@ for row in bulk_db.select():
 # adsorbates and store them in the ``refs.db`` database:
 
 
+path_to_refs_db = Path('refs.db')
 refs_db = connect('refs.db')
 
 
@@ -198,24 +207,30 @@ def clean_surface_reference(symb, alat, nlayer):
     return atoms
 
 
-# Clean slabs:
-for row in bulk_db.select():
-    alat = row.cell[0, 1] * 2  # lattice constant
-    symb = row.symbols[0]
-    for nlayer in nlayers:
-        myid = refs_db.reserve(layers=nlayer, surf=symb, ads='clean')
-        if myid is not None:
-            atoms = clean_surface_reference(symb, alat, nlayer)
-            refs_db.write(atoms, id=myid, layers=nlayer, surf=symb, ads='clean')
+# clean slabs
+path_to_refs_db.unlink(missing_ok=True)
+# connect to refs_db for writing
+with connect(path_to_refs_db) as refs_db:
+    # connect bulk_db for reading
+    with connect(path_to_bulk_db) as bulk_db:
+        for row in bulk_db.select():
+            alat = row.cell[0, 1] * 2  # lattice constant
+            symb = row.symbols[0]
+            for nlayer in nlayers:
+                myid = refs_db.reserve(layers=nlayer, surf=symb, ads='clean')
+                if myid is not None:
+                    atoms = clean_surface_reference(symb, alat, nlayer)
+                    refs_db.write(atoms, id=myid, layers=nlayer,
+                                  surf=symb, ads='clean')
 
-# Atoms:
-for ads in ads_syms:
-    atoms = Atoms(ads)
-    atoms.calc = EMT()
-    atoms.get_potential_energy()
-    myid = refs_db.reserve(ads=ads)
-    if myid is not None:
-        refs_db.write(atoms, id=myid, ads=ads)
+    # isolated atoms:
+    for ads in ads_syms:
+        atoms = Atoms(ads)
+        atoms.calc = EMT()
+        atoms.get_potential_energy()
+        myid = refs_db.reserve(ads=ads)
+        if myid is not None:
+            refs_db.write(atoms, id=myid, ads=ads)
 
 # %%
 #
@@ -262,14 +277,19 @@ for ads in ads_syms:
 #
 # Now we have what we need to calculate the adsorption energies and heights:
 
-for row in ads_db.select():
-    # atoms
-    e_ads = refs_db.get(formula=row.ads).energy  # atoms
-    # clean surface
-    e_clean = refs_db.get(surf=row.surf, layers=row.layers, ads='clean').energy
-    ea = row.energy - e_ads - e_clean
-    h = row.positions[-1, 2] - row.positions[-2, 2]
-    ads_db.update(row.id, ea=ea, height=h)
+# connect to ads_db for updating
+with connect(path_to_ads_db) as ads_db:
+    # connect to refs_db for reading
+    with connect(path_to_refs_db) as refs_db:
+        for row in ads_db.select():
+            # atoms
+            e_ads = refs_db.get(formula=row.ads).energy  # atoms
+            # clean surface
+            e_clean = refs_db.get(surf=row.surf, layers=row.layers,
+                                  ads='clean').energy
+            ea = row.energy - e_ads - e_clean
+            h = row.positions[-1, 2] - row.positions[-2, 2]
+            ads_db.update(row.id, ea=ea, height=h)
 
 # %%
 #
@@ -285,12 +305,13 @@ for row in ads_db.select():
 
 # %%
 # Finally, we can load specific structures of the database and create figures:
-for nlayer in nlayers:
-    atoms = ads_db.get(surf='Cu', ads='O', layers=nlayer).toatoms()
-    atoms_sc = atoms * (4, 4, 1)
-    renderer = write(f'Cu{nlayer}O.pov', atoms_sc, rotation='-80x')
-    if renderer is not None:
-        renderer.render()
+with connect(path_to_ads_db) as ads_db:
+    for nlayer in nlayers:
+        atoms = ads_db.get(surf='Cu', ads='O', layers=nlayer).toatoms()
+        atoms_sc = atoms * (4, 4, 1)
+        renderer = write(f'Cu{nlayer}O.pov', atoms_sc, rotation='-80x')
+        if renderer is not None:
+            renderer.render()
 
 # %%
 # .. note::
