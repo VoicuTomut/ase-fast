@@ -13,8 +13,6 @@ with 1, 2 and 3 layers and we will use database files to store the results.
     The :mod:`ase.db` module documentation.
 
 """
-# sphinx_gallery_thumbnail_path = 'Cu1O.png'
-
 # %%
 #
 # .. centered:: |Cu1O| |Cu2O| |Cu3O|
@@ -28,8 +26,9 @@ with 1, 2 and 3 layers and we will use database files to store the results.
 # ----
 #
 # First, we calculate the equilibrium bulk FCC lattice constants for the seven
-# elements where the :mod:`EMT <ase.calculators.emt>` potential works well
-# starting from the ``bulk.db`` database:
+# elements where the :mod:`EMT <ase.calculators.emt>` potential offers a computational
+# affordable calculator. We store the resulting configurations
+# together with its bulk modulus data in the database ``bulk.db``:
 
 from ase import Atoms
 
@@ -61,10 +60,8 @@ for symb in bulk_syms:
 # %%
 # .. highlight:: bash
 #
-# The previous code snippet can also be run as a script (save as ``bulk.py``)
-# and look at the results::
+# Here is how we can inspect the results of the previous step::
 #
-#    $ python3 bulk.py
 #    $ ase db bulk.db -c +bm  # show also the bulk-modulus column
 #    id|age|formula|calculator|energy| fmax|pbc|volume|charge|   mass|   bm
 #     1|10s|Al     |emt       |-0.005|0.000|TTT|15.932| 0.000| 26.982|0.249
