@@ -53,11 +53,13 @@ for symb in bulk_syms:
     # Do one more calculation at the minimum and write to database:
     atoms.cell *= (v / atoms.get_volume()) ** (1 / 3)
     atoms.get_potential_energy()
-    myid = bulk_db.reserve(bm=B)
-    if myid is not None:
-        bulk_db.write(atoms, id=myid, bm=B)
+    if not list(bulk_db.select(formula=atoms.symbols[0])):
+        bulk_db.write(atoms, bm=B)
 
 # %%
+# Here, in order to avoid duplicates we used ``list(bulk_db.select(formula=atoms.symbols[0]))`` to check
+# whether the bulk atoms structure is already in the database.
+#
 # .. highlight:: bash
 #
 # Here is how we can inspect the results of the previous step::
@@ -109,9 +111,7 @@ for symb in bulk_syms:
 # ----------
 #
 # Now we do the adsorption calculations and store the results
-# in the `ads.db` database:
-#
-
+# in the ``ads.db`` database:
 
 ads_db = connect('ads.db')
 ads_syms = ['C', 'N', 'O']
@@ -152,31 +152,15 @@ for row in bulk_db.select():
 # use DFT and send the calculations to a supercomputer. In that case you may
 # want to run several calculations in different jobs on the computer.  In
 # addition, some of the jobs could time out and not finish.  It's a good idea
-# to modify the script a bit for this scenario.  We add a couple of lines to
-# the inner loop:
+# to modify the script a bit for this scenario.  Therefore we added a couple of lines to
+# the inner loop.
 #
-# .. highlight:: python
-#
-# ::
-#
-#    for row in db1.select():
-#        a = row.cell[0, 1] * 2
-#        symb = row.symbols[0]
-#        for n in [1, 2, 3]:
-#            for ads in 'CNO':
-#                id = db2.reserve(layers=n, surf=symb, ads=ads)
-#                if id is not None:
-#                    atoms = run(symb, a, n, ads)
-#                    db2.write(atoms, layers=n, surf=symb, ads=ads)
-#                    del db2[id]
-
-# %%
 # The :meth:`~ase.db.core.Database.reserve` method will check if there is a row
 # with the keys ``layers=n``, ``surf=symb`` and ``ads=ads``.  If there is, then
 # the calculation will be skipped.  If there is not, then an empty row with
 # those keys-values will be written and the calculation will start.  When done,
-# the real row will be written and the empty one will be removed.  This
-# modified script can run in several jobs all running in parallel and no
+# the real row will be written into to the reserved row with ``id=myid``.
+# This modified script can run in several jobs all running in parallel and no
 # calculation will be done twice.
 #
 # .. highlight:: bash
@@ -203,7 +187,7 @@ for row in bulk_db.select():
 # ------------------
 #
 # Let's also calculate the energy of the clean surfaces and the isolated
-# adsorbates and store them in the `refs.db` database:
+# adsorbates and store them in the ``refs.db`` database:
 
 
 refs_db = connect('refs.db')
@@ -235,38 +219,42 @@ for ads in ads_syms:
     if myid is not None:
         refs_db.write(atoms, id=myid, ads=ads)
 
-# ::
+# %%
 #
-# The previous code snippet can be turned into a script (save as ``refs.py``)
-# and run on the command line. The results look similar to the following:
-#
-#    $ python refs.py
-#    $ ase db ads.db -n
-#    87 rows
-#
-# Say we want those 24 reference energies (clean surfaces and isolated
-# adsorbates) in a :file:`refs.db` file instead of the big :file:`ads.db` file.
-# We could change the :file:`refs.py` script and run the calculations again,
+# The previous code snippet saves those 24 reference energies (clean surfaces and isolated
+# adsorbates) in a :file:`refs.db` file. Suppose we want to extract the clean surfaces from
+# the ``refs.db`` and store them in ``clean_surfaces.db``.
+# We could change the script and run the calculations again,
 # but we can also manipulate the files using the ``ase db`` tool.  First, we
 # move over the clean surfaces::
 #
-#    $ ase db ads.db ads=clean --insert-into refs.db
+#    $ ase db refs.db ads=clean --insert-into clean_surfaces.db
 #    Added 0 key-value pairs (0 pairs updated)
 #    Inserted 21 rows
-#    $ ase db ads.db ads=clean --delete --yes
+#
+# If we want we can delete those from ``refs.db``::
+#
+#    $ ase db refs.db ads=clean --delete --yes
 #    Deleted 21 rows
 #
-# and then the three atoms (``pbc=FFF``, no periodicity)::
+# Since this is only to demonstrate usage of the command line we will keep them.
 #
-#    $ ase db ads.db pbc=FFF --insert-into refs.db
+# Now we might want to extract the three atoms (``pbc=FFF``, no periodicity)::
+#
+#    $ ase db refs.db pbc=FFF --insert-into isolated_atoms.db
 #    Added 0 key-value pairs (0 pairs updated)
 #    Inserted 3 rows
-#    $ ase db ads.db pbc=FFF --delete --yes
-#    Deleted 3 rows
+#
+# Finally, as we have not deleted anything these are the databases which we should have build so far::
+#
 #    $ ase db ads.db -n
 #    63 rows
 #    $ ase db refs.db -n
 #    24 rows
+#    $ ase db clean_surfaces.db -n
+#    21 rows
+#    $ ase db isolated_atoms.db -n
+#    3 rows
 
 # %%
 # Analysis
@@ -285,10 +273,8 @@ for row in ads_db.select():
 
 # %%
 #
-# This code snippet can be saved as a Python script (``ea.py``).
-# The results for three layers of Pt::
+# Once run we can inspect the results for three layers of Pt::
 #
-#    $ python3 ea.py
 #    $ ase db ads.db Pt,layers=3 -c formula,ea,height
 #    formula|    ea|height
 #    Pt3C   |-3.715| 1.504
@@ -296,11 +282,6 @@ for row in ads_db.select():
 #    Pt3O   |-4.724| 1.706
 #    Rows: 3
 #    Keys: ads, ea, height, layers, surf
-#
-# .. note::
-#
-#    While the EMT description of Ni, Cu, Pd, Ag, Pt, Au and Al is OK, the
-#    parameters for C, N and O are not intended for real work!
 
 # %%
 # Finally, we can load specific structures of the database and create figures:
@@ -310,3 +291,10 @@ for nlayer in nlayers:
     renderer = write(f'Cu{nlayer}O.pov', atoms_sc, rotation='-80x')
     if renderer is not None:
         renderer.render()
+
+# %%
+# .. note::
+#
+#    While the EMT description of Ni, Cu, Pd, Ag, Pt, Au and Al is alright, the
+#    parameters for C, N and O are not intended for real work!
+
