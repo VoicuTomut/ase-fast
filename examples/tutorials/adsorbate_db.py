@@ -29,7 +29,7 @@ with 1, 2 and 3 layers and we will use database files to store the results.
 #
 # First, we calculate the equilibrium bulk FCC lattice constants for the seven
 # elements where the :mod:`EMT <ase.calculators.emt>` potential works well
-# starting from the `bulk.db` database:
+# starting from the ``bulk.db`` database:
 
 from ase import Atoms
 
@@ -61,7 +61,8 @@ for symb in bulk_syms:
 # %%
 # .. highlight:: bash
 #
-# Run the script and look at the results::
+# The previous code snippet can also be run as a script (save as ``bulk.py``)
+# and look at the results::
 #
 #    $ python3 bulk.py
 #    $ ase db bulk.db -c +bm  # show also the bulk-modulus column
@@ -239,6 +240,9 @@ for ads in ads_syms:
 
 # ::
 #
+# The previous code snippet can be turned into (save as ``refs.py``) and run
+# on the command line. The results look similar to the following:
+#
 #    $ python refs.py
 #    $ ase db ads.db -n
 #    87 rows
@@ -271,8 +275,7 @@ for ads in ads_syms:
 # Analysis
 # --------
 #
-# Now we have what we need to calculate the adsorption energies and heights
-# (`ea.py`):
+# Now we have what we need to calculate the adsorption energies and heights:
 
 for row in ads_db.select():
     # atoms
@@ -284,7 +287,9 @@ for row in ads_db.select():
     ads_db.update(row.id, ea=ea, height=h)
 
 # %%
-# Here are the results for three layers of Pt::
+#
+# This code snippet can be saved as a Python script (``ea.py``).
+# The results for three layers of Pt::
 #
 #    $ python3 ea.py
 #    $ ase db ads.db Pt,layers=3 -c formula,ea,height
