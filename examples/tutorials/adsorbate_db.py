@@ -26,13 +26,11 @@ with 1, 2 and 3 layers and we will use database files to store the results.
 # ----
 #
 # First, we calculate the equilibrium bulk FCC lattice constants for the seven
-# elements where the :mod:`EMT <ase.calculators.emt>` potential offers a computational
-# affordable calculator. We store the resulting configurations
+# elements where the :mod:`EMT <ase.calculators.emt>` potential offers a
+# computational affordable calculator. We store the resulting configurations
 # together with its bulk modulus data in the database ``bulk.db``:
 
 from ase import Atoms
-
-#
 from ase.build import add_adsorbate, bulk, fcc111
 from ase.calculators.emt import EMT
 from ase.constraints import FixAtoms
@@ -57,7 +55,7 @@ for symb in bulk_syms:
         bulk_db.write(atoms, bm=B)
 
 # %%
-# Here, in order to avoid duplicates we used ``list(bulk_db.select(formula=atoms.symbols[0]))`` to check
+# Here we used ``list(bulk_db.select(formula=atoms.symbols[0]))`` to check
 # whether the bulk atoms structure is already in the database.
 #
 # .. highlight:: bash
@@ -152,8 +150,8 @@ for row in bulk_db.select():
 # use DFT and send the calculations to a supercomputer. In that case you may
 # want to run several calculations in different jobs on the computer.  In
 # addition, some of the jobs could time out and not finish.  It's a good idea
-# to modify the script a bit for this scenario.  Therefore we added a couple of lines to
-# the inner loop.
+# to modify the script a bit for this scenario.  Therefore we added a couple of
+# lines to the inner loop.
 #
 # The :meth:`~ase.db.core.Database.reserve` method will check if there is a row
 # with the keys ``layers=n``, ``surf=symb`` and ``ads=ads``.  If there is, then
@@ -221,8 +219,9 @@ for ads in ads_syms:
 
 # %%
 #
-# The previous code snippet saves those 24 reference energies (clean surfaces and isolated
-# adsorbates) in a :file:`refs.db` file. Suppose we want to extract the clean surfaces from
+# The previous code snippet saves those 24 reference energies (clean surfaces
+# and isolated adsorbates) in a :file:`refs.db` file.
+# Suppose we want to extract the clean surfaces from
 # the ``refs.db`` and store them in ``clean_surfaces.db``.
 # We could change the script and run the calculations again,
 # but we can also manipulate the files using the ``ase db`` tool.  First, we
@@ -245,7 +244,8 @@ for ads in ads_syms:
 #    Added 0 key-value pairs (0 pairs updated)
 #    Inserted 3 rows
 #
-# Finally, as we have not deleted anything these are the databases which we should have build so far::
+# Finally, as we have not deleted anything these are the databases
+# which we should have build so far::
 #
 #    $ ase db ads.db -n
 #    63 rows
@@ -297,4 +297,3 @@ for nlayer in nlayers:
 #
 #    While the EMT description of Ni, Cu, Pd, Ag, Pt, Au and Al is alright, the
 #    parameters for C, N and O are not intended for real work!
-
