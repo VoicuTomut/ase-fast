@@ -1,4 +1,3 @@
-# fmt: off
 import numpy as np
 import pytest
 
@@ -35,7 +34,7 @@ calc = pytest.mark.calculator
 
 @calc('abinit', chksymtnons=0)
 @calc('cp2k')
-@calc('espresso', input_data={"control": {"tprnfor": True}})
+@calc('espresso', input_data={'control': {'tprnfor': True}})
 @calc('gpaw', mode='pw', symmetry='off', txt=None)
 @calc('mopac', method='PM7', task='1SCF UHF GRADIENTS')
 @calc('nwchem', theory='pspw')
@@ -67,5 +66,5 @@ def test_h2_bond(factory, atoms):
     # Not very strict for a bond length, but parameters are not consistent:
     assert xmin == pytest.approx(0.77, rel=0.05)
     assert k_from_energy == pytest.approx(k_from_forces, rel=0.05)
-    assert k_from_energy == pytest.approx(k_refs.get(factory.name, k_ref_0),
-                                          rel=0.05)
+    k_ref = k_refs.get(factory.name, k_ref_0)
+    assert k_from_energy == pytest.approx(k_ref, rel=0.05)
