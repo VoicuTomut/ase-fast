@@ -38,7 +38,7 @@ calc = pytest.mark.calculator
 @calc('espresso', input_data={"control": {"tprnfor": True}})
 @calc('gpaw', mode='pw', symmetry='off', txt=None)
 @calc('mopac', method='PM7', task='1SCF UHF GRADIENTS')
-@calc('nwchem')
+@calc('nwchem', theory='pspw')
 @calc('siesta')
 def test_h2_bond(factory, atoms):
     d0 = atoms.get_distance(0, 1)
