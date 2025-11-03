@@ -1,3 +1,5 @@
+"""Tests for the force constant of H2."""
+
 import numpy as np
 import pytest
 
@@ -40,6 +42,7 @@ calc = pytest.mark.calculator
 @calc('nwchem', theory='pspw')
 @calc('siesta')
 def test_h2_bond(factory, atoms):
+    """Test if the numerically obtained force constants are consistent."""
     d0 = atoms.get_distance(0, 1)
     atoms.calc = factory.calc()
 
