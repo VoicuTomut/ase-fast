@@ -25,7 +25,7 @@ k_refs = dict(
     espresso=43,
     gpaw=39,
     mopac=66,
-    nwchem=42,
+    nwchem=37,
     siesta=45,
 )
 
