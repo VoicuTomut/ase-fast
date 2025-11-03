@@ -109,6 +109,7 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "examples/gettingstarted/00-n2cu.py"=["E402","F401","I001"]
+"examples/gettingstarted/01-atoms-and-calculators.py"=["E402", "E501", "F401", "I001"]
 "examples/gettingstarted/03-manipulating-atoms.py"=["E402"]
 "examples/gettingstarted/06-nanoparticle.py"=["E402"]
 "!doc/tutorials/**.py" = ["UP"]  # Only pyupgrade tutorials (for now)
