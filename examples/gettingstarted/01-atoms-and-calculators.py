@@ -58,16 +58,16 @@ from ase.io import write
 write('myatoms.traj', atoms)
 
 # %%
-# Then run the GUI from a terminal:
+# Then run the GUI from a terminal::
 #
 #  $ ase gui myatoms.traj
 #
-# ASE supports quite a few different formats.   For the full list, run:
+# ASE supports quite a few different formats.   For the full list, run::
 #
 #  $ ase info --formats
 #
 # Although we won't be using all the ASE commands any time soon,
-# feel free to get an overview:
+# feel free to get an overview::
 #
 #  $ ase --help
 #
@@ -181,7 +181,7 @@ with Trajectory('binding_curve.traj', 'w') as traj:
 
 # %%
 # As before, you can use the command line interface to visualize
-# the dissociation process:
+# the dissociation process::
 #
 #  $ ase gui binding_curve.traj
 #
