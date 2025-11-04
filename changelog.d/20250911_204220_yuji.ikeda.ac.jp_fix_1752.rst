@@ -1,0 +1,7 @@
+Bugfixes
+--------
+
+- Fix :func:`~ase.io.extxyz.write_extxyz` to ignore constraints other than
+  :class:`~ase.constraints.FixAtoms` and :class:`~ase.constraints.FixCartesian`
+  when ``move_mask`` is present in ``columns`` (default since ASE 3.26.0)
+  (:mr:`3808`)

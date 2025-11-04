@@ -16,7 +16,7 @@ from ase.calculators.calculator import compare_atoms
 from ase.calculators.emt import EMT
 from ase.calculators.mixing import LinearCombinationCalculator
 from ase.calculators.singlepoint import SinglePointCalculator
-from ase.constraints import FixAtoms, FixCartesian
+from ase.constraints import FixAtoms, FixCartesian, FixedLine, FixedPlane
 from ase.io import extxyz
 from ase.io.extxyz import escape, save_calc_results
 
@@ -325,39 +325,75 @@ def test_json_scalars():
     assert abs(b.info['val_3'] - 42) == 0
 
 
-@pytest.mark.parametrize(
-    'columns',
-    [None, ['symbols', 'positions', 'move_mask']],
-)
-@pytest.mark.parametrize('constraint', [FixAtoms(indices=(0, 2)),
-                                        FixCartesian(1, mask=(1, 0, 1)),
-                                        [FixCartesian(0), FixCartesian(2)]])
-def test_constraints(constraint, columns):
-    atoms = molecule('H2O')
-    atoms.set_constraint(constraint)
+class TestConstraints:
+    """Test constraints."""
 
-    ase.io.write('tmp.xyz', atoms, columns=columns)
+    @staticmethod
+    def _make_atoms():
+        return molecule('H2O')
 
-    atoms2 = ase.io.read('tmp.xyz')
-    assert not compare_atoms(atoms, atoms2)
+    @pytest.fixture(params=[None, ["symbols", "positions", "move_mask"]])
+    def columns(self, request):
+        return request.param
 
-    constraint2 = atoms2.constraints
-    cls = type(constraint)
-    if cls == FixAtoms:
+    def _roundtrip(self, atoms, columns, constraint):
+        atoms.set_constraint(constraint)
+        ase.io.write('tmp.xyz', atoms, columns=columns)
+        atoms2 = ase.io.read('tmp.xyz')
+        assert not compare_atoms(atoms, atoms2)
+        return atoms2.constraints
+
+    def test_fix_atoms(self, columns) -> None:
+        """Test `FixAtoms`."""
+        atoms = self._make_atoms()
+        constraint = FixAtoms(indices=(0, 2))
+        constraint2 = self._roundtrip(atoms, columns, constraint)
         assert len(constraint2) == 1
-        assert isinstance(constraint2[0], cls)
+        assert isinstance(constraint2[0], FixAtoms)
         assert np.all(constraint2[0].index == constraint.index)
-    elif cls == FixCartesian:
+
+    def test_fix_cartesian(self, columns) -> None:
+        """Test `FixCartesian`."""
+        atoms = self._make_atoms()
+        constraint = FixCartesian(1, mask=(1, 0, 1))
+        constraint2 = self._roundtrip(atoms, columns, constraint)
         assert len(constraint2) == len(atoms)
-        assert isinstance(constraint2[0], cls)
+        assert isinstance(constraint2[0], FixCartesian)
         assert np.all(constraint2[0].mask)
         assert np.all(constraint2[1].mask == constraint.mask)
         assert np.all(constraint2[2].mask)
-    elif cls is list:
+
+    def test_list_of_fix_cartesian(self, columns) -> None:
+        """Test list of `FixCartesian`."""
+        atoms = self._make_atoms()
+        constraint = [FixCartesian(0), FixCartesian(2)]
+        constraint2 = self._roundtrip(atoms, columns, constraint)
         assert len(constraint2) == len(atoms)
         assert np.all(constraint2[0].mask == constraint[0].mask)
         assert np.all(constraint2[1].mask)
         assert np.all(constraint2[2].mask == constraint[1].mask)
+
+    def test_list_of_fixed_line(self, columns) -> None:
+        """Test list of `FixedLine`.
+
+        Since `move_mask` does not deal with an arbitrary direction,
+        `FixedLine` is ignored when written.
+        """
+        atoms = self._make_atoms()
+        constraint = FixedLine(indices=(0, 1), direction=(0, 0, 1))
+        constraint2 = self._roundtrip(atoms, columns, constraint)
+        assert not constraint2
+
+    def test_list_of_fixed_plane(self, columns) -> None:
+        """Test list of `FixedPlane`.
+
+        Since `move_mask` does not deal with an arbitrary direction,
+        `FixedPlane` is ignored when written.
+        """
+        atoms = self._make_atoms()
+        constraint = FixedPlane(indices=(0, 1), direction=(0, 0, 1))
+        constraint2 = self._roundtrip(atoms, columns, constraint)
+        assert not constraint2
 
 
 def test_constraints_int():
