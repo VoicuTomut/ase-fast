@@ -17,7 +17,6 @@ dimensionality.
 
 import ase.build
 from ase.geometry.dimensionality import analyze_dimensionality
-from ase.visualize import view
 
 atoms = ase.build.mx2(formula='MoS2', kind='2H', a=3.18, thickness=3.19)
 atoms.cell[2, 2] = 7.0
@@ -31,6 +30,7 @@ print(m.dimtype, m.h, m.score, m.a, m.b)
 
 atoms.set_tags(m.components)
 # Visualize the structure
+# from ase.visualize import view
 # view(atoms)
 
 # %%
@@ -46,7 +46,6 @@ import numpy as np
 import ase.build
 from ase import Atoms
 from ase.geometry.dimensionality import isolate_components
-from ase.visualize import view
 
 # build two slabs of different types of MoS2
 rep = [4, 4, 1]

@@ -41,12 +41,11 @@ atoms = Atoms('N2', positions=[[0, 0, -1], [0, 0, 1]])
 # using the :mod:`ASE GUI <ase.gui>`:
 #
 
-from ase.visualize import view
-
 # %%
 #
 # .. code-block:: python
 #
+#    from ase.visualize import view
 #    view(atoms)
 #
 # Equivalently we can save the atoms in some format, often ASE's own
@@ -189,7 +188,8 @@ with Trajectory('binding_curve.traj', 'w') as traj:
 # quality plots usually require some manual tinkering.
 # ASE provides two functions to read trajectories or other files:
 #
-#  * :func:`ase.io.read` reads and returns the last image, or possibly a list of images if the ``index`` keyword is also specified.
+#  * :func:`ase.io.read` reads and returns the last image, or possibly a
+#    list of images if the ``index`` keyword is also specified.
 #
 #  * :func:`ase.io.iread` reads multiple images, one at a time.
 #
