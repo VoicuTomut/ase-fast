@@ -47,7 +47,7 @@ def restart_from_trajectory(prev_traj, *args, prev_steps=None, atoms=None,
 
 
 class Plumed(Calculator):
-    implemented_properties = ['energy', 'forces']
+    implemented_properties = ['energy', 'forces', 'stress']
 
     def __init__(self, calc, input, timestep, atoms=None, kT=1., log='',
                  restart=False, use_charge=False, update_charge=False):
@@ -165,22 +165,29 @@ class Plumed(Calculator):
 
         comp = self.compute_energy_and_forces(self.atoms.get_positions(),
                                               self.istep)
-        energy, forces = comp
+        energy, forces, stress = comp
         self.istep += 1
-        self.results['energy'], self. results['forces'] = energy, forces
+        self.results['energy'], self. results['forces'], self. results['stress'] = float(energy), forces, stress
 
     def compute_energy_and_forces(self, pos, istep):
         unbiased_energy = self.calc.get_potential_energy(self.atoms)
         unbiased_forces = self.calc.get_forces(self.atoms)
+        strs_voigt = self.calc.get_stress(self.atoms)
+        unbiased_stress =np.array([[strs_voigt[0], strs_voigt[5], strs_voigt[4]],
+                                   [strs_voigt[5], strs_voigt[1], strs_voigt[3]],
+                                   [strs_voigt[4], strs_voigt[3], strs_voigt[2]]])
+        volume = self.atoms.get_volume()
 
         if world.rank == 0:
-            ener_forc = self.compute_bias(pos, istep, unbiased_energy)
+            ener_forc_strs = self.compute_bias(pos, istep, unbiased_energy)
         else:
-            ener_forc = None
-        energy_bias, forces_bias = broadcast(ener_forc)
+            ener_forc_strs = None
+        energy_bias, forces_bias, virial_bias = broadcast(ener_forc_strs)
         energy = unbiased_energy + energy_bias
         forces = unbiased_forces + forces_bias
-        return energy, forces
+        # Note the minus sign due to different conventions in Plumed and ASE
+        stress = unbiased_stress + virial_bias/volume
+        return energy, forces, stress
 
     def compute_bias(self, pos, istep, unbiased_energy):
         self.plumed.cmd("setStep", istep)
@@ -209,13 +216,13 @@ class Plumed(Calculator):
         self.plumed.cmd("setMasses", self.atoms.get_masses())
         forces_bias = np.zeros((self.atoms.get_positions()).shape)
         self.plumed.cmd("setForces", forces_bias)
-        virial = np.zeros((3, 3))
-        self.plumed.cmd("setVirial", virial)
+        virial_bias = np.zeros((3, 3))
+        self.plumed.cmd("setVirial", virial_bias)
         self.plumed.cmd("prepareCalc")
         self.plumed.cmd("performCalc")
         energy_bias = np.zeros((1,))
         self.plumed.cmd("getBias", energy_bias)
-        return [energy_bias, forces_bias]
+        return [energy_bias, forces_bias, virial_bias]
 
     def write_plumed_files(self, images):
         """ This function computes what is required in
