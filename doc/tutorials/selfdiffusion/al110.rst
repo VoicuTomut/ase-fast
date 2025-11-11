@@ -3,6 +3,20 @@
 Self-diffusion on the Al(110) surface using the NEB and Dimer method
 --------------------------------------------------------------------
 
+
+.. note::
+
+  We are currently moving to a new way to display our examples.
+  For this example we have an updated version, which you 
+  can find :ref:`here <selfdiffusion_example>`.
+  The example on this page is deprecated and will be removed 
+  once all examples have been moved to 
+  the new format.
+
+
+
+
+
 .. image:: Al110slab.png
    :height: 270 px
    :alt: Al(110) surface
