@@ -1,4 +1,3 @@
-# fmt: off
 from ase import Atoms
 from ase.constraints import FixBondLengths
 

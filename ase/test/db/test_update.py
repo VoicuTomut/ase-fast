@@ -1,4 +1,3 @@
-# fmt: off
 from time import time
 
 import pytest

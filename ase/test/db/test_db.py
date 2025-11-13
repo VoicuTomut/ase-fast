@@ -1,4 +1,3 @@
-# fmt: off
 import pytest
 
 from ase.db import connect

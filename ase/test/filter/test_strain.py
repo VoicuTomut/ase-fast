@@ -1,4 +1,3 @@
-# fmt: off
 from math import sqrt
 
 import pytest

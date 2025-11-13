@@ -1,4 +1,3 @@
-# fmt: off
 from ase.calculators.test import make_test_dft_calculation
 from ase.dft.stm import STM
 
