@@ -1862,7 +1862,8 @@ class GenerateVaspInput:
 
     @staticmethod
     def set_if_none(collection: dict[str, Any], key: str, value: Any) -> None:
-        collection[key] = value if collection.get(key) is None else collection[ley]
+        collection[key] = value if collection.get(key) is None \
+                                else collection[key]
 
     def read_incar(self, filename):
         """Method that imports settings from INCAR file.
