@@ -1,4 +1,3 @@
-# fmt: off
 import numpy as np
 
 from ase import Atoms
@@ -7,7 +6,6 @@ from ase.cell import Cell
 
 
 def test_bravais_orcc_mcl():
-
     def get_e(cell):
         atoms = Atoms('Au', cell=cell, pbc=1)
         atoms.calc = EMT()

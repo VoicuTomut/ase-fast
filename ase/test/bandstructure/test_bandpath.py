@@ -1,4 +1,3 @@
-# fmt: off
 import numpy as np
 import pytest
 
@@ -52,8 +51,9 @@ def custom_points():
 
 def test_custom_points(cell, custom_points):
     npoints = 42
-    path = cell.bandpath('KK1,KpointKpoint1', special_points=custom_points,
-                         npoints=npoints)
+    path = cell.bandpath(
+        'KK1,KpointKpoint1', special_points=custom_points, npoints=npoints
+    )
 
     print(path)
     assert len(path.kpts) == npoints
@@ -64,8 +64,7 @@ def test_custom_points(cell, custom_points):
 def test_autolabel_kpoints(cell):
     kpt0 = np.zeros(3)
     kpt1 = np.ones(3)
-    path = cell.bandpath([[kpt0, kpt1]], npoints=17,
-                         special_points={})
+    path = cell.bandpath([[kpt0, kpt1]], npoints=17, special_points={})
     assert len(path.kpts == 17)
     assert set(path.special_points) == {'Kpt0', 'Kpt1'}
     assert path.kpts[0] == pytest.approx(kpt0)

@@ -1,4 +1,3 @@
-# fmt: off
 from math import cos, pi, sqrt
 
 import numpy as np
@@ -55,9 +54,12 @@ def test_vacuum_all_directions(atoms):
 
 @pytest.fixture()
 def atoms_guc():
-    return FaceCenteredCubic(size=(5, 5, 5),
-                             directions=[[1, 0, 0], [0, 1, 0], [1, 0, 1]],
-                             symbol=symb, pbc=(1, 1, 0))
+    return FaceCenteredCubic(
+        size=(5, 5, 5),
+        directions=[[1, 0, 0], [0, 1, 0], [1, 0, 1]],
+        symbol=symb,
+        pbc=(1, 1, 0),
+    )
 
 
 def test_general_unit_cell(atoms_guc):
@@ -115,13 +117,13 @@ def test_center_empty():
 
 
 def test_center_nocell():
-    atoms = Atoms('H', positions=[[1., 2., 3.]])
+    atoms = Atoms('H', positions=[[1.0, 2.0, 3.0]])
     atoms.center()
     assert atoms.positions == pytest.approx(0)
 
 
 def test_center_about1():
-    atoms = Atoms('H', positions=[[1., 2., 3.]])
+    atoms = Atoms('H', positions=[[1.0, 2.0, 3.0]])
     atoms.center(vacuum=10.0, about=(0, 0, 0), axis=2)
     assert atoms.positions[0, 0] != pytest.approx(0)
     assert atoms.positions[0, 1] != pytest.approx(0)
@@ -129,7 +131,7 @@ def test_center_about1():
 
 
 def test_center_about2():
-    atoms = Atoms('H', positions=[[1., 2., 3.]])
+    atoms = Atoms('H', positions=[[1.0, 2.0, 3.0]])
     atoms.center(vacuum=10.0, about=(0, 5, 0), axis=(1, 2))
     assert atoms.positions[0, 0] != pytest.approx(0)
     assert atoms.positions[0, 1] == pytest.approx(5)
@@ -137,7 +139,7 @@ def test_center_about2():
 
 
 def test_center_about3():
-    atoms = Atoms('H', positions=[[1., 2., 3.]])
+    atoms = Atoms('H', positions=[[1.0, 2.0, 3.0]])
     atoms.center(vacuum=10.0, about=(10, 5, 2), axis=(0, 1, 2))
     assert atoms.positions[0, 0] == pytest.approx(10)
     assert atoms.positions[0, 1] == pytest.approx(5)
@@ -145,7 +147,7 @@ def test_center_about3():
 
 
 def test_center_about4():
-    atoms = Atoms('H', positions=[[1., 2., 3.]])
+    atoms = Atoms('H', positions=[[1.0, 2.0, 3.0]])
     atoms.center(vacuum=10.0, about=(0, 0, 0))
     assert atoms.positions[0, 0] == pytest.approx(0)
     assert atoms.positions[0, 1] == pytest.approx(0)
@@ -153,7 +155,7 @@ def test_center_about4():
 
 
 def test_center_about_fail():
-    atoms = Atoms('H', positions=[[1., 2., 3.]])
+    atoms = Atoms('H', positions=[[1.0, 2.0, 3.0]])
     atoms.set_cell([10, 10, 10])
     atoms.center(about=(0, 0, 0), axis=2)
     assert atoms.positions[0, 0] == pytest.approx(1)

@@ -1,4 +1,3 @@
-# fmt: off
 import numpy as np
 import pytest
 
@@ -37,27 +36,30 @@ def check(name, cell, pbc=None):
 
 
 @pytest.mark.parametrize(
-    'name, cell', [
+    'name, cell',
+    [
         ('cub', bravais['cub'](3.3).tocell()),
         ('fcc', bravais['fcc'](3.4).tocell()),
         ('fcc', bulk('Au').cell),
         ('bcc', bravais['bcc'](3.5).tocell()),
         ('bcc', bulk('Fe').cell),
-        ('tet', bravais['tet'](4., 5.).tocell()),
-        ('tet', np.diag([4., 5., 5.])),
-        ('tet', np.diag([5., 4., 5.])),
-        ('tet', np.diag([5., 5., 4.])),
-        ('bct', bravais['bct'](3., 4.).tocell()),
-        ('orc', bravais['orc'](3., 4., 5.).tocell()),
-        ('orcf', bravais['orcf'](4., 5., 7.).tocell()),
-        ('orci', bravais['orci'](2., 5., 6.).tocell()),
-        ('orcc', bravais['orcc'](3., 4., 5.).tocell()),
+        ('tet', bravais['tet'](4.0, 5.0).tocell()),
+        ('tet', np.diag([4.0, 5.0, 5.0])),
+        ('tet', np.diag([5.0, 4.0, 5.0])),
+        ('tet', np.diag([5.0, 5.0, 4.0])),
+        ('bct', bravais['bct'](3.0, 4.0).tocell()),
+        ('orc', bravais['orc'](3.0, 4.0, 5.0).tocell()),
+        ('orcf', bravais['orcf'](4.0, 5.0, 7.0).tocell()),
+        ('orci', bravais['orci'](2.0, 5.0, 6.0).tocell()),
+        ('orcc', bravais['orcc'](3.0, 4.0, 5.0).tocell()),
         ('hex', fcc111('Au', size=(1, 1, 3), periodic=True).cell),
-        ('hex', bravais['hex'](5., 6.).tocell()),
-        ('rhl', bravais['rhl'](4., 54.).tocell()),
-        ('mcl', bravais['mcl'](2., 3., 4., 62.).tocell()),
-        ('mclc', bravais['mclc'](3., 4., 5., 75.).tocell()),
-        ('tri', bravais['tri'](7., 6., 5., 65., 70., 80.).tocell())])
+        ('hex', bravais['hex'](5.0, 6.0).tocell()),
+        ('rhl', bravais['rhl'](4.0, 54.0).tocell()),
+        ('mcl', bravais['mcl'](2.0, 3.0, 4.0, 62.0).tocell()),
+        ('mclc', bravais['mclc'](3.0, 4.0, 5.0, 75.0).tocell()),
+        ('tri', bravais['tri'](7.0, 6.0, 5.0, 65.0, 70.0, 80.0).tocell()),
+    ],
+)
 def test_bravais_check(name, cell):
     check(name, cell)
 
@@ -65,15 +67,18 @@ def test_bravais_check(name, cell):
 # For 2D materials we have to check both the tocell() method
 # but also for realistic cell nonzero nonperiodic axis.
 def test_2d():
-    check('sqr', bravais['sqr'](3.).tocell())
-    check('sqr', Cell(np.diag([3., 3., 10.])),
-          pbc=np.array([True, True, False]))
+    check('sqr', bravais['sqr'](3.0).tocell())
+    check(
+        'sqr',
+        Cell(np.diag([3.0, 3.0, 10.0])),
+        pbc=np.array([True, True, False]),
+    )
 
-    check('crect', bravais['crect'](3., 40).tocell())
-    check('rect', bravais['rect'](3., 4.).tocell())
+    check('crect', bravais['crect'](3.0, 40).tocell())
+    check('rect', bravais['rect'](3.0, 4.0).tocell())
     check('rect', Cell.new([3, 4, 10]), pbc=[1, 1, 0])
-    check('hex2d', bravais['hex2d'](3.).tocell())
-    check('obl', bravais['obl'](3., 4., 40).tocell())
+    check('hex2d', bravais['hex2d'](3.0).tocell())
+    check('obl', bravais['obl'](3.0, 4.0, 40).tocell())
 
 
 def test_crect():
@@ -81,18 +86,14 @@ def test_crect():
     alpha = 40 / 360 * 2 * np.pi
     x = np.cos(alpha)
     y = np.sin(alpha)
-    crectcell = np.array([[a, 0, 0],
-                          [a * x, a * y, 0],
-                          [0, 0, 10]])
+    crectcell = np.array([[a, 0, 0], [a * x, a * y, 0], [0, 0, 10]])
     check('crect', Cell(crectcell), pbc=[1, 1, 0])
 
 
 def test_hex2d():
     a = 3
     x = 0.5 * np.sqrt(3)
-    hexcell = np.array([[a, 0, 0],
-                        [-0.5 * a, x * a, 0],
-                        [0., 0., 0.]])
+    hexcell = np.array([[a, 0, 0], [-0.5 * a, x * a, 0], [0.0, 0.0, 0.0]])
     check('hex2d', Cell(hexcell))
 
 
@@ -102,9 +103,7 @@ def test_obl():
     b = 4
     x = np.cos(alpha)
     y = np.sin(alpha)
-    oblcell = np.array([[a, 0, 0],
-                        [b * x, b * y, 0],
-                        [0, 0, 10]])
+    oblcell = np.array([[a, 0, 0], [b * x, b * y, 0], [0, 0, 10]])
     check('obl', Cell(oblcell), pbc=np.array([True, True, False]))
 
 
