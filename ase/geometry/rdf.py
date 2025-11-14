@@ -7,6 +7,7 @@ import numpy as np
 
 from ase import Atoms
 from ase.cell import Cell
+from ase.neighborlist import NeighborList
 
 
 class CellTooSmall(Exception):
@@ -65,15 +66,24 @@ def get_rdf(atoms: Atoms, rmax: float, nbins: int,
 
     check_cell_and_r_max(atoms, rmax)
 
+    natoms = len(atoms)
     dm = distance_matrix
     if dm is None:
-        dm = atoms.get_all_distances(mic=True)
+        nl = NeighborList(np.ones(natoms) * rmax * 0.5)
+        nl.update(atoms)
+        # By default set to 'out of range'.
+        dm = (np.ones((natoms, natoms)) - np.identity(natoms)) * rmax * 2.0
+
+        for i in range(natoms):
+            indices, _ = nl.get_neighbors(i)
+            dm[i, indices] = atoms.get_distances(i, indices, mic=True)
+            for j in indices:
+                dm[j, i] = dm[i, j]
 
     rdf = np.zeros(nbins + 1)
     dr = float(rmax / nbins)
 
     indices = np.asarray(np.ceil(dm / dr), dtype=int)
-    natoms = len(atoms)
 
     if elements is None:
         # Coefficients to use for normalization
