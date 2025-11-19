@@ -613,12 +613,19 @@ class View:
         else:
             hint = 'MOVING'
             fg = GREEN
-        self.window.canvas_label(
+
+        if hasattr(self, 'arrowkey_mode_hint'):
+            self.arrowkey_mode_hint.config(text=hint, fg=fg)
+        else:
+            self.arrowkey_mode_hint = self.window.make_canvas_label(
+                text=hint, fg=fg
+            )
+
+        self.window.show_widget(
+            self.arrowkey_mode_hint,
             x - pad,
             y - pad,
-            '{}'.format(hint),
-            anchor='SE',
-            fg=fg,
+            anchor='SE'
         )
 
     def draw_frame_number(self):
