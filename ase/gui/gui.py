@@ -135,7 +135,7 @@ class GUI(View):
             self.arrowkey_mode = self.ARROWKEY_SCAN
             self.move_atoms_mask = None
             self.update_history()
-        else:
+        elif np.any(self.images.selected):
             self.arrowkey_mode = mode
             self.move_atoms_mask = self.images.selected.copy()
 
