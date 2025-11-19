@@ -202,10 +202,10 @@ class GUI(View):
         shift = 0x1
         ctrl = 0x4
         alt_l = 0x8  # Also Mac Command Key
-        mac_option_key = 0x10
+        # mac_option_key = 0x10
 
         use_small_step = bool(event.state & shift)
-        rotate_into_plane = bool(event.state & (ctrl | alt_l | mac_option_key))
+        rotate_into_plane = bool(event.state & (ctrl | alt_l))
 
         dxdydz = {'up': (0, 1 - rotate_into_plane, rotate_into_plane),
                   'down': (0, -1 + rotate_into_plane, -rotate_into_plane),
