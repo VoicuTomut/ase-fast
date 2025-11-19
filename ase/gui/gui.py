@@ -141,6 +141,21 @@ class GUI(View):
 
         self.draw()
 
+    @property
+    def arrowkey_hint(self):
+        if not hasattr(self, '_arrowkey_hint'):
+            self._arrowkey_hint = ui.tk.Label()
+            self._arrowkey_hint.tooltip = ui.Tooltip()
+            self._arrowkey_hint.bind(
+                '<Enter>',
+                self._arrowkey_hint.tooltip.show
+            )
+            self._arrowkey_hint.bind(
+                '<Leave>',
+                self._arrowkey_hint.tooltip.hide
+            )
+        return self._arrowkey_hint
+
     def step(self, key):
         d = {'Home': -10000000,
              'Page-Up': -1,

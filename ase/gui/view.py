@@ -555,7 +555,7 @@ class View:
             self.draw_axes()
 
         if self.arrowkey_mode != self.ARROWKEY_SCAN:
-            self.draw_arrowkey_mode_hint()
+            self.draw_arrowkey_hint()
         elif len(self.images) > 1:
             self.draw_frame_number()
 
@@ -604,25 +604,35 @@ class View:
             self.window.line((a, b, c, d))
             self.window.text(c, d, 'XYZ'[i], color=rgb[i])
 
-    def draw_arrowkey_mode_hint(self):
+    def draw_arrowkey_hint(self):
         x, y = self.window.size
         pad = 5
         if self.arrowkey_mode == self.ARROWKEY_ROTATE:
             hint = 'ROTATING'
-            fg = PURPLE
+            bg = PURPLE
+            tip_text = (
+                'Ctrl: rotate along view axis\n'
+                'Shift: rotate in smaller increments'
+            )
         else:
             hint = 'MOVING'
-            fg = GREEN
-
-        if hasattr(self, 'arrowkey_mode_hint'):
-            self.arrowkey_mode_hint.config(text=hint, fg=fg)
-        else:
-            self.arrowkey_mode_hint = self.window.make_canvas_label(
-                text=hint, fg=fg
+            bg = GREEN
+            tip_text = (
+                'Ctrl: move along view axis\n'
+                'Shift: move in smaller increments'
             )
+        self.arrowkey_hint.configure(
+            text=hint,
+            padx=3,
+            bg=bg
+        )
+        self.arrowkey_hint.tooltip.configure(
+            text=tip_text,
+            justify='right'
+        )
 
         self.window.show_widget(
-            self.arrowkey_mode_hint,
+            self.arrowkey_hint,
             x - pad,
             y - pad,
             anchor='SE'
