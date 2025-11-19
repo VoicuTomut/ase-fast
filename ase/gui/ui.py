@@ -684,6 +684,19 @@ class ASEGUIWindow(MainWindow):
         anchor = {'SE': tk.SE}.get(anchor, anchor)
         self.canvas.create_text((x, y), text=txt, anchor=anchor, fill=color)
 
+    def canvas_label(self, x, y, txt, anchor=tk.CENTER, fg=None, bg=None,
+                     on_enter=None, on_leave=None):
+        if bg is None:
+            bg = self.bg
+        if isinstance(anchor, str):
+            anchor = anchor.lower()
+        label = tk.Label(self.canvas, text=txt, fg=fg, bg=bg)
+        if on_enter is not None:
+            label.bind('<Enter>', on_enter)
+        if on_leave is not None:
+            label.bind('<Leave>', on_leave)
+        self.canvas.create_window(x, y, anchor=anchor, window=label)
+
     def after(self, time, callback):
         id = self.win.after(int(time * 1000), callback)
         # Quick'n'dirty object with a cancel() method:

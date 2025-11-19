@@ -554,7 +554,9 @@ class View:
         if self.window['toggle-show-axes']:
             self.draw_axes()
 
-        if len(self.images) > 1:
+        if self.arrowkey_mode != self.ARROWKEY_SCAN:
+            self.draw_arrowkey_mode_hint()
+        elif len(self.images) > 1:
             self.draw_frame_number()
 
         self.window.update()
@@ -602,10 +604,32 @@ class View:
             self.window.line((a, b, c, d))
             self.window.text(c, d, 'XYZ'[i], color=rgb[i])
 
+    def draw_arrowkey_mode_hint(self):
+        x, y = self.window.size
+        pad = 5
+        if self.arrowkey_mode == self.ARROWKEY_ROTATE:
+            hint = 'ROTATING'
+            fg = PURPLE
+        else:
+            hint = 'MOVING'
+            fg = GREEN
+        self.window.canvas_label(
+            x - pad,
+            y - pad,
+            '{}'.format(hint),
+            anchor='SE',
+            fg=fg,
+        )
+
     def draw_frame_number(self):
         x, y = self.window.size
-        self.window.text(x, y, '{}'.format(self.frame),
-                         anchor='SE')
+        pad = 5
+        self.window.text(
+            x - pad,
+            y - pad,
+            '{}'.format(self.frame),
+            anchor='SE'
+        )
 
     def release(self, event):
         if event.button in [4, 5]:
