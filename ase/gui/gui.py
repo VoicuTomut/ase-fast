@@ -230,6 +230,11 @@ class GUI(View):
         if dxdydz is None:
             return
 
+        if self.arrowkey_mode == self.ARROWKEY_ROTATE:
+            # A little tweak to make rotation more intuitive for users:
+            mod_m = np.array([[0, -1, 0], [1, 0, 0], [0, 0, -1]])
+            dxdydz = np.dot(mod_m, dxdydz)
+
         vec = 0.1 * np.dot(self.axes, dxdydz)
         if use_small_step:
             vec *= 0.1
