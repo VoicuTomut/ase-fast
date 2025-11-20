@@ -281,7 +281,7 @@ class GUI(View):
             # Not completely sure what 0x40000 is but it seems to haunt Windows
             if event.state & 0x40000:
                 event.state -= 0x40000
-            if self.state & nl_windows:
+            if event.state & nl_windows:
                 event.state -= nl_windows
         # return event
 
