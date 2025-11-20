@@ -147,7 +147,9 @@ class GUI(View):
     @property
     def arrowkey_hint(self):
         if not hasattr(self, '_arrowkey_hint'):
-            self._arrowkey_hint = hint = ui.tk.Frame(bg='#ffffff')
+            self._arrowkey_hint = hint = ui.tk.Frame(
+                self.window.canvas, bg='#ffffff'
+            )
             self._arrowkey_hint.label = ui.tk.Label(hint)
             self._arrowkey_hint.qm = ui.tk.Label(
                 hint, text='(?)', padx=3,
@@ -162,6 +164,7 @@ class GUI(View):
             self._arrowkey_hint.qm.bind(
                 '<Leave>', self._arrowkey_hint.tooltip.hide
             )
+            self._arrowkey_hint.exists = False
         return self._arrowkey_hint
 
     def step(self, key):

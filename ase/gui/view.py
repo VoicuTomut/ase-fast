@@ -556,8 +556,10 @@ class View:
 
         if self.arrowkey_mode != self.ARROWKEY_SCAN:
             self.draw_arrowkey_hint()
-        elif len(self.images) > 1:
-            self.draw_frame_number()
+        else:
+            self.hide_arrowkey_hint()
+            if len(self.images) > 1:
+                self.draw_frame_number()
 
         self.window.update()
 
@@ -606,7 +608,6 @@ class View:
 
     def draw_arrowkey_hint(self):
         x, y = self.window.size
-        pad = 5
         if self.arrowkey_mode == self.ARROWKEY_ROTATE:
             hint = 'ROTATING'
             bg = PURPLE
@@ -631,22 +632,18 @@ class View:
             justify='right',
             font='TkTooltipFont',
         )
-        self.window.show_widget(
-            self.arrowkey_hint,
-            x - pad,
-            y - pad,
-            anchor='SE',
-        )
+        self.arrowkey_hint.place(relx=1.0, rely=1.0, anchor='se')
+        self.arrowkey_hint.exists = True
+
+    def hide_arrowkey_hint(self):
+        if self.arrowkey_hint.exists:
+            self.arrowkey_hint.place_forget()
+            self.arrowkey_hint.exists = False
 
     def draw_frame_number(self):
         x, y = self.window.size
-        pad = 5
-        self.window.text(
-            x - pad,
-            y - pad,
-            '{}'.format(self.frame),
-            anchor='SE'
-        )
+        self.window.text(x, y, '{}'.format(self.frame),
+                         anchor='SE')
 
     def release(self, event):
         if event.button in [4, 5]:
