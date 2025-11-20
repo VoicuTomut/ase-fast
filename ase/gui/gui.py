@@ -1,6 +1,7 @@
 # fmt: off
 
 import pickle
+import platform
 import subprocess
 import sys
 from functools import partial
@@ -43,6 +44,8 @@ class GUI(View):
             images = Images(images)
         self.images = images
         self.images.history.initialize_history()
+
+        self.system = platform.system()
 
         # Ordinary observers seem unused now, delete?
         self.observers = []
@@ -202,10 +205,12 @@ class GUI(View):
         shift = 0x1
         ctrl = 0x4
         alt_l = 0x8  # Also Mac Command Key
-        # mac_option_key = 0x10
+        mac_option_key = 0x10
+
+        self.remove_bothersome_key_states(event)
 
         use_small_step = bool(event.state & shift)
-        rotate_into_plane = bool(event.state & (ctrl | alt_l))
+        rotate_into_plane = bool(event.state & (ctrl | alt_l | mac_option_key))
 
         dxdydz = {'up': (0, 1 - rotate_into_plane, rotate_into_plane),
                   'down': (0, -1 + rotate_into_plane, -rotate_into_plane),
@@ -262,6 +267,23 @@ class GUI(View):
             # dx * 0.1 * self.axes[:, 0] - dy * 0.1 * self.axes[:, 1])
 
             self.draw()
+
+    def remove_bothersome_key_states(self, event):
+        """Modify event.state so that Num Lock doesn't get caught by
+        bitmasks"""
+        nl_windows = 0x0008
+        nl_linux = 0x0010
+
+        if self.system == 'Linux':
+            if event.state & nl_linux:
+                event.state -= nl_linux
+        elif self.system == 'Windows':
+            # Not completely sure what 0x40000 is but it seems to haunt Windows
+            if event.state & 0x40000:
+                event.state -= 0x40000
+            if self.state & nl_windows:
+                event.state -= nl_windows
+        # return event
 
     def delete_selected_atoms(self, widget=None, data=None):
         import ase.gui.ui as ui
