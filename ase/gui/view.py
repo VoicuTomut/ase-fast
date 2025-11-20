@@ -621,21 +621,21 @@ class View:
                 'Ctrl: move along view axis\n'
                 'Shift: move in smaller increments'
             )
-        self.arrowkey_hint.configure(
+        self.arrowkey_hint.label.configure(
             text=hint,
             padx=3,
-            bg=bg
+            bg=bg,
         )
         self.arrowkey_hint.tooltip.configure(
             text=tip_text,
-            justify='right'
+            justify='right',
+            font='TkTooltipFont',
         )
-
         self.window.show_widget(
             self.arrowkey_hint,
             x - pad,
             y - pad,
-            anchor='SE'
+            anchor='SE',
         )
 
     def draw_frame_number(self):

@@ -147,15 +147,20 @@ class GUI(View):
     @property
     def arrowkey_hint(self):
         if not hasattr(self, '_arrowkey_hint'):
-            self._arrowkey_hint = ui.tk.Label()
-            self._arrowkey_hint.tooltip = ui.Tooltip()
-            self._arrowkey_hint.bind(
-                '<Enter>',
-                self._arrowkey_hint.tooltip.show
+            self._arrowkey_hint = hint = ui.tk.Frame(bg='#ffffff')
+            self._arrowkey_hint.label = ui.tk.Label(hint)
+            self._arrowkey_hint.qm = ui.tk.Label(
+                hint, text='(?)', padx=3,
+                bg='#ffffff', activeforeground="#ffb617"
             )
-            self._arrowkey_hint.bind(
-                '<Leave>',
-                self._arrowkey_hint.tooltip.hide
+            self._arrowkey_hint.qm.grid(row=0, column=0)
+            self._arrowkey_hint.label.grid(row=0, column=1)
+            self._arrowkey_hint.tooltip = ui.Tooltip()
+            self._arrowkey_hint.qm.bind(
+                '<Enter>', self._arrowkey_hint.tooltip.show
+            )
+            self._arrowkey_hint.qm.bind(
+                '<Leave>', self._arrowkey_hint.tooltip.hide
             )
         return self._arrowkey_hint
 
