@@ -141,6 +141,12 @@ class GUI(View):
         elif np.any(self.images.selected):
             self.arrowkey_mode = mode
             self.move_atoms_mask = self.images.selected.copy()
+        else:
+            from ase.gui.ui import showwarning
+            showwarning(
+                _('No atoms selected!'),
+                _('You need to select one or more atoms to do this')
+            )
 
         self.draw()
 
