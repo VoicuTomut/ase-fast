@@ -1,4 +1,3 @@
-# fmt: off
 from io import StringIO
 
 from ase.io import read, write
