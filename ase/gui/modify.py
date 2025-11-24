@@ -50,16 +50,19 @@ class ModifyAtoms:
 
     def set_element(self, element):
         self.gui.atoms.numbers[self.selection()] = element.Z
+        self.gui.update_history()
         self.gui.draw()
 
     def set_tag(self):
         tags = self.gui.atoms.get_tags()
         tags[self.selection()] = self.tag.value
         self.gui.atoms.set_tags(tags)
+        self.gui.update_history()
         self.gui.draw()
 
     def set_magmom(self):
         magmoms = get_magmoms(self.gui.atoms)
         magmoms[self.selection()] = self.magmom.value
         self.gui.atoms.set_initial_magnetic_moments(magmoms)
+        self.gui.update_history()
         self.gui.draw()

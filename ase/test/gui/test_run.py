@@ -7,6 +7,7 @@ import pytest
 import ase.gui.ui as ui
 from ase import Atoms
 from ase.build import bulk, molecule
+from ase.calculators.calculator import compare_atoms
 from ase.calculators.singlepoint import SinglePointCalculator
 from ase.gui.gui import GUI
 from ase.gui.i18n import _
@@ -71,6 +72,15 @@ def atoms(gui):
     atoms = bulk('Ti') * (2, 2, 2)
     gui.new_atoms(atoms)
     return atoms
+
+
+@pytest.fixture()
+def gui_many_images(guifactory):
+    hydrogen = molecule('H2')
+    hydrogen.center(5)
+    images = [hydrogen.copy() for i in range(3)]
+    gui = guifactory(images)
+    return gui
 
 
 @pytest.fixture()
@@ -603,3 +613,55 @@ def test_atoms_editor_select_in_editor(gui, atoms):
     print(gui.images.selected)
     assert all(gui.images.selected[[6, 7, 8, 10]])
     assert sum(gui.images.selected) == 4
+
+
+def test_atoms_history(gui):
+    """Test that history can be updated, undone, redone, and rewritten"""
+    gui.undo_history()
+    gui.new_atoms(molecule('H2O'))
+    before = gui.images[gui.frame].copy()
+    gui.images.selected[0] = True
+    gui.really_delete_selected_atoms()
+    assert set(compare_atoms(gui.images[gui.frame], before)) == set(
+        [
+            'numbers',
+            'positions',
+        ]
+    )
+    gui.undo_history()
+    gui.redo_history()
+    gui.undo_history()
+    assert not compare_atoms(gui.images[gui.frame], before)
+
+    gui.images[gui.frame].positions *= 1.2
+    gui.images.history.update_history(gui.frame)
+    gui.images.history.undo_history(gui.frame)
+    gui.images.history.redo_history(gui.frame)
+    gui.images.history.undo_history(gui.frame)
+    assert not compare_atoms(gui.images[gui.frame], before)
+    gui.redo_history()
+
+    gui.images.history.max_entries = 3
+    for i in range(5):
+        gui.update_history()
+    assert len(gui.images.history.history_per_image[gui.frame]) == 3
+
+
+def test_many_atoms_history(gui_many_images):
+    """Test that history can be updated, undone, redone, and rewritten
+    even while there is more than one image open in the GUI"""
+    for frame in range(len(gui_many_images.images)):
+        gui_many_images.set_frame(frame)
+        before = gui_many_images.images[frame].copy()
+        gui_many_images.images.selected[0] = True
+        gui_many_images.really_delete_selected_atoms()
+        assert set(compare_atoms(gui_many_images.images[frame], before)) == set(
+            [
+                'numbers',
+                'positions',
+            ]
+        )
+        gui_many_images.undo_history()
+        gui_many_images.redo_history()
+        gui_many_images.undo_history()
+        assert not compare_atoms(gui_many_images.images[frame], before)

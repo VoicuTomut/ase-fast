@@ -14,10 +14,12 @@ class Constraints:
 
     def selected(self):
         self.gui.images.set_dynamic(self.gui.images.selected, False)
+        self.gui.update_history()
         self.gui.draw()
 
     def unconstrain(self):
         self.gui.images.set_dynamic(self.gui.images.selected, True)
+        self.gui.update_history()
         self.gui.draw()
 
     def clear(self):
@@ -25,6 +27,7 @@ class Constraints:
         # only add FixAtoms....
         for atoms in self.gui.images:
             atoms.constraints = []
+        self.gui.update_history()
 
         # Also, these methods are repeated from settings.py *grumble*
         self.gui.draw()
