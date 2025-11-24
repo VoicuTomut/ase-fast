@@ -1,4 +1,8 @@
-def deprecated_ga_get(oldmodulename, modulename):
+def ase_ga_deprecated(oldmodulename, modulename=None):
+    if modulename is None:
+        assert oldmodulename.startswith('ase.ga')
+        modulename = oldmodulename.replace('ase.ga', 'ase_ga')
+
     def __getattr__(attrname):
         import importlib
         try:
@@ -13,4 +17,4 @@ def deprecated_ga_get(oldmodulename, modulename):
     return __getattr__
 
 
-__getattr__ = deprecated_ga_get(__name__, 'ase_ga')
+__getattr__ = ase_ga_deprecated(__name__)
