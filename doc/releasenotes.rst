@@ -1289,7 +1289,8 @@ Algorithms:
   criterion, although this behaviour may change in future versions.
 
 * The genetic algorithm module :mod:`ase.ga` now has operators for crystal
-  structure prediction. See :ref:`ga_bulk_tutorial`.
+  structure prediction.  (Update: moved to
+  `ase-ga <https://dtu-energy.github.io/ase-ga>`_.)
 
 * New :func:`ase.geometry.dimensionality.analyze_dimensionality` function.
   See: :ref:`dimtutorial`.
