@@ -930,7 +930,7 @@ Algorithms:
 
 * Added a new tutorial on molecular crystal structure prediction using
   a genetic algorithm (Update: moved to `ase-ga
-  <https://dtu-energy.github.io/ase-ga/tutorials/ga_molecular_crystal.html>`_.)
+  <https://dtu-energy.github.io/ase-ga/tutorials/ga_molecular_crystal.html>`__.)
 
 * Allow setting the initial hessian in ``optimize.BFGS`` via the keyword ``alpha`` or
   explicitly via ``opt.H0 = ...`` after instantiation.
@@ -1290,7 +1290,7 @@ Algorithms:
 
 * The genetic algorithm module :mod:`ase.ga` now has operators for crystal
   structure prediction.  (Update: moved to
-  `ase-ga <https://dtu-energy.github.io/ase-ga>`_.)
+  `ase-ga <https://dtu-energy.github.io/ase-ga>`__.)
 
 * New :func:`ase.geometry.dimensionality.analyze_dimensionality` function.
   See: :ref:`dimtutorial`.
