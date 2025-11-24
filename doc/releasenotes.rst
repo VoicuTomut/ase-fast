@@ -929,7 +929,8 @@ Algorithms:
   for nanowire and thin film structures.
 
 * Added a new tutorial on molecular crystal structure prediction using
-  a genetic algorithm, see :ref:`ga_molecular_crystal_tutorial`.
+  a genetic algorithm (Update: moved to `ase-ga
+  <https://dtu-energy.github.io/ase-ga/tutorials/ga_molecular_crystal.html>`_.)
 
 * Allow setting the initial hessian in ``optimize.BFGS`` via the keyword ``alpha`` or
   explicitly via ``opt.H0 = ...`` after instantiation.
