@@ -730,7 +730,7 @@ def test_pw_input_write_nested_flat():
                   "used_sections": {"used_keyword1": "used_value1"}
                   }
 
-    with pytest.raises(DeprecationWarning):
+    with pytest.warns(DeprecationWarning):
         write_espresso_in(fh, bulk, input_data=input_data,
                           pseudopotentials=pseudos,
                           mixing_mode="local-TF")
@@ -972,5 +972,5 @@ class TestConstraints:
     def test_fix_scaled(self):
         """Test FixScaled"""
         constraint = FixScaled(0, mask=(1, 1, 0))
-        with pytest.raises(UserWarning):
+        with pytest.warns(UserWarning):
             self._apply_write_read(constraint)
