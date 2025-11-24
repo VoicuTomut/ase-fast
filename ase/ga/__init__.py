@@ -3,7 +3,7 @@
 msg = """\
 The ase.ga code has moved to a separate project, ase_ga:
 https://github.com/dtu-energy/ase-ga .
-Please install ase_ga, e.g., pip install ase_ga.
+Please install it using e.g. pip install ase-ga.
 Please import from ase_ga what would previously be imported from ase.ga.
 ase.ga placeholders will be removed in a future release.
 """
