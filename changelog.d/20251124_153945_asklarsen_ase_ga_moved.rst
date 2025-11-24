@@ -42,7 +42,7 @@ Other changes
 -------------
 
  - The :mod:`ase.ga` module has been moved to the standalone
-   `ase-ga <https://dtu-energy.github.io/ase-ga/`_ project.
+   `ase-ga <https://dtu-energy.github.io/ase-ga/>`_ project.
 
 ..
 .. Bugfixes
