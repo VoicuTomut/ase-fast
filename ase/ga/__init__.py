@@ -1,3 +1,6 @@
+"""The ase.ga project has moved to https://dtu-energy.github.io/ase-ga/ ."""
+
+
 def ase_ga_deprecated(oldmodulename, modulename=None):
     if modulename is None:
         assert oldmodulename.startswith('ase.ga')
@@ -5,6 +8,7 @@ def ase_ga_deprecated(oldmodulename, modulename=None):
 
     def __getattr__(attrname):
         import importlib
+
         try:
             module = importlib.import_module(modulename)
         except ImportError as err:
@@ -12,8 +16,10 @@ def ase_ga_deprecated(oldmodulename, modulename=None):
                 f'Cannot import {modulename}.  '
                 'The ase.ga code has moved to a separate project, ase_ga: '
                 'https://github.com/dtu-energy/ase-ga .'
-                'Please install ase_ga, e.g., pip install ase_ga.') from err
+                'Please install ase_ga, e.g., pip install ase_ga.'
+            ) from err
         return getattr(module, attrname)
+
     return __getattr__
 
 
