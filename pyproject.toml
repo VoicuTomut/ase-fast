@@ -45,7 +45,7 @@ ase = 'ase.cli.main:main'
 docs = ['sphinx', 'sphinx_book_theme', 'sphinx-gallery', 'pillow']
 test = ['pytest>=7.0.0', 'pytest-xdist>=2.1.0']
 spglib = ['spglib>=1.9']
-lint = ['mypy', 'ruff', 'coverage', 'types-docutils', 'types-PyMySQL', 'flake8']
+lint = ['mypy', 'ruff', 'types-docutils', 'types-PyMySQL']
 
 [tool.setuptools.package-data]
 ase = [
