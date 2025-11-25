@@ -4,6 +4,7 @@
 import time
 import warnings
 from collections.abc import Callable
+from contextlib import contextmanager
 from functools import cached_property
 from os.path import isfile
 from pathlib import Path
@@ -95,33 +96,49 @@ class BaseDynamics(IOContext):
         self.comm = comm
 
         self._orig_trajectory = trajectory
+        self._master = master
+
+        try:
+            trajectory = Path(trajectory)
+        except TypeError:
+            pass  # None or Trajectory already opened by caller
+        else:
+            if not append_trajectory and comm.rank == 0:
+                trajectory.unlink(missing_ok=True)
 
         if trajectory is not None:
-            if isinstance(trajectory, str) or isinstance(trajectory, Path):
-                from ase.io.trajectory import Trajectory
-                mode = "a" if append_trajectory else "w"
-                trajectory = self.closelater(Trajectory(
-                    trajectory, mode=mode, master=master, comm=comm
-                ))
-
-            self._traj_set_description(trajectory, interval=loginterval)
-
-            self.attach(
-                self._traj_write_image,
-                interval=loginterval,
-                atoms=self.atoms.__ase_optimizable__(),
-            )
+            self.attach(self._traj_write_image, interval=loginterval,
+                        description={'interval': loginterval})
 
         self.trajectory = trajectory
 
-    def _traj_set_description(self, traj, **kwargs):
-        traj.set_description(self.todict() | kwargs)
+    @contextmanager
+    def _opentraj(self):
+        from ase.io.trajectory import Trajectory
+        assert self._orig_trajectory is not None
 
-    def _traj_write_image(self, atoms):
-        self.trajectory.write(atoms)
+        if hasattr(self._orig_trajectory, 'write'):
+            # Already an open trajectory, we are not responsible for open/close
+            yield self._orig_trajectory
+            return
+
+        with Trajectory(
+                self._orig_trajectory,
+                master=self._master, mode='a', comm=self.comm,
+        ) as traj:
+            yield traj
+
+    def _traj_write_image(self, description: dict):
+        with self._opentraj() as traj:
+            # The description is only written when we write a header,
+            # and we probably only write the header when we need to
+            # (in append mode) but I am not sure about that.
+            traj.set_description(self.todict() | description)
+            traj.write(self.atoms.__ase_optimizable__())
 
     def _traj_is_empty(self):
-        return len(self.trajectory) == 0
+        with self._opentraj() as traj:
+            return len(traj) == 0
 
     def _get_gradient(self, forces=None):
         if forces is not None:
@@ -174,8 +191,6 @@ class BaseDynamics(IOContext):
         arguments *args* and keyword arguments *kwargs*.  This is
         currently zero indexed."""
 
-        if hasattr(function, "set_description"):
-            self._traj_set_description(function, interval=interval)
         if not isinstance(function, Callable):
             function = function.write
         self.observers.append((function, interval, args, kwargs))
