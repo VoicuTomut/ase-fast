@@ -94,6 +94,8 @@ class BaseDynamics(IOContext):
         self.max_steps = 0  # to be updated in run or irun
         self.comm = comm
 
+        self._orig_trajectory = trajectory
+
         if trajectory is not None:
             if isinstance(trajectory, str) or isinstance(trajectory, Path):
                 from ase.io.trajectory import Trajectory
@@ -101,13 +103,25 @@ class BaseDynamics(IOContext):
                 trajectory = self.closelater(Trajectory(
                     trajectory, mode=mode, master=master, comm=comm
                 ))
+
+            self._traj_set_description(trajectory, interval=loginterval)
+
             self.attach(
-                trajectory,
+                self._traj_write_image,
                 interval=loginterval,
                 atoms=self.atoms.__ase_optimizable__(),
             )
 
         self.trajectory = trajectory
+
+    def _traj_set_description(self, traj, **kwargs):
+        traj.set_description(self.todict() | kwargs)
+
+    def _traj_write_image(self, atoms):
+        self.trajectory.write(atoms)
+
+    def _traj_is_empty(self):
+        return len(self.trajectory) == 0
 
     def _get_gradient(self, forces=None):
         if forces is not None:
@@ -161,9 +175,7 @@ class BaseDynamics(IOContext):
         currently zero indexed."""
 
         if hasattr(function, "set_description"):
-            d = self.todict()
-            d.update(interval=interval)
-            function.set_description(d)
+            self._traj_set_description(function, interval=interval)
         if not isinstance(function, Callable):
             function = function.write
         self.observers.append((function, interval, args, kwargs))
@@ -270,7 +282,7 @@ class Dynamics(BaseDynamics):
                 self.call_observers()
             # We do not write on restart w/ an existing trajectory file
             # present. This duplicates the same entry twice
-            elif len(self.trajectory) == 0:
+            elif self._traj_is_empty():
                 self.call_observers()
 
         # check convergence
