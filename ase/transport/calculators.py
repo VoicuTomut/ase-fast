@@ -37,7 +37,7 @@ class TransportCalculator:
             Hamiltonian matrix for lead2. You may use None if lead1 and lead2
             are identical.
         s1 : {None, (N1, N1) ndarray}, optional
-            Overlap matrix for lead1. Use None for an orthonomormal basis.
+            Overlap matrix for lead1. Use None for an orthonormal basis.
         hc1 : {None, (N1, N) ndarray}, optional
             Hamiltonian coupling matrix between the first principal
             layer in lead1 and the central region.
@@ -77,7 +77,7 @@ class TransportCalculator:
             YYY
 
         If hc1/hc2 are None, they are assumed to be identical to
-        the coupling matrix elements between neareste neighbor
+        the coupling matrix elements between nearest neighbor
         principal layers in lead1/lead2.
 
         Examples:
