@@ -68,6 +68,35 @@ class OptimizableAtoms(Optimizable):
         return 3 * len(self.atoms)
 
 
+class Log:
+    def __init__(self, logfile, comm):
+        self._logfile = logfile
+        self._comm = comm
+
+    def write(self, msg):
+        if self._logfile is None or self._comm.rank != 0:
+            return
+
+        if hasattr(self._logfile, 'write'):
+            self._logfile.write(msg)
+            return
+
+        if self._logfile == '-':
+            print(msg)
+            return
+
+        with open(self._logfile, mode='a') as fd:
+            fd.write(msg)
+
+    def flush(self):
+        warnings.warn('Log flushes by default now.  Please do not call '
+                      'flush().  If you want a different flushing behaviour '
+                      'please open logfile yourself and choose '
+                      'buffering mode as appropriate.  '
+                      'This flush() method currently does nothing.',
+                      FutureWarning)
+
+
 class BaseDynamics(IOContext):
     """Common superclass for optimization and MD.
 
@@ -89,7 +118,7 @@ class BaseDynamics(IOContext):
         loginterval: int = 1,
     ):
         self.atoms = atoms
-        self.logfile = self.openfile(file=logfile, comm=comm, mode='a')
+        self.logfile = Log(logfile, comm=comm)
         self.observers: List[Tuple[Callable, int, Tuple, Dict[str, Any]]] = []
         self.nsteps = 0
         self.max_steps = 0  # to be updated in run or irun
@@ -491,7 +520,6 @@ class Optimizer(Dynamics):
             args = (name, self.nsteps, T[3], T[4], T[5], e, fmax)
             msg = "%s:  %3d %02d:%02d:%02d %15.6f %15.6f\n" % args
             self.logfile.write(msg)
-            self.logfile.flush()
 
     def dump(self, data):
         from ase.io.jsonio import write_json

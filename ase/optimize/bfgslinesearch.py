@@ -219,7 +219,6 @@ class BFGSLineSearch(Optimizer):
         w('%s:  %3d[%3d] %02d:%02d:%02d %15.6f %12.4f\n'
             % (name, self.nsteps, self.force_calls, T[3], T[4], T[5], e,
                fmax))
-        self.logfile.flush()
 
 
 def wrap_function(function, args):

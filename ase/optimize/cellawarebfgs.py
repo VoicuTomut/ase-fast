@@ -139,5 +139,3 @@ class CellAwareBFGS(BFGS):
                         tuple(cell_to_cellpar(self.atoms.atoms.cell)))
             msg += '\n'
             self.logfile.write(msg)
-
-            self.logfile.flush()
