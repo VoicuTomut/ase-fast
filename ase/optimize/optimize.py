@@ -127,12 +127,16 @@ class BaseDynamics(IOContext):
         self._orig_trajectory = trajectory
         self._master = master
 
-        try:
-            trajectory = Path(trajectory)
-        except TypeError:
-            pass  # None or Trajectory already opened by caller
+        if trajectory is None or hasattr(trajectory, 'write'):
+            # 'write' attribute is meant to check for a Trajectory
+            # (could be BundleTrajectory).
+            # There is no unified way to check for Trajectory.
+            # In this case the trajectory is already open so we do not
+            # open it.
+            pass
         else:
-            if not append_trajectory and comm.rank == 0:
+            trajectory = Path(trajectory)
+            if comm.rank == 0 and not append_trajectory:
                 trajectory.unlink(missing_ok=True)
 
         if trajectory is not None:
@@ -140,6 +144,9 @@ class BaseDynamics(IOContext):
                         description={'interval': loginterval})
 
         self.trajectory = trajectory
+
+    def todict(self) -> Dict[str, Any]:
+        raise NotImplementedError
 
     @contextmanager
     def _opentraj(self):
@@ -284,9 +291,6 @@ class Dynamics(BaseDynamics):
         super().__init__(atoms, *args, **kwargs)
         self.atoms = atoms
         self.optimizable = atoms.__ase_optimizable__()
-
-    def todict(self) -> Dict[str, Any]:
-        raise NotImplementedError
 
     def irun(self, steps=DEFAULT_MAX_STEPS):
         """Run dynamics algorithm as generator.
