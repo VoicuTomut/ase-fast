@@ -45,7 +45,7 @@ def get_rdf(atoms: Atoms, rmax: float, nbins: int,
     distance_matrix : numpy.array
         An array of distances between atoms, typically
         obtained by atoms.get_all_distances().
-        Default None meaning that it will be calculated.
+        Default None meaning that a NeighborList will be used.
 
     elements : list or tuple
         List of two atomic numbers. If elements is not None the partial
@@ -67,43 +67,47 @@ def get_rdf(atoms: Atoms, rmax: float, nbins: int,
     check_cell_and_r_max(atoms, rmax)
 
     natoms = len(atoms)
-    dm = distance_matrix
-    if dm is None:
-        nl = NeighborList(np.ones(natoms) * rmax * 0.5)
-        nl.update(atoms)
-        # By default set to 'out of range'.
-        dm = (np.ones((natoms, natoms)) - np.identity(natoms)) * rmax * 2.0
-
-        for i in range(natoms):
-            indices, _ = nl.get_neighbors(i)
-            dm[i, indices] = atoms.get_distances(i, indices, mic=True)
-            for j in indices:
-                dm[j, i] = dm[i, j]
-
     rdf = np.zeros(nbins + 1)
     dr = float(rmax / nbins)
 
-    indices = np.asarray(np.ceil(dm / dr), dtype=int)
-
     if elements is None:
-        # Coefficients to use for normalization
-        phi = natoms / vol
-        norm = 2.0 * math.pi * dr * phi * len(atoms)
-
-        indices_triu = np.triu(indices)
-        for index in range(nbins + 1):
-            rdf[index] = np.count_nonzero(indices_triu == index)
-
+        i_indices = np.arange(natoms)
     else:
         i_indices = np.where(atoms.numbers == elements[0])[0]
-        phi = len(i_indices) / vol
-        norm = 4.0 * math.pi * dr * phi * natoms
+
+    phi = len(i_indices) / vol
+    norm = 2.0 * math.pi * dr * phi * natoms
+
+    if distance_matrix is None:
+        nl = NeighborList(np.ones(natoms) * rmax * 0.5)
+        nl.update(atoms)
 
         for i in i_indices:
-            for j in np.where(atoms.numbers == elements[1])[0]:
-                index = indices[i, j]
-                if index <= nbins:
-                    rdf[index] += 1
+            j_indices, _ = nl.get_neighbors(i)
+            if elements is not None:
+                j_indices = [j for j in j_indices if atoms.numbers[j] == elements[1]]
+
+            if not len(j_indices):
+                continue
+
+            distances = atoms.get_distances(i, j_indices, mic=True)
+            indices = np.asarray(np.ceil(distances/dr), dtype=int)
+            for index in range(nbins + 1):
+                rdf[index] += np.count_nonzero(indices == index)
+    else:
+        indices = np.asarray(np.ceil(distance_matrix / dr), dtype=int)
+        if elements is None:
+            indices_triu = np.triu(indices)
+            for index in range(nbins + 1):
+                rdf[index] = np.count_nonzero(indices_triu == index)
+
+        else:
+            norm *= 2
+            for i in i_indices:
+                for j in np.where(atoms.numbers == elements[1])[0]:
+                    index = indices[i, j]
+                    if index <= nbins:
+                        rdf[index] += 1
 
     rr = np.arange(dr / 2, rmax, dr)
     rdf[1:] /= norm * (rr * rr + (dr * dr / 12))
