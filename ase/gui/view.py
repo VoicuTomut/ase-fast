@@ -10,7 +10,7 @@ from ase.data import atomic_numbers
 from ase.data.colors import jmol_colors
 from ase.geometry import complete_cell
 from ase.gui.colors import ColorWindow
-from ase.gui.i18n import ngettext
+from ase.gui.i18n import _, ngettext
 from ase.gui.render import Render
 from ase.gui.repeat import Repeat
 from ase.gui.rotate import Rotate
@@ -607,21 +607,20 @@ class View:
             self.window.text(c, d, 'XYZ'[i], color=rgb[i])
 
     def draw_arrowkey_hint(self):
-        x, y = self.window.size
         if self.arrowkey_mode == self.ARROWKEY_ROTATE:
-            hint = 'ROTATING'
+            hint = _('ROTATING')
             bg = PURPLE
-            tip_text = (
+            tip_text = _((
                 'Ctrl + Up/Down: rotate around the view axis\n'
                 'Shift + Arrow keys: rotate in smaller increments'
-            )
+            ))
         else:
-            hint = 'MOVING'
+            hint = _('MOVING')
             bg = GREEN
-            tip_text = (
+            tip_text = _((
                 'Ctrl + Up/Down: move along the view axis\n'
                 'Shift + Arrow keys: move in smaller increments'
-            )
+            ))
         self.arrowkey_hint.label.configure(
             text=hint,
             padx=3,
