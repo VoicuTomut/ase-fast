@@ -85,13 +85,15 @@ def get_rdf(atoms: Atoms, rmax: float, nbins: int,
         for i in i_indices:
             j_indices, _ = nl.get_neighbors(i)
             if elements is not None:
-                j_indices = [j for j in j_indices if atoms.numbers[j] == elements[1]]
+                j_indices = [
+                        j for j in j_indices if atoms.numbers[j] == elements[1]
+                ]
 
             if not len(j_indices):
                 continue
 
             distances = atoms.get_distances(i, j_indices, mic=True)
-            indices = np.asarray(np.ceil(distances/dr), dtype=int)
+            indices = np.asarray(np.ceil(distances / dr), dtype=int)
             for index in range(nbins + 1):
                 rdf[index] += np.count_nonzero(indices == index)
     else:

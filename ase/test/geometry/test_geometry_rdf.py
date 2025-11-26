@@ -76,22 +76,23 @@ def test_rdf_compute():
     reference_rdf2 = [0., 0., 1.43905094, 0.36948605, 1.34468694]
     assert all(abs(rdf - reference_rdf2) < eps)
 
+
 def test_neighborlist_vs_distance_matrix():
     eps = 1e-5
+    elements = (18, 18)
     atoms = bulk('Ar', 'fcc', cubic=True).repeat(2)
 
     dm = atoms.get_all_distances(mic=True)
     rdf_dm, dists_dm = get_rdf(atoms, 4.0, 5, distance_matrix=dm)
     rdf_nl, dists_nl = get_rdf(atoms, 4.0, 5)
 
-    rdf_dm_elements, dists_dm_elements = get_rdf(atoms, 4.0, 5, distance_matrix=dm, elements=(18,18))
-    rdf_nl_elements, dists_nl_elements = get_rdf(atoms, 4.0, 5, elements=(18,18))
+    rdf_dm_e, dists_dm_e = get_rdf(
+            atoms, 4.0, 5, distance_matrix=dm, elements=elements
+    )
+    rdf_nl_e, dists_nl_e = get_rdf(atoms, 4.0, 5, elements=elements)
 
-    assert all(abs(rdf_dm-rdf_nl) < eps)
-    assert all(abs(dists_dm-dists_nl) < eps)
+    assert all(abs(rdf_dm - rdf_nl) < eps)
+    assert all(abs(dists_dm - dists_nl) < eps)
 
-    print(rdf_dm_elements)
-    print(rdf_nl_elements)
-
-    assert all(abs(rdf_dm_elements-rdf_nl_elements) < eps)
-    assert all(abs(dists_dm_elements-dists_nl_elements) < eps)
+    assert all(abs(rdf_dm_e - rdf_nl_e) < eps)
+    assert all(abs(dists_dm_e - dists_nl_e) < eps)
