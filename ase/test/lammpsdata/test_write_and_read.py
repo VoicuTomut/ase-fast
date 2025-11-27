@@ -148,6 +148,17 @@ def test_image_flags(write_image_flags: bool, atom_style: str):
     )
 
 
+def test_types(lammpsdata_file_path):
+    """Test if writing atom types works correctly."""
+    atoms = read_lammps_data(lammpsdata_file_path)
+    atoms.arrays['type'][0] = 2
+    lammpsdata_buf = io.StringIO()
+    write_lammps_data(lammpsdata_buf, atoms)
+    lammpsdata_buf.seek(0)
+    atoms2 = read_lammps_data(lammpsdata_buf)
+    np.testing.assert_array_equal(atoms.arrays['type'], atoms2.arrays['type'])
+
+
 def test_bonds(lammpsdata_file_path):
     """Test if writing bonds works correctly."""
     atoms = read_lammps_data(lammpsdata_file_path, atom_style='full')
