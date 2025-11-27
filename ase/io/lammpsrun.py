@@ -228,6 +228,13 @@ def lammps_data_to_ase_atoms(
 
         elif colname.startswith('i_') or colname.startswith('i2_'):
             out_atoms.new_array(colname, get_quantity([colname]), dtype='int')
+        elif colname == 'type':
+            try:
+                out_atoms.new_array(
+                    colname, data[:, colnames.index('type')], dtype='int'
+                )
+            except ValueError:
+                pass  # in case type is not integer
 
     return out_atoms
 
