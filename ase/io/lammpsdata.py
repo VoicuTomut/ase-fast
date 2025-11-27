@@ -677,7 +677,6 @@ def _get_types(atoms: Atoms, species: list):
     return [species.index(symbols[i]) + 1 for i in range(len(symbols))]
 
 
-def _get_symbols_by_types(atoms: Atoms):
-    unique_types, first_idx = np.unique(atoms.arrays['type'], return_index=True)
-    symbols_by_type = [atoms.symbols[i] for i in first_idx]
-    return symbols_by_type
+def _get_symbols_by_types(atoms: Atoms) -> list[str]:
+    _, first_idx = np.unique(atoms.arrays['type'], return_index=True)
+    return [atoms.symbols[i] for i in first_idx]
