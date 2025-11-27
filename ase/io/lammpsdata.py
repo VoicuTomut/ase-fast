@@ -672,14 +672,11 @@ def _write_masses(fd, atoms: Atoms, species: list, units: str):
 
 def _get_types(atoms: Atoms, species: list):
     if 'type' in atoms.arrays:
-        types = atoms.arrays['type']
-    else:
-        symbols = atoms.get_chemical_symbols()
-        types = [species.index(symbols[i]) + 1 for i in range(len(symbols))]
-    return types
+        return atoms.arrays['type']
+    symbols = atoms.get_chemical_symbols()
+    return [species.index(symbols[i]) + 1 for i in range(len(symbols))]
 
 
-def _get_symbols_by_types(atoms: Atoms):
-    unique_types, first_idx = np.unique(atoms.arrays['type'], return_index=True)
-    symbols_by_type = [atoms.symbols[i] for i in first_idx]
-    return symbols_by_type
+def _get_symbols_by_types(atoms: Atoms) -> list[str]:
+    _, first_idx = np.unique(atoms.arrays['type'], return_index=True)
+    return [atoms.symbols[i] for i in first_idx]
