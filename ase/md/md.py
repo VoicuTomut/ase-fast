@@ -132,7 +132,8 @@ class MolecularDynamics(BaseDynamics):
 
         if logfile:
             logger = self.closelater(
-                MDLogger(dyn=self, atoms=atoms, logfile=logfile))
+                MDLogger(dyn=self, atoms=atoms, logfile=logfile,
+                         comm=self.comm))
             self.attach(logger, loginterval)
 
     def todict(self):
