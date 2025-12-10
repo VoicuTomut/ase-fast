@@ -4,6 +4,7 @@
 import time
 import warnings
 from collections.abc import Callable
+from contextlib import contextmanager
 from functools import cached_property
 from os.path import isfile
 from pathlib import Path
@@ -67,6 +68,35 @@ class OptimizableAtoms(Optimizable):
         return 3 * len(self.atoms)
 
 
+class Log:
+    def __init__(self, logfile, comm):
+        self._logfile = logfile
+        self._comm = comm
+
+    def write(self, msg):
+        if self._logfile is None or self._comm.rank != 0:
+            return
+
+        if hasattr(self._logfile, 'write'):
+            self._logfile.write(msg)
+            return
+
+        if self._logfile == '-':
+            print(msg)
+            return
+
+        with open(self._logfile, mode='a') as fd:
+            fd.write(msg)
+
+    def flush(self):
+        warnings.warn('Log flushes by default now.  Please do not call '
+                      'flush().  If you want a different flushing behaviour '
+                      'please open logfile yourself and choose '
+                      'buffering mode as appropriate.  '
+                      'This flush() method currently does nothing.',
+                      FutureWarning)
+
+
 class BaseDynamics(IOContext):
     """Common superclass for optimization and MD.
 
@@ -88,26 +118,63 @@ class BaseDynamics(IOContext):
         loginterval: int = 1,
     ):
         self.atoms = atoms
-        self.logfile = self.openfile(file=logfile, comm=comm, mode='a')
+        self.logfile = Log(logfile, comm=comm)
         self.observers: List[Tuple[Callable, int, Tuple, Dict[str, Any]]] = []
         self.nsteps = 0
         self.max_steps = 0  # to be updated in run or irun
         self.comm = comm
 
+        self._orig_trajectory = trajectory
+        self._master = master
+
+        if trajectory is None or hasattr(trajectory, 'write'):
+            # 'write' attribute is meant to check for a Trajectory
+            # (could be BundleTrajectory).
+            # There is no unified way to check for Trajectory.
+            # In this case the trajectory is already open so we do not
+            # open it.
+            pass
+        else:
+            trajectory = Path(trajectory)
+            if comm.rank == 0 and not append_trajectory:
+                trajectory.unlink(missing_ok=True)
+
         if trajectory is not None:
-            if isinstance(trajectory, str) or isinstance(trajectory, Path):
-                from ase.io.trajectory import Trajectory
-                mode = "a" if append_trajectory else "w"
-                trajectory = self.closelater(Trajectory(
-                    trajectory, mode=mode, master=master, comm=comm
-                ))
-            self.attach(
-                trajectory,
-                interval=loginterval,
-                atoms=self.atoms.__ase_optimizable__(),
-            )
+            self.attach(self._traj_write_image, interval=loginterval,
+                        description={'interval': loginterval})
 
         self.trajectory = trajectory
+
+    def todict(self) -> Dict[str, Any]:
+        raise NotImplementedError
+
+    @contextmanager
+    def _opentraj(self):
+        from ase.io.trajectory import Trajectory
+        assert self._orig_trajectory is not None
+
+        if hasattr(self._orig_trajectory, 'write'):
+            # Already an open trajectory, we are not responsible for open/close
+            yield self._orig_trajectory
+            return
+
+        with Trajectory(
+                self._orig_trajectory,
+                master=self._master, mode='a', comm=self.comm,
+        ) as traj:
+            yield traj
+
+    def _traj_write_image(self, description: dict):
+        with self._opentraj() as traj:
+            # The description is only written when we write a header,
+            # and we probably only write the header when we need to
+            # (in append mode) but I am not sure about that.
+            traj.set_description(self.todict() | description)
+            traj.write(self.atoms.__ase_optimizable__())
+
+    def _traj_is_empty(self):
+        with self._opentraj() as traj:
+            return len(traj) == 0
 
     def _get_gradient(self, forces=None):
         if forces is not None:
@@ -160,10 +227,6 @@ class BaseDynamics(IOContext):
         arguments *args* and keyword arguments *kwargs*.  This is
         currently zero indexed."""
 
-        if hasattr(function, "set_description"):
-            d = self.todict()
-            d.update(interval=interval)
-            function.set_description(d)
         if not isinstance(function, Callable):
             function = function.write
         self.observers.append((function, interval, args, kwargs))
@@ -229,9 +292,6 @@ class Dynamics(BaseDynamics):
         self.atoms = atoms
         self.optimizable = atoms.__ase_optimizable__()
 
-    def todict(self) -> Dict[str, Any]:
-        raise NotImplementedError
-
     def irun(self, steps=DEFAULT_MAX_STEPS):
         """Run dynamics algorithm as generator.
 
@@ -270,7 +330,7 @@ class Dynamics(BaseDynamics):
                 self.call_observers()
             # We do not write on restart w/ an existing trajectory file
             # present. This duplicates the same entry twice
-            elif len(self.trajectory) == 0:
+            elif self._traj_is_empty():
                 self.call_observers()
 
         # check convergence
@@ -464,7 +524,6 @@ class Optimizer(Dynamics):
             args = (name, self.nsteps, T[3], T[4], T[5], e, fmax)
             msg = "%s:  %3d %02d:%02d:%02d %15.6f %15.6f\n" % args
             self.logfile.write(msg)
-            self.logfile.flush()
 
     def dump(self, data):
         from ase.io.jsonio import write_json
