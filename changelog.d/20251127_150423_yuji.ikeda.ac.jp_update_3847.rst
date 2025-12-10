@@ -1,0 +1,5 @@
+I/O
+---
+
+- Update :meth:`~ase.io.lammpsdata.write_lammps_data` to parse atom types read
+  by :meth:`~ase.io.lammpsdata.read_lammps_data` (:mr:`3847`)

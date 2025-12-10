@@ -480,14 +480,17 @@ def write_lammps_data(
     n_atoms = len(symbols)
     fd.write(f'{n_atoms} atoms\n')
 
-    if specorder is None:
-        # This way it is assured that LAMMPS atom types are always
-        # assigned predictably according to the alphabetic order
-        species = sorted(set(symbols))
-    else:
+    if specorder is not None:
         # To index elements in the LAMMPS data file
         # (indices must correspond to order in the potential file)
         species = specorder
+    elif 'type' in atoms.arrays:
+        species = _get_symbols_by_types(atoms)
+    else:
+        # This way it is assured that LAMMPS atom types are always
+        # assigned predictably according to the alphabetic order
+        species = sorted(set(symbols))
+
     n_atom_types = len(species)
     fd.write(f'{n_atom_types} atom types\n\n')
 
@@ -548,11 +551,13 @@ def write_lammps_data(
         wrap=write_image_flags,
     )
 
+    types = _get_types(atoms, species)
+
     if atom_style == 'atomic':
         # Convert position from ASE units to LAMMPS units
         pos = convert(pos, 'distance', 'ASE', units)
         for i, r in enumerate(pos):
-            s = species.index(symbols[i]) + 1
+            s = types[i]
             line = (
                 f'{i + 1:>6} {s:>3} {r[0]:23.17g} {r[1]:23.17g} {r[2]:23.17g}'
             )
@@ -567,7 +572,7 @@ def write_lammps_data(
         pos = convert(pos, 'distance', 'ASE', units)
         charges = convert(charges, 'charge', 'ASE', units)
         for i, (q, r) in enumerate(zip(charges, pos)):
-            s = species.index(symbols[i]) + 1
+            s = types[i]
             line = (
                 f'{i + 1:>6} {s:>3} {q:>5}'
                 f' {r[0]:23.17g} {r[1]:23.17g} {r[2]:23.17g}'
@@ -616,7 +621,7 @@ def write_lammps_data(
         pos = convert(pos, 'distance', 'ASE', units)
         charges = convert(charges, 'charge', 'ASE', units)
         for i, (m, q, r) in enumerate(zip(molecules, charges, pos)):
-            s = species.index(symbols[i]) + 1
+            s = types[i]
             line = (
                 f'{i + 1:>6} {m:>3} {s:>3} {q:>5}'
                 f' {r[0]:23.17g} {r[1]:23.17g} {r[2]:23.17g}'
@@ -663,3 +668,15 @@ def _write_masses(fd, atoms: Atoms, species: list, units: str):
         atom_type = i + 1
         fd.write(f'{atom_type:>6} {mass:23.17g} # {s}\n')
     fd.write('\n')
+
+
+def _get_types(atoms: Atoms, species: list):
+    if 'type' in atoms.arrays:
+        return atoms.arrays['type']
+    symbols = atoms.get_chemical_symbols()
+    return [species.index(symbols[i]) + 1 for i in range(len(symbols))]
+
+
+def _get_symbols_by_types(atoms: Atoms) -> list[str]:
+    _, first_idx = np.unique(atoms.arrays['type'], return_index=True)
+    return [atoms.symbols[i] for i in first_idx]

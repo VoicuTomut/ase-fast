@@ -216,35 +216,16 @@ def _asap_world():
 
 def _gpaw_world():
     import _gpaw
-    try:
-        return _gpaw.Communicator()
-    except AttributeError:
+
+    if not hasattr(_gpaw, 'Communicator'):
         return None
 
-
-world = None
-
-# Check for special MPI-enabled Python interpreters:
-if '_gpaw' in sys.builtin_module_names:
-    # http://gpaw.readthedocs.io
-    world = _gpaw_world()
-elif '_asap' in sys.builtin_module_names:
-    # Modern version of Asap
-    # http://wiki.fysik.dtu.dk/asap
-    # We cannot import asap3.mpi here, as that creates an import deadlock
-    world = _asap_world()
-# Check if MPI implementation has been imported already:
-elif '_gpaw' in sys.modules:
-    # Same thing as above but for the module version
-    world = _gpaw_world()
-elif '_asap' in sys.modules:
-    world = _asap_world()
-elif 'mpi4py' in sys.modules:
-    world = MPI4PY()
+    # Return the actual public (possibly wrapper) object
+    from gpaw.mpi import world
+    return world
 
 
-if world is None:
-    world = MPI()
+world = MPI()
 
 
 def barrier():
