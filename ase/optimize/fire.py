@@ -162,7 +162,8 @@ class FIRE(Optimizer):
         self.vel, self.dt = self.load()
 
     def step(self, f=None):
-        gradient = self._get_minus_gradient(f)
+        gradient = -self._get_gradient(f)
+        # (XXX This is the negative gradient)
         optimizable = self.optimizable
 
         if self.vel is None:

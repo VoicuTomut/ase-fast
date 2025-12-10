@@ -95,7 +95,7 @@ class BFGS(Optimizer):
             self.H, self.pos0, self.forces0, self.maxstep = file
 
     def step(self, gradient=None):
-        gradient = -self._get_minus_gradient(gradient)
+        gradient = self._get_gradient(gradient)
         optimizable = self.optimizable
 
         pos = optimizable.get_x()
