@@ -239,7 +239,7 @@ Read about this algorithm here:
   | Physical Review Letters, Vol. **97**, 170201 (2006)
 
 FIRE2.0 / ABC-FIRE
------------------
+------------------
 
 FIRE2.0 and ABC-FIRE are implemented by the same class, with the latter enabled by the ``use_abc`` parameter.
 
