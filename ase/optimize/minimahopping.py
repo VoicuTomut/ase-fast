@@ -36,7 +36,7 @@ class MinimaHopping:
         'fmax': 0.05,  # eV/A, max force for optimizations
         'rng': None}
 
-    def __init__(self, atoms, **kwargs):
+    def __init__(self, atoms, comm=world, **kwargs):
         """Initialize with an ASE atoms object and keyword arguments."""
         self._atoms = atoms
         for key in kwargs:
@@ -53,6 +53,7 @@ class MinimaHopping:
         self._previous_energy = None
         self._temperature = self._T0
         self._Ediff = self._Ediff0
+        self.comm = comm
 
     def __call__(self, totalsteps=None, maxtemp=None):
         """Run the minima hopping algorithm. Can specify stopping criteria
@@ -85,7 +86,7 @@ class MinimaHopping:
 
         status = np.array(-1.)
         exists = self._read_minima()
-        if world.rank == 0:
+        if self.comm.rank == 0:
             if not exists:
                 # Fresh run with new minima file.
                 status = np.array(0.)
@@ -95,8 +96,8 @@ class MinimaHopping:
             else:
                 # Must be resuming from within a working directory.
                 status = np.array(2.)
-        world.barrier()
-        world.broadcast(status, 0)
+        self.comm.barrier()
+        self.comm.broadcast(status, 0)
 
         if status == 2.:
             self._resume()
@@ -117,7 +118,7 @@ class MinimaHopping:
         file. Note it will almost always be interrupted in the middle of
         either a qn or md run or when exceeding totalsteps, so it only has
         been tested in those cases currently."""
-        f = paropen(self._logfile, 'r')
+        f = paropen(self._logfile, 'r', comm=self.comm)
         lines = f.read().splitlines()
         f.close()
         self._log('msg', 'Attempting to resume stopped run.')
@@ -227,17 +228,17 @@ class MinimaHopping:
     def _log(self, cat='msg', message=None):
         """Records the message as a line in the log file."""
         if cat == 'init':
-            if world.rank == 0:
+            if self.comm.rank == 0:
                 if os.path.exists(self._logfile):
                     raise RuntimeError(f'File exists: {self._logfile}')
-            fd = paropen(self._logfile, 'w')
+            fd = paropen(self._logfile, 'w', comm=self.comm)
             fd.write('par: %12s %12s %12s\n' % ('T (K)', 'Ediff (eV)',
                                                 'mdmin'))
             fd.write('ene: %12s %12s %12s\n' % ('E_current', 'E_previous',
                                                 'Difference'))
             fd.close()
             return
-        fd = paropen(self._logfile, 'a')
+        fd = paropen(self._logfile, 'a', comm=self.comm)
         if cat == 'msg':
             line = f'msg: {message}'
         elif cat == 'par':
