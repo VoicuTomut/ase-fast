@@ -118,9 +118,9 @@ class MinimaHopping:
         file. Note it will almost always be interrupted in the middle of
         either a qn or md run or when exceeding totalsteps, so it only has
         been tested in those cases currently."""
-        f = paropen(self._logfile, 'r', comm=self.comm)
-        lines = f.read().splitlines()
-        f.close()
+        with paropen(self._logfile, 'r', comm=self.comm) as fd:
+            lines = f.read().splitlines()
+
         self._log('msg', 'Attempting to resume stopped run.')
         self._log('msg', 'Using existing minima file with %i prior '
                   'minima: %s' % (len(self._minima), self._minima_traj))
@@ -231,29 +231,27 @@ class MinimaHopping:
             if self.comm.rank == 0:
                 if os.path.exists(self._logfile):
                     raise RuntimeError(f'File exists: {self._logfile}')
-            fd = paropen(self._logfile, 'w', comm=self.comm)
-            fd.write('par: %12s %12s %12s\n' % ('T (K)', 'Ediff (eV)',
-                                                'mdmin'))
-            fd.write('ene: %12s %12s %12s\n' % ('E_current', 'E_previous',
-                                                'Difference'))
-            fd.close()
+            with paropen(self._logfile, 'w', comm=self.comm) as fd:
+                fd.write('par: %12s %12s %12s\n' % ('T (K)', 'Ediff (eV)',
+                                                    'mdmin'))
+                fd.write('ene: %12s %12s %12s\n' % ('E_current', 'E_previous',
+                                                    'Difference'))
             return
-        fd = paropen(self._logfile, 'a', comm=self.comm)
-        if cat == 'msg':
-            line = f'msg: {message}'
-        elif cat == 'par':
-            line = ('par: %12.4f %12.4f %12i' %
-                    (self._temperature, self._Ediff, self._mdmin))
-        elif cat == 'ene':
-            current = self._atoms.get_potential_energy()
-            if self._previous_optimum:
-                previous = self._previous_energy
-                line = ('ene: %12.5f %12.5f %12.5f' %
-                        (current, previous, current - previous))
-            else:
-                line = ('ene: %12.5f' % current)
-        fd.write(line + '\n')
-        fd.close()
+        with paropen(self._logfile, 'a', comm=self.comm) as fd:
+            if cat == 'msg':
+                line = f'msg: {message}'
+            elif cat == 'par':
+                line = ('par: %12.4f %12.4f %12i' %
+                        (self._temperature, self._Ediff, self._mdmin))
+            elif cat == 'ene':
+                current = self._atoms.get_potential_energy()
+                if self._previous_optimum:
+                    previous = self._previous_energy
+                    line = ('ene: %12.5f %12.5f %12.5f' %
+                            (current, previous, current - previous))
+                else:
+                    line = ('ene: %12.5f' % current)
+            fd.write(line + '\n')
 
     def _optimize(self):
         """Perform an optimization."""
