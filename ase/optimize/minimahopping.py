@@ -119,7 +119,7 @@ class MinimaHopping:
         either a qn or md run or when exceeding totalsteps, so it only has
         been tested in those cases currently."""
         with paropen(self._logfile, 'r', comm=self.comm) as fd:
-            lines = f.read().splitlines()
+            lines = fd.read().splitlines()
 
         self._log('msg', 'Attempting to resume stopped run.')
         self._log('msg', 'Using existing minima file with %i prior '
