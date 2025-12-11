@@ -111,7 +111,7 @@ class BFGS(Optimizer):
     def prepare_step(self, pos, gradient):
         pos = pos.ravel()
         gradient = gradient.ravel()
-        self.update(pos, gradient, self.pos0, self.forces0)
+        self.update(pos, -gradient, self.pos0, self.forces0)
         omega, V = eigh(self.H)
 
         # FUTURE: Log this properly
@@ -126,12 +126,12 @@ class BFGS(Optimizer):
         #         self.logfile.write(msg)
         #         self.logfile.flush()
 
-        dpos = np.dot(V, np.dot(gradient, V) / np.fabs(omega))
+        dpos = np.dot(V, -np.dot(gradient, V) / np.fabs(omega))
         # XXX Here we are calling gradient_norm() on some positions.
         # Should there be a general norm concept
         steplengths = self.optimizable.gradient_norm(dpos)
         self.pos0 = pos
-        self.forces0 = gradient.copy()
+        self.forces0 = -gradient.copy()
         return dpos, steplengths
 
     def determine_step(self, dpos, steplengths):

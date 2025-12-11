@@ -289,10 +289,8 @@ class GoodOldQuasiNewton(Optimizer):
     def step(self, forces=None):
         """ Do one QN step
         """
-        forces = self._get_gradient(forces)
-
+        G = self._get_gradient(forces)
         pos = self.optimizable.get_x()
-        G = -self.optimizable.get_gradient()
         energy = self.optimizable.get_value()
 
         if hasattr(self, 'oldenergy'):

@@ -91,7 +91,7 @@ class SciPyOptimizer(Optimizer):
 
         # Remember that forces are minus the gradient!
         # Scale the problem as SciPy uses I as initial Hessian.
-        return -self.optimizable.get_gradient() / self.H0
+        return self.optimizable.get_gradient() / self.H0
 
     def callback(self, x):
         """Callback function to be run after each iteration by SciPy

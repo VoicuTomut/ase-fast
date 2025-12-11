@@ -35,7 +35,7 @@ class OptimizableAtoms(Optimizable):
         self.atoms.set_positions(x.reshape(-1, 3))
 
     def get_gradient(self):
-        return self.atoms.get_forces().ravel()
+        return -self.atoms.get_forces().ravel()
 
     @cached_property
     def _use_force_consistent_energy(self):
@@ -181,7 +181,7 @@ class BaseDynamics(IOContext):
             warnings.warn('Please do not pass forces to step().  '
                           'This argument will be removed in '
                           'ase 3.28.0.')
-            return forces.ravel()
+            return -forces.ravel()
         return self.optimizable.get_gradient()
 
     def get_number_of_steps(self):
