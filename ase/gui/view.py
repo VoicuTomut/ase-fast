@@ -610,17 +610,17 @@ class View:
         if self.arrowkey_mode == self.ARROWKEY_ROTATE:
             hint = _('ROTATING')
             bg = PURPLE
-            tip_text = _((
+            tip_text = _(
                 'Ctrl + Up/Down: rotate around the view axis\n'
                 'Shift + Arrow keys: rotate in smaller increments'
-            ))
+            )
         else:
             hint = _('MOVING')
             bg = GREEN
-            tip_text = _((
+            tip_text = _(
                 'Ctrl + Up/Down: move along the view axis\n'
                 'Shift + Arrow keys: move in smaller increments'
-            ))
+            )
         self.arrowkey_hint.label.configure(
             text=hint,
             padx=3,

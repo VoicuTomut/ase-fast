@@ -285,6 +285,9 @@ class GUI(View):
     def remove_bothersome_key_states(self, event):
         """Modify event.state so that Num Lock doesn't get caught by
         bitmasks"""
+        # We need to strip away Num Lock (and other bothersome key
+        # events) that interfere with bitmasking or else the scrolling
+        # will behave as if ctrl is always pressed down.
         nl_windows = 0x0008
         nl_linux = 0x0010
 
@@ -297,7 +300,6 @@ class GUI(View):
                 event.state -= 0x40000
             if event.state & nl_windows:
                 event.state -= nl_windows
-        # return event
 
     def delete_selected_atoms(self, widget=None, data=None):
         import ase.gui.ui as ui
