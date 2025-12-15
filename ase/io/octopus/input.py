@@ -455,7 +455,7 @@ def generate_input(atoms, kwargs):
     setvar('boxshape', boxshape)
 
     if use_ase_cell:
-        if 'reducedcoordinates' in atomskwargs:
+        if 'latticevectors' in atomskwargs:
             extend(list2block('LatticeParameters', [[1., 1., 1.]]))
             block = list2block('LatticeVectors', atomskwargs['latticevectors'])
         else:
@@ -504,11 +504,11 @@ def atoms2kwargs(atoms, use_ase_cell):
     if any(atoms.pbc):
         coordkeyword = 'reducedcoordinates'
         coords = atoms.get_scaled_positions(wrap=False)
-        cellkeyword = 'lsize'
+        cellkeyword = 'latticevectors'
     else:
         coordkeyword = 'coordinates'
         coords = atoms.positions / Bohr
-        cellkeyword = 'latticevectors'
+        cellkeyword = 'lsize'
 
     if use_ase_cell:
         cell = atoms.cell / Bohr
