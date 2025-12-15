@@ -502,21 +502,23 @@ def atoms2kwargs(atoms, use_ase_cell):
     kwargs = {}
 
     if any(atoms.pbc):
-        coordtype = 'reducedcoordinates'
+        coordkeyword = 'reducedcoordinates'
         coords = atoms.get_scaled_positions(wrap=False)
+        cellkeyword = 'lsize'
     else:
-        coordtype = 'coordinates'
+        coordkeyword = 'coordinates'
         coords = atoms.positions / Bohr
+        cellkeyword = 'latticevectors'
 
     if use_ase_cell:
         cell = atoms.cell / Bohr
-        if coordtype == 'coordinates':
+        if coordkeyword == 'coordinates':
             cell_offset = 0.5 * cell.sum(axis=0)
             coords -= cell_offset
         else:
-            assert coordtype == 'reducedcoordinates'
+            assert coordkeyword == 'reducedcoordinates'
 
-        if atoms.cell.orthorhombic:
+        if cellkeyword == 'lsize':
             Lsize = 0.5 * np.diag(cell)
             kwargs['lsize'] = [[str(size) for size in Lsize]]
             # ASE uses (0...cell) while Octopus uses -L/2...L/2.
@@ -524,6 +526,7 @@ def atoms2kwargs(atoms, use_ase_cell):
             # positions by subtracting Lsize (see construction of the coords
             # block) in non-periodic directions.
         else:
+            assert cellkeyword == 'latticevectors'
             kwargs['latticevectors'] = cell.tolist()
 
     types = atoms.info.get('types', {})
@@ -537,7 +540,7 @@ def atoms2kwargs(atoms, use_ase_cell):
                                  'species info in atoms.info')
         coord_block.append([repr(sym)] + [str(x) for x in pos])
 
-    kwargs[coordtype] = coord_block
+    kwargs[coordkeyword] = coord_block
     npbc = sum(atoms.pbc)
     for c in range(npbc):
         if not atoms.pbc[c]:
