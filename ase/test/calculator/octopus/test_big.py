@@ -32,14 +32,14 @@ def test_o2(factory):
 def test_si(factory):
     calc = calculate(
         factory,
-        bulk('Si'),  # , orthorhombic=True),
-        KPointsGrid=[[4, 4, 4]],
+        bulk('Si', orthorhombic=True),
+        KPointsGrid=[[2, 2, 2]],
         KPointsUseSymmetries=True,
         SmearingFunction='fermi_dirac',
         ExtraStates=2,
         Smearing='0.1 * eV',
         ExperimentalFeatures=True,
-        Spacing='0.45 * Angstrom',
+        Spacing='0.35 * Angstrom',
     )
     eF = calc.get_fermi_level()
     print('eF', eF)
