@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 import warnings
+from dataclasses import dataclass, field
 
 import numpy as np
 
@@ -181,9 +182,7 @@ def read_lammps_data(
                 # guess `atom_style` from the comment after `Atoms` if exists
                 if atom_style is None and line_comment != '':
                     atom_style = line_comment
-                mol_id_in, type_in, charge_in, pos_in, travel_in = (
-                    _read_atoms_section(fileobj, natoms, atom_style)
-                )
+                atoms_section = _read_atoms_section(fileobj, natoms, atom_style)
             continue
 
         if header:
@@ -206,8 +205,7 @@ def read_lammps_data(
         if section is not None:
             fields = line.split()
             if section == 'Velocities':  # id vx vy vz
-                atom_id = int(fields[0])
-                vel_in[atom_id] = [float(fields[_]) for _ in (1, 2, 3)]
+                vel_in[int(fields[0])] = [float(fields[_]) for _ in (1, 2, 3)]
             elif section == 'Masses':
                 mass_in[int(fields[0])] = float(fields[1])
             elif section == 'Bonds':  # id type atom1 atom2
@@ -220,50 +218,17 @@ def read_lammps_data(
     # set cell
     cell, celldisp = _make_cell(box)
 
-    # initialize arrays for per-atom quantities
-    positions = np.zeros((natoms, 3))
-    numbers = np.zeros(natoms, int)
-    ids = np.zeros(natoms, int)
-    types = np.zeros(natoms, int)
-    velocities = np.zeros((natoms, 3)) if len(vel_in) > 0 else None
-    masses = np.zeros(natoms) if len(mass_in) > 0 else None
-    mol_id = np.zeros(natoms, int) if len(mol_id_in) > 0 else None
-    charge = np.zeros(natoms, float) if len(charge_in) > 0 else None
-    travel = np.zeros((natoms, 3), int) if len(travel_in) > 0 else None
-    bonds = [''] * natoms if len(bonds_in) > 0 else None
-    angles = [''] * natoms if len(angles_in) > 0 else None
-    dihedrals = [''] * natoms if len(dihedrals_in) > 0 else None
+    if sort_by_id:
+        atoms_section.sort()
 
-    ind_of_id = {}
-    # copy per-atom quantities from read-in values
-    for i, atom_id in enumerate(pos_in.keys()):
-        # by id
-        if sort_by_id:
-            ind = atom_id - 1
-        else:
-            ind = i
-        ind_of_id[atom_id] = ind
-        atom_type = type_in[atom_id]
-        positions[ind, :] = pos_in[atom_id]
-        if velocities is not None:
-            velocities[ind, :] = vel_in[atom_id]
-        if travel is not None:
-            travel[ind] = travel_in[atom_id]
-        if mol_id is not None:
-            mol_id[ind] = mol_id_in[atom_id]
-        if charge is not None:
-            charge[ind] = charge_in[atom_id]
-        ids[ind] = atom_id
-        # by type
-        types[ind] = atom_type
-        if Z_of_type is None:
-            numbers[ind] = atom_type
-        else:
-            numbers[ind] = Z_of_type[atom_type]
-        if masses is not None:
-            masses[ind] = mass_in[atom_type]
+    ids = atoms_section.ids
+    types = atoms_section.types
+    numbers = np.array([Z_of_type[_] for _ in types]) if Z_of_type else types
+    masses = np.array([mass_in[_] for _ in types]) if mass_in else None
+    velocities = np.array([vel_in[_] for _ in ids]) if vel_in else None
+
     # convert units
-    positions = convert(positions, 'distance', units, 'ASE')
+    positions = convert(atoms_section.positions, 'distance', units, 'ASE')
     cell = convert(cell, 'distance', units, 'ASE')
     if masses is not None:
         masses = convert(masses, 'mass', units, 'ASE')
@@ -286,114 +251,115 @@ def read_lammps_data(
     )
 
     # add lattice translation vectors
-    if read_image_flags and travel is not None:
-        scaled_positions = atoms.get_scaled_positions(wrap=False) + travel
-        atoms.set_scaled_positions(scaled_positions)
+    if read_image_flags:
+        scaled_positions = atoms.get_scaled_positions(wrap=False)
+        atoms.set_scaled_positions(scaled_positions + atoms_section.cell_ids)
 
     # set velocities (can't do it via constructor)
     if velocities is not None:
         atoms.set_velocities(velocities)
 
-    atoms.arrays['id'] = ids
-    atoms.arrays['type'] = types
-    if mol_id is not None:
-        atoms.arrays['mol-id'] = mol_id
-    if charge is not None:
-        atoms.arrays['initial_charges'] = charge
-        atoms.arrays['mmcharges'] = charge.copy()
+    atoms.arrays['id'] = atoms_section.ids
+    atoms.arrays['type'] = atoms_section.types
+    if not np.all(atoms_section.mol_ids == 0):
+        atoms.arrays['mol-id'] = atoms_section.mol_ids
+    if not np.all(np.isnan(atoms_section.charges)):
+        atoms.arrays['initial_charges'] = atoms_section.charges
+        atoms.arrays['mmcharges'] = atoms_section.charges.copy()
 
-    if bonds is not None:
-        for atom_type, at1, at2 in bonds_in:
-            i_a1 = ind_of_id[at1]
-            i_a2 = ind_of_id[at2]
-            if len(bonds[i_a1]) > 0:
-                bonds[i_a1] += ','
-            bonds[i_a1] += f'{i_a2:d}({atom_type:d})'
-        for i, bond in enumerate(bonds):
-            if len(bond) == 0:
-                bonds[i] = '_'
-        atoms.arrays['bonds'] = np.array(bonds)
+    # mapping from LAMMPS atom-IDs to ASE Atoms IDs
+    mapping = {atom_id: i for i, atom_id in enumerate(atoms_section.ids)}
 
-    if angles is not None:
-        for atom_type, at1, at2, at3 in angles_in:
-            i_a1 = ind_of_id[at1]
-            i_a2 = ind_of_id[at2]
-            i_a3 = ind_of_id[at3]
-            if len(angles[i_a2]) > 0:
-                angles[i_a2] += ','
-            angles[i_a2] += f'{i_a1:d}-{i_a3:d}({atom_type:d})'
-        for i, angle in enumerate(angles):
-            if len(angle) == 0:
-                angles[i] = '_'
-        atoms.arrays['angles'] = np.array(angles)
+    if bonds_in:
+        key = 'bonds'
+        atoms.arrays[key] = _parse_bonds(bonds_in, natoms, mapping)
 
-    if dihedrals is not None:
-        for atom_type, at1, at2, at3, at4 in dihedrals_in:
-            i_a1 = ind_of_id[at1]
-            i_a2 = ind_of_id[at2]
-            i_a3 = ind_of_id[at3]
-            i_a4 = ind_of_id[at4]
-            if len(dihedrals[i_a1]) > 0:
-                dihedrals[i_a1] += ','
-            dihedrals[i_a1] += f'{i_a2:d}-{i_a3:d}-{i_a4:d}({atom_type:d})'
-        for i, dihedral in enumerate(dihedrals):
-            if len(dihedral) == 0:
-                dihedrals[i] = '_'
-        atoms.arrays['dihedrals'] = np.array(dihedrals)
+    if angles_in:
+        key = 'angles'
+        atoms.arrays[key] = _parse_angles(angles_in, natoms, mapping)
+
+    if dihedrals_in:
+        key = 'dihedrals'
+        atoms.arrays[key] = _parse_dihedrals(dihedrals_in, natoms, mapping)
 
     atoms.info['comment'] = file_comment
 
     return atoms
 
 
+@dataclass
+class _AtomsSection:
+    natoms: int
+    ids: np.ndarray = field(init=False)
+    types: np.ndarray = field(init=False)
+    positions: np.ndarray = field(init=False)
+    mol_ids: np.ndarray = field(init=False)
+    charges: np.ndarray = field(init=False)
+    cell_ids: np.ndarray = field(init=False)
+
+    def __post_init__(self):
+        self.ids = np.zeros(self.natoms, int)
+        self.types = np.zeros(self.natoms, int)
+        self.positions = np.zeros((self.natoms, 3), float)
+        self.mol_ids = np.zeros(self.natoms, int)
+        self.charges = np.full(self.natoms, np.nan, float)
+        self.cell_ids = np.zeros((self.natoms, 3), int)
+
+    def sort(self):
+        """Sort IDs."""
+        args = np.argsort(self.ids)
+        self.ids = self.ids[args]
+        self.types = self.types[args]
+        self.positions = self.positions[args]
+        self.mol_ids = self.mol_ids[args]
+        self.charges = self.charges[args]
+        self.cell_ids = self.cell_ids[args]
+
+
 def _read_atoms_section(fileobj, natoms: int, style: str = None):
-    type_in = {}
-    mol_id_in = {}
-    charge_in = {}
-    pos_in = {}
-    travel_in = {}
+    data = _AtomsSection(natoms)
     next(fileobj)  # skip blank line just after `Atoms`
-    for _ in range(natoms):
+    for i in range(natoms):
         line = next(fileobj)
         line = re.sub('#.*', '', line).rstrip().lstrip()
         fields = line.split()
         if style is None:
             style = _guess_atom_style(fields)
-        atom_id = int(fields[0])
+        data.ids[i] = int(fields[0])
         if style == 'full' and len(fields) in (7, 10):
             # id mol-id type q x y z [tx ty tz]
-            type_in[atom_id] = int(fields[2])
-            pos_in[atom_id] = tuple(float(fields[_]) for _ in (4, 5, 6))
-            mol_id_in[atom_id] = int(fields[1])
-            charge_in[atom_id] = float(fields[3])
+            data.types[i] = int(fields[2])
+            data.positions[i] = tuple(float(fields[_]) for _ in (4, 5, 6))
+            data.mol_ids[i] = int(fields[1])
+            data.charges[i] = float(fields[3])
             if len(fields) == 10:
-                travel_in[atom_id] = tuple(int(fields[_]) for _ in (7, 8, 9))
+                data.cell_ids[i] = tuple(int(fields[_]) for _ in (7, 8, 9))
         elif style == 'atomic' and len(fields) in (5, 8):
             # id type x y z [tx ty tz]
-            type_in[atom_id] = int(fields[1])
-            pos_in[atom_id] = tuple(float(fields[_]) for _ in (2, 3, 4))
+            data.types[i] = int(fields[1])
+            data.positions[i] = tuple(float(fields[_]) for _ in (2, 3, 4))
             if len(fields) == 8:
-                travel_in[atom_id] = tuple(int(fields[_]) for _ in (5, 6, 7))
+                data.cell_ids[i] = tuple(int(fields[_]) for _ in (5, 6, 7))
         elif style in ('angle', 'bond', 'molecular') and len(fields) in (6, 9):
             # id mol-id type x y z [tx ty tz]
-            type_in[atom_id] = int(fields[2])
-            pos_in[atom_id] = tuple(float(fields[_]) for _ in (3, 4, 5))
-            mol_id_in[atom_id] = int(fields[1])
+            data.types[i] = int(fields[2])
+            data.positions[i] = tuple(float(fields[_]) for _ in (3, 4, 5))
+            data.mol_ids[i] = int(fields[1])
             if len(fields) == 9:
-                travel_in[atom_id] = tuple(int(fields[_]) for _ in (6, 7, 8))
+                data.cell_ids[i] = tuple(int(fields[_]) for _ in (6, 7, 8))
         elif style == 'charge' and len(fields) in (6, 9):
             # id type q x y z [tx ty tz]
-            type_in[atom_id] = int(fields[1])
-            pos_in[atom_id] = tuple(float(fields[_]) for _ in (3, 4, 5))
-            charge_in[atom_id] = float(fields[2])
+            data.types[i] = int(fields[1])
+            data.positions[i] = tuple(float(fields[_]) for _ in (3, 4, 5))
+            data.charges[i] = float(fields[2])
             if len(fields) == 9:
-                travel_in[atom_id] = tuple(int(fields[_]) for _ in (6, 7, 8))
+                data.cell_ids[i] = tuple(int(fields[_]) for _ in (6, 7, 8))
         else:
             raise RuntimeError(
                 f'Style "{style}" not supported or invalid. '
                 f'Number of fields: {len(fields)}'
             )
-    return mol_id_in, type_in, charge_in, pos_in, travel_in
+    return data
 
 
 def _guess_atom_style(fields):
@@ -408,6 +374,51 @@ def _guess_atom_style(fields):
 def _masses2numbers(masses):
     """Guess atomic numbers from atomic masses."""
     return np.argmin(np.abs(atomic_masses - masses[:, None]), axis=1)
+
+
+def _parse_bonds(bonds_in, natoms: int, mapping: dict):
+    bonds = [''] * natoms
+    for bond_type, at1, at2 in bonds_in:
+        i_a1 = mapping[at1]
+        i_a2 = mapping[at2]
+        if len(bonds[i_a1]) > 0:
+            bonds[i_a1] += ','
+        bonds[i_a1] += f'{i_a2:d}({bond_type:d})'
+    for i, bond in enumerate(bonds):
+        if len(bond) == 0:
+            bonds[i] = '_'
+    return np.array(bonds)
+
+
+def _parse_angles(angles_in, natoms: int, mapping: dict):
+    angles = [''] * natoms
+    for angle_type, at1, at2, at3 in angles_in:
+        i_a1 = mapping[at1]
+        i_a2 = mapping[at2]
+        i_a3 = mapping[at3]
+        if len(angles[i_a2]) > 0:
+            angles[i_a2] += ','
+        angles[i_a2] += f'{i_a1:d}-{i_a3:d}({angle_type:d})'
+    for i, angle in enumerate(angles):
+        if len(angle) == 0:
+            angles[i] = '_'
+    return np.array(angles)
+
+
+def _parse_dihedrals(dihedrals_in, natoms: int, mapping: dict):
+    dihedrals = [''] * natoms
+    for dihedral_type, at1, at2, at3, at4 in dihedrals_in:
+        i_a1 = mapping[at1]
+        i_a2 = mapping[at2]
+        i_a3 = mapping[at3]
+        i_a4 = mapping[at4]
+        if len(dihedrals[i_a1]) > 0:
+            dihedrals[i_a1] += ','
+        dihedrals[i_a1] += f'{i_a2:d}-{i_a3:d}-{i_a4:d}({dihedral_type:d})'
+    for i, dihedral in enumerate(dihedrals):
+        if len(dihedral) == 0:
+            dihedrals[i] = '_'
+    return np.array(dihedrals)
 
 
 @writer
