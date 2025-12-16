@@ -82,7 +82,7 @@ class Log:
             return
 
         if self._logfile == '-':
-            print(msg)
+            print(msg, end='')
             return
 
         with open(self._logfile, mode='a') as fd:
