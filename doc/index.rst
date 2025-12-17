@@ -43,6 +43,7 @@ Supported :mod:`Calculators <ase.calculators>`
 |hotbit| |jdftx| |kim| |lammps| |mopac| |nwchem|
 |octopus| |onetep| |openmx| |plumed|  |psi4| |qchem| |q_espresso| |siesta| |turbomole| |vasp|
 |xtb| |orca|
+
 :mod:`ACE-Molecule <ase.calculators.acemolecule>`
 :mod:`~ase.calculators.amber`
 :mod:`DMol³ <ase.calculators.dmol>`
@@ -51,7 +52,7 @@ Supported :mod:`Calculators <ase.calculators>`
 :mod:`~ase.calculators.gulp`
 :mod:`~ase.calculators.qmmm`
 :mod:`~ase.calculators.tip3p`
-:mod:`~deMon-Nano <ase.calculators.demonnano>`
+:mod:`deMon-Nano <ase.calculators.demonnano>`
 `Skala <https://microsoft.github.io/skala/ase.html>`_
 
 
@@ -215,12 +216,14 @@ Contents
 .. |ABACUS| image:: static/abacus.png
    :target: https://gitlab.com/1041176461/ase-abacus
    :align: middle
+   :height: 75 px
 .. |abinit| image:: static/abinit.png
    :target: ase/calculators/abinit.html
    :align: middle
 .. |Asap| image:: static/asap.png
    :target: https://wiki.fysik.dtu.dk/asap
    :align: middle
+   :height: 75 px
 .. |Atomistica| image:: static/atomistica.png
    :target: https://github.com/Atomistica/atomistica
    :align: middle
@@ -288,6 +291,7 @@ Contents
 .. |lammps| image:: static/lammps.png
    :target: ase/calculators/lammps.html
    :align: middle
+   :height: 75 px
 .. |mopac| image:: https://openmopac.net/images/logo.png
    :target: ase/calculators/mopac.html
    :align: middle
