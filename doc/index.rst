@@ -40,7 +40,7 @@ Supported :mod:`Calculators <ase.calculators>`
 |ABACUS| |abinit| |Asap| |Atomistica| |BigDFT| |CASTEP| |CP2K| |CRYSTAL| |DeePMD-kit| |deMon| |dftb|
 |dftd4| |DFTK| |elk| |exciting| |EMT|
 |fhi-aims| |fleur| |gamess_us| |gpaw| |gromacs|
-|hotbit| |jdftx| |kim| |lammps| |nwchem|
+|hotbit| |jdftx| |kim| |lammps| |mopac| |nwchem|
 |octopus| |onetep| |openmx| |plumed|  |psi4| |qchem| |q_espresso| |siesta| |turbomole| |vasp|
 |xtb| |orca|
 :mod:`ACE-Molecule <ase.calculators.acemolecule>`
@@ -49,7 +49,6 @@ Supported :mod:`Calculators <ase.calculators>`
 :mod:`Gaussian <ase.calculators.gaussian>`
 :mod:`Grimme DFT-D3 <ase.calculators.dftd3>`
 :mod:`~ase.calculators.gulp`
-Mopac_
 :mod:`~ase.calculators.qmmm`
 :mod:`~ase.calculators.tip3p`
 :mod:`~deMon-Nano <ase.calculators.demonnano>`
@@ -289,6 +288,10 @@ Contents
 .. |lammps| image:: static/lammps.png
    :target: ase/calculators/lammps.html
    :align: middle
+.. |mopac| image:: https://openmopac.net/images/logo.png
+   :target: ase/calculators/mopac.html
+   :align: middle
+   :height: 75 px
 .. |nwchem| image:: static/nwchem.png
    :target: ase/calculators/nwchem.html
    :align: middle
@@ -331,7 +334,6 @@ Contents
    :target: ase/calculators/orca.html
    :align: middle
 
-.. _Mopac: ase/calculators/mopac.html
 .. _Sphinx: http://sphinx.pocoo.org
 .. _Asap: https://wiki.fysik.dtu.dk/asap
 .. _CAMd: https://www.fysik.dtu.dk/english/research/camd/
