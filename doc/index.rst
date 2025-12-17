@@ -334,6 +334,6 @@ Contents
    :target: ase/calculators/orca.html
    :align: middle
 
-.. _Sphinx: http://sphinx.pocoo.org
+.. _Sphinx: https://www.sphinx-doc.org/
 .. _Asap: https://wiki.fysik.dtu.dk/asap
 .. _CAMd: https://www.fysik.dtu.dk/english/research/camd/
