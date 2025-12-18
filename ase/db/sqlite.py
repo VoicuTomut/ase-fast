@@ -179,13 +179,14 @@ class SQLite3Database(Database):
             array.shape = shape
         return array
 
-    def _connect(self):
+    def _connect(self, ok=False):
+        assert ok
         return sqlite3.connect(self.filename, timeout=20)
 
     def __enter__(self):
         assert self.connection is None
         self.change_count = 0
-        self.connection = self._connect()
+        self.connection = self._connect(ok=True)
         return self
 
     def __exit__(self, exc_type, exc_value, tb):
@@ -198,22 +199,25 @@ class SQLite3Database(Database):
 
     @contextmanager
     def managed_connection(self, commit_frequency=5000):
-        try:
-            con = self.connection or self._connect()
-            self._initialize(con)
-            yield con
-        except ValueError as exc:
-            if self.connection is None:
-                con.close()
-            raise exc
-        else:
-            if self.connection is None:
-                con.commit()
-                con.close()
+        from contextlib import ExitStack
+        with ExitStack() as stack:
+            try:
+                con = self.connection or stack.enter_context(self._connect(ok=True))
+                self._initialize(con)
+                yield con
+            except ValueError as exc:
+                if self.connection is None:
+                    pass
+                # con.close()
+                raise exc
             else:
-                self.change_count += 1
-                if self.change_count % commit_frequency == 0:
+                if self.connection is None:
                     con.commit()
+                    # con.close()
+                else:
+                    self.change_count += 1
+                    if self.change_count % commit_frequency == 0:
+                        con.commit()
 
     def _initialize(self, con):
         if self.initialized:
@@ -862,7 +866,8 @@ class SQLite3Database(Database):
     @property
     def metadata(self):
         if self._metadata is None:
-            self._initialize(self._connect())
+            assert self.connection is not None
+            self._initialize(self.connection)
         return self._metadata.copy()
 
     @metadata.setter
