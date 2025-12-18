@@ -929,7 +929,8 @@ Algorithms:
   for nanowire and thin film structures.
 
 * Added a new tutorial on molecular crystal structure prediction using
-  a genetic algorithm, see :ref:`ga_molecular_crystal_tutorial`.
+  a genetic algorithm (Update: moved to `ase-ga
+  <https://dtu-energy.github.io/ase-ga/tutorials/ga_molecular_crystal.html>`__.)
 
 * Allow setting the initial hessian in ``optimize.BFGS`` via the keyword ``alpha`` or
   explicitly via ``opt.H0 = ...`` after instantiation.
@@ -1288,7 +1289,8 @@ Algorithms:
   criterion, although this behaviour may change in future versions.
 
 * The genetic algorithm module :mod:`ase.ga` now has operators for crystal
-  structure prediction. See :ref:`ga_bulk_tutorial`.
+  structure prediction.  (Update: moved to
+  `ase-ga <https://dtu-energy.github.io/ase-ga>`__.)
 
 * New :func:`ase.geometry.dimensionality.analyze_dimensionality` function.
   See: :ref:`dimtutorial`.
