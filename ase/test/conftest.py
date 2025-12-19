@@ -484,6 +484,14 @@ def povray_executable():
     return exe
 
 
+@pytest.fixture
+def exitstack():
+    from contextlib import ExitStack
+
+    with ExitStack() as stack:
+        yield stack
+
+
 def pytest_addoption(parser):
     parser.addoption(
         '--calculators',

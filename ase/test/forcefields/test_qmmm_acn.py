@@ -20,15 +20,7 @@ from ase.constraints import FixLinearTriatomic
 from ase.optimize import BFGS
 
 
-@pytest.fixture
-def cleanup():
-    from contextlib import ExitStack
-
-    with ExitStack() as stack:
-        yield stack
-
-
-def test_qmmm_acn(testdir, cleanup):
+def test_qmmm_acn(testdir, exitstack):
     # From https://www.sciencedirect.com/science/article/pii/S0166128099002079
     eref = 4.9 * units.kcal / units.mol
     dref = 3.368
@@ -38,16 +30,16 @@ def test_qmmm_acn(testdir, cleanup):
     epsilon = np.array([epsilon_me, epsilon_c, epsilon_n])
     inter = LJInteractionsGeneral(sigma, epsilon, sigma, epsilon, 3)
 
+    cleanmeup = exitstack.enter_context
+
     for calc in [
         ACN(),
         SimpleQMMM([0, 1, 2], ACN(), ACN(), ACN()),
         SimpleQMMM([0, 1, 2], ACN(), ACN(), ACN(), vacuum=3.0),
-        EIQMMM([0, 1, 2], ACN(), ACN(), inter),
-        EIQMMM([0, 1, 2], ACN(), ACN(), inter, vacuum=3.0),
-        EIQMMM([3, 4, 5], ACN(), ACN(), inter, vacuum=3.0),
+        cleanmeup(EIQMMM([0, 1, 2], ACN(), ACN(), inter)),
+        cleanmeup(EIQMMM([0, 1, 2], ACN(), ACN(), inter, vacuum=3.0)),
+        cleanmeup(EIQMMM([3, 4, 5], ACN(), ACN(), inter, vacuum=3.0)),
     ]:
-        if isinstance(calc, EIQMMM):
-            cleanup.enter_context(calc)
 
         dimer = Atoms(
             'CCNCCN',
