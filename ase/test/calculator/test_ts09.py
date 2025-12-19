@@ -31,14 +31,14 @@ class FakeDFTcalculator(EMT):
         return 'PBE'
 
 
-def test_ts09(testdir):
+def test_ts09(testdir, exitstack):
     a = 4.05  # Angstrom lattice spacing
     al = bulk('Al', 'fcc', a=a)
     al = al.repeat([2, 2, 1])
 
     cc = FakeDFTcalculator()
     hp = FakeHirshfeldPartitioning(cc)
-    c = vdWTkatchenko09prl(hp, [3] * len(al))
+    c = exitstack.enter_context(vdWTkatchenko09prl(hp, [3] * len(al)))
     al.calc = c
     al.get_potential_energy()
 
@@ -59,12 +59,12 @@ def test_ts09(testdir):
     assert p['uncorrected_energy'] == pytest.approx(cc.get_potential_energy())
 
 
-def test_ts09_polarizability(testdir):
+def test_ts09_polarizability(testdir, exitstack):
     atoms = molecule('N2')
 
     cc = FakeDFTcalculator(atoms)
     hp = FakeHirshfeldPartitioning(cc)
-    c = vdWTkatchenko09prl(hp, [2, 2])
+    c = exitstack.enter_context(vdWTkatchenko09prl(hp, [2, 2]))
     atoms.calc = c
 
     # interface to enable Raman calculations
