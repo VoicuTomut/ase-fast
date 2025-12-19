@@ -1,0 +1,9 @@
+Bugfixes
+--------
+
+- Fix :func:`~ase.io.extxyz.write_extxyz` to handle multiple
+  :class:`~ase.constraints.FixAtoms` correctly (:mr:`3812`)
+
+- Fix :func:`~ase.io.extxyz.write_extxyz` to handle unconstrained atoms in
+  :class:`~ase.Atoms` with :class:`~ase.constraints.FixCartesian` correctly
+  (:mr:`3812`)
