@@ -199,6 +199,7 @@ class SQLite3Database(Database):
     @contextmanager
     def managed_connection(self, commit_frequency=5000):
         from contextlib import ExitStack
+
         with ExitStack() as stack:
             con = self.connection or stack.enter_context(self._connect())
             self._initialize(con)

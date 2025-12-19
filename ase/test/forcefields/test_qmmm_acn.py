@@ -1,5 +1,4 @@
 import numpy as np
-import pytest
 
 import ase.units as units
 from ase import Atoms
@@ -40,7 +39,6 @@ def test_qmmm_acn(testdir, exitstack):
         cleanmeup(EIQMMM([0, 1, 2], ACN(), ACN(), inter, vacuum=3.0)),
         cleanmeup(EIQMMM([3, 4, 5], ACN(), ACN(), inter, vacuum=3.0)),
     ]:
-
         dimer = Atoms(
             'CCNCCN',
             [
