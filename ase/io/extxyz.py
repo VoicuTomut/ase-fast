@@ -843,7 +843,6 @@ def write_xyz(fileobj, images, comment='', columns=None,
     if hasattr(images, 'get_positions'):
         images = [images]
 
-    images_0 = None
     for atoms in images:
         natoms = len(atoms)
 
@@ -913,9 +912,7 @@ def write_xyz(fileobj, images, comment='', columns=None,
 
         # Move mask
         if 'move_mask' in fr_cols:
-            if images_0 is None:
-                images_0 = atoms
-            move_mask = _make_move_mask(images_0)
+            move_mask = _make_move_mask(atoms)
             if np.all(move_mask):
                 fr_cols.remove('move_mask')
 
