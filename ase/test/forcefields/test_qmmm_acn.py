@@ -1,5 +1,5 @@
-# fmt: off
 import numpy as np
+import pytest
 
 import ase.units as units
 from ase import Atoms
@@ -20,7 +20,15 @@ from ase.constraints import FixLinearTriatomic
 from ase.optimize import BFGS
 
 
-def test_qmmm_acn(testdir):
+@pytest.fixture
+def cleanup():
+    from contextlib import ExitStack
+
+    with ExitStack() as stack:
+        yield stack
+
+
+def test_qmmm_acn(testdir, cleanup):
     # From https://www.sciencedirect.com/science/article/pii/S0166128099002079
     eref = 4.9 * units.kcal / units.mol
     dref = 3.368
@@ -30,19 +38,28 @@ def test_qmmm_acn(testdir):
     epsilon = np.array([epsilon_me, epsilon_c, epsilon_n])
     inter = LJInteractionsGeneral(sigma, epsilon, sigma, epsilon, 3)
 
-    for calc in [ACN(),
-                 SimpleQMMM([0, 1, 2], ACN(), ACN(), ACN()),
-                 SimpleQMMM([0, 1, 2], ACN(), ACN(), ACN(), vacuum=3.0),
-                 EIQMMM([0, 1, 2], ACN(), ACN(), inter),
-                 EIQMMM([0, 1, 2], ACN(), ACN(), inter, vacuum=3.0),
-                 EIQMMM([3, 4, 5], ACN(), ACN(), inter, vacuum=3.0)]:
-        dimer = Atoms('CCNCCN',
-                      [(-r_mec, 0, 0),
-                       (0, 0, 0),
-                       (r_cn, 0, 0),
-                       (r_mec, 3.7, 0),
-                       (0, 3.7, 0),
-                       (-r_cn, 3.7, 0)])
+    for calc in [
+        ACN(),
+        SimpleQMMM([0, 1, 2], ACN(), ACN(), ACN()),
+        SimpleQMMM([0, 1, 2], ACN(), ACN(), ACN(), vacuum=3.0),
+        EIQMMM([0, 1, 2], ACN(), ACN(), inter),
+        EIQMMM([0, 1, 2], ACN(), ACN(), inter, vacuum=3.0),
+        EIQMMM([3, 4, 5], ACN(), ACN(), inter, vacuum=3.0),
+    ]:
+        if isinstance(calc, EIQMMM):
+            cleanup.enter_context(calc)
+
+        dimer = Atoms(
+            'CCNCCN',
+            [
+                (-r_mec, 0, 0),
+                (0, 0, 0),
+                (r_cn, 0, 0),
+                (r_mec, 3.7, 0),
+                (0, 3.7, 0),
+                (-r_cn, 3.7, 0),
+            ],
+        )
 
         masses = dimer.get_masses()
         masses[::3] = m_me
@@ -54,8 +71,12 @@ def test_qmmm_acn(testdir):
 
         dimer.set_constraint(fixd)
 
-        with BFGS(dimer, maxstep=0.04, trajectory=calc.name + '.traj',
-                  logfile=calc.name + 'd.log') as opt:
+        with BFGS(
+            dimer,
+            maxstep=0.04,
+            trajectory=calc.name + '.traj',
+            logfile=calc.name + 'd.log',
+        ) as opt:
             opt.run(0.001, steps=1000)
 
         e0 = dimer.get_potential_energy()
