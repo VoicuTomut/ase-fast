@@ -179,14 +179,13 @@ class SQLite3Database(Database):
             array.shape = shape
         return array
 
-    def _connect(self, ok=False):
-        assert ok
+    def _connect(self):
         return sqlite3.connect(self.filename, timeout=20)
 
     def __enter__(self):
         assert self.connection is None
         self.change_count = 0
-        self.connection = self._connect(ok=True)
+        self.connection = self._connect()
         return self
 
     def __exit__(self, exc_type, exc_value, tb):
@@ -202,7 +201,7 @@ class SQLite3Database(Database):
         from contextlib import ExitStack
         with ExitStack() as stack:
             try:
-                con = self.connection or stack.enter_context(self._connect(ok=True))
+                con = self.connection or stack.enter_context(self._connect())
                 self._initialize(con)
                 yield con
             except ValueError as exc:
