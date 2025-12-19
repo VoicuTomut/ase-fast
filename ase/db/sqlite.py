@@ -200,23 +200,16 @@ class SQLite3Database(Database):
     def managed_connection(self, commit_frequency=5000):
         from contextlib import ExitStack
         with ExitStack() as stack:
-            try:
-                con = self.connection or stack.enter_context(self._connect())
-                self._initialize(con)
-                yield con
-            except ValueError as exc:
-                if self.connection is None:
-                    pass
-                # con.close()
-                raise exc
+            con = self.connection or stack.enter_context(self._connect())
+            self._initialize(con)
+            yield con
+
+            if self.connection is None:
+                con.commit()
             else:
-                if self.connection is None:
+                self.change_count += 1
+                if self.change_count % commit_frequency == 0:
                     con.commit()
-                    # con.close()
-                else:
-                    self.change_count += 1
-                    if self.change_count % commit_frequency == 0:
-                        con.commit()
 
     def _initialize(self, con):
         if self.initialized:
