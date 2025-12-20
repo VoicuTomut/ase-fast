@@ -23,40 +23,51 @@ def get_rdf(atoms: Atoms, rmax: float, nbins: int,
             elements: Optional[Union[List[int], Tuple]] = None,
             no_dists: Optional[bool] = False,
             volume: Optional[float] = None):
-    """Returns two numpy arrays; the radial distribution function
-    and the corresponding distances of the supplied atoms object.
-    If no_dists = True then only the first array is returned.
+    """Calculate the radial distribution function (RDF) :math:`g(r)`.
 
-    Note that the rdf is computed following the standard solid state
-    definition which uses the cell volume in the normalization.
-    This may or may not be appropriate in cases where one or more
-    directions is non-periodic.
+    .. versionchanged:: 3.27.0
+        Partial RDFs are fixed to be consistent with LAMMPS ``compute rdf``.
+        They now satisfy :math:`g_{ij}(r) = g_{ji}(r)` and
+        :math:`g(r) = \\sum_{ij} c_i c_j g_{ij}(r)`, where `i` and `j` index
+        the elements and `c_{i,j}` are their atomic fractions.
 
-    Parameters:
-
+    Parameters
+    ----------
+    atoms : Atoms
+        ASE ``Atoms`` object for which the RDF is computed.
     rmax : float
-        The maximum distance that will contribute to the rdf.
+        The maximum distance that will contribute to the RDF.
         The unit cell should be large enough so that it encloses a
         sphere with radius rmax in the periodic directions.
-
     nbins : int
-        Number of bins to divide the rdf into.
-
+        Number of bins to divide the RDF into.
     distance_matrix : numpy.array
         An array of distances between atoms, typically
         obtained by atoms.get_all_distances().
         Default None meaning that a NeighborList will be used.
-
-    elements : list or tuple
+    elements : list[int] | tuple[int, int]
         List of two atomic numbers. If elements is not None the partial
-        rdf for the supplied elements will be returned.
-
+        RDF for the supplied elements will be returned.
     no_dists : bool
-        If True then the second array with rdf distances will not be returned.
-
+        If True then the second array with RDF distances will not be returned.
     volume : float or None
         Optionally specify the volume of the system. If specified, the volume
         will be used instead atoms.cell.volume.
+
+    Returns
+    -------
+    rdf : np.ndarray
+        RDFs.
+    rr : np.ndarray
+        Corresponding distances.
+
+    Notes
+    -----
+    The RDF is computed following the standard solid state definition which uses
+    the cell volume in the normalization.
+    This may or may not be appropriate in cases where one or more directions is
+    non-periodic.
+
     """
 
     # First check whether the cell is sufficiently large
