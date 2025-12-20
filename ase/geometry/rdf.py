@@ -71,16 +71,19 @@ def get_rdf(atoms: Atoms, rmax: float, nbins: int,
 
     if elements is None:
         i_indices = np.arange(natoms)
+        n = natoms  # number of center atoms
+        rho = natoms / vol  # average number density
     else:
         i_indices = np.where(atoms.numbers == elements[0])[0]
+        j_indices = np.where(atoms.numbers == elements[1])[0]
+        n = len(i_indices)  # number of center atoms
+        rho = len(j_indices) / vol  # average number density
 
-    rho = natoms / vol
-    norm = 4.0 * math.pi * dr * rho * len(i_indices)
-    rdf = np.zeros(nbins + 1)
     if distance_matrix is None:
         nl = NeighborList(np.ones(natoms) * rmax * 0.5, bothways=True)
         nl.update(atoms)
 
+        rdf = np.zeros(nbins + 1)
         for i in i_indices:
             j_indices, offsets = nl.get_neighbors(i)
             if elements is not None:
@@ -102,12 +105,12 @@ def get_rdf(atoms: Atoms, rmax: float, nbins: int,
         if elements is None:
             x = indices.ravel()
         else:
-            j_indices = np.where(atoms.numbers == elements[1])[0]
             x = indices[i_indices][:, j_indices].ravel()
         rdf = np.bincount(x, minlength=nbins + 1)[:nbins + 1].astype(float)
 
     rr = np.arange(dr / 2, rmax, dr)
-    rdf[1:] /= norm * (rr * rr + (dr * dr / 12))
+    shell_volumes = 4.0 * math.pi * dr * (rr * rr + (dr * dr / 12))
+    rdf[1:] /= n * rho * shell_volumes
 
     if no_dists:
         return rdf[1:]
