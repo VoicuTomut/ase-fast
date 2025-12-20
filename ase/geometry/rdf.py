@@ -1,7 +1,8 @@
-# fmt: off
+"""Radial distribution function (RDF)."""
+
+from __future__ import annotations
 
 import math
-from typing import List, Optional, Tuple, Union
 
 import numpy as np
 
@@ -18,11 +19,15 @@ class VolumeNotDefined(Exception):
     pass
 
 
-def get_rdf(atoms: Atoms, rmax: float, nbins: int,
-            distance_matrix: Optional[np.ndarray] = None,
-            elements: Optional[Union[List[int], Tuple]] = None,
-            no_dists: Optional[bool] = False,
-            volume: Optional[float] = None):
+def get_rdf(
+    atoms: Atoms,
+    rmax: float,
+    nbins: int,
+    distance_matrix: np.ndarray | None = None,
+    elements: list[int] | tuple | None = None,
+    no_dists: bool = False,
+    volume: float | None = None,
+):
     """Calculate the radial distribution function (RDF) :math:`g(r)`.
 
     .. versionchanged:: 3.27.0
@@ -144,16 +149,19 @@ def check_cell_and_r_max(atoms: Atoms, rmax: float) -> None:
                 raise CellTooSmall(
                     'The cell is not large enough in '
                     f'direction {i}: {h:.3f} < 2*rmax={2 * rmax: .3f}. '
-                    f'Recommended rmax = {recommended_r_max}')
+                    f'Recommended rmax = {recommended_r_max}'
+                )
 
 
-def get_recommended_r_max(cell: Cell, pbc: List[bool]) -> float:
+def get_recommended_r_max(cell: Cell, pbc: list[bool]) -> float:
     recommended_r_max = 5.0
     vol = cell.volume
     for i in range(3):
         if pbc[i]:
-            axb = np.cross(cell[(i + 1) % 3, :],  # type: ignore[index]
-                           cell[(i + 2) % 3, :])  # type: ignore[index]
+            axb = np.cross(
+                cell[(i + 1) % 3, :],  # type: ignore[index]
+                cell[(i + 2) % 3, :],  # type: ignore[index]
+            )
             h = vol / np.linalg.norm(axb)
             assert isinstance(h, float)  # mypy
             recommended_r_max = min(h / 2 * 0.99, recommended_r_max)
