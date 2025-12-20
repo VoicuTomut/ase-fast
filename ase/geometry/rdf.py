@@ -115,14 +115,14 @@ def get_rdf(
             distances = np.sqrt(np.add.reduce(d**2, axis=1))
 
             indices = np.asarray(np.ceil(distances / dr), dtype=int)
-            rdf += np.bincount(indices, minlength=nbins + 1)[:nbins + 1]
+            rdf += np.bincount(indices, minlength=nbins + 1)[: nbins + 1]
     else:
         indices = np.asarray(np.ceil(distance_matrix / dr), dtype=int)
         if elements is None:
             x = indices.ravel()
         else:
             x = indices[i_indices][:, j_indices].ravel()
-        rdf = np.bincount(x, minlength=nbins + 1)[:nbins + 1].astype(float)
+        rdf = np.bincount(x, minlength=nbins + 1)[: nbins + 1].astype(float)
 
     rr = np.arange(dr / 2, rmax, dr)
     shell_volumes = 4.0 * math.pi * dr * (rr * rr + (dr * dr / 12))
