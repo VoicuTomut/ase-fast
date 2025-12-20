@@ -461,6 +461,7 @@ def write_lammps_data(
     write_image_flags: bool = False,
     masses: bool = False,
     velocities: bool = False,
+    atom_type_labels: bool = False,
     units: str = 'metal',
     bonds: bool = True,
     atom_style: str = 'atomic',
@@ -490,6 +491,8 @@ def write_lammps_data(
         Whether the atomic masses are written or not, by default False
     velocities : bool, optional
         Whether the atomic velocities are written or not, by default False
+    atom_type_labels : bool, optional
+        Whether the atom type labels are written or not, by default False
     units : str, optional
         `LAMMPS units <https://docs.lammps.org/units.html>`__,
         by default 'metal'
@@ -569,7 +572,9 @@ def write_lammps_data(
 
     if force_skew or prismobj.is_skewed():
         fd.write(f'{xy:23.17g} {xz:23.17g} {yz:23.17g}  xy xz yz\n')
-    fd.write('\n')
+
+    if atom_type_labels:
+        _write_atom_type_labels(fd, species)
 
     if masses:
         _write_masses(fd, atoms, species, units)
@@ -577,7 +582,7 @@ def write_lammps_data(
     # Write (unwrapped) atomic positions.  If wrapping of atoms back into the
     # cell along periodic directions is desired, this should be done manually
     # on the Atoms object itself beforehand.
-    fd.write(f'Atoms # {atom_style}\n\n')
+    fd.write(f'\nAtoms # {atom_style}\n\n')
 
     if write_image_flags:
         scaled_positions = atoms.get_scaled_positions(wrap=False)
@@ -681,7 +686,7 @@ def write_lammps_data(
         raise ValueError(atom_style)
 
     if velocities and atoms.get_velocities() is not None:
-        fd.write('\n\nVelocities\n\n')
+        fd.write('\nVelocities\n\n')
         vel = prismobj.vector_to_lammps(atoms.get_velocities())
         # Convert velocity from ASE units to LAMMPS units
         vel = convert(vel, 'velocity', 'ASE', units)
@@ -693,7 +698,7 @@ def write_lammps_data(
 
 def _write_masses(fd, atoms: Atoms, species: list, units: str):
     symbols_indices = atoms.symbols.indices()
-    fd.write('Masses\n\n')
+    fd.write('\nMasses\n\n')
     for i, s in enumerate(species):
         if s in symbols_indices:
             # Find the first atom of the element `s` and extract its mass
@@ -705,8 +710,14 @@ def _write_masses(fd, atoms: Atoms, species: list, units: str):
         # Convert mass from ASE units to LAMMPS units
         mass = convert(mass, 'mass', 'ASE', units)
         atom_type = i + 1
-        fd.write(f'{atom_type:>6} {mass:23.17g} # {s}\n')
-    fd.write('\n')
+        fd.write(f'{atom_type} {mass:23.17g} # {s}\n')
+
+
+def _write_atom_type_labels(fd, species: list[str]):
+    fd.write('\nAtom Type Labels\n\n')
+    for i, s in enumerate(species):
+        atom_type = i + 1
+        fd.write(f'{atom_type} {s}\n')
 
 
 def _get_types(atoms: Atoms, species: list):
