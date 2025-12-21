@@ -43,7 +43,7 @@ ase = 'ase.cli.main:main'
 
 [project.optional-dependencies]
 docs = ['sphinx', 'sphinx_book_theme', 'sphinx-gallery', 'pillow']
-test = ['pytest>=7.0.0', 'pytest-xdist>=2.1.0']
+test = ['pytest>=7.4.0', 'pytest-xdist>=3.2.0']  # summer 2023
 spglib = ['spglib>=1.9']
 lint = ['mypy', 'ruff', 'types-docutils', 'types-PyMySQL']
 
