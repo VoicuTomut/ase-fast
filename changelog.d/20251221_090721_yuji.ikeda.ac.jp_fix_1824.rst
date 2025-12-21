@@ -1,0 +1,5 @@
+Bugfixes
+--------
+
+- Fixed partial RDFs in :func:`~ase.geometry.rdf.get_rdf` to be conssitent with
+  the common definition in, e.g., LAMMPS ``compute rdf`` (:mr:`3921`)
