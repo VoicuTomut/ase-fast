@@ -346,15 +346,6 @@ class VaspFactory:
         return get_vasp_version(header)
 
     def calc(self, **kwargs):
-        # XXX We assume the user has set VASP_PP_PATH
-        if Vasp.VASP_PP_PATH not in os.environ:
-            # For now, we skip with a message that we cannot run the test
-            pytest.skip(
-                'No VASP pseudopotential path set. '
-                'Set the ${} environment variable to enable.'.format(
-                    Vasp.VASP_PP_PATH
-                )
-            )
         return Vasp(command=self.executable, **kwargs)
 
 
