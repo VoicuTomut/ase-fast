@@ -345,3 +345,29 @@ def test_calc_nelect_from_charge() -> None:
     """Test if NELECT can be determined correctly."""
     assert _calc_nelect_from_charge(None, None, 10.0) is None
     assert _calc_nelect_from_charge(None, 4.0, 10.0) == 6.0
+
+
+def test_first_instance(tmp_path, vaspinput_factory):
+    """Test that INCAR parser uses first instance of each tag
+    """
+
+    for key, dict_name, vals in [
+            ('ENCUT', 'float', (100.0, 200.0)),
+            ('EDIFF', 'exp', (1e-5, 1e-6)),
+            ('ALGO', 'string', ('fast', 'veryfast')),
+            ('IALGO', 'int', (1, 2)),
+            ('KGAMMA', 'bool', (True, False)),
+            ('IBAND', 'list_int', ([1, 2], [2, 3])),
+            ('LRCTYPE', 'list_bool', ([True, False], [False, True])),
+            ('DIPOL', 'list_float', ([1, 1, 1], [2, 2, 2])),
+            ('LREAL', 'special', ('auto', 'off'))]:
+        with open(tmp_path / 'INCAR', 'w') as fout:
+            for val in vals:
+                if isinstance(val, list):
+                    val_s = " ".join([str(v) for v in val])
+                else:
+                    val_s = str(val)
+                fout.write(f'{key} = {val_s}\n')
+        calc = vaspinput_factory()
+        calc.read_incar(tmp_path / 'INCAR')
+        assert getattr(calc, dict_name + '_params')[key.lower()] == vals[0]
