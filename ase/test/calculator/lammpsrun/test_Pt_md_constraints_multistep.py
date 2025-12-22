@@ -28,7 +28,10 @@ def test_Pt_md_constraints_multistep(factory):
                            + ' '.join([str(i + 1) for i,
                                       tag in enumerate(slab.get_tags())
                                        if tag >= 4])]
-        params['fix'] = ['freeze_lower_atoms lower_atoms setforce 0.0 0.0 0.0']
+        params['fix'] = [
+            'fix_nve all nve',
+            'freeze_lower_atoms lower_atoms setforce 0.0 0.0 0.0',
+        ]
         params['run'] = 100
         params['timestep'] = 0.0005
         params['dump_period'] = 10
