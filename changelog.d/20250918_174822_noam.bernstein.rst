@@ -46,6 +46,6 @@
 Bugfixes
 --------
 
-- Make vasp calculator incar reader use first instance of each tag,
-  to be same as vasp code itself.
+- Make :class:`~ase.calculators.vasp.Vasp` calculator INCAR reader use first instance of each tag,
+  to be same as VASP code itself (:mr:`3842`)
 
