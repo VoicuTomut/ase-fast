@@ -1,0 +1,4 @@
+Bugfixes
+--------
+
+- Fixed :class:`~ase.calculators.lammpsrun.LAMMPS` to be robust against LAMMPS log files with non-ASCII characters (:mr:`3925`)

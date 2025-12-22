@@ -371,7 +371,7 @@ class LAMMPS(Calculator):
                 shlex.split(command, posix=(os.name == "posix")),
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
-                encoding='ascii',
+                text=True,
             )
         lmp_handle = self._lmp_handle
 
