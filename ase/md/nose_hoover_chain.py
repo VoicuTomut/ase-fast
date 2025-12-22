@@ -587,7 +587,7 @@ class MTKNPT(MolecularDynamics):
     def step(self) -> None:
         dt2 = self.dt / 2
 
-        self._p_g = self._barostat.integrate_nhc_baro(self._p_g, dt2)
+        self._integrate_p_cell_by_barostat(dt2)
         self._p = self._thermostat.integrate_nhc(self._p, dt2)
         self._integrate_p_cell(dt2)
         self._integrate_p(dt2)
@@ -596,7 +596,7 @@ class MTKNPT(MolecularDynamics):
         self._integrate_p(dt2)
         self._integrate_p_cell(dt2)
         self._p = self._thermostat.integrate_nhc(self._p, dt2)
-        self._p_g = self._barostat.integrate_nhc_baro(self._p_g, dt2)
+        self._integrate_p_cell_by_barostat(dt2)
 
         self._update_atoms()
 
@@ -679,6 +679,9 @@ class MTKNPT(MolecularDynamics):
                 * np.eye(3)
         )
         self._p_g += delta * G
+
+    def _integrate_p_cell_by_barostat(self, delta: float) -> None:
+        self._p_g = self._barostat.integrate_nhc_baro(self._p_g, delta)
 
 
 class MaskedMTKNPT(MTKNPT):
@@ -786,34 +789,17 @@ class MaskedMTKNPT(MTKNPT):
     @property
     def _p_g(self) -> np.ndarray:
         return np.sum(
-            np.array(
-                [
-                    pc * np.outer(ec, ec)
-                    for ec, pc in zip(self._h0_basis, self._p_c)
-                ]
-            ),
+            [
+                pc * np.outer(ec, ec)
+                for ec, pc in zip(self._h0_basis, self._p_c)
+            ]
+            ,
             axis=0,
         )
 
     @_p_g.setter
     def _p_g(self, value: np.ndarray) -> None:
-        raise AttributeError("_p_g is a read-only property.")
-
-    def step(self) -> None:
-        dt2 = self.dt / 2
-
-        self._p_c = self._barostat.integrate_nhc_baro(self._p_c, dt2)
-        self._p = self._thermostat.integrate_nhc(self._p, dt2)
-        self._integrate_p_cell(dt2)
-        self._integrate_p(dt2)
-        self._integrate_q(self.dt)
-        self._integrate_q_cell(self.dt)
-        self._integrate_p(dt2)
-        self._integrate_p_cell(dt2)
-        self._p = self._thermostat.integrate_nhc(self._p, dt2)
-        self._p_c = self._barostat.integrate_nhc_baro(self._p_c, dt2)
-
-        self._update_atoms()
+        raise AttributeError()
 
     def get_conserved_energy(self) -> float:
         conserved_energy = (
@@ -845,11 +831,21 @@ class MaskedMTKNPT(MTKNPT):
             )
             self._p_c[c] += delta * gc
 
+    def _integrate_p_cell_by_barostat(self, delta: float) -> None:
+        self._p_c = self._barostat.integrate_nhc_baro(self._p_c, delta)
+
 
 class MTKBarostat:
     """MTK barostat for volume-and-cell fluctuations.
 
     See `MTKNPT` for the references.
+
+    Note for `mask` parameter:
+        If `mask` is None, full 9 DoF cell fluctuations are allowed.
+        If `mask` is a 3-tuple of booleans, only the specified axes are allowed
+        to fluctuate, and its DoF is a number of the specified axes. Thus,
+        `mask=(True, True, True)` gives 3 DoF cell fluctuations along a, b,
+        and c axes, which is different from the full 9 DoF fluctuations.
     """
     def __init__(
         self,
