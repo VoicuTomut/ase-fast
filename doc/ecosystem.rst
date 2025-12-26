@@ -27,6 +27,14 @@ Listed in alphabetical order, for want of a better approach.
    search, basin-hopping in addition to machine-learning enhanced algorithms like 
    GOFEE. Any ASE calculator can be used as the objective function for the optimization.
 
+ * `ASE-GA <https://dtu-energy.github.io/ase-ga/>`_:
+   ASE-GA is a dedicated genetic-algorithm engine derived from ASE. It
+   provides a modular framework for defining candidate structure
+   representations, mutation and crossover operators, fitness
+   evaluations, and advanced selection schemes, fully interoperable
+   with ASE calculators and workflows. Formerly a module within ASE,
+   ASE-GA now stands as a focused, standalone package.
+ 
  * `atomicrex <https://atomicrex.org/>`_:
    atomicrex is a versatile tool for the construction of interatomic
    potential models. It includes a Python interface for integration
