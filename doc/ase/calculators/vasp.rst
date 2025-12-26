@@ -67,7 +67,7 @@ expect to have directories like :file:`potpaw_PBE.64` and
 To tell ASE which pseudopotential version to use, you can set the
 environment variable :envvar:`VASP_PP_VERSION`. This variable is optional,
 and if not set, ASE will look for unversioned pseudopotential folders
-and legacy names of `potpaw_PBE` (PBE) and `potpaw` (LDA).
+and legacy names of :file:`potpaw_PBE` (PBE) and file:`potpaw` (LDA).
 
 Set the environment variables in your shell configuration file:
 
@@ -130,6 +130,8 @@ keyword         type       default value   description
 ``setups``      ``str``    None            Additional setup option
 ``pp``          ``str``    Set by ``xc``   Pseudopotential (POTCAR) set
                            or ``gga``      used (LDA or PBE).
+``pp_version``  ``str``    None            Version (suffix) to use, such as
+                                           "", "52", "54", "64"
 ``kpts``        various    Γ-point         **k**-point sampling
 ``gamma``       ``bool``   None            Γ-point centered
                                            **k**-point sampling
