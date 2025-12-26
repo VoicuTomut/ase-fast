@@ -38,9 +38,10 @@ def check_update_function(db):
 
 def test_delete_vacuum():
     # test to call from within the class using the delete function
-    db = connect(db_name)
-    write_entries_to_db(db)
-    check_delete_function(db)
+    with connect(db_name) as db:
+        write_entries_to_db(db)
+    with connect(db_name) as db:
+        check_delete_function(db)
 
 
 def test_delete_vacuum_context():
@@ -53,10 +54,11 @@ def test_delete_vacuum_context():
 
 def test_update_vacuum():
     # test to call vacuum explicitly
-    db = connect(db_name)
-    write_entries_to_db(db)
-    update_keys_in_db(db)
-    check_update_function(db)
+    with connect(db_name) as db:
+        write_entries_to_db(db)
+        update_keys_in_db(db)
+    with connect(db_name) as db:
+        check_update_function(db)
 
 
 def test_update_vacuum_context():

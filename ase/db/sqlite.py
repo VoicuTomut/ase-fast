@@ -198,18 +198,15 @@ class SQLite3Database(Database):
 
     @contextmanager
     def managed_connection(self, commit_frequency=5000):
-        try:
-            con = self.connection or self._connect()
+        from contextlib import ExitStack
+
+        with ExitStack() as stack:
+            con = self.connection or stack.enter_context(self._connect())
             self._initialize(con)
             yield con
-        except ValueError as exc:
-            if self.connection is None:
-                con.close()
-            raise exc
-        else:
+
             if self.connection is None:
                 con.commit()
-                con.close()
             else:
                 self.change_count += 1
                 if self.change_count % commit_frequency == 0:
@@ -862,7 +859,8 @@ class SQLite3Database(Database):
     @property
     def metadata(self):
         if self._metadata is None:
-            self._initialize(self._connect())
+            assert self.connection is not None
+            self._initialize(self.connection)
         return self._metadata.copy()
 
     @metadata.setter

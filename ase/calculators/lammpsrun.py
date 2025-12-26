@@ -26,6 +26,7 @@ import shlex
 import shutil
 import subprocess
 import warnings
+from contextlib import ExitStack
 from re import IGNORECASE
 from re import compile as re_compile
 from tempfile import NamedTemporaryFile, mkdtemp
@@ -377,38 +378,34 @@ class LAMMPS(Calculator):
 
         # Create thread reading lammps stdout (for reference, if requested,
         # also create lammps_log, although it is never used)
-        if self.parameters['keep_tmp_files']:
-            lammps_log_fd = open(lammps_log, "w")
-            fd = SpecialTee(lmp_handle.stdout, lammps_log_fd)
-        else:
-            fd = lmp_handle.stdout
-        thr_read_log = Thread(target=self.read_lammps_log, args=(fd,))
-        thr_read_log.start()
+        with ExitStack() as stack:
+            if self.parameters['keep_tmp_files']:
+                lammps_log_fd = stack.enter_context(open(lammps_log, "w"))
+                fd = SpecialTee(lmp_handle.stdout, lammps_log_fd)
+            else:
+                fd = lmp_handle.stdout
+            thr_read_log = Thread(target=self.read_lammps_log, args=(fd,))
+            thr_read_log.start()
 
-        # write LAMMPS input (for reference, also create the file lammps_in,
-        # although it is never used)
-        if self.parameters['keep_tmp_files']:
-            lammps_in_fd = open(lammps_in, "w")
-            fd = SpecialTee(lmp_handle.stdin, lammps_in_fd)
-        else:
-            fd = lmp_handle.stdin
-        write_lammps_in(
-            lammps_in=fd,
-            parameters=self.parameters,
-            atoms=self.atoms,
-            prismobj=self.prism,
-            lammps_trj=lammps_trj,
-            lammps_data=lammps_data,
-        )
+            # write LAMMPS input (for reference, also create the file lammps_in,
+            # although it is never used)
+            if self.parameters['keep_tmp_files']:
+                lammps_in_fd = stack.enter_context(open(lammps_in, "w"))
+                fd = SpecialTee(lmp_handle.stdin, lammps_in_fd)
+            else:
+                fd = lmp_handle.stdin
+            write_lammps_in(
+                lammps_in=fd,
+                parameters=self.parameters,
+                atoms=self.atoms,
+                prismobj=self.prism,
+                lammps_trj=lammps_trj,
+                lammps_data=lammps_data,
+            )
 
-        if self.parameters['keep_tmp_files']:
-            lammps_in_fd.close()
-
-        # Wait for log output to be read (i.e., for LAMMPS to finish)
-        # and close the log file if there is one
-        thr_read_log.join()
-        if self.parameters['keep_tmp_files']:
-            lammps_log_fd.close()
+            # Wait for log output to be read (i.e., for LAMMPS to finish)
+            # and close the log file if there is one
+            thr_read_log.join()
 
         if not self.parameters['keep_alive']:
             self._lmp_end()
