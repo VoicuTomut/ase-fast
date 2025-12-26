@@ -83,12 +83,23 @@ enable_error_code = 'ignore-without-code'
 
 [tool.coverage.run]
 source = ['ase']
+patch = ['subprocess']
 
 [tool.coverage.report]
+precision = 2
+omit = [
+    'ase/test/*',
+    'ase/utils/sphinx.py',
+    'ase/utils/build_web_page.py',
+    'ase/utils/newrelease.py',
+]
 exclude_also = [
     'if TYPE_CHECKING:',
     'if __name__ == .__main__.:'
 ]
+
+[tool.coverage.html]
+directory = 'coverage-html'
 
 [tool.ruff]
 line-length = 80
