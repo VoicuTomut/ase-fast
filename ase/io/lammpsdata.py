@@ -94,6 +94,7 @@ def read_lammps_data(
 
     mass_in = {}
     vel_in = {}
+    atom_type_labels = {}
     bonds_in = []
     angles_in = []
     dihedrals_in = []
@@ -126,6 +127,11 @@ def read_lammps_data(
         'AngleAngleTorsion Coeffs',
         'BondBond13 Coeffs',
         'AngleAngle Coeffs',
+        'Atom Type Labels',
+        'Bond Type Labels',
+        'Angle Type Labels',
+        'Dihedral Type Labels',
+        'Improper Type Labels',
     ]
     header_fields = [
         'atoms',
@@ -208,6 +214,8 @@ def read_lammps_data(
                 vel_in[int(fields[0])] = [float(fields[_]) for _ in (1, 2, 3)]
             elif section == 'Masses':
                 mass_in[int(fields[0])] = float(fields[1])
+            elif section == 'Atom Type Labels':
+                atom_type_labels[int(fields[0])] = fields[1]
             elif section == 'Bonds':  # id type atom1 atom2
                 bonds_in.append([int(fields[_]) for _ in (1, 2, 3)])
             elif section == 'Angles':  # id type atom1 atom2 atom3
@@ -222,8 +230,24 @@ def read_lammps_data(
         atoms_section.sort()
 
     ids = atoms_section.ids
-    types = atoms_section.types
-    numbers = np.array([Z_of_type[_] for _ in types]) if Z_of_type else types
+
+    if np.all(atoms_section.types != 0):  # numeric
+        types = atoms_section.types
+    else:  # labels
+        labels2types = {v: k for k, v in atom_type_labels.items()}
+        types = np.array([labels2types[_] for _ in atoms_section.labels])
+
+    if Z_of_type:
+        # The user-specified `Z_of_type` has the highest priority.
+        numbers = np.array([Z_of_type[_] for _ in types])
+    elif atom_type_labels and all(
+        v in atomic_numbers for v in atom_type_labels.values()
+    ):
+        # if all the labels in the `Atom Type Labels` section are element names
+        numbers = np.array([atomic_numbers[atom_type_labels[_]] for _ in types])
+    else:
+        numbers = types
+
     masses = np.array([mass_in[_] for _ in types]) if mass_in else None
     velocities = np.array([vel_in[_] for _ in ids]) if vel_in else None
 
@@ -292,6 +316,7 @@ class _AtomsSection:
     natoms: int
     ids: np.ndarray = field(init=False)
     types: np.ndarray = field(init=False)
+    labels: np.ndarray = field(init=False)
     positions: np.ndarray = field(init=False)
     mol_ids: np.ndarray = field(init=False)
     charges: np.ndarray = field(init=False)
@@ -300,6 +325,7 @@ class _AtomsSection:
     def __post_init__(self):
         self.ids = np.zeros(self.natoms, int)
         self.types = np.zeros(self.natoms, int)
+        self.labels = np.zeros(self.natoms, object)
         self.positions = np.zeros((self.natoms, 3), float)
         self.mol_ids = np.zeros(self.natoms, int)
         self.charges = np.full(self.natoms, np.nan, float)
@@ -328,7 +354,7 @@ def _read_atoms_section(fileobj, natoms: int, style: str = None):
         data.ids[i] = int(fields[0])
         if style == 'full' and len(fields) in (7, 10):
             # id mol-id type q x y z [tx ty tz]
-            data.types[i] = int(fields[2])
+            data.labels[i] = fields[2]
             data.positions[i] = tuple(float(fields[_]) for _ in (4, 5, 6))
             data.mol_ids[i] = int(fields[1])
             data.charges[i] = float(fields[3])
@@ -336,20 +362,20 @@ def _read_atoms_section(fileobj, natoms: int, style: str = None):
                 data.cell_ids[i] = tuple(int(fields[_]) for _ in (7, 8, 9))
         elif style == 'atomic' and len(fields) in (5, 8):
             # id type x y z [tx ty tz]
-            data.types[i] = int(fields[1])
+            data.labels[i] = fields[1]
             data.positions[i] = tuple(float(fields[_]) for _ in (2, 3, 4))
             if len(fields) == 8:
                 data.cell_ids[i] = tuple(int(fields[_]) for _ in (5, 6, 7))
         elif style in ('angle', 'bond', 'molecular') and len(fields) in (6, 9):
             # id mol-id type x y z [tx ty tz]
-            data.types[i] = int(fields[2])
+            data.labels[i] = fields[2]
             data.positions[i] = tuple(float(fields[_]) for _ in (3, 4, 5))
             data.mol_ids[i] = int(fields[1])
             if len(fields) == 9:
                 data.cell_ids[i] = tuple(int(fields[_]) for _ in (6, 7, 8))
         elif style == 'charge' and len(fields) in (6, 9):
             # id type q x y z [tx ty tz]
-            data.types[i] = int(fields[1])
+            data.labels[i] = fields[1]
             data.positions[i] = tuple(float(fields[_]) for _ in (3, 4, 5))
             data.charges[i] = float(fields[2])
             if len(fields) == 9:
@@ -359,6 +385,8 @@ def _read_atoms_section(fileobj, natoms: int, style: str = None):
                 f'Style "{style}" not supported or invalid. '
                 f'Number of fields: {len(fields)}'
             )
+    if all(_.isdigit() for _ in data.labels):
+        data.types = data.labels.astype(int)
     return data
 
 
@@ -433,6 +461,7 @@ def write_lammps_data(
     write_image_flags: bool = False,
     masses: bool = False,
     velocities: bool = False,
+    atom_type_labels: bool = False,
     units: str = 'metal',
     bonds: bool = True,
     atom_style: str = 'atomic',
@@ -462,6 +491,8 @@ def write_lammps_data(
         Whether the atomic masses are written or not, by default False
     velocities : bool, optional
         Whether the atomic velocities are written or not, by default False
+    atom_type_labels : bool, optional
+        Whether the atom type labels are written or not, by default False
     units : str, optional
         `LAMMPS units <https://docs.lammps.org/units.html>`__,
         by default 'metal'
@@ -541,7 +572,9 @@ def write_lammps_data(
 
     if force_skew or prismobj.is_skewed():
         fd.write(f'{xy:23.17g} {xz:23.17g} {yz:23.17g}  xy xz yz\n')
-    fd.write('\n')
+
+    if atom_type_labels:
+        _write_atom_type_labels(fd, species)
 
     if masses:
         _write_masses(fd, atoms, species, units)
@@ -549,7 +582,7 @@ def write_lammps_data(
     # Write (unwrapped) atomic positions.  If wrapping of atoms back into the
     # cell along periodic directions is desired, this should be done manually
     # on the Atoms object itself beforehand.
-    fd.write(f'Atoms # {atom_style}\n\n')
+    fd.write(f'\nAtoms # {atom_style}\n\n')
 
     if write_image_flags:
         scaled_positions = atoms.get_scaled_positions(wrap=False)
@@ -653,7 +686,7 @@ def write_lammps_data(
         raise ValueError(atom_style)
 
     if velocities and atoms.get_velocities() is not None:
-        fd.write('\n\nVelocities\n\n')
+        fd.write('\nVelocities\n\n')
         vel = prismobj.vector_to_lammps(atoms.get_velocities())
         # Convert velocity from ASE units to LAMMPS units
         vel = convert(vel, 'velocity', 'ASE', units)
@@ -665,7 +698,7 @@ def write_lammps_data(
 
 def _write_masses(fd, atoms: Atoms, species: list, units: str):
     symbols_indices = atoms.symbols.indices()
-    fd.write('Masses\n\n')
+    fd.write('\nMasses\n\n')
     for i, s in enumerate(species):
         if s in symbols_indices:
             # Find the first atom of the element `s` and extract its mass
@@ -677,8 +710,14 @@ def _write_masses(fd, atoms: Atoms, species: list, units: str):
         # Convert mass from ASE units to LAMMPS units
         mass = convert(mass, 'mass', 'ASE', units)
         atom_type = i + 1
-        fd.write(f'{atom_type:>6} {mass:23.17g} # {s}\n')
-    fd.write('\n')
+        fd.write(f'{atom_type} {mass:23.17g} # {s}\n')
+
+
+def _write_atom_type_labels(fd, species: list[str]):
+    fd.write('\nAtom Type Labels\n\n')
+    for i, s in enumerate(species):
+        atom_type = i + 1
+        fd.write(f'{atom_type} {s}\n')
 
 
 def _get_types(atoms: Atoms, species: list):
