@@ -1,0 +1,5 @@
+Other changes
+-------------
+
+- Improved efficiency of :func:`~ase.geometry.rdf.get_rdf` using
+  :class:`~ase.neighborlist.NeighborList` (:mr:`3888`)
