@@ -302,6 +302,11 @@ class LAMMPS(Calculator):
     def run(self, set_atoms=False):
         # !TODO: split this function
         """Method which explicitly runs LAMMPS."""
+
+        with ExitStack() as exitstack:
+            self._run(set_atoms, exitstack)
+
+    def _run(self, set_atoms, exitstack):
         pbc = self.atoms.get_pbc()
         if all(pbc):
             cell = self.atoms.get_cell()
@@ -378,34 +383,33 @@ class LAMMPS(Calculator):
 
         # Create thread reading lammps stdout (for reference, if requested,
         # also create lammps_log, although it is never used)
-        with ExitStack() as stack:
-            if self.parameters['keep_tmp_files']:
-                lammps_log_fd = stack.enter_context(open(lammps_log, "w"))
-                fd = SpecialTee(lmp_handle.stdout, lammps_log_fd)
-            else:
-                fd = lmp_handle.stdout
-            thr_read_log = Thread(target=self.read_lammps_log, args=(fd,))
-            thr_read_log.start()
+        if self.parameters['keep_tmp_files']:
+            lammps_log_fd = stack.enter_context(open(lammps_log, "w"))
+            fd = SpecialTee(lmp_handle.stdout, lammps_log_fd)
+        else:
+            fd = lmp_handle.stdout
+        thr_read_log = Thread(target=self.read_lammps_log, args=(fd,))
+        thr_read_log.start()
 
-            # write LAMMPS input (for reference, also create the file lammps_in,
-            # although it is never used)
-            if self.parameters['keep_tmp_files']:
-                lammps_in_fd = stack.enter_context(open(lammps_in, "w"))
-                fd = SpecialTee(lmp_handle.stdin, lammps_in_fd)
-            else:
-                fd = lmp_handle.stdin
-            write_lammps_in(
-                lammps_in=fd,
-                parameters=self.parameters,
-                atoms=self.atoms,
-                prismobj=self.prism,
-                lammps_trj=lammps_trj,
-                lammps_data=lammps_data,
-            )
+        # write LAMMPS input (for reference, also create the file lammps_in,
+        # although it is never used)
+        if self.parameters['keep_tmp_files']:
+            lammps_in_fd = stack.enter_context(open(lammps_in, "w"))
+            fd = SpecialTee(lmp_handle.stdin, lammps_in_fd)
+        else:
+            fd = lmp_handle.stdin
+        write_lammps_in(
+            lammps_in=fd,
+            parameters=self.parameters,
+            atoms=self.atoms,
+            prismobj=self.prism,
+            lammps_trj=lammps_trj,
+            lammps_data=lammps_data,
+        )
 
-            # Wait for log output to be read (i.e., for LAMMPS to finish)
-            # and close the log file if there is one
-            thr_read_log.join()
+        # Wait for log output to be read (i.e., for LAMMPS to finish)
+        # and close the log file if there is one
+        thr_read_log.join()
 
         if not self.parameters['keep_alive']:
             self._lmp_end()
