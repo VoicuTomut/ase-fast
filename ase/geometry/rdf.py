@@ -7,6 +7,7 @@ import numpy as np
 
 from ase import Atoms
 from ase.cell import Cell
+from ase.neighborlist import NeighborList
 
 
 class CellTooSmall(Exception):
@@ -44,7 +45,7 @@ def get_rdf(atoms: Atoms, rmax: float, nbins: int,
     distance_matrix : numpy.array
         An array of distances between atoms, typically
         obtained by atoms.get_all_distances().
-        Default None meaning that it will be calculated.
+        Default None meaning that a NeighborList will be used.
 
     elements : list or tuple
         List of two atomic numbers. If elements is not None the partial
@@ -65,35 +66,45 @@ def get_rdf(atoms: Atoms, rmax: float, nbins: int,
 
     check_cell_and_r_max(atoms, rmax)
 
-    dm = distance_matrix
-    if dm is None:
-        dm = atoms.get_all_distances(mic=True)
-
-    rdf = np.zeros(nbins + 1)
+    natoms = len(atoms)
     dr = float(rmax / nbins)
 
-    indices = np.asarray(np.ceil(dm / dr), dtype=int)
-    natoms = len(atoms)
-
     if elements is None:
-        # Coefficients to use for normalization
-        phi = natoms / vol
-        norm = 2.0 * math.pi * dr * phi * len(atoms)
-
-        indices_triu = np.triu(indices)
-        for index in range(nbins + 1):
-            rdf[index] = np.count_nonzero(indices_triu == index)
-
+        i_indices = np.arange(natoms)
     else:
         i_indices = np.where(atoms.numbers == elements[0])[0]
-        phi = len(i_indices) / vol
-        norm = 4.0 * math.pi * dr * phi * natoms
+
+    rho = natoms / vol
+    norm = 4.0 * math.pi * dr * rho * len(i_indices)
+    rdf = np.zeros(nbins + 1)
+    if distance_matrix is None:
+        nl = NeighborList(np.ones(natoms) * rmax * 0.5, bothways=True)
+        nl.update(atoms)
 
         for i in i_indices:
-            for j in np.where(atoms.numbers == elements[1])[0]:
-                index = indices[i, j]
-                if index <= nbins:
-                    rdf[index] += 1
+            j_indices, offsets = nl.get_neighbors(i)
+            if elements is not None:
+                mask = atoms.numbers[j_indices] == elements[1]
+                j_indices = j_indices[mask]
+                offsets = offsets[mask]
+
+            if np.count_nonzero(j_indices) == 0:
+                continue
+
+            ps = atoms.positions
+            d = ps[j_indices] + offsets @ atoms.cell - ps[i]
+            distances = np.sqrt(np.add.reduce(d**2, axis=1))
+
+            indices = np.asarray(np.ceil(distances / dr), dtype=int)
+            rdf += np.bincount(indices, minlength=nbins + 1)[:nbins + 1]
+    else:
+        indices = np.asarray(np.ceil(distance_matrix / dr), dtype=int)
+        if elements is None:
+            x = indices.ravel()
+        else:
+            j_indices = np.where(atoms.numbers == elements[1])[0]
+            x = indices[i_indices][:, j_indices].ravel()
+        rdf = np.bincount(x, minlength=nbins + 1)[:nbins + 1].astype(float)
 
     rr = np.arange(dr / 2, rmax, dr)
     rdf[1:] /= norm * (rr * rr + (dr * dr / 12))
