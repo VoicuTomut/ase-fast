@@ -1,9 +1,0 @@
-Calculators
------------
-
-- Updated :class:`~ase.calculators.lammpsrun.LAMMPS` to recognize the LAMMPS ``velocity`` command (:mr:`3805`)
-
-Bugfixes
---------
-
-- Fixed :class:`~ase.calculators.lammpsrun.LAMMPS` to not run the default `fix nve` command when users set `fix` explicitly (:mr:`3805`)
