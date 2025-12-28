@@ -12,7 +12,7 @@ I/O
   and prevents resource leaks in many cases.  It is still possible to
   pass trajectories and logfiles that are already open, and then the
   caller is responsible for closing them.  Doing so may be beneficial
-  in fast runs on slow file systems. (:mr:`3899`)
+  in fast runs on slow file systems. (:mr:`3899`, :mr:`3930`)
 
 ..
 .. Calculators

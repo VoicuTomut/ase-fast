@@ -2,7 +2,7 @@
 
 import warnings
 from pathlib import Path
-from typing import IO, Optional, Union
+from typing import IO
 
 import numpy as np
 from numpy.linalg import eigh
@@ -18,12 +18,12 @@ class BFGS(Optimizer):
     def __init__(
         self,
         atoms: Atoms,
-        restart: Optional[str] = None,
-        logfile: Optional[Union[IO, str, Path]] = '-',
-        trajectory: Optional[Union[str, Path]] = None,
+        restart: str | Path | None = None,
+        logfile: IO | str | Path | None = '-',
+        trajectory: str | Path | None = None,
         append_trajectory: bool = False,
-        maxstep: Optional[float] = None,
-        alpha: Optional[float] = None,
+        maxstep: float | None = None,
+        alpha: float | None = None,
         **kwargs,
     ):
         """BFGS optimizer.
@@ -33,7 +33,7 @@ class BFGS(Optimizer):
         atoms: :class:`~ase.Atoms`
             The Atoms object to relax.
 
-        restart: str
+        restart: str | Path | None
             JSON file used to store hessian matrix. If set, file with
             such a name will be searched and hessian matrix stored will
             be used, if the file exists.

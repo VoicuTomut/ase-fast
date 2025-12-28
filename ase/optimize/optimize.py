@@ -8,7 +8,7 @@ from contextlib import contextmanager
 from functools import cached_property
 from os.path import isfile
 from pathlib import Path
-from typing import IO, Any, Dict, List, Optional, Tuple, Union
+from typing import IO, Any
 
 from ase import Atoms
 from ase.calculators.calculator import PropertyNotImplementedError
@@ -109,17 +109,17 @@ class BaseDynamics(IOContext):
     def __init__(
         self,
         atoms: Atoms,
-        logfile: Optional[Union[IO, Path, str]] = None,
-        trajectory: Optional[Union[str, Path]] = None,
+        logfile: IO | Path | str | None = None,
+        trajectory: str | Path | None = None,
         append_trajectory: bool = False,
-        master: Optional[bool] = None,
+        master: bool | None = None,
         comm=world,
         *,
         loginterval: int = 1,
     ):
         self.atoms = atoms
         self.logfile = Log(logfile, comm=comm)
-        self.observers: List[Tuple[Callable, int, Tuple, Dict[str, Any]]] = []
+        self.observers: list[tuple[Callable, int, tuple, dict[str, Any]]] = []
         self.nsteps = 0
         self.max_steps = 0  # to be updated in run or irun
         self.comm = comm
@@ -145,7 +145,7 @@ class BaseDynamics(IOContext):
 
         self.trajectory = trajectory
 
-    def todict(self) -> Dict[str, Any]:
+    def todict(self) -> dict[str, Any]:
         raise NotImplementedError
 
     @contextmanager
@@ -401,9 +401,9 @@ class Optimizer(Dynamics):
     def __init__(
         self,
         atoms: Atoms,
-        restart: Optional[str] = None,
-        logfile: Optional[Union[IO, str, Path]] = None,
-        trajectory: Optional[Union[str, Path]] = None,
+        restart: str | Path | None = None,
+        logfile: IO | str | Path | None = None,
+        trajectory: str | Path | None = None,
         append_trajectory: bool = False,
         **kwargs,
     ):
@@ -414,7 +414,7 @@ class Optimizer(Dynamics):
         atoms: :class:`~ase.Atoms`
             The Atoms object to relax.
 
-        restart: str
+        restart: str | Path | None
             Filename for restart file. Default value is *None*.
 
         logfile: file object, Path, or str
@@ -456,12 +456,12 @@ class Optimizer(Dynamics):
 
     def todict(self):
         description = {
-            "type": "optimization",
-            "optimizer": self.__class__.__name__,
+            'type': 'optimization',
+            'optimizer': self.__class__.__name__,
+            'restart': str(self.restart),
         }
         # add custom attributes from subclasses
-        for attr in ('maxstep', 'alpha', 'max_steps', 'restart',
-                     'fmax'):
+        for attr in ('maxstep', 'alpha', 'max_steps', 'fmax'):
             if hasattr(self, attr):
                 description.update({attr: getattr(self, attr)})
         return description
