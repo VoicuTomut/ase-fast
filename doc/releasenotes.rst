@@ -14,6 +14,14 @@ Git master branch
 * No changes yet
 
 
+Version 3.27.0
+==============
+
+28 December 2025: :git:`3.27.0 <../3.27.0>`
+
+* No changes yet
+
+
 Version 3.26.0
 ==============
 

@@ -1,6 +1,0 @@
-I/O
----
-
-- Updated :func:`~ase.io.lammpsdata.read_lammps_data` and
-  :func:`~ase.io.lammpsdata.write_lammps_data` to parse ``Atom Type Labels``
-  (:mr:`3916`)

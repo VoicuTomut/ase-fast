@@ -1,5 +1,0 @@
-Calculators
------------
-
-- The `Vasp` calculator now has a more generic way of handling pseudopotentials. If the user specifies the `pp_version` keyword argument or equivalent `VASP_PP_VERSION` environment variable, the calculator will look for pseudopotentials in the corresponding VASP-provided pseudopotential directory. Simply download the pseudopotential folders provided by VASP and put them in one parent directory, defined by `VASP_PP_PATH`. If `pp_version` is `None` (default), the `Vasp` calculator will only look for `potpaw` (LDA) and `potpaw_PBE` (PBE) to maintain backwards compatability. If `pp_version="64"` (for instance), the calculator will look for pseudopotentials in the `potpaw.64` and `potpaw_PBE.64`, respectively.
-- The `potpaw_GGA` (PW91) pseudpotential folder has been removed. This means setting `xc="PW91"` will no longer use the deprecated PW91 pseudopotential folder. It is recommended the PBE pseudopotentials are used for the PW91 functional instead.
