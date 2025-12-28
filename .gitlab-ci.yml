@@ -44,7 +44,7 @@ oldlibs:
       pytest-xdist==3.2.0 execnet==1.8.1 pytest-forked==1.4.0
     - pip install --no-deps .
   script:
-    - pytest -n 8
+    - pytest -n 8 -Wignore::DeprecationWarning
   cache:
     key: oldlibs
     paths:
