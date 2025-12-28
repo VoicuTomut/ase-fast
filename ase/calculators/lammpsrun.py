@@ -338,23 +338,23 @@ class LAMMPS(Calculator):
         lammps_log = uns_mktemp(
             prefix="log_" + label, dir=tempdir
         )
-        lammps_trj_fd = NamedTemporaryFile(
+        lammps_trj_fd = exitstack.enter_context(NamedTemporaryFile(
             prefix="trj_" + label,
             suffix=(".bin" if self.parameters['binary_dump'] else ""),
             dir=tempdir,
             delete=(not self.parameters['keep_tmp_files']),
-        )
+        ))
         lammps_trj = lammps_trj_fd.name
         if self.parameters['no_data_file']:
             lammps_data = None
         else:
-            lammps_data_fd = NamedTemporaryFile(
+            lammps_data_fd = exitstack.enter_context(NamedTemporaryFile(
                 prefix="data_" + label,
                 dir=tempdir,
                 delete=(not self.parameters['keep_tmp_files']),
                 mode='w',
                 encoding='ascii'
-            )
+            ))
             write_lammps_data(
                 lammps_data_fd,
                 self.atoms,
@@ -384,7 +384,7 @@ class LAMMPS(Calculator):
         # Create thread reading lammps stdout (for reference, if requested,
         # also create lammps_log, although it is never used)
         if self.parameters['keep_tmp_files']:
-            lammps_log_fd = stack.enter_context(open(lammps_log, "w"))
+            lammps_log_fd = exitstack.enter_context(open(lammps_log, "w"))
             fd = SpecialTee(lmp_handle.stdout, lammps_log_fd)
         else:
             fd = lmp_handle.stdout
@@ -394,7 +394,7 @@ class LAMMPS(Calculator):
         # write LAMMPS input (for reference, also create the file lammps_in,
         # although it is never used)
         if self.parameters['keep_tmp_files']:
-            lammps_in_fd = stack.enter_context(open(lammps_in, "w"))
+            lammps_in_fd = exitstack.enter_context(open(lammps_in, "w"))
             fd = SpecialTee(lmp_handle.stdin, lammps_in_fd)
         else:
             fd = lmp_handle.stdin
@@ -473,10 +473,6 @@ class LAMMPS(Calculator):
         self.results["stress"] = convert(
             stress, "pressure", self.parameters["units"], "ASE"
         )
-
-        lammps_trj_fd.close()
-        if not self.parameters['no_data_file']:
-            lammps_data_fd.close()
 
     def __enter__(self):
         return self
