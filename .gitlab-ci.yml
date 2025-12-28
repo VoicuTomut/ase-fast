@@ -42,9 +42,9 @@ oldlibs:
       numpy==1.21.6 scipy==1.8.1 matplotlib==3.5.2
       pytest==7.4.0 attrs==20.3.0 pluggy==1.0.0 py==1.11.0 six==1.16.0
       pytest-xdist==3.2.0 execnet==1.8.1 pytest-forked==1.4.0
-    - pip install --no-deps .
+    - pip install --no-deps --editable .
   script:
-    - ase test
+    - pytest -n 8 -Wignore::DeprecationWarning
   cache:
     key: oldlibs
     paths:
@@ -276,6 +276,8 @@ coverage-combine:
   dependencies:
     - main
     - calculators-lite
+  before_script:
+    - pip install --upgrade coverage
   script:
     - coverage combine coverage-main.dat coverage-calculators-lite.dat
     - coverage report
@@ -285,6 +287,10 @@ coverage-combine:
     paths:
       - coverage-html
     expire_in: 1 week
+  cache:
+    paths:
+      - $PIP_CACHE_DIR
+    key: coverage-combine
 
 windows_test:
   tags:
@@ -299,7 +305,7 @@ windows_test:
     - python --version
     - python -m pip install --upgrade pip
     - python -m pip install pytest
-    - python -m pip install .
+    - python -m pip install --editable .
   script:
     - >
       ase test

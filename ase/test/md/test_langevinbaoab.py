@@ -14,7 +14,6 @@ from ase.units import fs as u_fs
 timestep = 2.5 * u_fs
 a0 = 4.0
 n_steps = 10
-logfile = '/dev/null'
 
 
 @pytest.fixture
@@ -55,7 +54,6 @@ def test_LangevinBAOAB_NVT(tmp_path, atoms, calc):
         timestep=timestep,
         temperature_K=300,
         T_tau=50 * timestep,
-        logfile=logfile,
         rng=rng,
         trajectory=str(tmp_path / 'test.traj'),
     )
@@ -88,7 +86,6 @@ def test_LangevinBAOAB_NPT(tmp_path, atoms, calc):
             T_tau=50 * timestep,
             externalstress=-1.0 * u_GPa,
             hydrostatic=True,
-            logfile=logfile,
             rng=rng,
             trajectory=str(tmp_path / 'test.traj'),
         )
@@ -135,7 +132,6 @@ def test_LangevinBAOAB_NsT(tmp_path, atoms, calc):
             temperature_K=300,
             T_tau=50 * timestep,
             externalstress=externalstress_GPa * u_GPa,
-            logfile=logfile,
             rng=rng,
             trajectory=str(tmp_path / 'test.traj'),
         )
@@ -181,7 +177,6 @@ def test_LangevinBAOAB_NsH(tmp_path, atoms, calc):
             atoms,
             timestep=timestep,
             externalstress=externalstress_GPa * u_GPa,
-            logfile=logfile,
             rng=rng,
             trajectory=str(tmp_path / 'test.traj'),
         )
@@ -240,6 +235,5 @@ def test_LangevinBAOAB_seed(tmp_path, atoms, calc):
             T_tau=50 * timestep,
             externalstress=-1.0 * u_GPa,
             hydrostatic=True,
-            logfile=logfile,
             trajectory=str(tmp_path / 'test.traj'),
         )
