@@ -72,7 +72,7 @@ markers = [
 filterwarnings = [
     'error',
     'once::ResourceWarning',
-    'once:.*size changed, may indicate binary incompatibility',
+    'ignore:.*size changed, may indicate binary incompatibility',
     'ignore::ase.config.ASEEnvDeprecationWarning',
 ]
 
