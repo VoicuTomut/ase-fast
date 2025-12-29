@@ -18,6 +18,17 @@ def test_path_restart(testdir) -> None:
     restart = Path('restart.json')
     with BFGS(atoms, trajectory='opt.traj', restart=restart) as dyn:
         dyn.run()
+        assert dyn.todict()['restart'] == 'restart.json'
+
+
+@pytest.mark.optimize()
+def test_none_restart(testdir) -> None:
+    """Test if `None` can be passed for `restart`."""
+    atoms = bulk('Cu')
+    atoms.calc = EMT()
+    with BFGS(atoms, trajectory='opt.traj', restart=None) as dyn:
+        dyn.run()
+        assert dyn.todict()['restart'] is None
 
 
 @pytest.mark.optimize()
