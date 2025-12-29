@@ -458,7 +458,7 @@ class Optimizer(Dynamics):
         description = {
             'type': 'optimization',
             'optimizer': self.__class__.__name__,
-            'restart': str(self.restart),
+            'restart': None if self.restart is None else str(self.restart),
         }
         # add custom attributes from subclasses
         for attr in ('maxstep', 'alpha', 'max_steps', 'fmax'):
