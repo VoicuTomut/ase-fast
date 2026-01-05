@@ -18,8 +18,8 @@ from ase.gui.i18n import _
 __all__ = [
     'error', 'ask_question', 'MainWindow', 'LoadFileDialog', 'SaveFileDialog',
     'ASEGUIWindow', 'Button', 'CheckButton', 'ComboBox', 'Entry', 'Label',
-    'Window', 'MenuItem', 'RadioButton', 'RadioButtons', 'Rows', 'Scale',
-    'showinfo', 'showwarning', 'SpinBox', 'Text']
+    'Window', 'Tooltip', 'MenuItem', 'RadioButton', 'RadioButtons', 'Rows',
+    'Scale', 'showinfo', 'showwarning', 'SpinBox', 'Text']
 
 
 def error(title, message=None):
@@ -82,6 +82,36 @@ class Window(BaseWindow):
         super().__init__(title, close)
 
 
+class Tooltip(BaseWindow):
+    def __init__(self):
+        self._config = {}
+        self.things = []
+        self.exists = False
+
+    def configure(self, /, **kwargs):
+        self._config.update(**kwargs)
+
+    def title(self):
+        pass
+
+    def show(self, key=None):
+        if not self.exists:
+            self.win = tk.Toplevel()
+            self.exists = True
+            self.win.overrideredirect(True)
+            self.label = Label(**self._config)
+            self.add(self.label)
+        pointer_x, pointer_y = self.win.winfo_pointerxy()
+        delta_x = self.label.widget.winfo_reqwidth() + 5
+        delta_y = self.label.widget.winfo_reqheight() + 5
+        self.win.geometry(
+            "+{0}+{1}".format(pointer_x - delta_x, pointer_y - delta_y)
+        )
+
+    def hide(self, key=None):
+        self.close()
+
+
 class Widget:
     def pack(self, parent, side='top', anchor='center'):
         widget = self.create(parent)
@@ -123,8 +153,8 @@ class Row(Widget):
 
 
 class Label(Widget):
-    def __init__(self, text='', color=None):
-        self.creator = partial(tk.Label, text=text, fg=color)
+    def __init__(self, text='', color=None, **kwargs):
+        self.creator = partial(tk.Label, text=text, fg=color, **kwargs)
 
     @property
     def text(self):
@@ -683,6 +713,12 @@ class ASEGUIWindow(MainWindow):
     def text(self, x, y, txt, anchor=tk.CENTER, color='black'):
         anchor = {'SE': tk.SE}.get(anchor, anchor)
         self.canvas.create_text((x, y), text=txt, anchor=anchor, fill=color)
+
+    def show_widget(self, widget, x, y, anchor=tk.CENTER,):
+        """Places a given widget on self.canvas"""
+        if isinstance(anchor, str):
+            anchor = anchor.lower()
+        self.canvas.create_window(x, y, anchor=anchor, window=widget)
 
     def after(self, time, callback):
         id = self.win.after(int(time * 1000), callback)

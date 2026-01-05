@@ -10,7 +10,7 @@ from ase.data import atomic_numbers
 from ase.data.colors import jmol_colors
 from ase.geometry import complete_cell
 from ase.gui.colors import ColorWindow
-from ase.gui.i18n import ngettext
+from ase.gui.i18n import _, ngettext
 from ase.gui.render import Render
 from ase.gui.repeat import Repeat
 from ase.gui.rotate import Rotate
@@ -554,8 +554,12 @@ class View:
         if self.window['toggle-show-axes']:
             self.draw_axes()
 
-        if len(self.images) > 1:
-            self.draw_frame_number()
+        if self.arrowkey_mode != self.ARROWKEY_SCAN:
+            self.draw_arrowkey_hint()
+        else:
+            self.hide_arrowkey_hint()
+            if len(self.images) > 1:
+                self.draw_frame_number()
 
         self.window.update()
 
@@ -601,6 +605,39 @@ class View:
             d = int(-self.axes[i][1] * axes_length + b)
             self.window.line((a, b, c, d))
             self.window.text(c, d, 'XYZ'[i], color=rgb[i])
+
+    def draw_arrowkey_hint(self):
+        if self.arrowkey_mode == self.ARROWKEY_ROTATE:
+            hint = _('ROTATING')
+            bg = PURPLE
+            tip_text = _(
+                'Ctrl + Up/Down: rotate around the view axis\n'
+                'Shift + Arrow keys: rotate in smaller increments'
+            )
+        else:
+            hint = _('MOVING')
+            bg = GREEN
+            tip_text = _(
+                'Ctrl + Up/Down: move along the view axis\n'
+                'Shift + Arrow keys: move in smaller increments'
+            )
+        self.arrowkey_hint.label.configure(
+            text=hint,
+            padx=3,
+            bg=bg,
+        )
+        self.arrowkey_hint.tooltip.configure(
+            text=tip_text,
+            justify='right',
+            font='TkTooltipFont',
+        )
+        self.arrowkey_hint.place(relx=1.0, rely=1.0, anchor='se')
+        self.arrowkey_hint.exists = True
+
+    def hide_arrowkey_hint(self):
+        if self.arrowkey_hint.exists:
+            self.arrowkey_hint.place_forget()
+            self.arrowkey_hint.exists = False
 
     def draw_frame_number(self):
         x, y = self.window.size

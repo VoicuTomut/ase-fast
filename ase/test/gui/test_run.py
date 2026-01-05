@@ -98,6 +98,15 @@ def test_helpwindow(gui):
     ui.helpwindow('some\n multiline\n text')
 
 
+def test_arrowkey_tooltip(gui):
+    gui.new_atoms(molecule('H2O'))
+    gui.images.selected[0] = True
+    gui.toggle_rotate_mode()
+    assert not gui.arrowkey_hint.tooltip.exists
+    gui.arrowkey_hint.tooltip.show()
+    assert gui.arrowkey_hint.tooltip.exists
+
+
 def test_nanotube(gui):
     nt = gui.nanotube_window()
     nt.apply()
