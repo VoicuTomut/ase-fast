@@ -30,8 +30,6 @@ GUI
 
 - An indicator is added to the bottom right corner that shows that a movement mode is active. This indicator also includes a contextual hint about modifier keys.
 
-- Modifier key handling is refactored to try and combat a bug where Num Lock would continuously register as a modifier key.
-
 - Rotation vectors are transformed to give a more intuitive pitch/yaw/roll experience in rotate mode which is also consistent with mouse movements.
 
 .. Development
@@ -49,8 +47,8 @@ GUI
 ..
 .. - A bullet item for the Other changes category.
 ..
-.. Bugfixes
-.. --------
-..
-.. - A bullet item for the Bugfixes category.
-..
+Bugfixes
+--------
+
+- Ctrl/Shift key handling is refactored in the GUI to try and combat a bug where Num Lock would continuously register as a modifier.
+
