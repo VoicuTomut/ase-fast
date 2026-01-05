@@ -1,5 +1,6 @@
 # fmt: off
 
+import functools
 import pickle
 import platform
 import subprocess
@@ -150,28 +151,27 @@ class GUI(View):
 
         self.draw()
 
-    @property
+    @functools.cached_property
     def arrowkey_hint(self):
-        if not hasattr(self, '_arrowkey_hint'):
-            self._arrowkey_hint = hint = ui.tk.Frame(
-                self.window.canvas, bg='#ffffff'
-            )
-            self._arrowkey_hint.label = ui.tk.Label(hint)
-            self._arrowkey_hint.qm = ui.tk.Label(
-                hint, text='(?)', padx=3,
-                bg='#ffffff', activeforeground="#ffb617"
-            )
-            self._arrowkey_hint.qm.grid(row=0, column=0)
-            self._arrowkey_hint.label.grid(row=0, column=1)
-            self._arrowkey_hint.tooltip = ui.Tooltip()
-            self._arrowkey_hint.qm.bind(
-                '<Enter>', self._arrowkey_hint.tooltip.show
-            )
-            self._arrowkey_hint.qm.bind(
-                '<Leave>', self._arrowkey_hint.tooltip.hide
-            )
-            self._arrowkey_hint.exists = False
-        return self._arrowkey_hint
+        hint = ui.tk.Frame(
+            self.window.canvas, bg='#ffffff'
+        )
+        hint.label = ui.tk.Label(hint)
+        hint.qm = ui.tk.Label(
+            hint, text='(?)', padx=3,
+            bg='#ffffff', activeforeground="#ffb617"
+        )
+        hint.qm.grid(row=0, column=0)
+        hint.label.grid(row=0, column=1)
+        hint.tooltip = ui.Tooltip()
+        hint.qm.bind(
+            '<Enter>', hint.tooltip.show
+        )
+        hint.qm.bind(
+            '<Leave>', hint.tooltip.hide
+        )
+        hint.exists = False
+        return hint
 
     def step(self, key):
         d = {'Home': -10000000,
