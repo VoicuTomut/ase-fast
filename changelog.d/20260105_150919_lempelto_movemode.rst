@@ -50,5 +50,5 @@ GUI
 Bugfixes
 --------
 
-- Ctrl/Shift key handling is refactored in the GUI to try and combat a bug where Num Lock would continuously register as a modifier.
+- Ctrl/Shift key handling is refactored in the GUI to try and combat a bug where Num Lock would continuously register as a modifier. This was causing the arrow keys to behave incorrectly in "Move" and "Rotate" modes. 
 
