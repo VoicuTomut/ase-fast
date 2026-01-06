@@ -21,5 +21,6 @@ thermo = IdealGasThermo(
     geometry='linear',
     symmetrynumber=2,
     spin=0,
+    vib_selection='highest',
 )
 G = thermo.get_gibbs_energy(temperature=298.15, pressure=101325.0)

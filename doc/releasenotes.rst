@@ -11,7 +11,36 @@ Git master branch
 
 :git:`master <>`.
 
-* No changes yet
+Thermochemistry (:mr:`3358`):
+
+- **Breaking change**: The ``vib_energies`` property of thermochemistry classes is
+  now deprecated. It will still be around for a while until all classes moved to
+  the new modes-based framework. Adapt your workflows accordingly. See also below
+  for more details on the new modes-based framework.
+  
+* Major parts of the thermochemistry module have been rewritten to include 
+  a range of new methods: :class:`MSRRHOThermo` based on the modified
+  rigid-rotor-harmonic-oscillator (msRRHO) approximation by Grimme *et al.*
+  (:doi:`10.1002/chem.201200497` and :doi:`10.1039/D1SC00621E`) and Otlyotov
+  and Minenkov :doi:`10.1002/jcc.27129`.
+* A new base class for thermochemistry, :class:`ase.thermochemistry.ThermoBase`,
+  has been introduced to facilitate the implementation of new thermochemistry
+  methods.
+* Multiple classes are now based on a framework of individual modes
+  rather than just a list of vibrational energies. This allows for a
+  flexible mixing of different treatments of vibrational modes
+  (e.g., Grimme's msRRHO for low-frequency modes and harmonic
+  oscillator for high-frequency modes). Each vibrational mode is
+  represented by an instance of the
+  :class:`ase.thermochemistry.AbstractMode` class or one of its
+  subclasses. Multiple modes are then used to build a
+  :class:`ase.thermochemistry.BaseThermoChem` instance or one of its
+  subclasses. The old way of passing a list of vibrational energies is
+  still supported for backwards compatibility, but it is recommended
+  to switch to the new modes-based framework. The ``vib_energies``
+  property is still available for backwards compatibility, but it is
+  recommended to use the ``modes`` property instead, which returns a
+  list of mode instances.
 
 
 Version 3.27.0

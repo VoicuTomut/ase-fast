@@ -7,19 +7,40 @@ Thermochemistry
 
 ASE contains a :mod:`~ase.thermochemistry` module that lets the user derive
 commonly desired thermodynamic quantities of molecules and crystalline solids
-from ASE output and some user-specified parameters. Four cases are currently
-handled by this module: the ideal-gas limit (in which translational and
-rotational degrees of freedom are taken into account), the harmonic limit
-(generally used for adsorbates, in which all degrees of freedom are treated
-harmonically), the hindered translator / hindered rotor model (used for
-adsorbates, in which two degrees of freedom are translational, one is
-rotational, and the remaining 3N-3 are vibrational), and a crystalline solid
-model (in which a lattice of N atoms is treated as a system of 3N independent
-harmonic oscillators). The first three cases rely on good vibrational energies
+from ASE output and some user-specified parameters. The following classes are
+currently available in this module:
+
+* The ideal-gas limit (in which translational and
+  rotational degrees of freedom are taken into account) and the harmonic limit
+  (generally used for adsorbates, in which all degrees of freedom are treated
+  harmonically). See :class:`~ase.thermochemistry.IdealGasThermo` and
+  :class:`~ase.thermochemistry.HarmonicThermo`.
+* The hindered translator / hindered rotor model (used for
+  adsorbates, in which two degrees of freedom are translational, one is
+  rotational, and the remaining 3N-3 are vibrational). See
+  :class:`~ase.thermochemistry.HinderedThermo`.
+* A crystalline solid model (in which a lattice of N atoms is treated as
+  a system of 3N independent harmonic oscillators). See
+  :class:`~ase.thermochemistry.CrystalThermo`.
+
+All non-periodic classes rely on good vibrational energies
 being fed to the calculators, which can be calculated with the
 :mod:`~ase.vibrations` module. Likewise, the crystalline solid model depends on
 an accurate phonon density of states; this is readily calculated using the
 :mod:`~ase.phonons` module.
+
+If you want to calculate the thermodynamic properties of a transition state, you
+can use the alternative constructor :func:`BaseThermoChem.from_transition_state`
+to create an instance and automatically removing a single imaginary frequency.
+
+ASE uses an approach, in which each individual vibrational mode is represented
+by an instance of an :class:`~ase.thermochemistry.AbstractMode` class. This
+class is a base class for the different types of modes (e.g.
+:class:`~ase.thermochemistry.HarmonicMode`
+or :class:`~ase.thermochemistry.RRHOMode`). The Thermochemistry classes then
+create a list of these modes and use them to calculate the thermodynamic
+properties. The user can also create their own modes by creating their own
+list of modes. Note, that not all Thermochemistry classes make use of this yet.
 
 
 Ideal-gas limit
@@ -63,11 +84,33 @@ interpreted as the Gibbs free energy. This class uses all of the energies
 given to it in the vib_energies list; this is a list as can be generated
 with the .get_energies() method of :class:`ase.vibrations.Vibrations`, but
 the user should take care that all of these energies are real
-(non-imaginary). The class :class:`HarmonicThermo` has the interface
-described below.
+(non-imaginary). If imaginary values are encountered, by default an error is
+raised. By setting ``ignore_imag_modes`` to either 'True' or 'False', the
+imaginary modes can be deleted or an error raised, respectively. Note, that
+the :class:`HarmonicThermo` class does not calculate
+`S_\text{trans}`, `S_\text{rot}` and `S_\text{elec}`. If these are desired,
+the user should calculate them separately and add them to the entropy. Use the
+functions :func:`IdealGasThermo.get_ideal_entropy` for that purpose.
+The class :class:`HarmonicThermo` has the interface described below.
 
 .. autoclass:: HarmonicThermo
    :members:
+
+
+Derivations
+-----------
+
+There are some derivations of the standard procedure for calculating the
+thermodynamic properties in the harmonic limit. Currently, ASE provides a
+class :class:`QuasiHarmonicThermo` based on the quasi-Harmonic approximation
+by Cramer, Truhlar and coworkers (:doi:`10.1021/jp205508z`) and a 
+:class:`MSRRHOThermo` based on the modified
+rigid-rotor-harmonic-oscillator (msRRHO) approximation by Grimme *et al.*
+(:doi:`10.1002/chem.201200497` and :doi:`10.1039/D1SC00621E`). 
+
+.. autoclass:: QuasiHarmonicThermo
+.. autoclass:: MSRRHOThermo
+
 
 
 Hindered translator / hindered rotor model
@@ -148,6 +191,32 @@ bulk gold is:
 This will give the thermodynamic summary output:
 
 .. literalinclude:: gold.txt
+
+
+Imaginary Frequencies
+=====================
+
+In all thermochemistry classes, imaginary frequencies can be handled in two
+ways. By default, an error is raised if any imaginary frequencies are found.
+However, by setting the ``ignore_imag_modes`` parameter to either 'True',
+the imaginary modes can be deleted. For transition states, the alternative
+constructor :func:`BaseThermoChem.from_transition_state` can be used to create
+an instance and automatically removing a single imaginary frequency.
+
+However, often imaginary frequencies are artifacts of the numerical
+calculation and cannot be avoided. In the literature, several approaches
+have been proposed to deal with these frequencies. One approach is to invert
+the imaginary frequencies by multiplying them with `-i`, this is
+the approach taken in the :class:`MSRRHOThermo` class. Below you find a
+variety of one-liner code snippets showing how this could be achieved manually:
+
+.. code-block:: python
+
+   vib_energies = np.abs(vib_energies)
+   vib_energies = vib_energies.real + vib_energies.imag
+   vib_energies[vib_energies.imag > 0] = vib_energies[vib_energies.imag > 0].imag
+   vib_energies[np.abs(vib_energies.imag) > 0] = vib_energies[np.abs(vib_energies.imag) > 0].imag
+
 
 
 Background
@@ -237,6 +306,13 @@ the enthalpy and entropy:
 
 .. math ::
    G(T,P) = H(T) - T\, S(T,P)
+
+.. note::
+   Note, that in comparison to other implementations the following can play a role:
+
+   * The reference pressure used in ASE is 1.0e5 Pa (1 bar). Other codes might use 1.0 atm. This can lead to small differences in the calculated ideal entropy contributions. You can manually overwrite the value of the reference pressure in the :class:`BaseThermoChem` instances and its subclasses by setting :attr:`BaseThermoChem.referencepressure` after initialization.
+   * ASE uses the masses of the atoms object. These might be slightly different from the masses used in other codes. You can overwrite them in the Atoms object.
+   * Some codes use an average inertia of `B_\text{av}=10^{-44}` kg m\ :sup:`2` as in :doi:`10.1002/chem.201200497`, ASE calculates the real mean inertia by calling :func:`~ase.Atoms.get_moments_of_inertia`.
 
 Harmonic limit
 --------------
@@ -416,3 +492,21 @@ internal energy, the entropy and the Helmholtz free energy.
 
 .. math ::
    F(T) = U(T) - T\, S(T,P)
+
+Abstract Base Classes
+=====================
+
+.. autoclass:: BaseThermoChem
+   :members:
+
+.. autoclass:: AbstractMode
+   :members:
+
+Individual Mode Classes
+=======================
+
+.. autoclass:: HarmonicMode
+   :members:
+
+.. autoclass:: RRHOMode
+   :members:
