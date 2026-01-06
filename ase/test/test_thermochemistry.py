@@ -18,6 +18,31 @@ from ase.thermochemistry import (
 from ase.vibrations import Vibrations
 
 
+def test_ideal_gas_thermo_monoatomic(testdir):
+    "We do a basic test on a monoatomic system"
+    atoms = Atoms("N", positions=[(0, 0, 0)])
+    atoms.calc = EMT()
+    energy = atoms.get_potential_energy()
+    vib = Vibrations(atoms)
+    vib.run()
+    vib_energies = vib.get_energies()
+    # should have 3 modes, all zero
+    assert len(vib_energies) == 3
+    assert vib_energies == pytest.approx(0.0, abs=1e-8)
+
+    thermo = IdealGasThermo(
+        vib_energies=vib_energies,
+        geometry="monatomic",
+        atoms=atoms,
+        symmetrynumber=1,
+        spin=0,
+        potentialenergy=energy
+    )
+    assert len(thermo.vib_energies) == 0
+    G = thermo.get_gibbs_energy(temperature=298.15, pressure=101325.0)
+    assert G == pytest.approx(4.726469689824511, abs=1e-8)
+
+
 def test_ideal_gas_thermo_n2(testdir):
     "We do a basic test on N2"
     atoms = Atoms("N2", positions=[(0, 0, 0), (0, 0, 1.1)])

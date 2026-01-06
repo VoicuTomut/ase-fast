@@ -299,13 +299,14 @@ class BaseThermoChem(ABC):
                  spin: Optional[float] = None) -> None:
         if vib_energies is None and modes is None:
             raise ValueError("Either vib_energies or modes must be provided.")
-        if vib_energies:
+        elif modes:
+            self.modes = modes
+        # in the monoatomic case, the vib_energies can be an empty list
+        else:
             self._vib_energies = vib_energies
         self.referencepressure = 1.0e5  # Pa
         if atoms:
             self.atoms = atoms
-        if modes:
-            self.modes = modes
         self.spin = spin
 
     @classmethod
