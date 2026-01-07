@@ -349,7 +349,7 @@ class BandStructurePlot:
         import matplotlib.pyplot as plt
 
         if show_legend:
-            leg = plt.legend(loc=loc)
+            leg = self.ax.legend(loc=loc)
             leg.get_frame().set_alpha(1)
 
         if filename:
