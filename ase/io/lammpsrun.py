@@ -66,7 +66,6 @@ def _lammps_data_to_ase_atoms(
     cell,
     celldisp,
     pbc=False,
-    atomsobj=Atoms,
     order=True,
     specorder=None,
     prismobj=None,
@@ -79,7 +78,6 @@ def _lammps_data_to_ase_atoms(
     :param cell: cell dimensions
     :param celldisp: origin shift
     :param pbc: periodic boundaries
-    :param atomsobj: function to create ase-Atoms object
     :param order: sort atoms by id. Might be faster to turn off.
     Disregarded in case `id` column is not given in file.
     :param specorder: list of species to map lammps types to ase-species
@@ -159,7 +157,7 @@ def _lammps_data_to_ase_atoms(
         cell = prismobj.update_cell(cell)
 
     if quaternions is not None:
-        out_atoms = atomsobj(
+        out_atoms = Atoms(
             symbols=elements,
             positions=positions,
             cell=cell,
@@ -173,7 +171,7 @@ def _lammps_data_to_ase_atoms(
         if prismobj:
             positions = prismobj.vector_to_ase(positions, wrap=True)
 
-        out_atoms = atomsobj(
+        out_atoms = Atoms(
             symbols=elements,
             positions=positions,
             pbc=pbc,
@@ -181,7 +179,7 @@ def _lammps_data_to_ase_atoms(
             cell=cell,
         )
     elif scaled_positions is not None:
-        out_atoms = atomsobj(
+        out_atoms = Atoms(
             symbols=elements,
             scaled_positions=scaled_positions,
             pbc=pbc,
@@ -365,7 +363,6 @@ def read_lammps_dump_text(fileobj, index=-1, **kwargs):
                 colnames=colnames,
                 cell=cell,
                 celldisp=celldisp,
-                atomsobj=Atoms,
                 pbc=pbc,
                 **kwargs,
             )
