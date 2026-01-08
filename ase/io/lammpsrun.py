@@ -59,7 +59,7 @@ def read_lammps_dump(infileobj, **kwargs):
     return out
 
 
-def lammps_data_to_ase_atoms(
+def _lammps_data_to_ase_atoms(
     data,
     colnames,
     cell,
@@ -351,7 +351,7 @@ def read_lammps_dump_text(fileobj, index=-1, **kwargs):
             colnames = line.split()[2:]
             datarows = [lines.popleft() for _ in range(n_atoms)]
             data = np.loadtxt(datarows, dtype=str, ndmin=2)
-            out_atoms = lammps_data_to_ase_atoms(
+            out_atoms = _lammps_data_to_ase_atoms(
                 data=data,
                 colnames=colnames,
                 cell=cell,
@@ -515,7 +515,7 @@ def read_lammps_dump_binary(
             data = np.array(data).reshape((-1, size_one))
 
             # map data-chunk to ase atoms
-            out_atoms = lammps_data_to_ase_atoms(
+            out_atoms = _lammps_data_to_ase_atoms(
                 data=data,
                 colnames=colnames,
                 cell=cell,
