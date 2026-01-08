@@ -4,6 +4,7 @@ import gzip
 import struct
 from collections import deque
 from os.path import splitext
+from typing import Any
 
 import numpy as np
 
@@ -90,29 +91,23 @@ def _lammps_data_to_ase_atoms(
     :rtype: Atoms
 
     """
-    if len(data.shape) == 1:
-        data = data[np.newaxis, :]
-
     # read IDs if given and order if needed
     if 'id' in colnames:
-        ids = data[:, colnames.index('id')].astype(int)
+        ids = data['id']
         if order:
             sort_order = np.argsort(ids)
-            data = data[sort_order, :]
+            data = data[sort_order]
 
     # determine the elements
     if 'element' in colnames:
         # priority to elements written in file
-        elements = data[:, colnames.index('element')]
+        elements = data['element']
     elif 'mass' in colnames:
         # try to determine elements from masses
-        elements = [
-            _mass2element(m)
-            for m in data[:, colnames.index('mass')].astype(float)
-        ]
+        elements = [_mass2element(m) for m in data['mass']]
     elif 'type' in colnames:
         # fall back to `types` otherwise
-        elements = data[:, colnames.index('type')].astype(int)
+        elements = data['type']
 
         # reconstruct types from given specorder
         if specorder:
@@ -125,13 +120,10 @@ def _lammps_data_to_ase_atoms(
 
     def get_quantity(labels, quantity=None):
         try:
-            cols = [colnames.index(label) for label in labels]
+            cols = np.column_stack([data[label] for label in labels])
             if quantity:
-                return convert(
-                    data[:, cols].astype(float), quantity, units, 'ASE'
-                )
-
-            return data[:, cols].astype(float)
+                return convert(cols, quantity, units, 'ASE')
+            return cols
         except ValueError:
             return None
 
@@ -224,15 +216,13 @@ def _lammps_data_to_ase_atoms(
             or colname.startswith('d2_')
             or (colname.startswith('c_') and not colname.startswith('c_q['))
         ):
-            out_atoms.new_array(colname, get_quantity([colname]), dtype='float')
+            out_atoms.new_array(colname, data[colname], dtype='float')
 
         elif colname.startswith('i_') or colname.startswith('i2_'):
-            out_atoms.new_array(colname, get_quantity([colname]), dtype='int')
+            out_atoms.new_array(colname, data[colname], dtype='int')
         elif colname == 'type':
             try:
-                out_atoms.new_array(
-                    colname, data[:, colnames.index('type')], dtype='int'
-                )
+                out_atoms.new_array(colname, data['type'], dtype='int')
             except ValueError:
                 pass  # in case type is not integer
 
@@ -313,6 +303,24 @@ def get_max_index(index):
         return index.stop if (index.stop is not None) else float('inf')
 
 
+def _colnames2dtypes(colnames: list[str]) -> list[tuple[str, Any]]:
+    # Determine the data types for each column
+    dtype: list[tuple[str, Any]] = []
+    for colname in colnames:
+        if (
+            colname in {'id', 'type'}
+            or colname.startswith('i_')
+            or colname.startswith('i2_')
+        ):
+            dtype.append((colname, int))
+        elif colname == 'element':
+            # 'U10' for strings with a max length of 10 characters
+            dtype.append((colname, 'U10'))
+        else:
+            dtype.append((colname, float))
+    return dtype
+
+
 def read_lammps_dump_text(fileobj, index=-1, **kwargs):
     """Process cleartext lammps dumpfiles
 
@@ -349,8 +357,9 @@ def read_lammps_dump_text(fileobj, index=-1, **kwargs):
 
         if 'ITEM: ATOMS' in line:
             colnames = line.split()[2:]
+            dtype = _colnames2dtypes(colnames)
             datarows = [lines.popleft() for _ in range(n_atoms)]
-            data = np.loadtxt(datarows, dtype=str, ndmin=2)
+            data = np.loadtxt(datarows, dtype=dtype, ndmin=1)
             out_atoms = _lammps_data_to_ase_atoms(
                 data=data,
                 colnames=colnames,
