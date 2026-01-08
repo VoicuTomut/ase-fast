@@ -43,8 +43,8 @@
 ..
 .. - A bullet item for the Other changes category.
 ..
-.. Bugfixes
-.. --------
-..
-.. - A bullet item for the Bugfixes category.
+Bugfixes
+--------
+
+- Make MolecularDynamics.run() return a boolean value.
 ..
