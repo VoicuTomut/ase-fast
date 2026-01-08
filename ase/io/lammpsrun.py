@@ -523,6 +523,9 @@ def read_lammps_dump_binary(
                 data += read_variables('=' + str(n_data) + 'd')
             data = np.array(data).reshape((-1, size_one))
 
+            # convert the 2D float array to the structured array
+            data = np.rec.fromarrays(data.T, dtype=_colnames2dtypes(colnames))
+
             # map data-chunk to ase atoms
             out_atoms = _lammps_data_to_ase_atoms(
                 data=data,
