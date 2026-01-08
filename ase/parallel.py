@@ -262,9 +262,9 @@ def parallel_function(func):
 
     @functools.wraps(func)
     def new_func(*args, **kwargs):
+        parallel = kwargs.pop('parallel', True)
         if (world.size == 1 or
-            args and getattr(args[0], 'serial', False) or
-                not kwargs.pop('parallel', True)):
+            (args and getattr(args[0], 'serial', False)) or not parallel):
             # Disable:
             return func(*args, **kwargs)
 
@@ -293,9 +293,10 @@ def parallel_generator(generator):
 
     @functools.wraps(generator)
     def new_generator(*args, **kwargs):
+        parallel = kwargs.pop('parallel', True)
         if (world.size == 1 or
-            args and getattr(args[0], 'serial', False) or
-                not kwargs.pop('parallel', True)):
+            (args and getattr(args[0], 'serial', False)) or
+                not parallel):
             # Disable:
             for result in generator(*args, **kwargs):
                 yield result
