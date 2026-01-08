@@ -88,7 +88,7 @@ def lammpsdump_single_atom():
         0.0e+00 4e+00
         0.0e+00 5.0e+00
         0.0e+00 2.0e+01
-        ITEM: ATOMS {_element} {_id} {_charge} {_type} {position_cols}
+        ITEM: ATOMS {_element} {_id} {_type} {_charge} {position_cols}
         C  1 1 1.0 0.5 0.6 0.7
         """
 
