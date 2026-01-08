@@ -71,22 +71,34 @@ def _lammps_data_to_ase_atoms(
     prismobj=None,
     units='metal',
 ):
-    """Extract positions and other per-atom parameters and create Atoms
+    """Extract positions and other per-atom parameters and create Atoms.
 
-    :param data: per atom data
-    :param colnames: index for data
-    :param cell: cell dimensions
-    :param celldisp: origin shift
-    :param pbc: periodic boundaries
-    :param order: sort atoms by id. Might be faster to turn off.
-    Disregarded in case `id` column is not given in file.
-    :param specorder: list of species to map lammps types to ase-species
-    (usually .dump files to not contain type to species mapping)
-    :param prismobj: Coordinate transformation between lammps and ase
-    :type prismobj: Prism
-    :param units: lammps units for unit transformation between lammps and ase
-    :returns: Atoms object
-    :rtype: Atoms
+    Parameters
+    ----------
+    data : np.ndarray
+        Structured array for `ITEM: ATOMS`.
+    colnames: list[str]
+        Column names for `ITEM: ATOMS`.
+    cell : np.ndarray
+        Cell.
+    celldisp : np.ndarray
+        Origin shift.
+    pbc : bool | list[bool]
+        Periodic boundary conditions.
+    order : bool
+        Sort atoms by `id`. Might be faster to turn off.
+        Disregarded in case `id` column is not given in file.
+    specorder : list[str]
+        List of species to map LAMMPS types to ASE species.
+        (Usually .dump files do not contain type to species mapping.)
+    prismobj : Prism
+        Coordinate transformation between LAMMPS and ASE.
+    units : str
+        LAMMPS units for unit transformation between LAMMPS and ASE.
+
+    Returns
+    -------
+    :class:`~ase.Atoms`
 
     """
     # read IDs if given and order if needed
