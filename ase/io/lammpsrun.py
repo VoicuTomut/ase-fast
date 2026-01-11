@@ -272,11 +272,10 @@ def _parse_pbc(tilt_items: list[str]) -> list[bool]:
     return ['p' in d.lower() for d in pbc_items]
 
 
-def _parse_box_bound(line: str, lines: deque) -> tuple:
+def _parse_box_bound(line: str, cell_lines: list[str]) -> tuple:
     # save labels behind "ITEM: BOX BOUNDS" in triclinic case
     # (>=lammps-7Jul09)
     tilt_items = line.split()[3:]
-    cell_lines = [lines.popleft() for _ in range(3)]
     cell_data = np.loadtxt(cell_lines)
 
     # general triclinic boxes (>=patch_17Apr2024)
@@ -365,7 +364,8 @@ def read_lammps_dump_text(fileobj, index=-1, **kwargs):
             n_atoms = int(line.split()[0])
 
         if 'ITEM: BOX BOUNDS' in line:
-            cell, celldisp, pbc = _parse_box_bound(line, lines)
+            cell_lines = [lines.popleft() for _ in range(3)]
+            cell, celldisp, pbc = _parse_box_bound(line, cell_lines)
 
         if 'ITEM: ATOMS' in line:
             colnames = line.split()[2:]
