@@ -14,6 +14,7 @@ from ase.calculators.singlepoint import SinglePointCalculator
 from ase.data import atomic_masses, chemical_symbols
 from ase.io.utils import ImageChunk, ImageIterator
 from ase.parallel import paropen
+from ase.utils import reader
 
 
 def read_lammps_dump(infileobj, **kwargs):
@@ -388,6 +389,7 @@ def _i_lammps_dump_text_chunks(fd: TextIO) -> Iterator[_LAMMPSDumpTextChunk]:
 iread_lammps_dump_text = ImageIterator(_i_lammps_dump_text_chunks)
 
 
+@reader
 def read_lammps_dump_text(fd, index=-1, **kwargs):
     """Read a LAMMPS text dump file."""
     g = iread_lammps_dump_text(fd, index=index, **kwargs)
