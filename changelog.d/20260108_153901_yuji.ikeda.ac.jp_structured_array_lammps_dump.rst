@@ -1,0 +1,4 @@
+I/O
+---
+
+- Accelerate func:`~ase.io.lammpsrun.read_lammps_dump_text` using a NumPy structured array (mr:`3939`)
