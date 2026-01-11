@@ -347,7 +347,7 @@ def _read_atoms_section(fileobj, natoms: int, style: str = None):
     next(fileobj)  # skip blank line just after `Atoms`
     for i in range(natoms):
         line = next(fileobj)
-        line = re.sub('#.*', '', line).rstrip().lstrip()
+        line = re.sub(r'#.*', '', line).rstrip().lstrip()
         fields = line.split()
         if style is None:
             style = _guess_atom_style(fields)
@@ -503,7 +503,6 @@ def write_lammps_data(
         `LAMMPS atom style <https://docs.lammps.org/atom_style.html>`__,
         by default 'atomic'
     """
-
     # FIXME: We should add a check here that the encoding of the file object
     #        is actually ascii once the 'encoding' attribute of IOFormat objects
     #        starts functioning in implementation (currently it doesn't do
