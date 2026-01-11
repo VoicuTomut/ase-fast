@@ -71,7 +71,7 @@ def lammps_data_to_ase_atoms(
     prismobj=None,
     units='metal',
 ):
-    """Extract positions and other per-atom parameters and create Atoms
+    """Extract positions and other per-atom parameters and create Atoms.
 
     :param data: per atom data
     :param colnames: index for data
@@ -196,6 +196,8 @@ def lammps_data_to_ase_atoms(
             celldisp=celldisp,
             cell=cell,
         )
+    else:
+        raise RuntimeError('No atomsobj created from LAMMPS data!')
 
     if velocities is not None:
         if prismobj:
@@ -314,7 +316,7 @@ def get_max_index(index):
 
 
 def read_lammps_dump_text(fileobj, index=-1, **kwargs):
-    """Process cleartext lammps dumpfiles
+    """Process cleartext lammps dumpfiles.
 
     :param fileobj: filestream providing the trajectory data
     :param index: integer or slice object (default: get the last timestep)
@@ -337,7 +339,7 @@ def read_lammps_dump_text(fileobj, index=-1, **kwargs):
         if 'ITEM: TIMESTEP' in line:
             line = lines.popleft()
             # !TODO: pyflakes complains about this line -> do something
-            ntimestep = int(line.split()[0])  # NOQA
+            ntimestep = int(line.split()[0])
             info['timestep'] = ntimestep
 
         if 'ITEM: NUMBER OF ATOMS' in line:
@@ -372,7 +374,7 @@ def read_lammps_dump_text(fileobj, index=-1, **kwargs):
 def read_lammps_dump_binary(
     fileobj, index=-1, colnames=None, intformat='SMALLBIG', **kwargs
 ):
-    """Read binary dump-files (after binary2txt.cpp from lammps/tools)
+    """Read binary dump-files (after binary2txt.cpp from lammps/tools).
 
     :param fileobj: file-stream containing the binary lammps data
     :param index: integer or slice object (default: get the last timestep)
@@ -385,9 +387,11 @@ def read_lammps_dump_binary(
     # depending on the chosen compilation flag lammps uses either normal
     # integers or long long for its id or timestep numbering
     # !TODO: tags are cast to double -> missing/double ids (add check?)
-    _tagformat, bigformat = dict(
-        SMALLSMALL=('i', 'i'), SMALLBIG=('i', 'q'), BIGBIG=('q', 'q')
-    )[intformat]
+    _tagformat, bigformat = {
+        'SMALLSMALL': ('i', 'i'),
+        'SMALLBIG': ('i', 'q'),
+        'BIGBIG': ('q', 'q'),
+    }[intformat]
 
     index_end = get_max_index(index)
 
@@ -527,7 +531,7 @@ def read_lammps_dump_binary(
             images.append(out_atoms)
 
             # stop if requested index has been found
-            if len(images) > index_end >= 0:
+            if len(images) > index_end >= 0:  # type: ignore[comparison-overlap]
                 break
 
         except EOFError:
