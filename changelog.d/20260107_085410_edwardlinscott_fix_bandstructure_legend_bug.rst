@@ -46,5 +46,5 @@
 Bugfixes
 --------
 
-- fixed bandstructure legend plotting for figures with multiple axes
-
+- Fixed :class:`~ase.spectrum.band_structure.BandStructure` legend plotting for figures with multiple axes (:mr:`3935`)
+- Fixed :class:`~ase.spectrum.band_structure.BandStructure` to save the figure associated with the axes (:mr:`3935`)
