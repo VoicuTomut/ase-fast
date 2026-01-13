@@ -13,7 +13,9 @@ import json
 import numbers
 import re
 import warnings
+from collections.abc import Iterator
 from io import StringIO, UnsupportedOperation
+from typing import TextIO
 
 import numpy as np
 
@@ -547,10 +549,10 @@ class XYZChunk:
         return _read_xyz_frame(iter(self.lines), self.natoms)
 
 
-def ixyzchunks(fd):
+def ixyzchunks(fd: TextIO) -> Iterator[XYZChunk]:
     """Yield unprocessed chunks (header, lines) for each xyz image."""
-    while True:
-        line = next(fd).strip()  # Raises StopIteration on empty file
+    for line in fd:
+        line = line.strip()
         try:
             natoms = int(line)
         except ValueError:
