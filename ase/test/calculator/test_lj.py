@@ -51,16 +51,14 @@ def test_finite_difference():
     h = 1e-10
     r = 8.0
     calc = LennardJones(smooth=True, ro=6, rc=10, sigma=3)
-    atoms = Atoms('H2', positions=[[0, 0, 0], [r, 0, 0]])
-    atoms2 = Atoms('H2', positions=[[0, 0, 0], [r + h, 0, 0]])
-    atoms.calc = calc
-    atoms2.calc = calc
-
-    fd_force = (
-        atoms2.get_potential_energy() - atoms.get_potential_energy()
-    ) / h
-    force = atoms.get_forces()[0, 0]
-
+    atoms0 = Atoms('H2', positions=[[0, 0, 0], [r, 0, 0]])
+    atoms1 = Atoms('H2', positions=[[0, 0, 0], [r + h, 0, 0]])
+    atoms0.calc = calc
+    atoms1.calc = calc
+    e0 = atoms0.get_potential_energy()
+    e1 = atoms1.get_potential_energy()
+    fd_force = (e1 - e0) / h
+    force = atoms0.get_forces()[0, 0]
     np.testing.assert_allclose(fd_force, force)
 
 
