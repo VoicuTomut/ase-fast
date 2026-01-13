@@ -558,7 +558,7 @@ def ixyzchunks(fd: TextIO) -> Iterator[XYZChunk]:
         except ValueError:
             raise XYZError(f'Expected integer, found "{line}"')
         try:
-            lines = [next(fd) for _ in range(1 + natoms)]
+            lines = [fd.readline() for _ in range(1 + natoms)]
         except StopIteration:
             raise XYZError('Incomplete XYZ chunk')
         yield XYZChunk(lines, natoms)
