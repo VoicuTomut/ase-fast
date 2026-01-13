@@ -24,7 +24,7 @@ from ase.calculators.calculator import all_properties
 from ase.calculators.singlepoint import SinglePointCalculator
 from ase.constraints import FixAtoms, FixCartesian
 from ase.io.formats import index2range
-from ase.io.utils import ImageIterator
+from ase.io.utils import ImageChunk, ImageIterator
 from ase.outputs import ArrayProperty, all_outputs
 from ase.spacegroup.spacegroup import Spacegroup
 from ase.stress import voigt_6_to_full_3x3_stress
@@ -539,12 +539,12 @@ class XYZError(IOError):
     pass
 
 
-class XYZChunk:
-    def __init__(self, lines, natoms):
+class XYZChunk(ImageChunk):
+    def __init__(self, lines: list[str], natoms: int) -> None:
         self.lines = lines
         self.natoms = natoms
 
-    def build(self, **kwargs):
+    def build(self, **kwargs) -> Atoms:
         """Convert unprocessed chunk into Atoms."""
         return _read_xyz_frame(iter(self.lines), self.natoms, **kwargs)
 
