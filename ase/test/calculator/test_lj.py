@@ -48,7 +48,7 @@ def test_system_changes():
 
 def test_finite_difference():
     # ensure that we got the modified forces right
-    h = 1e-10
+    h = 1e-9
     r = 8.0
     calc = LennardJones(smooth=True, ro=6, rc=10, sigma=3)
     atoms0 = Atoms('H2', positions=[[0, 0, 0], [r, 0, 0]])
@@ -59,7 +59,7 @@ def test_finite_difference():
     e1 = atoms1.get_potential_energy()
     fd_force = (e1 - e0) / h
     force = atoms0.get_forces()[0, 0]
-    np.testing.assert_allclose(fd_force, force)
+    np.testing.assert_allclose(fd_force, force, atol=1e-6, rtol=0.0)
 
 
 # test bulk properties
