@@ -461,8 +461,8 @@ class MenuItem:
                 self.keyname = {
                     'Home': '<Home>',
                     'End': '<End>',
-                    'Page-Up': '<Prior>',
-                    'Page-Down': '<Next>',
+                    'PageUp': '<Prior>',
+                    'PageDown': '<Next>',
                     'Backspace': '<BackSpace>'
                 }.get(key, key.lower())
         else:

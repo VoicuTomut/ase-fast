@@ -175,13 +175,11 @@ class GUI(View):
 
     def step(self, key):
         d = {'Home': -10000000,
-             'Page-Up': -1,
-             'Page-Down': 1,
+             'PageUp': -1,
+             'PageDown': 1,
              'End': 10000000}[key]
         i = max(0, min(len(self.images) - 1, self.frame + d))
         self.set_frame(i)
-        if self.movie_window is not None:
-            self.movie_window.frame_number.value = i
 
     def copy_image(self, key=None):
         self.images._images.append(self.atoms.copy())
@@ -601,8 +599,8 @@ class GUI(View):
               M(_('Edit _atoms …'), self.atoms_editor, 'A'),
               M('---'),
               M(_('_First image'), self.step, 'Home'),
-              M(_('_Previous image'), self.step, 'Page-Up'),
-              M(_('_Next image'), self.step, 'Page-Down'),
+              M(_('_Previous image'), self.step, 'PageUp'),
+              M(_('_Next image'), self.step, 'PageDown'),
               M(_('_Last image'), self.step, 'End'),
               M(_('Append image copy'), self.copy_image)]),
 
