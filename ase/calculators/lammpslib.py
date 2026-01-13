@@ -6,7 +6,6 @@
 import ctypes
 
 import numpy as np
-from numpy.linalg import norm
 
 from ase import Atoms
 from ase.calculators.calculator import Calculator
@@ -14,7 +13,6 @@ from ase.calculators.lammps import Prism, convert
 from ase.data import atomic_masses as ase_atomic_masses
 from ase.data import atomic_numbers as ase_atomic_numbers
 from ase.data import chemical_symbols as ase_chemical_symbols
-from ase.utils import deprecated
 
 # TODO
 # 1. should we make a new lammps object each time ?
@@ -25,64 +23,6 @@ from ase.utils import deprecated
 #   into a python function that can be called
 # 8. make matscipy as fallback
 # 9. keep_alive not needed with no system changes
-
-
-# this one may be moved to some more generic place
-@deprecated("Please use the technique in https://stackoverflow.com/a/26912166")
-def is_upper_triangular(arr, atol=1e-8):
-    """test for upper triangular matrix based on numpy
-    .. deprecated:: 3.23.0
-        Please use the technique in https://stackoverflow.com/a/26912166
-    """
-    # must be (n x n) matrix
-    assert len(arr.shape) == 2
-    assert arr.shape[0] == arr.shape[1]
-    return np.allclose(np.tril(arr, k=-1), 0., atol=atol) and \
-        np.all(np.diag(arr) >= 0.0)
-
-
-@deprecated(
-    "Please use "
-    "`ase.calculators.lammps.coordinatetransform.calc_rotated_cell`. "
-    "Note that the new function returns the ASE lower trianglar cell and does "
-    "not return the conversion matrix."
-)
-def convert_cell(ase_cell):
-    """
-    Convert a parallelepiped (forming right hand basis)
-    to lower triangular matrix LAMMPS can accept. This
-    function transposes cell matrix so the bases are column vectors
-
-    .. deprecated:: 3.23.0
-        Please use
-        :func:`~ase.calculators.lammps.coordinatetransform.calc_rotated_cell`.
-    """
-    cell = ase_cell.T
-
-    if not is_upper_triangular(cell):
-        # rotate bases into triangular matrix
-        tri_mat = np.zeros((3, 3))
-        A = cell[:, 0]
-        B = cell[:, 1]
-        C = cell[:, 2]
-        tri_mat[0, 0] = norm(A)
-        Ahat = A / norm(A)
-        AxBhat = np.cross(A, B) / norm(np.cross(A, B))
-        tri_mat[0, 1] = np.dot(B, Ahat)
-        tri_mat[1, 1] = norm(np.cross(Ahat, B))
-        tri_mat[0, 2] = np.dot(C, Ahat)
-        tri_mat[1, 2] = np.dot(C, np.cross(AxBhat, Ahat))
-        tri_mat[2, 2] = norm(np.dot(C, AxBhat))
-
-        # create and save the transformation for coordinates
-        volume = np.linalg.det(ase_cell)
-        trans = np.array([np.cross(B, C), np.cross(C, A), np.cross(A, B)])
-        trans /= volume
-        coord_transform = np.dot(tri_mat, trans)
-
-        return tri_mat, coord_transform
-    else:
-        return cell, None
 
 
 class LAMMPSlib(Calculator):
