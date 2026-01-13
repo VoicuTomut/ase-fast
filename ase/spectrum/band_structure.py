@@ -353,7 +353,7 @@ class BandStructurePlot:
             leg.get_frame().set_alpha(1)
 
         if filename:
-            plt.savefig(filename)
+            self.ax.figure.savefig(filename)
 
         if show:
             plt.show()
