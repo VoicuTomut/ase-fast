@@ -544,9 +544,9 @@ class XYZChunk:
         self.lines = lines
         self.natoms = natoms
 
-    def build(self):
+    def build(self, **kwargs):
         """Convert unprocessed chunk into Atoms."""
-        return _read_xyz_frame(iter(self.lines), self.natoms)
+        return _read_xyz_frame(iter(self.lines), self.natoms, **kwargs)
 
 
 def ixyzchunks(fd: TextIO) -> Iterator[XYZChunk]:
