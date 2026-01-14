@@ -1,0 +1,7 @@
+Bugfixes
+--------
+
+- Fixed :func:`~ase.io.vasp.read_vasp_xml` to get not the enthalpy but the
+  energy without PV to be consistent with :func:`~ase.io.vasp.read_vasp_out`
+  (:mr:`2685`)
+

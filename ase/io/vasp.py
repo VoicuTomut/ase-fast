@@ -29,6 +29,8 @@ __all__ = [
     'read_vasp_xml', 'write_vasp', 'write_vasp_xdatcar'
 ]
 
+EVTOJ = 1.60217733E-19  # VASP constant.F
+
 
 def parse_poscar_scaling_factor(line: str) -> np.ndarray:
     """Parse scaling factor(s) in the second line in POSCAR/CONTCAR.
@@ -566,6 +568,22 @@ def read_vasp_xml(filename='vasprun.xml', index=-1):
         steps = []
 
     for step in steps:
+        cell = np.zeros((3, 3), dtype=float)
+        for i, vector in enumerate(
+                step.find('structure/crystal/varray[@name="basis"]')):
+            cell[i] = np.array([float(val) for val in vector.text.split()])
+        volume = np.linalg.det(cell)
+
+        free_energy = float(step.find('energy/i[@name="e_fr_energy"]').text)
+
+        # https://gitlab.com/ase/ase/-/merge_requests/2685
+        # e_fr_energy in calculation/energy is actually an enthalpy including
+        # the PV term, unlike that in /calculation/scstep/energy or in OUTCAR,
+        # and therefore we need to subtract the PV term.
+        pressure = parameters.get('pstress', 0.0)
+        pressure *= 1e-22 / EVTOJ  # kbar -> eV/A3
+        free_energy -= pressure * volume
+
         # Workaround for VASP bug, e_0_energy contains the wrong value
         # in calculation/energy, but calculation/scstep/energy does not
         # include classical VDW corrections. So, first calculate
@@ -581,13 +599,7 @@ def read_vasp_xml(filename='vasprun.xml', index=-1):
         de = (float(lastscf.find('i[@name="e_0_energy"]').text) -
               float(lastscf.find('i[@name="e_fr_energy"]').text))
 
-        free_energy = float(step.find('energy/i[@name="e_fr_energy"]').text)
         energy = free_energy + de
-
-        cell = np.zeros((3, 3), dtype=float)
-        for i, vector in enumerate(
-                step.find('structure/crystal/varray[@name="basis"]')):
-            cell[i] = np.array([float(val) for val in vector.text.split()])
 
         scpos = np.zeros((natoms, 3), dtype=float)
         for i, vector in enumerate(
