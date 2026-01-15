@@ -101,7 +101,7 @@ class CLICommand:
             from ase.gui.gui import GUI
 
             backend = os.environ.get('MPLBACKEND', '')
-            if backend == 'module://ipykernel.pylab.backend_inline':
+            if 'inline' in backend:
                 # Jupyter should not steal our windows
                 del os.environ['MPLBACKEND']
 
