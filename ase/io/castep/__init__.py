@@ -27,7 +27,9 @@ from ase.geometry.cell import cellpar_to_cell
 from ase.io.castep.castep_reader import read_castep_castep
 from ase.parallel import paropen
 from ase.spacegroup import Spacegroup
-from ase.utils import atoms_to_spglib_cell, reader, writer
+from ase.utils import (
+    atoms_to_spglib_cell, reader, writer, spglib_new_errorhandling
+)
 
 from .geom_md_ts import (
     read_castep_geom,
@@ -713,7 +715,8 @@ def read_castep_cell(fd, index=None, calculator_args={}, find_spg=False,
             spglib = None
 
         if spglib is not None:
-            symmd = spglib.get_symmetry_dataset(atoms_to_spglib_cell(atoms))
+            symmd = spglib_new_errorhandling(spglib.get_symmetry_dataset)(
+                atoms_to_spglib_cell(atoms))
             atoms_spg = Spacegroup(int(symmd['number']))
             atoms.info['spacegroup'] = atoms_spg
 

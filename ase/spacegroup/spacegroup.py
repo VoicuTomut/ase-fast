@@ -15,7 +15,7 @@ from typing import Union
 
 import numpy as np
 
-from ase.utils import deprecated
+from ase.utils import deprecated, spglib_new_errorhandling
 
 __all__ = ['Spacegroup']
 
@@ -1010,9 +1010,10 @@ def get_spacegroup(atoms, symprec=1e-5):
 
     import spglib
 
-    sg = spglib.get_spacegroup((atoms.get_cell(), atoms.get_scaled_positions(),
-                                atoms.get_atomic_numbers()),
-                               symprec=symprec)
+    sg = spglib_new_errorhandling(spglib.get_spacegroup)(
+        (atoms.get_cell(), atoms.get_scaled_positions(),
+         atoms.get_atomic_numbers()),
+        symprec=symprec)
     if sg is None:
         raise RuntimeError('Spacegroup not found')
     sg_no = int(sg[sg.find('(') + 1:sg.find(')')])
