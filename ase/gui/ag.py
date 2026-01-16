@@ -103,9 +103,12 @@ class CLICommand:
             from ase.gui.gui import GUI
 
             # When using Jupyter or some other interactive interpreter,
-            # matplotlib is set up to use an inline backend (the
-            # backend name is or contains 'inline') However, this would
-            # cause our plots may break so we need to switch to Tk
+            # matplotlib is set up to use an inline backend such as:
+            #     'inline'
+            #     'module://ipykernel.pylab.backend_inline'
+            #     'module://matplotlib_inline.backend_inline'
+            # However, these would cause plots in the GUI to break so
+            # we need to switch to Tk
             backend = matplotlib.get_backend()
             if 'inline' in backend:
                 os.environ['MPLBACKEND'] = 'TkAgg'
@@ -113,6 +116,5 @@ class CLICommand:
             gui = GUI(images, args.rotations, args.bonds, args.graph)
             gui.run()
 
-            # Let's be nice and reinstate the backend that was being
-            # used before the GUI window was opened
+            # Reinstate the backend used before the GUI was opened
             os.environ['MPLBACKEND'] = backend
