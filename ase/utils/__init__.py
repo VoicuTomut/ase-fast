@@ -806,3 +806,27 @@ def get_python_package_path_description(
             return default
     except Exception as ex:
         return f'{default} ({ex})'
+
+
+class OldSpglibError(Exception):
+    pass
+
+
+def spglib_new_errorhandling(func):
+    def spglib_wrapper(*args, **kwargs):
+        # spglib<2.7.0 returns None when there is an error.
+        # spglib 2.7.0 warns that this will become exceptions in the future.
+        # We hack an environment setting to silence this warning and get the
+        # behaviour we want.
+        key = 'SPGLIB_OLD_ERROR_HANDLING'
+        orig_value = os.environ.get(key)
+        try:
+            os.environ[key] = 'false'
+            value = func(*args, **kwargs)
+            if value is None:
+                raise OldSpglibError()
+            return value
+        finally:
+            if orig_value is not None:
+                os.environ[key] = orig_value
+    return spglib_wrapper
