@@ -61,6 +61,7 @@ class BravaisLattice(ABC):
     variants: dict | None = None  # e.g. {'BCT1': <variant object>,
     #                                     'BCT2': <variant object>}
     ndim: int = 0
+    conventional_cls: str | None = None
 
     def __init__(self, **kwargs):
         p = {}
