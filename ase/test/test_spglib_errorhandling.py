@@ -1,5 +1,6 @@
 import pytest
-from ase.utils import spglib_new_errorhandling, OldSpglibError
+
+from ase.utils import OldSpglibError, spglib_new_errorhandling
 
 # Remove all this when we only support new-style spglib exceptions.
 

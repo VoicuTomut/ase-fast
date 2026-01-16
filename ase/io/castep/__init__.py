@@ -28,7 +28,10 @@ from ase.io.castep.castep_reader import read_castep_castep
 from ase.parallel import paropen
 from ase.spacegroup import Spacegroup
 from ase.utils import (
-    atoms_to_spglib_cell, reader, writer, spglib_new_errorhandling
+    atoms_to_spglib_cell,
+    reader,
+    spglib_new_errorhandling,
+    writer,
 )
 
 from .geom_md_ts import (
