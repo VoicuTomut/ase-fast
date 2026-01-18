@@ -168,20 +168,28 @@ def write_elk_in(fd, atoms, parameters=None):
         if key in elk_parameters:
             inp[key] /= elk_parameters[key]
 
+    def get_string_value(value_):
+        if isinstance(value_, bool):
+            return f'.{("false", "true")[value_]}.'
+        if isinstance(value_, (int, float, str)):
+            return f'{value_}'
+        if isinstance(value_, (tuple, list)):
+            return '\n  '.join(get_string_value(e) for e in value_)
+        if isinstance(value_, dict):
+            vals = ' '.join(get_string_value(v) for v in value_.values())
+            annotation = ', '.join(get_string_value(k) for k in value_.keys())
+            return f'{vals} : {annotation}'
+        assert isinstance(value_, np.ndarray), f'{type(value_)}'
+        return ' '.join(get_string_value(elem.item()) for elem in value_)
+
     # write all keys
     for key, value in inp.items():
-        fd.write(f'{key}\n')
-        if isinstance(value, bool):
-            fd.write(f'.{("false", "true")[value]}.\n\n')
-        elif isinstance(value, (int, float)):
-            fd.write(f'{value}\n\n')
-        else:
-            fd.write('%s\n\n' % ' '.join([str(x) for x in value]))
+        fd.write(f'{key}\n  {get_string_value(value)}\n\n')
 
     # cell
     fd.write('avec\n')
     for vec in atoms.cell:
-        fd.write('%.14f %.14f %.14f\n' % tuple(vec / Bohr))
+        fd.write('  %.14f %.14f %.14f\n' % tuple(vec / Bohr))
     fd.write('\n')
 
     # atoms
@@ -195,14 +203,14 @@ def write_elk_in(fd, atoms, parameters=None):
         else:
             species[symbol] = [(a, m)]
             symbols.append(symbol)
-    fd.write('atoms\n%d\n' % len(species))
+    fd.write('atoms\n  %d\n' % len(species))
     # scaled = atoms.get_scaled_positions(wrap=False)
     scaled = np.linalg.solve(atoms.cell.T, atoms.positions.T).T
     for symbol in symbols:
-        fd.write(f"'{symbol}.in' : spfname\n")
-        fd.write('%d\n' % len(species[symbol]))
+        fd.write(f"  '{symbol}.in' : spfname\n")
+        fd.write('  %d\n' % len(species[symbol]))
         for a, m in species[symbol]:
-            fd.write('%.14f %.14f %.14f 0.0 0.0 %.14f\n' %
+            fd.write('  %.14f %.14f %.14f 0.0 0.0 %.14f\n' %
                      (tuple(scaled[a]) + (m,)))
     fd.write('\n')
 
@@ -210,7 +218,7 @@ def write_elk_in(fd, atoms, parameters=None):
     # that we must put a / at the end:
     if species_path is not None:
         fd.write('sppath\n')
-        fd.write(f"'{species_path.rstrip('/')}/'\n\n")
+        fd.write(f"  '{species_path.rstrip('/')}/'\n\n")
 
 
 class ElkReader:
