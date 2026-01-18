@@ -215,6 +215,11 @@ def write_elk_in(fd, atoms, parameters=None):
         if key in elk_parameters:
             inp[key] /= elk_parameters[key]
 
+    # Elk seems to concatenate path and filename in such a way
+    # that we must put a / at the end:
+    if species_path is not None:
+        inp['sppath'] = f"'{species_path.rstrip('/')}/'"
+
     def get_string_value(value_):
         if isinstance(value_, bool):
             return f'.{("false", "true")[value_]}.'
@@ -259,13 +264,6 @@ def write_elk_in(fd, atoms, parameters=None):
         for a, m in species[symbol]:
             fd.write('  %.14f %.14f %.14f 0.0 0.0 %.14f\n' %
                      (tuple(scaled[a]) + (m,)))
-    fd.write('\n')
-
-    # Elk seems to concatenate path and filename in such a way
-    # that we must put a / at the end:
-    if species_path is not None:
-        fd.write('sppath\n')
-        fd.write(f"  '{species_path.rstrip('/')}/'\n\n")
 
 
 class ElkReader:
