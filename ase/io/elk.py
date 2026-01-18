@@ -89,6 +89,53 @@ def read_elk(fd):
 
 @writer
 def write_elk_in(fd, atoms, parameters=None):
+    """
+    Writes an ASE Atoms object and optional parameters to an `elk.in` file.
+
+    The format of `elk.in` and the meaning of the parameters is documented under
+    https://elk.sourceforge.io/.
+
+    Parameters
+    ----------
+    fd : path or file object
+        A file path or an opened, writable file or file-like object
+    atoms : Atoms object
+        An ASE Atoms objects with the atomic structure
+    parameters : dict
+        The keys of the dict are the names of the input blocks. The dict values
+        contain the contents of the input blocks. The contents can be several
+        different types or data structures: 1) bool, str, int, float for scalar
+        parameters; 2) tuple or list for input over several lines in a block,
+        one element per line; 3) dict for several parameters in a line;
+        4) numpy.ndarray for array parameters of different datatypes.
+
+    Raises
+    ------
+    RuntimeError
+        This exception is raised in case of inconsistencies between parameters.
+
+    Returns
+    -------
+    None
+        The function writes directly to the provided file object.
+
+    See Also
+    --------
+    ase.calculators.elk.ELK : The ASE Elk calculator
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from ase import Atoms
+    >>> from ase.io.elk import write_elk_in
+    >>> atoms = Atoms('FeAl', positions=[[0, 0, 0], [1.45]*3], cell=[2.9]*3)
+    >>> params = {'tasks': [0, 10], 'ngridk': np.array([8, 8, 8]),
+                  'nempty': 8, 'bfieldc': np.array((0.0, 0.0, -0.01)),
+                  'spinpol': True, 'dft+u': ({'dftu': 2, 'inpdftu': 1},
+                  {'is': 1, 'l': 2, 'u': 0.183, 'j': 0.034911967})}
+    >>> write_elk_in('/path/to/elk.in', atoms, parameters=params)
+    """
+
     if parameters is None:
         parameters = {}
 

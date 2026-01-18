@@ -133,8 +133,14 @@ class ELK(GenericFileIOCalculator):
 
         Examples
         --------
-        >>> calc = ELK(tasks=0, ngridk=(3, 3, 3))
-
+        >>> import numpy as np
+        >>> from ase.calculators.elk import ELK
+        >>> calc = ELK(tasks=[0], ngridk=np.array([3, 3, 3]))
+        >>> params = {'tasks': [0, 10], 'ngridk': np.array([8, 8, 8]),
+                      'nempty': 8, 'bfieldc': np.array((0.0, 0.0, -0.01)),
+                      'spinpol': True, 'dft+u': ({'dftu': 2, 'inpdftu': 1},
+                      {'is': 1, 'l': 2, 'u': 0.183, 'j': 0.034911967})}
+        >>> calc = ELK(**params)
         """
         if command is not self._deprecated:
             raise RuntimeError(COMPATIBILITY_MSG)
