@@ -93,7 +93,8 @@ def write_elk_in(fd, atoms, parameters=None):
     Writes an ASE Atoms object and optional parameters to an `elk.in` file.
 
     The format of `elk.in` and the meaning of the parameters is documented under
-    https://elk.sourceforge.io/.
+    https://elk.sourceforge.io/. All numeric parameters that are passed using
+    Elk-native keys must be in Elk units.
 
     Parameters
     ----------

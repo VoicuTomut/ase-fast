@@ -128,8 +128,8 @@ class ELK(GenericFileIOCalculator):
         Parameters
         ----------
         **kwargs : dict, optional
-            ASE standard keywords like ``xc``, ``kpts`` and ``smearing`` or any
-            Elk-native keywords.
+            ASE standard keywords like ``xc``, ``kpts`` and ``smearing`` (in ASE
+            units) or any Elk-native keywords (numeric parameters in Elk units).
 
         Examples
         --------
