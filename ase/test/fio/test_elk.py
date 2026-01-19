@@ -63,11 +63,12 @@ atoms
 
 def test_elk_in_param_types():
     """test the elk-in writer with all valid parameter types"""
+    dft_u = ((('dftu', 2), ('inpdftu', 1)),
+             (('is', 1), ('l', 2), ('u', 0.183), ('j', 0.034911967)))
     params = {'tasks': [0, 10], 'ngridk': np.array((8, 8, 8)), 'nempty': 8,
               'bfieldc': np.array((0.0, 0.0, -0.01)), 'spinpol': True,
               'sppath': '/path/to/species',
-              'dft+u': ({'dftu': 2, 'inpdftu': 1},
-                        {'is': 1, 'l': 2, 'u': 0.183, 'j': 0.034911967})}
+              'dft+u': dft_u}
     atoms = Atoms('FeAl', positions=[[0, 0, 0], [1.45] * 3], cell=[2.9] * 3)
     buf = io.StringIO()
     write(buf, atoms, format='elk-in', parameters=params)

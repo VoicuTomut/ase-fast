@@ -106,13 +106,15 @@ def write_elk_in(fd, atoms, parameters=None):
         contain the contents of the input blocks. The contents can be several
         different types or data structures: 1) bool, str, int, float for scalar
         parameters; 2) tuple or list for input over several lines in a block,
-        one element per line; 3) dict for several parameters in a line;
-        4) numpy.ndarray for array parameters of different datatypes.
+        one element per line; 3) tuple / list of tuples for several parameters
+        in a line; 4) numpy.ndarray for array parameters of different datatypes.
 
     Raises
     ------
     RuntimeError
         This exception is raised in case of inconsistencies between parameters.
+    TypeError
+        This exception is raised in case of a wrong parameter type.
 
     Returns
     -------
@@ -131,8 +133,8 @@ def write_elk_in(fd, atoms, parameters=None):
     >>> atoms = Atoms('FeAl', positions=[[0, 0, 0], [1.45]*3], cell=[2.9]*3)
     >>> params = {'tasks': [0, 10], 'ngridk': np.array([8, 8, 8]),
                   'nempty': 8, 'bfieldc': np.array((0.0, 0.0, -0.01)),
-                  'spinpol': True, 'dft+u': ({'dftu': 2, 'inpdftu': 1},
-                  {'is': 1, 'l': 2, 'u': 0.183, 'j': 0.034911967})}
+                  'spinpol': True, 'dft+u': ((('dftu', 2), ('inpdftu', 1)),
+                  (('is', 1), ('l', 2), ('u', 0.183), ('j', 0.034911967)))}
     >>> write_elk_in('/path/to/elk.in', atoms, parameters=params)
     """
 
@@ -220,19 +222,22 @@ def write_elk_in(fd, atoms, parameters=None):
     if species_path is not None:
         inp['sppath'] = f"'{species_path.rstrip('/')}/'"
 
-    def get_string_value(value_):
+    def get_string_value(value_, level=0):
         if isinstance(value_, bool):
             return f'.{("false", "true")[value_]}.'
         if isinstance(value_, (int, float, str)):
             return f'{value_}'
         if isinstance(value_, (tuple, list)):
-            return '\n  '.join(get_string_value(e) for e in value_)
+            if level > 0:
+                keys, values = zip(*value_)
+                vals = ' '.join(get_string_value(v, level + 1) for v in values)
+                anno = ', '.join(get_string_value(k, level + 1) for k in keys)
+                return f'{vals} : {anno}'
+            return '\n  '.join(get_string_value(e, level + 1) for e in value_)
         if isinstance(value_, dict):
-            vals = ' '.join(get_string_value(v) for v in value_.values())
-            annotation = ', '.join(get_string_value(k) for k in value_.keys())
-            return f'{vals} : {annotation}'
+            raise TypeError('Tuples should be used instead of dicts.')
         assert isinstance(value_, np.ndarray), f'{type(value_)}'
-        return ' '.join(get_string_value(elem.item()) for elem in value_)
+        return ' '.join(get_string_value(e.item(), level + 1) for e in value_)
 
     # write all keys
     for key, value in inp.items():
