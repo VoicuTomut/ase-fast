@@ -809,8 +809,8 @@ class NEB(DyNEB):
         method: string of method
             Choice betweeen five methods:
 
-            * aseneb: standard ase NEB implementation
-            * improvedtangent: Paper I NEB implementation
+            * aseneb: legacy ase NEB implementation
+            * improvedtangent: Paper I NEB implementation (default)
             * eb: Paper III full spring force implementation
             * spline: Paper IV spline interpolation (supports precon)
             * string: Paper IV string method (supports precon)
