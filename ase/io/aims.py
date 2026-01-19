@@ -1387,7 +1387,7 @@ class AimsOutCalcChunk(AimsOutChunk):
         if len(kpt_def) > 0:
             kpt_inds = [int(self.lines[ll].split()[1]) - 1 for ll in kpt_def]
         elif (self.n_k_points is None) or (self.n_k_points == 1):
-            kpt_inds = [0]
+            kpt_inds = [0] * self.n_spins
         else:
             raise ParseError("Cannot find k-point definitions")
 

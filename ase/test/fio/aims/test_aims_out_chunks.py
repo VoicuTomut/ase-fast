@@ -1300,3 +1300,154 @@ def test_molecular_calc_occupancies(molecular_calc_chunk):
     assert np.allclose(
         molecular_calc_chunk.results["occupancies"][0, :, 0], occupancies
     )
+
+@pytest.fixture
+def molecular_spin_header_chunk():
+    lines = """
+        | Number of atoms                   :        2
+        | Number of spin channels           :        2
+        The structure contains        2 atoms  and a total of         16.000 electrons.
+        Input geometry:
+        | Atomic structure:
+        |       Atom                x [A]            y [A]            z [A]
+        |    1: Species O             0.00000000        0.00000000        0.62297800
+        |    2: Species O             0.00000000        0.00000000       -0.62297800
+        Geometry relaxation not requested: no relaxation will be performed.
+        | Maximum number of basis functions            :       28
+        | Number of Kohn-Sham states (occupied + empty):       14
+    """
+
+    lines = lines.splitlines()
+    for ll, line in enumerate(lines):
+        lines[ll] = line.strip()
+
+    return AimsOutHeaderChunk(lines)
+
+@pytest.fixture
+def molecular_spin_calc_chunk(molecular_spin_header_chunk):
+    lines = """
+        | Number of self-consistency cycles          :           16
+        | Chemical potential (Fermi level):    -5.92874170 eV
+        Energy and forces in a compact form:
+        | Total energy uncorrected      :         -0.409319729225809E+04 eV
+        | Total energy corrected        :         -0.409319729225809E+04 eV  <-- do not rely on this value for anything but (periodic) metals
+        | Electronic free energy        :         -0.409319729225809E+04 eV
+        Total atomic forces (unitary forces cleaned) [eV/Ang]:
+        |    1          0.000000000000000E+00          0.259615079450449E-26         -0.129377943738245E+01
+        |    2         -0.259615079450449E-26          0.129807539725224E-26          0.129377943738245E+01
+
+        Writing Kohn-Sham eigenvalues.
+
+        Spin-up eigenvalues:
+
+        State    Occupation    Eigenvalue [Ha]    Eigenvalue [eV]
+            1       1.00000         -18.933100         -515.19587
+            2       1.00000         -18.933056         -515.19468
+            3       1.00000          -1.184812          -32.24039
+            4       1.00000          -0.764654          -20.80730
+            5       1.00000          -0.494370          -13.45249
+            6       1.00000          -0.484827          -13.19282
+            7       1.00000          -0.484827          -13.19282
+            8       1.00000          -0.259446           -7.05988
+            9       1.00000          -0.259446           -7.05988
+           10       0.00000           0.062914            1.71198
+           11       0.00000           0.250163            6.80728
+           12       0.00000           0.258460            7.03307
+           13       0.00000           0.258460            7.03307
+           14       0.00000           0.397452           10.81522
+
+        Spin-down eigenvalues:
+
+        State    Occupation    Eigenvalue [Ha]    Eigenvalue [eV]
+            1       1.00000         -18.906788         -514.47987
+            2       1.00000         -18.906747         -514.47876
+            3       1.00000          -1.139860          -31.01718
+            4       1.00000          -0.699069          -19.02263
+            5       1.00000          -0.460379          -12.52755
+            6       1.00000          -0.416262          -11.32706
+            7       1.00000          -0.416262          -11.32706
+            8       0.00000          -0.176309           -4.79761
+            9       0.00000          -0.176309           -4.79761
+           10       0.00000           0.091922            2.50133
+           11       0.00000           0.273849            7.45180
+           12       0.00000           0.287463            7.82227
+           13       0.00000           0.287463            7.82227
+           14       0.00000           0.406439           11.05977
+
+        Current spin moment of the entire structure :
+        | N = N_up - N_down :    2.00
+        | S                 :    1.00
+        | J                 :    3.00
+
+        Highest occupied state (VBM) at     -7.05987792 eV
+        | Occupation number:      1.00000000
+        | Spin channel:        1
+
+        Lowest unoccupied state (CBM) at    -4.79760549 eV
+        | Occupation number:      0.00000000
+        | Spin channel:        2
+
+        Overall HOMO-LUMO gap:      2.26227243 eV.
+
+        | Chemical Potential                          :    -5.92874170 eV
+
+        Self-consistency cycle converged.
+        Have a nice day.
+        ------------------------------------------------------------
+
+    """
+    lines = lines.splitlines()
+    for ll, line in enumerate(lines):
+        lines[ll] = line.strip()
+    return AimsOutCalcChunk(lines, molecular_spin_header_chunk)
+
+def test_molecular_spin_header_n_bands(molecular_spin_header_chunk):
+    assert molecular_spin_header_chunk.n_bands == 14
+
+def test_molecular_spin_header_n_spins(molecular_spin_header_chunk):
+    assert molecular_spin_header_chunk.n_spins == 2
+
+def test_molecular_spin_calc_eigenvalues(molecular_spin_calc_chunk):
+    eigenvalues = [
+        [-515.19587, -514.47987],
+        [-515.19468, -514.47876],
+        [-32.24039, -31.01718],
+        [-20.80730, -19.02263],
+        [-13.45249, -12.52755],
+        [-13.19282, -11.32706],
+        [-13.19282, -11.32706],
+        [-7.05988, -4.79761],
+        [-7.05988, -4.79761],
+        [1.71198, 2.50133],
+        [6.80728, 7.45180],
+        [7.03307, 7.82227],
+        [7.03307, 7.82227],
+        [10.81522, 11.05977],
+    ]
+    assert np.allclose(molecular_spin_calc_chunk.eigenvalues[0, :, :], eigenvalues)
+    assert np.allclose(
+        molecular_spin_calc_chunk.results["eigenvalues"][0, :, :], eigenvalues
+    )
+
+
+def test_molecular_spin_calc_occupancies(molecular_spin_calc_chunk):
+    occupancies = [
+        [1.00000, 1.00000],
+        [1.00000, 1.00000],
+        [1.00000, 1.00000],
+        [1.00000, 1.00000],
+        [1.00000, 1.00000],
+        [1.00000, 1.00000],
+        [1.00000, 1.00000],
+        [1.00000, 0.00000],
+        [1.00000, 0.00000],
+        [0.00000, 0.00000],
+        [0.00000, 0.00000],
+        [0.00000, 0.00000],
+        [0.00000, 0.00000],
+        [0.00000, 0.00000],
+    ]
+    assert np.allclose(molecular_spin_calc_chunk.occupancies[0, :, :], occupancies)
+    assert np.allclose(
+        molecular_spin_calc_chunk.results["occupancies"][0, :, :], occupancies
+    )
