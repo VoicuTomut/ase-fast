@@ -126,7 +126,8 @@ class ImprovedTangentMethod(NEBMethod):
             else:
                 tangent = spring2.t * deltavmin + spring1.t * deltavmax
         # Normalize the tangent vector
-        tangent /= np.linalg.norm(tangent)
+        norm = np.linalg.norm(tangent)
+        tangent /= norm if norm > 0 else 1.0
         return tangent
 
     def add_image_force(self, state, tangential_force, tangent, imgforce,
@@ -286,7 +287,7 @@ class NEBOptimizable(Optimizable):
 class BaseNEB:
     def __init__(self, images, k=0.1, climb=False, parallel=False,
                  remove_rotation_and_translation=False, world=None,
-                 method='aseneb', allow_shared_calculator=False, precon=None):
+                 method='improvedtangent', allow_shared_calculator=False, precon=None):
 
         self.images = images
         self.climb = climb
@@ -653,7 +654,7 @@ class BaseNEB:
 class DyNEB(BaseNEB):
     def __init__(self, images, k=0.1, fmax=0.05, climb=False, parallel=False,
                  remove_rotation_and_translation=False, world=None,
-                 dynamic_relaxation=True, scale_fmax=0., method='aseneb',
+                 dynamic_relaxation=True, scale_fmax=0., method='improvedtangent',
                  allow_shared_calculator=False, precon=None):
         """
         Subclass of NEB that allows for scaled and dynamic optimizations of
@@ -766,7 +767,7 @@ def _check_deprecation(keyword, kwargs):
 class NEB(DyNEB):
     def __init__(self, images, k=0.1, climb=False, parallel=False,
                  remove_rotation_and_translation=False, world=None,
-                 method='aseneb', allow_shared_calculator=False,
+                 method='improvedtangent', allow_shared_calculator=False,
                  precon=None, **kwargs):
         """Nudged elastic band.
 
