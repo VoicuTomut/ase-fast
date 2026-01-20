@@ -829,4 +829,5 @@ def spglib_new_errorhandling(func):
         finally:
             if orig_value is not None:
                 os.environ[key] = orig_value
+
     return spglib_wrapper
