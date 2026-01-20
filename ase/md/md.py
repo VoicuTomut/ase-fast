@@ -192,8 +192,10 @@ class MolecularDynamics(BaseDynamics):
         converged : bool
             True if the maximum number of steps are reached.
         """
-        for _ in self.irun(steps=steps):
+        converged = steps == 0
+        for converged in self.irun(steps=steps):
             pass
+        return converged
 
     def get_time(self):
         return self.nsteps * self.dt
