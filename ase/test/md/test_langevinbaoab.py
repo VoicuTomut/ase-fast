@@ -238,11 +238,15 @@ def test_LangevinBAOAB_seed(tmp_path, atoms, calc):
             trajectory=str(tmp_path / 'test.traj'),
         )
 
+
 def test_LangevinBAOAB_default_rng(atoms, calc):
     """Test LangevinBAOAB can be initialised with rng=None"""
     atoms.calc = calc
 
-    with pytest.warns(UserWarning, match="No rng provided, generated one with seed"):
+    with pytest.warns(
+            UserWarning,
+            match="No rng provided, generated one with seed"
+    ):
         dyn = LangevinBAOAB(
             atoms,
             timestep=timestep,
