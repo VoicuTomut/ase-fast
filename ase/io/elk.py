@@ -202,15 +202,15 @@ def write_elk_in(fd, atoms, parameters=None):
         del inp['kpts']
 
     if 'smearing' in parameters:
-        name = parameters.smearing[0].lower()
+        name = parameters['smearing'][0].lower()
         if name == 'methfessel-paxton':
-            stype = parameters.smearing[2]
+            stype = parameters['smearing'][2]
         else:
             stype = {'gaussian': 0,
                      'fermi-dirac': 3,
                      }[name]
         inp['stype'] = stype
-        inp['swidth'] = parameters.smearing[1]
+        inp['swidth'] = parameters['smearing'][1]
         del inp['smearing']
 
     # convert keys to ELK units
