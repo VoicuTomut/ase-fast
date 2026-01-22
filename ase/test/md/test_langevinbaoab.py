@@ -244,14 +244,14 @@ def test_LangevinBAOAB_default_rng(atoms, calc):
     atoms.calc = calc
 
     with pytest.warns(
-            UserWarning,
-            match="No rng provided, generated one with seed"
+        UserWarning, match='No rng provided, generated one with seed'
     ):
         dyn = LangevinBAOAB(
             atoms,
             timestep=timestep,
             temperature_K=300,
             T_tau=50 * timestep,
-            rng=None)
+            rng=None,
+        )
 
     dyn.run(n_steps)
