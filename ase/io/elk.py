@@ -101,7 +101,7 @@ def write_elk_in(fd, atoms, parameters=None):
     fd : path or file object
         A file path or an opened, writable file or file-like object
     atoms : Atoms object
-        An ASE Atoms objects with the atomic structure
+        An ASE Atoms object with the atomic structure
     parameters : dict
         The keys of the dict are the names of the input blocks. The dict values
         contain the contents of the input blocks. The contents can be several
