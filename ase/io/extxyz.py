@@ -13,7 +13,9 @@ import json
 import numbers
 import re
 import warnings
+from collections.abc import Iterator
 from io import StringIO, UnsupportedOperation
+from typing import TextIO
 
 import numpy as np
 
@@ -22,7 +24,7 @@ from ase.calculators.calculator import all_properties
 from ase.calculators.singlepoint import SinglePointCalculator
 from ase.constraints import FixAtoms, FixCartesian
 from ase.io.formats import index2range
-from ase.io.utils import ImageIterator
+from ase.io.utils import ImageChunk, ImageIterator
 from ase.outputs import ArrayProperty, all_outputs
 from ase.spacegroup.spacegroup import Spacegroup
 from ase.stress import voigt_6_to_full_3x3_stress
@@ -537,26 +539,26 @@ class XYZError(IOError):
     pass
 
 
-class XYZChunk:
-    def __init__(self, lines, natoms):
+class XYZChunk(ImageChunk):
+    def __init__(self, lines: list[str], natoms: int) -> None:
         self.lines = lines
         self.natoms = natoms
 
-    def build(self):
+    def build(self, **kwargs) -> Atoms:
         """Convert unprocessed chunk into Atoms."""
-        return _read_xyz_frame(iter(self.lines), self.natoms)
+        return _read_xyz_frame(iter(self.lines), self.natoms, **kwargs)
 
 
-def ixyzchunks(fd):
+def ixyzchunks(fd: TextIO) -> Iterator[XYZChunk]:
     """Yield unprocessed chunks (header, lines) for each xyz image."""
-    while True:
-        line = next(fd).strip()  # Raises StopIteration on empty file
+    for line in fd:
+        line = line.strip()
         try:
             natoms = int(line)
         except ValueError:
             raise XYZError(f'Expected integer, found "{line}"')
         try:
-            lines = [next(fd) for _ in range(1 + natoms)]
+            lines = [fd.readline() for _ in range(1 + natoms)]
         except StopIteration:
             raise XYZError('Incomplete XYZ chunk')
         yield XYZChunk(lines, natoms)

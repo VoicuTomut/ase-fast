@@ -1,9 +1,12 @@
 # fmt: off
+from abc import ABC, abstractmethod
+from collections.abc import Callable, Iterator
 from itertools import islice
 from typing import IO
 
 import numpy as np
 
+from ase import Atoms
 from ase.data import atomic_numbers, covalent_radii
 from ase.data.colors import jmol_colors as default_colors
 from ase.io.formats import string2index
@@ -533,13 +536,12 @@ def make_patch_list(writer):
     return patch_list
 
 
-class ImageChunk:
-    """Base Class for a file chunk which contains enough information to
-    reconstruct an atoms object."""
+class ImageChunk(ABC):
+    """Base class for a file chunk with enough information to make ``Atoms``."""
 
-    def build(self, **kwargs):
-        """Construct the atoms object from the stored information,
-        and return it"""
+    @abstractmethod
+    def build(self, *args, **kwargs) -> Atoms:
+        """Construct ``Atoms`` from the stored information and return it."""
 
 
 class ImageIterator:
@@ -550,10 +552,10 @@ class ImageIterator:
     type objects. See extxyz.py:iread_xyz as an example.
     """
 
-    def __init__(self, ichunks):
+    def __init__(self, ichunks: Callable[..., Iterator[ImageChunk]]) -> None:
         self.ichunks = ichunks
 
-    def __call__(self, fd: IO, index=None, **kwargs):
+    def __call__(self, fd: IO, index=None, **kwargs) -> Iterator[Atoms]:
         if isinstance(index, str):
             index = string2index(index)
 
@@ -566,18 +568,20 @@ class ImageIterator:
         for chunk in self._getslice(fd, index):
             yield chunk.build(**kwargs)
 
-    def _getslice(self, fd: IO, indices: slice):
+    def _getslice(self, fd: IO, indices: slice) -> Iterator[ImageChunk]:
         try:
-            iterator = islice(self.ichunks(fd),
-                              indices.start, indices.stop,
-                              indices.step)
+            iterator = islice(
+                self.ichunks(fd),
+                indices.start,
+                indices.stop,
+                indices.step,
+            )
         except ValueError:
             # Negative indices.  Go through the whole thing to get the length,
             # which allows us to evaluate the slice, and then read it again
             if not hasattr(fd, 'seekable') or not fd.seekable():
-                raise ValueError('Negative indices only supported for '
-                                 'seekable streams')
-
+                msg = 'Negative indices only supported for seekable streams'
+                raise ValueError(msg)
             startpos = fd.tell()
             nchunks = 0
             for _ in self.ichunks(fd):
