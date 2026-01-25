@@ -248,12 +248,11 @@ class SpinBox(Widget):
     @property
     def value(self):
         x = self.widget.get().replace(',', '.')
-        # if '.' in x:
-        #     return float(x)
+        if '.' in x:
+            return float(x)
         if x == 'None':
             return None
-        # return int(x)
-        return float(x)
+        return int(x)
 
     @value.setter
     def value(self, x):
