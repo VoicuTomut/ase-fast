@@ -763,7 +763,7 @@ def _write_xdatcar_config(fd, atoms, index):
     float_string = '{:11.8f}'
     scaled_positions = atoms.get_scaled_positions()
     for row in scaled_positions:
-        fd.write(' ')
+        fd.write('  ')
         fd.write(' '.join([float_string.format(x) for x in row]))
         fd.write('\n')
 
