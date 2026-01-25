@@ -112,7 +112,7 @@ class CellEditor:
     def get_magnitudes(self):
         x, y, z = self.cell_grid
         for row in [x, y, z]:
-            row[3].parse_values()
+            row[3].parse_value()
         return np.array([x[3].value, y[3].value, z[3].value])
 
     def apply_magnitudes(self, *args):

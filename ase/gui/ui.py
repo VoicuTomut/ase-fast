@@ -237,14 +237,14 @@ class SpinBox(Widget):
         self.value = self.initial
         return self.widget
 
-    def parse_values(self):
+    def parse_value(self):
         x = self.widget.get().replace(',', '.')
         if not x.isnumeric():
             x = ase.gui.utils.parse_input_arithmetic(x)
             self.value = x
 
     def parse_and_callback(self):
-        self.parse_values()
+        self.parse_value()
         if self.callback:
             self.callback()
 
