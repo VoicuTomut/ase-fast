@@ -38,24 +38,6 @@ class TestXdatcarRoundtrip(unittest.TestCase):
                 'Atoms objects differ by {}'.format(', '.join(system_changes))
             )
 
-    def assert_trajectory_almost_equal(self, traj1, traj2):
-        self.assertEqual(len(traj1), len(traj2))
-        for image, other in zip(traj1, traj2):
-            self.assert_atoms_almost_equal(image, other)
-
-    def test_roundtrip(self):
-        # Create a series of translated cells
-        trajectory = [self.NaCl.copy() for _ in range(5)]
-        for i, atoms in enumerate(trajectory):
-            atoms.set_scaled_positions(
-                atoms.get_scaled_positions() + i * np.array([0.05, 0, 0.02])
-            )
-            atoms.wrap()
-
-        ase.io.write(self.outfile, trajectory, format='vasp-xdatcar')
-        roundtrip_trajectory = ase.io.read(self.outfile, index=':')
-        self.assert_trajectory_almost_equal(trajectory, roundtrip_trajectory)
-
     def test_roundtrip_single_atoms(self):
         atoms = ase.build.bulk('Ge')
         ase.io.write(self.outfile, atoms, format='vasp-xdatcar')
@@ -72,6 +54,33 @@ class TestXdatcarRoundtrip(unittest.TestCase):
         with self.assertRaises(TypeError):
             not_traj = [True, False, False]
             ase.io.write(self.outfile, not_traj, format='vasp-xdatcar')
+
+
+def assert_trajectory_almost_equal(traj1, traj2):
+    assert len(traj1) == len(traj2)
+    for atoms1, atoms2 in zip(traj1, traj2):
+        assert not compare_atoms(atoms1, atoms2, tol=1e-15)
+
+
+@pytest.fixture
+def trajectory():
+    # Create a series of translated cells
+    atoms = ase.build.bulk('NaCl', 'rocksalt', a=5.64)
+    images = [atoms.copy() for _ in range(5)]
+    for i, atoms in enumerate(images):
+        shift = i * np.array([0.05, 0, 0.02])
+        atoms.set_scaled_positions(atoms.get_scaled_positions() + shift)
+        atoms.wrap()
+    return images
+
+
+def test_xdatcar_roundtrip_multiple_images(trajectory) -> None:
+    """Test `read_vasp_xdatcar` and `write_vasp_xdatcar` for multiple images."""
+    buf = io.StringIO()
+    write_vasp_xdatcar(buf, trajectory)
+    buf.seek(0)
+    roundtrip_trajectory = read_vasp_xdatcar(buf, index=':')
+    assert_trajectory_almost_equal(trajectory, roundtrip_trajectory)
 
 
 def test_index():
