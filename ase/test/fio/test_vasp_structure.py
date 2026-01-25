@@ -62,12 +62,19 @@ def assert_trajectory_almost_equal(traj1, traj2):
         assert not compare_atoms(atoms1, atoms2, tol=1e-15)
 
 
+@pytest.fixture(params=[False, True])
+def cell(request):
+    return request.param
+
+
 @pytest.fixture
-def trajectory():
+def trajectory(cell):
     # Create a series of translated cells
     atoms = ase.build.bulk('NaCl', 'rocksalt', a=5.64)
     images = [atoms.copy() for _ in range(5)]
     for i, atoms in enumerate(images):
+        if cell:
+            atoms.set_cell(atoms.cell * (i + 1), scale_atoms=True)
         shift = i * np.array([0.05, 0, 0.02])
         atoms.set_scaled_positions(atoms.get_scaled_positions() + shift)
         atoms.wrap()
