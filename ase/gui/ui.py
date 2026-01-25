@@ -13,8 +13,8 @@ from tkinter.messagebox import showerror, showinfo, showwarning
 
 import numpy as np
 
+import ase.gui.utils
 from ase.gui.i18n import _
-from ase.gui.utils import parse_input_arithmetic
 
 __all__ = [
     'error', 'ask_question', 'MainWindow', 'LoadFileDialog', 'SaveFileDialog',
@@ -233,9 +233,17 @@ class SpinBox(Widget):
 
     def create(self, parent):
         self.widget = self.creator(parent)
-        bind_enter(self.widget, lambda event: self.callback())
+        bind_enter(self.widget, lambda event: self.parse_and_callback())
         self.value = self.initial
         return self.widget
+
+    def parse_and_callback(self):
+        x = self.widget.get().replace(',', '.')
+        if not x.isnumeric():
+            x = ase.gui.utils.parse_input_arithmetic(x)
+            self.value = x
+        if self.callback:
+            self.callback()
 
     @property
     def value(self):
@@ -244,7 +252,6 @@ class SpinBox(Widget):
         #     return float(x)
         if x == 'None':
             return None
-        x = parse_input_arithmetic(x)
         # return int(x)
         return float(x)
 
