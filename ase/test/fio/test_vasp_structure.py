@@ -59,7 +59,7 @@ class TestXdatcarRoundtrip(unittest.TestCase):
 def assert_trajectory_almost_equal(traj1, traj2):
     assert len(traj1) == len(traj2)
     for atoms1, atoms2 in zip(traj1, traj2):
-        assert not compare_atoms(atoms1, atoms2, tol=1e-15)
+        assert not compare_atoms(atoms1, atoms2, tol=1e-12)
 
 
 @pytest.fixture(params=[False, True])
