@@ -410,6 +410,21 @@ def test_cell_editor(gui):
     assert (gui.atoms.pbc == newpbc).all()
 
 
+def test_input_arithmetic(gui):
+    """Using the cell editor to check that arithmetic in the SpinBoxes
+    is parsed correctly"""
+    au = bulk('Au')
+    gui.new_atoms(au.copy())
+    double_cell = au.cell * 2
+
+    dia = gui.cell_editor()
+
+    for lengths in dia.cell_grid:
+        lengths[3].value = str(lengths[3].value) + '*2'
+    dia.apply_magnitudes()
+    assert gui.atoms.cell == pytest.approx(double_cell[:])
+
+
 def test_constrain(gui, atoms):
     gui.select_all()
     dia = gui.constraints_window()
