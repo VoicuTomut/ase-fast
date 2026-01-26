@@ -285,9 +285,18 @@ class NEBOptimizable(Optimizable):
 
 
 class BaseNEB:
-    def __init__(self, images, k=0.1, climb=False, parallel=False,
-                 remove_rotation_and_translation=False, world=None,
-                 method='improvedtangent', allow_shared_calculator=False, precon=None):
+    def __init__(
+            self,
+            images,
+            k=0.1,
+            climb=False,
+            parallel=False,
+            remove_rotation_and_translation=False,
+            world=None,
+            method='improvedtangent',
+            allow_shared_calculator=False,
+            precon=None,
+        ):
 
         self.images = images
         self.climb = climb
@@ -652,10 +661,21 @@ class BaseNEB:
 
 
 class DyNEB(BaseNEB):
-    def __init__(self, images, k=0.1, fmax=0.05, climb=False, parallel=False,
-                 remove_rotation_and_translation=False, world=None,
-                 dynamic_relaxation=True, scale_fmax=0., method='improvedtangent',
-                 allow_shared_calculator=False, precon=None):
+    def __init__(
+            self,
+            images,
+            k=0.1,
+            fmax=0.05,
+            climb=False,
+            parallel=False,
+            remove_rotation_and_translation=False,
+            world=None,
+            dynamic_relaxation=True,
+            scale_fmax=0.,
+            method='improvedtangent',
+            allow_shared_calculator=False,
+            precon=None,
+        ):
         """
         Subclass of NEB that allows for scaled and dynamic optimizations of
         images. This method, which only works in series, does not perform
