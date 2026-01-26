@@ -695,15 +695,15 @@ def test_custom_radii(gui):
     hcl = molecule('HCl')
     radius_scale = gui.images.atom_scale
 
-    radius_dict = {'Cl': 5., 1: 3.}
+    radius_dict = {'Cl': 5.0, 1: 3.0}
     gui.new_atoms(hcl)
     gui.images.configure_radii(radius_dict)
     radii = gui.images.get_radii(gui.atoms)
-    assert radii[0] / radius_scale == pytest.approx(5.)
-    assert radii[1] / radius_scale == pytest.approx(3.)
+    assert radii[0] / radius_scale == pytest.approx(5.0)
+    assert radii[1] / radius_scale == pytest.approx(3.0)
 
-    radius_list = [[17, 5.], ['H', 3.]]
+    radius_list = [[17, 5.0], ['H', 3.0]]
     gui.images.configure_radii(radius_list)
     radii = gui.images.get_radii(gui.atoms)
-    assert radii[0] / radius_scale == pytest.approx(5.)
-    assert radii[1] / radius_scale == pytest.approx(3.)
+    assert radii[0] / radius_scale == pytest.approx(5.0)
+    assert radii[1] / radius_scale == pytest.approx(3.0)
