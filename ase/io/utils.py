@@ -9,7 +9,7 @@ import numpy as np
 from ase import Atoms
 from ase.data import atomic_numbers, covalent_radii
 from ase.data.colors import jmol_colors as default_colors
-from ase.io.formats import string2index
+from ase.io.formats import index2range, string2index
 from ase.utils import irotate, rotate
 
 
@@ -569,6 +569,7 @@ class ImageIterator:
             yield chunk.build(**kwargs)
 
     def _getslice(self, fd: IO, indices: slice) -> Iterator[ImageChunk]:
+        iterator: Iterator[ImageChunk]
         try:
             iterator = islice(
                 self.ichunks(fd),
@@ -583,12 +584,10 @@ class ImageIterator:
                 msg = 'Negative indices only supported for seekable streams'
                 raise ValueError(msg)
             startpos = fd.tell()
-            nchunks = 0
-            for _ in self.ichunks(fd):
-                nchunks += 1
+            chunks = list(_ for _ in self.ichunks(fd))
+            nchunks = len(chunks)
             fd.seek(startpos)
-            indices_tuple = indices.indices(nchunks)
-            iterator = islice(self.ichunks(fd), *indices_tuple)
+            iterator = (chunks[_] for _ in index2range(indices, nchunks))
         return iterator
 
 
