@@ -814,6 +814,10 @@ class NEB(DyNEB):
             * eb: Paper III full spring force implementation
             * spline: Paper IV spline interpolation (supports precon)
             * string: Paper IV string method (supports precon)
+
+            .. versionchanged:: 3.27.1
+               The default changes from ``aseneb`` to ``improvedtangent``.
+
         allow_shared_calculator: bool
             Allow images to share the same calculator between them.
             Incompatible with parallelisation over images.
