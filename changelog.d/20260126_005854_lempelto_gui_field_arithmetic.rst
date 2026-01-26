@@ -26,7 +26,7 @@
 GUI
 ---
 
-- Number fields in the GUI can now be do basic arithmetic using Python syntax
+- Number fields in the GUI can now do basic arithmetic using Python syntax.
 
 .. Development
 .. -----------
