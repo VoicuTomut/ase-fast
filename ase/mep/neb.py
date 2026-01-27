@@ -293,7 +293,7 @@ class BaseNEB:
             parallel=False,
             remove_rotation_and_translation=False,
             world=None,
-            method='improvedtangent',
+            method='default',
             allow_shared_calculator=False,
             precon=None,
         ):
@@ -324,6 +324,19 @@ class BaseNEB:
         self.emax = np.nan
 
         self.remove_rotation_and_translation = remove_rotation_and_translation
+
+        if method == 'default':
+            warnings.warn(
+                "The default method has changed from 'aseneb' to 'improvedtangent'. "
+                "The 'aseneb' method is an unpublished, custom implementation that "
+                "is not recommended as it frequently results in very poor bands. "
+                "Please explicitly set method='improvedtangent' to silence this "
+                "warning, or set method='aseneb' if you strictly require the old "
+                "behavior (results may vary). "
+                "See: https://gitlab.com/ase/ase/-/merge_requests/3952",
+                UserWarning,
+            )
+            method = 'improvedtangent'
 
         if method in ['aseneb', 'eb', 'improvedtangent', 'spline', 'string']:
             self.method = method
@@ -672,7 +685,7 @@ class DyNEB(BaseNEB):
             world=None,
             dynamic_relaxation=True,
             scale_fmax=0.,
-            method='improvedtangent',
+            method='default',
             allow_shared_calculator=False,
             precon=None,
         ):
@@ -787,7 +800,7 @@ def _check_deprecation(keyword, kwargs):
 class NEB(DyNEB):
     def __init__(self, images, k=0.1, climb=False, parallel=False,
                  remove_rotation_and_translation=False, world=None,
-                 method='improvedtangent', allow_shared_calculator=False,
+                 method='default', allow_shared_calculator=False,
                  precon=None, **kwargs):
         """Nudged elastic band.
 
@@ -834,6 +847,8 @@ class NEB(DyNEB):
             * eb: Paper III full spring force implementation
             * spline: Paper IV spline interpolation (supports precon)
             * string: Paper IV string method (supports precon)
+
+            Defaults to 'improvedtangent' (with a warning if not specified).
 
             .. versionchanged:: 3.27.1
                The default changes from ``aseneb`` to ``improvedtangent``.
