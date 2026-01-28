@@ -1,7 +1,7 @@
 .. _tutorials:
 
-Tutorials
-=========
+Tutorials (legacy format)
+=========================
 
 Python
 ------

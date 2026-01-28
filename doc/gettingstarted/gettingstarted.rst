@@ -1,7 +1,7 @@
 .. _gettingstarted:
 
-Getting started
-===============
+Getting started (legacy tutorials)
+==================================
 Welcome to the introductory ASE tutorials. This is where to start.
 
 If you are not familiar with Python please read :ref:`what is python`.
