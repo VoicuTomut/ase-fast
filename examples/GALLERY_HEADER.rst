@@ -1,7 +1,7 @@
 .. _examplesgallery:
 
-Examples
-========
+Tutorials
+=========
 
 This directory contains examples of how to use ASE.
 
@@ -12,5 +12,3 @@ For running the examples install ase.
     pip install ase
 
 Some more advanced examples might need additional packages.
-
-
