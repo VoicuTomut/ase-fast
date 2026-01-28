@@ -1,4 +1,4 @@
-.. _examplesgallery:
+.. _tutorials:
 
 Tutorials
 =========

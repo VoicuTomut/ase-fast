@@ -1,4 +1,4 @@
-.. _tutorials:
+.. _old_tutorials:
 
 Tutorials (legacy format)
 =========================
