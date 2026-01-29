@@ -4,7 +4,7 @@ Getting started (legacy tutorials)
 ==================================
 Welcome to the introductory ASE tutorials. This is where to start.
 
-If you are not familiar with Python please read :ref:`what is python`.
+If you are not familiar with Python please read :ref:`pythonintroduction`.
 
 If your ASE scripts make extensive use of matrices you may want to familiarize yourself with :ref:`numpy`.
 

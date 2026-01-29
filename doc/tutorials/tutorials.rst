@@ -9,7 +9,7 @@ This page is going to disappear.
 Python
 ------
 
-If you are not familiar with Python please read :ref:`what is python`.
+If you are not familiar with Python please read :ref:`pythonintroduction`.
 
 .. toctree::
    :hidden:
