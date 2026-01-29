@@ -80,7 +80,6 @@ Molecular Dynamics
 
    md/md
    tipnp_equil/tipnp_equil
-   acn_equil/acn_equil
 
 Uncategorized
 ^^^^^^^^^^^^^
