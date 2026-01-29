@@ -1,5 +1,3 @@
-.. _idpp_tutorial:
-
 ==============================================================================
 Image Dependent Pair Potential for improved interpolation of NEB initial guess
 ==============================================================================
