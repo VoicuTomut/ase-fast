@@ -6,18 +6,6 @@ Tutorials (legacy format)
 Many tutorials have been modernized and moved to :ref:`tutorials`.
 This page is going to disappear.
 
-Python
-------
-
-If you are not familiar with Python please read :ref:`pythonintroduction`.
-
-.. toctree::
-   :hidden:
-
-   ../python
-
-If your ASE scripts make extensive use of matrices you may want to familiarize yourself with :ref:`numpy`.
-
 ASE
 ---
 
