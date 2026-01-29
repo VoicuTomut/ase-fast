@@ -51,7 +51,6 @@ Uncategorized
    defects/defects
    qmmm/qmmm
    dimensionality/dimensionality
-   deltacodesdft/deltacodesdft
    wannier/wannier
    tut03_vibrations/vibrations
 
