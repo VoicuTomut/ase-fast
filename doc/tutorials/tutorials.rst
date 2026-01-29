@@ -12,13 +12,6 @@ ASE
 Most of the tutorials will use the :mod:`EMT <ase.calculators.emt>` potential,
 but any other :mod:`Calculator <ase.calculators>` could be plugged in instead.
 
-Surface adsorption
-^^^^^^^^^^^^^^^^^^
-.. toctree::
-   :maxdepth: 1
-
-   db/db
-
 Global optimization
 ^^^^^^^^^^^^^^^^^^^
 .. toctree::
