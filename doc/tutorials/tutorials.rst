@@ -33,15 +33,15 @@ Calculating diffusion/dissociation properties
    neb/diffusion
    constraints/diffusion
    dissociation
-..   neb/idpp  moved
    selfdiffusion/al110
 
-Molecular Dynamics
-^^^^^^^^^^^^^^^^^^
-.. toctree::
-   :maxdepth: 1
 
-   tipnp_equil/tipnp_equil
+.. original toctree was:
+..   neb/diffusion
+..   constraints/diffusion
+..   dissociation
+..   neb/idpp  [ported to new tutorials]
+..   selfdiffusion/al110
 
 Uncategorized
 ^^^^^^^^^^^^^
