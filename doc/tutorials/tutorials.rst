@@ -30,7 +30,6 @@ Basic property calculations
    :maxdepth: 1
 
    atomization
-   eos/eos
 
 Surface adsorption
 ^^^^^^^^^^^^^^^^^^
