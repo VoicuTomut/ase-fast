@@ -1,7 +1,15 @@
 .. _gettingstarted:
 
-Getting started (legacy tutorials)
-==================================
+Getting started (legacy format)
+===============================
+
+
+.. note::
+
+   We are porting the ASE tutorials to sphinx-gallery.
+   Tutorials in this section will be ported and moved
+   to :ref:`tutorials`.
+
 Welcome to the introductory ASE tutorials. This is where to start.
 
 If you are not familiar with Python please read :ref:`pythonintroduction`.

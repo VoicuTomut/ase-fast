@@ -1,10 +1,14 @@
+
 .. _old_tutorials:
 
 Tutorials (legacy format)
 =========================
 
-Many tutorials have been modernized and moved to :ref:`tutorials`.
-This page is going to disappear.
+.. note::
+
+   We are porting the ASE tutorials to sphinx-gallery.
+   Tutorials in this section will be ported and moved
+   to :ref:`tutorials`.
 
 ASE
 ---
@@ -29,7 +33,8 @@ Calculating diffusion/dissociation properties
    selfdiffusion/al110
 
 
-.. original toctree was:
+.. original toctree was (in case we want to try to keep the ordering when
+.. moving to sphinx-gallery):
 ..   neb/diffusion
 ..   constraints/diffusion
 ..   dissociation
