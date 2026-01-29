@@ -36,13 +36,6 @@ Calculating diffusion/dissociation properties
    neb/idpp
    selfdiffusion/al110
 
-ASE database
-^^^^^^^^^^^^
-.. toctree::
-   :maxdepth: 1
-
-   tut06_database/database
-
 Molecular Dynamics
 ^^^^^^^^^^^^^^^^^^
 .. toctree::
