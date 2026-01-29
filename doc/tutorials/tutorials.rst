@@ -12,13 +12,6 @@ ASE
 Most of the tutorials will use the :mod:`EMT <ase.calculators.emt>` potential,
 but any other :mod:`Calculator <ase.calculators>` could be plugged in instead.
 
-Basic property calculations
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-.. toctree::
-   :maxdepth: 1
-
-   atomization
-
 Surface adsorption
 ^^^^^^^^^^^^^^^^^^
 .. toctree::
