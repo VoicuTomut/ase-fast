@@ -2037,7 +2037,7 @@ Version 3.7.0
 
 * ASE now runs on Windows and Mac.
 
-* :ref:`mhtutorial` added to ASE.
+* :ref:`minima_hopping` added to ASE.
 
 
 Version 3.6.0

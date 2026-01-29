@@ -1,5 +1,3 @@
-.. _mhtutorial:
-
 ================================================
 Constrained minima hopping (global optimization)
 ================================================
