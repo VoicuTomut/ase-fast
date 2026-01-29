@@ -75,7 +75,6 @@ Molecular Dynamics
 .. toctree::
    :maxdepth: 1
 
-   md/md
    tipnp_equil/tipnp_equil
 
 Uncategorized
