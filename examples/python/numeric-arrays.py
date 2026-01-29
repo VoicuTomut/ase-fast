@@ -1,4 +1,4 @@
-""".. _python_numeric_arrays:
+""".. _numpy:
 
 ========================
 Numeric arrays in Python

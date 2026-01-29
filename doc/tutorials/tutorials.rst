@@ -18,11 +18,6 @@ If you are not familiar with Python please read :ref:`what is python`.
 
 If your ASE scripts make extensive use of matrices you may want to familiarize yourself with :ref:`numpy`.
 
-.. toctree::
-   :hidden:
-
-   ../numpy
-
 ASE
 ---
 
