@@ -33,7 +33,7 @@ Calculating diffusion/dissociation properties
    neb/diffusion
    constraints/diffusion
    dissociation
-   neb/idpp
+..   neb/idpp  moved
    selfdiffusion/al110
 
 Molecular Dynamics
