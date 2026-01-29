@@ -3,6 +3,9 @@
 Tutorials (legacy format)
 =========================
 
+Many tutorials have been modernized and moved to :ref:`tutorials`.
+This page is going to disappear.
+
 Python
 ------
 
@@ -33,7 +36,6 @@ Basic property calculations
 
    atomization
    eos/eos
-   lattice_constant
 
 Surface adsorption
 ^^^^^^^^^^^^^^^^^^
