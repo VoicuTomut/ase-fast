@@ -250,6 +250,7 @@ class SpinBox(Widget):
 
     @property
     def value(self):
+        self.parse_value()
         x = self.widget.get().replace(',', '.')
         if '.' in x:
             return float(x)
