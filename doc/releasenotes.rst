@@ -1330,7 +1330,7 @@ Algorithms:
   `ase-ga <https://dtu-energy.github.io/ase-ga>`__.)
 
 * New :func:`ase.geometry.dimensionality.analyze_dimensionality` function.
-  See: :ref:`dimtutorial`.
+  See: :ref:`dim_examples`.
 
 * New :func:`ase.utils.deltacodesdft.delta` function:  Calculates the
   difference between two DFT equation-of-states.  See the new :ref:`dcdft tut`

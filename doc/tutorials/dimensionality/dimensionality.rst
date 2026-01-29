@@ -1,5 +1,3 @@
-.. _dimtutorial:
-
 =======================
 Dimensionality analysis
 =======================
