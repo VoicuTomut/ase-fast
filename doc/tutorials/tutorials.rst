@@ -43,7 +43,6 @@ Uncategorized
 
    defects/defects
    qmmm/qmmm
-   dimensionality/dimensionality
    wannier/wannier
    tut03_vibrations/vibrations
 
