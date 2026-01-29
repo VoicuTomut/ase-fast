@@ -1,5 +1,3 @@
-.. _dcdft tut:
-
 Calculating Delta-values
 ========================
 

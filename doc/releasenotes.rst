@@ -1333,8 +1333,8 @@ Algorithms:
   See: :ref:`dim_examples`.
 
 * New :func:`ase.utils.deltacodesdft.delta` function:  Calculates the
-  difference between two DFT equation-of-states.  See the new :ref:`dcdft tut`
-  tutorial.
+  difference between two DFT equation-of-states.  See the new
+  :ref:`delta_values_example` tutorial.
 
 * Holonomic :class:`~ase.constraints.FixLinearTriatomic` for QM/MM
   calculations.
