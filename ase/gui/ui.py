@@ -240,7 +240,12 @@ class SpinBox(Widget):
     def parse_value(self):
         x = self.widget.get().replace(',', '.')
         if not x.isnumeric():
-            x = eval_expression(x)
+            try:
+                x = eval_expression(x)
+            except TypeError:
+                # eval_expression will throw a TypeError if x is not
+                # math. This is actually fine here, so no cleanup to do
+                pass
             self.value = x
 
     def parse_and_callback(self):
