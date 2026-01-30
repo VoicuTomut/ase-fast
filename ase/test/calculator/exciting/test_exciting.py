@@ -1,4 +1,3 @@
-# fmt: off
 """Test file for exciting ASE calculator."""
 
 import xml.etree.ElementTree as ET

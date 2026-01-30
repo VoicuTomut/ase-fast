@@ -1,11 +1,9 @@
-# fmt: off
 from math import sqrt
 
 from ase import Atoms
 
 
 def test_rotate_euler():
-
     d = 1.14
     a = Atoms('CO', [(0, 0, 0), (d, 0, 0)])
     a.euler_rotate(phi=90, theta=45, psi=180)

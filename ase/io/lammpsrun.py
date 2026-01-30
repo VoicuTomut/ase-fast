@@ -4,6 +4,7 @@ import gzip
 import struct
 from collections import deque
 from os.path import splitext
+from typing import Any
 
 import numpy as np
 
@@ -59,60 +60,64 @@ def read_lammps_dump(infileobj, **kwargs):
     return out
 
 
-def lammps_data_to_ase_atoms(
+def _lammps_data_to_ase_atoms(
     data,
     colnames,
     cell,
     celldisp,
     pbc=False,
-    atomsobj=Atoms,
     order=True,
     specorder=None,
     prismobj=None,
     units='metal',
 ):
-    """Extract positions and other per-atom parameters and create Atoms
+    """Extract positions and other per-atom parameters and create Atoms.
 
-    :param data: per atom data
-    :param colnames: index for data
-    :param cell: cell dimensions
-    :param celldisp: origin shift
-    :param pbc: periodic boundaries
-    :param atomsobj: function to create ase-Atoms object
-    :param order: sort atoms by id. Might be faster to turn off.
-    Disregarded in case `id` column is not given in file.
-    :param specorder: list of species to map lammps types to ase-species
-    (usually .dump files to not contain type to species mapping)
-    :param prismobj: Coordinate transformation between lammps and ase
-    :type prismobj: Prism
-    :param units: lammps units for unit transformation between lammps and ase
-    :returns: Atoms object
-    :rtype: Atoms
+    Parameters
+    ----------
+    data : np.ndarray
+        Structured array for `ITEM: ATOMS`.
+    colnames: list[str]
+        Column names for `ITEM: ATOMS`.
+    cell : np.ndarray
+        Cell.
+    celldisp : np.ndarray
+        Origin shift.
+    pbc : bool | list[bool]
+        Periodic boundary conditions.
+    order : bool
+        Sort atoms by `id`. Might be faster to turn off.
+        Disregarded in case `id` column is not given in file.
+    specorder : list[str]
+        List of species to map LAMMPS types to ASE species.
+        (Usually .dump files do not contain type to species mapping.)
+    prismobj : Prism
+        Coordinate transformation between LAMMPS and ASE.
+    units : str
+        LAMMPS units for unit transformation between LAMMPS and ASE.
+
+    Returns
+    -------
+    :class:`~ase.Atoms`
 
     """
-    if len(data.shape) == 1:
-        data = data[np.newaxis, :]
-
     # read IDs if given and order if needed
     if 'id' in colnames:
-        ids = data[:, colnames.index('id')].astype(int)
+        ids = data['id']
         if order:
             sort_order = np.argsort(ids)
-            data = data[sort_order, :]
+            data = data[sort_order]
 
     # determine the elements
     if 'element' in colnames:
         # priority to elements written in file
-        elements = data[:, colnames.index('element')]
+        elements = data['element']
     elif 'mass' in colnames:
         # try to determine elements from masses
-        elements = [
-            _mass2element(m)
-            for m in data[:, colnames.index('mass')].astype(float)
-        ]
+        elements = [_mass2element(m) for m in data['mass']]
     elif 'type' in colnames:
         # fall back to `types` otherwise
-        elements = data[:, colnames.index('type')].astype(int)
+        elements = data['type']
 
         # reconstruct types from given specorder
         if specorder:
@@ -125,13 +130,10 @@ def lammps_data_to_ase_atoms(
 
     def get_quantity(labels, quantity=None):
         try:
-            cols = [colnames.index(label) for label in labels]
+            cols = np.column_stack([data[label] for label in labels])
             if quantity:
-                return convert(
-                    data[:, cols].astype(float), quantity, units, 'ASE'
-                )
-
-            return data[:, cols].astype(float)
+                return convert(cols, quantity, units, 'ASE')
+            return cols
         except ValueError:
             return None
 
@@ -167,7 +169,7 @@ def lammps_data_to_ase_atoms(
         cell = prismobj.update_cell(cell)
 
     if quaternions is not None:
-        out_atoms = atomsobj(
+        out_atoms = Atoms(
             symbols=elements,
             positions=positions,
             cell=cell,
@@ -181,7 +183,7 @@ def lammps_data_to_ase_atoms(
         if prismobj:
             positions = prismobj.vector_to_ase(positions, wrap=True)
 
-        out_atoms = atomsobj(
+        out_atoms = Atoms(
             symbols=elements,
             positions=positions,
             pbc=pbc,
@@ -189,13 +191,15 @@ def lammps_data_to_ase_atoms(
             cell=cell,
         )
     elif scaled_positions is not None:
-        out_atoms = atomsobj(
+        out_atoms = Atoms(
             symbols=elements,
             scaled_positions=scaled_positions,
             pbc=pbc,
             celldisp=celldisp,
             cell=cell,
         )
+    else:
+        raise RuntimeError('No atomsobj created from LAMMPS data!')
 
     if velocities is not None:
         if prismobj:
@@ -224,10 +228,15 @@ def lammps_data_to_ase_atoms(
             or colname.startswith('d2_')
             or (colname.startswith('c_') and not colname.startswith('c_q['))
         ):
-            out_atoms.new_array(colname, get_quantity([colname]), dtype='float')
+            out_atoms.new_array(colname, data[colname], dtype='float')
 
         elif colname.startswith('i_') or colname.startswith('i2_'):
-            out_atoms.new_array(colname, get_quantity([colname]), dtype='int')
+            out_atoms.new_array(colname, data[colname], dtype='int')
+        elif colname == 'type':
+            try:
+                out_atoms.new_array(colname, data['type'], dtype='int')
+            except ValueError:
+                pass  # in case type is not integer
 
     return out_atoms
 
@@ -306,8 +315,26 @@ def get_max_index(index):
         return index.stop if (index.stop is not None) else float('inf')
 
 
+def _colnames2dtypes(colnames: list[str]) -> list[tuple[str, Any]]:
+    # Determine the data types for each column
+    dtype: list[tuple[str, Any]] = []
+    for colname in colnames:
+        if (
+            colname in {'id', 'type'}
+            or colname.startswith('i_')
+            or colname.startswith('i2_')
+        ):
+            dtype.append((colname, int))
+        elif colname == 'element':
+            # 'U10' for strings with a max length of 10 characters
+            dtype.append((colname, 'U10'))
+        else:
+            dtype.append((colname, float))
+    return dtype
+
+
 def read_lammps_dump_text(fileobj, index=-1, **kwargs):
-    """Process cleartext lammps dumpfiles
+    """Process cleartext lammps dumpfiles.
 
     :param fileobj: filestream providing the trajectory data
     :param index: integer or slice object (default: get the last timestep)
@@ -330,7 +357,7 @@ def read_lammps_dump_text(fileobj, index=-1, **kwargs):
         if 'ITEM: TIMESTEP' in line:
             line = lines.popleft()
             # !TODO: pyflakes complains about this line -> do something
-            ntimestep = int(line.split()[0])  # NOQA
+            ntimestep = int(line.split()[0])
             info['timestep'] = ntimestep
 
         if 'ITEM: NUMBER OF ATOMS' in line:
@@ -342,14 +369,14 @@ def read_lammps_dump_text(fileobj, index=-1, **kwargs):
 
         if 'ITEM: ATOMS' in line:
             colnames = line.split()[2:]
+            dtype = _colnames2dtypes(colnames)
             datarows = [lines.popleft() for _ in range(n_atoms)]
-            data = np.loadtxt(datarows, dtype=str, ndmin=2)
-            out_atoms = lammps_data_to_ase_atoms(
+            data = np.loadtxt(datarows, dtype=dtype, ndmin=1)
+            out_atoms = _lammps_data_to_ase_atoms(
                 data=data,
                 colnames=colnames,
                 cell=cell,
                 celldisp=celldisp,
-                atomsobj=Atoms,
                 pbc=pbc,
                 **kwargs,
             )
@@ -365,7 +392,7 @@ def read_lammps_dump_text(fileobj, index=-1, **kwargs):
 def read_lammps_dump_binary(
     fileobj, index=-1, colnames=None, intformat='SMALLBIG', **kwargs
 ):
-    """Read binary dump-files (after binary2txt.cpp from lammps/tools)
+    """Read binary dump-files (after binary2txt.cpp from lammps/tools).
 
     :param fileobj: file-stream containing the binary lammps data
     :param index: integer or slice object (default: get the last timestep)
@@ -378,9 +405,11 @@ def read_lammps_dump_binary(
     # depending on the chosen compilation flag lammps uses either normal
     # integers or long long for its id or timestep numbering
     # !TODO: tags are cast to double -> missing/double ids (add check?)
-    _tagformat, bigformat = dict(
-        SMALLSMALL=('i', 'i'), SMALLBIG=('i', 'q'), BIGBIG=('q', 'q')
-    )[intformat]
+    _tagformat, bigformat = {
+        'SMALLSMALL': ('i', 'i'),
+        'SMALLBIG': ('i', 'q'),
+        'BIGBIG': ('q', 'q'),
+    }[intformat]
 
     index_end = get_max_index(index)
 
@@ -507,8 +536,11 @@ def read_lammps_dump_binary(
                 data += read_variables('=' + str(n_data) + 'd')
             data = np.array(data).reshape((-1, size_one))
 
+            # convert the 2D float array to the structured array
+            data = np.rec.fromarrays(data.T, dtype=_colnames2dtypes(colnames))
+
             # map data-chunk to ase atoms
-            out_atoms = lammps_data_to_ase_atoms(
+            out_atoms = _lammps_data_to_ase_atoms(
                 data=data,
                 colnames=colnames,
                 cell=cell,
@@ -520,7 +552,7 @@ def read_lammps_dump_binary(
             images.append(out_atoms)
 
             # stop if requested index has been found
-            if len(images) > index_end >= 0:
+            if len(images) > index_end >= 0:  # type: ignore[comparison-overlap]
                 break
 
         except EOFError:

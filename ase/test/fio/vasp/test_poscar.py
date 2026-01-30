@@ -1,4 +1,3 @@
-# fmt: off
 # import inspect
 from shutil import copyfile
 

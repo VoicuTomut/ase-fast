@@ -9,10 +9,9 @@ dynamic = ['version']
 readme = 'README.rst'
 license = 'LGPL-2.1-or-later'
 license-files = ['LICENSE']
-maintainers = [{ name = 'ASE Community', email = 'ase-users@listserv.fysik.dtu.dk' }]
+maintainers = [{ name = 'ASE Steering Committee', email = 'ase-committee@listserv.fysik.dtu.dk' }]
 classifiers = [
     'Development Status :: 6 - Mature',
-    'Intended Audience :: Science/Research',
     'Operating System :: OS Independent',
     'Programming Language :: Python :: 3',
     'Programming Language :: Python :: 3.10',
@@ -43,9 +42,9 @@ ase = 'ase.cli.main:main'
 
 [project.optional-dependencies]
 docs = ['sphinx', 'sphinx_book_theme', 'sphinx-gallery', 'pillow']
-test = ['pytest>=7.0.0', 'pytest-xdist>=2.1.0']
+test = ['pytest>=7.4.0', 'pytest-xdist>=3.2.0']  # summer 2023
 spglib = ['spglib>=1.9']
-lint = ['mypy', 'ruff', 'coverage', 'types-docutils', 'types-PyMySQL', 'flake8']
+lint = ['mypy', 'ruff', 'types-docutils', 'types-PyMySQL']
 
 [tool.setuptools.package-data]
 ase = [
@@ -70,6 +69,13 @@ markers = [
     'slow: test takes longer than a few seconds',
 ]
 
+filterwarnings = [
+    'error',
+    'once::ResourceWarning',
+    'ignore:.*size changed, may indicate binary incompatibility',
+    'ignore::ase.config.ASEEnvDeprecationWarning',
+]
+
 [tool.mypy]
 ignore_missing_imports = true
 no_implicit_optional = false
@@ -77,12 +83,23 @@ enable_error_code = 'ignore-without-code'
 
 [tool.coverage.run]
 source = ['ase']
+patch = ['subprocess']
 
 [tool.coverage.report]
+precision = 2
+omit = [
+    'ase/test/*',
+    'ase/utils/sphinx.py',
+    'ase/utils/build_web_page.py',
+    'ase/utils/newrelease.py',
+]
 exclude_also = [
     'if TYPE_CHECKING:',
     'if __name__ == .__main__.:'
 ]
+
+[tool.coverage.html]
+directory = 'coverage-html'
 
 [tool.ruff]
 line-length = 80
@@ -108,15 +125,9 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"examples/gettingstarted/00-n2cu.py"=["E402","F401","I001"]
-"examples/gettingstarted/01-atoms-and-calculators.py"=["E402", "E501", "F401", "I001"]
-"examples/gettingstarted/03-manipulating-atoms.py"=["E402"]
-"examples/gettingstarted/06-nanoparticle.py"=["E402"]
 "!doc/tutorials/**.py" = ["UP"]  # Only pyupgrade tutorials (for now)
-"examples/tutorials/delta_values.py" = ["E402","F811"]
-"examples/tutorials/neb_idpp.py"=["E402"]
-"examples/tutorials/dimensionality.py"=["E402","F811","F401"]
-"examples/tutorials/tipnp_equil.py"=["E402"]
+"examples/tutorials/*.py" = ["E402"]
+"examples/gettingstarted/*.py" = ["E402"]
 
 [tool.ruff.lint.pycodestyle]
 max-line-length = 80

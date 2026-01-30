@@ -1,4 +1,3 @@
-# fmt: off
 from ase.calculators.openmx.openmx import parse_omx_version
 
 sample_output = """\

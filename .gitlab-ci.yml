@@ -7,6 +7,7 @@ variables:
   OMP_NUM_THREADS: "1"
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/pip-cache"
   PYTEST_ADDOPTS: "--color=yes --durations=20 -r s"
+  COVERAGE_OPTS: "--cov=ase --cov-config=pyproject.toml --junit-xml=report.xml"
 
 stages:
   - test
@@ -39,11 +40,11 @@ oldlibs:
     - >
       pip install
       numpy==1.21.6 scipy==1.8.1 matplotlib==3.5.2
-      pytest==7.0.0 attrs==20.3.0 pluggy==1.0.0 py==1.11.0 six==1.16.0
-      pytest-xdist==2.1.0 execnet==1.8.1 pytest-forked==1.4.0
-    - pip install --no-deps .
+      pytest==7.4.0 attrs==20.3.0 pluggy==1.0.0 py==1.11.0 six==1.16.0
+      pytest-xdist==3.2.0 execnet==1.8.1 pytest-forked==1.4.0
+    - pip install --no-deps --editable .
   script:
-    - ase test
+    - pytest -n 8 -Wignore::DeprecationWarning
   cache:
     key: oldlibs
     paths:
@@ -71,27 +72,25 @@ main:
   image: registry.gitlab.com/ase/ase:ase-main
   before_script:
     - python --version
+    - pip install --upgrade pytest-cov>=7.0.0 coverage>=7.10.6
     - pip install --no-deps --editable .
     - ase info --calculators
     - cd $CI_PROJECT_DIR
   script:
     - >
-      ase test
+      pytest $COVERAGE_OPTS ase/test -n 8
       --calculators asap,ff,lj,morse,tip3p,tip4p
-      --coverage --pytest
-      --junit-xml=report.xml
   after_script:
-    - coverage xml --data-file ase/test/.coverage
-    - mv ase/test/coverage-html coverage-main
-    - mv ase/test/.coverage coverage-main/coverage.dat
+    - coverage xml
+    - mv .coverage coverage-main.dat
   artifacts:
     paths:
-      - coverage-main/
+      - coverage-main.dat
     reports:
       coverage_report:
         coverage_format: cobertura
         path: coverage.xml
-      junit: ase/test/report.xml
+      junit: report.xml
     expire_in: 1 week
   cache:
     key: main
@@ -104,26 +103,25 @@ main:
 calculators-lite:
   image: registry.gitlab.com/ase/ase:ase-full-monty
   before_script:
+    - pip install --upgrade pytest-cov>=7.0.0 coverage>=7.10.6
     - pip install --no-deps --editable .
     - export ASE_CONFIG_PATH=/home/ase/aseconfig.ini
     - sed 's/binary = /command = /' -i /home/ase/aseconfig.ini
   script:
     - >
-      ase test calculator --calculators=auto --coverage
-      --pytest -m calculator_lite
-      --junit-xml=report.xml
+      pytest $COVERAGE_OPTS -n 8 -m calculator_lite
+      ase/test/calculator/ --calculators auto
   after_script:
-    - coverage xml --data-file ase/test/.coverage
-    - mv ase/test/coverage-html coverage-calculators-lite
-    - mv ase/test/.coverage coverage-calculators-lite/coverage.dat
+    - coverage xml
+    - mv .coverage coverage-calculators-lite.dat
   artifacts:
     paths:
-      - coverage-calculators-lite/
+      - coverage-calculators-lite.dat
     reports:
       coverage_report:
         coverage_format: cobertura
         path: coverage.xml
-      junit: ase/test/report.xml
+      junit: report.xml
     expire_in: 1 week
   cache:
     key: calculators
@@ -140,17 +138,17 @@ calculators:
   image: registry.gitlab.com/ase/ase:ase-full-monty
   before_script:
     - pip install --no-deps --editable .
+    - pip install --upgrade pytest-cov>=7.0.0 coverage>=7.10.6
     - export ASE_CONFIG_PATH=/home/ase/aseconfig.ini
     - sed 's/binary = /command = /' -i /home/ase/aseconfig.ini
     - ase info --calculators
   script:
     - >
-      ase test calculator --calculators abinit,asap,cp2k,dftb,espresso,gpaw,kim,lammpslib,lammpsrun,mopac,nwchem,octopus,siesta
-      --coverage --pytest --junit-xml=report.xml
+      pytest $COVERAGE_OPTS -n 8 ase/test/calculator
+      --calculators abinit,asap,cp2k,dftb,espresso,gpaw,kim,lammpslib,lammpsrun,mopac,nwchem,octopus,siesta
   after_script:
-    - coverage xml --data-file ase/test/.coverage
-    - mv ase/test/coverage-html coverage-calculators
-    - mv ase/test/.coverage coverage-calculators/coverage.dat
+    - coverage xml
+    - mv .coverage coverage-calculators.dat
   rules:
     - if: $CI_PIPELINE_SOURCE == "push"
       when: manual
@@ -158,12 +156,12 @@ calculators:
     - if: $CI_PIPELINE_SOURCE == "schedule"
   artifacts:
     paths:
-      - coverage-calculators/
+      - coverage-calculators.dat
     reports:
       coverage_report:
         coverage_format: cobertura
         path: coverage.xml
-      junit: ase/test/report.xml
+      junit: report.xml
     expire_in: 1 week
   cache:
     key: calculators
@@ -278,18 +276,21 @@ coverage-combine:
   dependencies:
     - main
     - calculators-lite
+  before_script:
+    - pip install --upgrade coverage
   script:
-    - cd ase/test # Next to .coveragerc and friends
-    - coverage combine ../../coverage-main/coverage.dat ../../coverage-calculators-lite/coverage.dat
+    - coverage combine coverage-main.dat coverage-calculators-lite.dat
     - coverage report
     - coverage html
-    - cd ../..
-    - mv ase/test/coverage-html .
   coverage: '/TOTAL.+ ([0-9]+\.[0-9]+%)/'
   artifacts:
     paths:
       - coverage-html
     expire_in: 1 week
+  cache:
+    paths:
+      - $PIP_CACHE_DIR
+    key: coverage-combine
 
 windows_test:
   tags:
@@ -304,7 +305,7 @@ windows_test:
     - python --version
     - python -m pip install --upgrade pip
     - python -m pip install pytest
-    - python -m pip install .
+    - python -m pip install --editable .
   script:
     - >
       ase test

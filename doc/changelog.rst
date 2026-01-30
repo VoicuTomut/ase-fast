@@ -30,6 +30,143 @@ Git master branch
 
 .. scriv-auto-changelog-start
 
+Version 3.27.0
+==============
+
+I/O
+---
+
+- Add support for reading Mulliken charges in
+  :meth:`~ase.io.gamess_us.read_gamess_us_out` and
+  :meth:`~ase.io.gamess_us.read_gamess_us_punch` (:mr:`3761`)
+
+- Add support to parse general triclinic boxes in
+  :meth:`~ase.io.lammpsdata.read_lammps_data`,
+  :meth:`~ase.io.lammpsrun.read_lammps_dump_text`, and
+  :meth:`~ase.io.lammpsrun.read_lammps_dump_binary` (:mr:`3797`)
+
+- Add support for reading the energy and the dipole moment from "external" in
+  :meth:`ase.io.gaussian.read_gausian_out` (:mr:`3801`)
+
+- ASE now follows the EON convention for handling cell geometries.
+
+- Update :meth:`~ase.io.lammpsdata.write_lammps_data` to parse atom types read
+  by :meth:`~ase.io.lammpsdata.read_lammps_data` (:mr:`3847`)
+
+- **Breaking** Trajectories and logfiles passed as filenames are not kept
+  open during simulations.  Instead, the file is opened, written to
+  (generally by appending), then closed again.  This improves IO safety
+  and prevents resource leaks in many cases.  It is still possible to
+  pass trajectories and logfiles that are already open, and then the
+  caller is responsible for closing them.  Doing so may be beneficial
+  in fast runs on slow file systems. (:mr:`3899`, :mr:`3930`)
+
+- Updated :func:`~ase.io.lammpsdata.read_lammps_data` and
+  :func:`~ase.io.lammpsdata.write_lammps_data` to parse ``Atom Type Labels``
+  (:mr:`3916`)
+
+Calculators
+-----------
+
+- Add LAMMPSlib features to support arbitrary startup flags (e.g.
+  to enable kokkos) and arbitrary initialization callbacks (e.g.
+  calling `lammps.mliap.activate_mliappy`)
+
+- The `Vasp` calculator now has a more generic way of handling pseudopotentials. If the user specifies the `pp_version` keyword argument or equivalent `VASP_PP_VERSION` environment variable, the calculator will look for pseudopotentials in the corresponding VASP-provided pseudopotential directory. Simply download the pseudopotential folders provided by VASP and put them in one parent directory, defined by `VASP_PP_PATH`. If `pp_version` is `None` (default), the `Vasp` calculator will only look for `potpaw` (LDA) and `potpaw_PBE` (PBE) to maintain backwards compatability. If `pp_version="64"` (for instance), the calculator will look for pseudopotentials in the `potpaw.64` and `potpaw_PBE.64`, respectively.
+- The `potpaw_GGA` (PW91) pseudpotential folder has been removed. This means setting `xc="PW91"` will no longer use the deprecated PW91 pseudopotential folder. It is recommended the PBE pseudopotentials are used for the PW91 functional instead.
+
+- Updated :class:`~ase.calculators.lammpsrun.LAMMPS` to recognize the LAMMPS ``velocity`` command (:mr:`3805`)
+
+Optimizers
+----------
+
+- All optimizers (except GPMin) can now work with flat position and gradient arrays.
+
+ - Gradients now have the correct sign in the Optimizable API.
+   The Optimizable API is still experimental and may change. (:mr:`3908`)
+
+Molecular dynamics
+------------------
+
+- The "NPT" thermostat has been renamed to "MelchionnaNPT" for clearer
+  comparison with alternatives, and to avoid giving the impression
+  that this is a generally recommended default choice for NPT.
+
+  For backward compatibility an :class:`ase.md.npt.NPT` class remains
+  in place, which aliases the renamed class at its new location
+  :class:`ase.md.melchionna.MelchionnaNPT`.
+
+  The alias is marked as "deprecated" and will be removed in a future
+  ASE version.
+
+- New LangevinBAOAB variable-cell Langevin integrator with Leimkhler's BAOAB method
+
+GUI
+---
+
+- Added a history feature, i.e. undo/redo, to the ASE GUI.
+
+Documentation
+-------------
+
+ - Move database introduction tutorial to sphinx gallery
+
+ - Move Surface adsorption study using the ASE database  tutorial to sphinx gallery
+
+- Move Move "Calculating Delta-values tutorial" to examples/deltacodesdft sphinx gallery
+
+Other changes
+-------------
+
+- Fixed backward-compatibility of
+  :class:`~ase.constraints.FixedLine` and :class:`~ase.constraints.FixedPlane`
+  made before ASE 3.23.0 to be read with
+  :meth:`~ase.constraints.dict2constraint` after ASE 3.23.0 (:mr:`3786`)
+
+* ASE now requires Python 3.10+.
+
+ - Fix deprecated SQL syntax :mr:`3815`.
+
+- Added :meth:`ase.lattice.match_to_lattice` which matches an input cell
+  to a specific Bravais lattice and returns a list of matching representations.
+
+ - The :mod:`ase.ga` module has been moved to the standalone
+   `ase-ga <https://dtu-energy.github.io/ase-ga/>`__ project.
+
+- Improved efficiency of :func:`~ase.geometry.rdf.get_rdf` using
+  :class:`~ase.neighborlist.NeighborList` (:mr:`3888`)
+
+Bugfixes
+--------
+
+- Remove subscripting of images iterable in extxyz writer so it works
+  with non-subscriptable iterables when "move_mask" key is present in
+  `atoms.arrays` (:mr:`3795`)
+
+- Fix :func:`~ase.io.extxyz.write_extxyz` to ignore constraints other than
+  :class:`~ase.constraints.FixAtoms` and :class:`~ase.constraints.FixCartesian`
+  when ``move_mask`` is present in ``columns`` (default since ASE 3.26.0)
+  (:mr:`3808`)
+
+- Fix :func:`~ase.io.extxyz.write_extxyz` to handle multiple
+  :class:`~ase.constraints.FixAtoms` correctly (:mr:`3812`)
+
+- Fix :func:`~ase.io.extxyz.write_extxyz` to handle unconstrained atoms in
+  :class:`~ase.Atoms` with :class:`~ase.constraints.FixCartesian` correctly
+  (:mr:`3812`)
+
+- Make :class:`~ase.calculators.vasp.Vasp` calculator INCAR reader use first instance of each tag,
+  to be same as VASP code itself (:mr:`3842`)
+
+- Fix constraints from first frame being applied to all frames (leading to errors) in :func:`~ase.io.extxyz.write_extxyz` (:mr:`3920`)
+
+- Fixed partial RDFs in :func:`~ase.geometry.rdf.get_rdf` to be conssitent with
+  the common definition in, e.g., LAMMPS ``compute rdf`` (:mr:`3921`)
+
+- Fixed :class:`~ase.calculators.lammpsrun.LAMMPS` to be robust against LAMMPS log files with non-ASCII characters (:mr:`3925`)
+
+- Fixed :class:`~ase.calculators.lammpsrun.LAMMPS` to not run the default `fix nve` command when users set `fix` explicitly (:mr:`3805`)
+
 Version 3.26.0
 ==============
 

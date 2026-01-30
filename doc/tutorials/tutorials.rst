@@ -48,11 +48,12 @@ Global optimization
    :maxdepth: 1
 
    minimahopping/minimahopping
-   ga/ga_optimize
-   ga/ga_fcc_alloys
-   ga/ga_convex_hull
-   ga/ga_bulk
-   ga/ga_molecular_crystal
+
+.. note::
+
+  The :mod:`ase.ga` package has moved to
+  `ase-ga <https://dtu-energy.github.io/ase-ga/>`_
+  including tutorials.
 
 Calculating diffusion/dissociation properties
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

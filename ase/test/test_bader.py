@@ -1,4 +1,3 @@
-# fmt: off
 from pathlib import Path
 
 from ase.build import molecule

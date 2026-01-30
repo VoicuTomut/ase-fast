@@ -1,4 +1,3 @@
-# fmt: off
 import numpy as np
 
 from ase import Atoms
@@ -17,24 +16,26 @@ def test_compare_atoms():
     cell2 = cell1 * 2
     atoms1 = Atoms(cell=cell1)
     atoms2 = Atoms(cell=cell2)
-    assert set(compare_atoms(atoms1, atoms2)) == {"cell"}
+    assert set(compare_atoms(atoms1, atoms2)) == {'cell'}
 
     # A system property other than 'initial_charges' or 'initial_magmoms'
     # that exists in the `arrays` attribute of one Atoms object but not the
     # other
     atoms1 = Atoms()
     atoms2 = Atoms(numbers=[0], positions=[[0, 0, 0]])
-    assert set(compare_atoms(atoms1, atoms2)) == {"positions", "numbers"}
+    assert set(compare_atoms(atoms1, atoms2)) == {'positions', 'numbers'}
 
     # A change in a system property that exists in the `arrays` attribute
     # of both Atoms objects passed into this function
     atoms1 = Atoms(numbers=[0], positions=[[0, 0, 0]])
     atoms2 = Atoms(numbers=[0], positions=[[1, 0, 0]])
-    assert set(compare_atoms(atoms1, atoms2)) == {"positions"}
+    assert set(compare_atoms(atoms1, atoms2)) == {'positions'}
 
     # An excluded property (re-use atoms1 and atoms2 from previous check)
-    assert set(compare_atoms(atoms1, atoms2,
-               excluded_properties={"positions"})) == set()
+    assert (
+        set(compare_atoms(atoms1, atoms2, excluded_properties={'positions'}))
+        == set()
+    )
 
     # Optional array (currently 'initial_charges' or 'initial_magmoms')
     # NOTE: Suppose you initialize an array of *zero charges* for atoms2
@@ -46,4 +47,4 @@ def test_compare_atoms():
     #       occur rarely.
     atoms1 = Atoms(numbers=[0], positions=[[0, 0, 0]])
     atoms2 = Atoms(numbers=[0], positions=[[0, 0, 0]], charges=[1.13])
-    assert set(compare_atoms(atoms1, atoms2)) == {"initial_charges"}
+    assert set(compare_atoms(atoms1, atoms2)) == {'initial_charges'}

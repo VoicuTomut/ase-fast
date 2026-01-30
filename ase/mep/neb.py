@@ -265,7 +265,7 @@ class NEBOptimizable(Optimizable):
         self.neb = neb
 
     def get_gradient(self):
-        return self.neb.get_forces().ravel()
+        return -self.neb.get_forces().ravel()
 
     def get_value(self):
         return self.neb.get_potential_energy()
@@ -905,7 +905,6 @@ class NEBOptimizer(Optimizer):
             args = (name, self.nsteps, T[3], T[4], T[5], fmax)
             msg = "%s:  %3d %02d:%02d:%02d %12.4f\n" % args
             self.logfile.write(msg)
-            self.logfile.flush()
 
     def callback(self, X, F=None):
         self.log()

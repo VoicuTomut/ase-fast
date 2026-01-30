@@ -1,4 +1,3 @@
-# fmt: off
 from math import cos, pi, sin
 
 import numpy as np
@@ -16,7 +15,7 @@ from ase.constraints import FixInternals
 from ase.optimize import GPMin
 
 
-def test_qmmm(testdir):
+def test_qmmm(testdir, exitstack):
     r = rOH
     a = angleHOH * pi / 180
 
@@ -36,22 +35,30 @@ def test_qmmm(testdir):
     epsilon_qm = np.array([0, 0, epsilon0])
     ig = LJInteractionsGeneral(sigma_qm, epsilon_qm, sigma_mm, epsilon_mm, 3)
 
-    for calc in [TIP3P(),
-                 SimpleQMMM([0, 1, 2], TIP3P(), TIP3P(), TIP3P()),
-                 SimpleQMMM([0, 1, 2], TIP3P(), TIP3P(), TIP3P(), vacuum=3.0),
-                 EIQMMM([0, 1, 2], TIP3P(), TIP3P(), i),
-                 EIQMMM([3, 4, 5], TIP3P(), TIP3P(), i, vacuum=3.0),
-                 EIQMMM([0, 1, 2], TIP3P(), TIP3P(), i, vacuum=3.0),
-                 EIQMMM([0, 1, 2], TIP3P(), TIP3P(), ig),
-                 EIQMMM([3, 4, 5], TIP3P(), TIP3P(), ig, vacuum=3.0),
-                 EIQMMM([0, 1, 2], TIP3P(), TIP3P(), ig, vacuum=3.0)]:
-        dimer = Atoms('H2OH2O',
-                      [(r * cos(a), 0, r * sin(a)),
-                       (r, 0, 0),
-                       (0, 0, 0),
-                       (r * cos(a / 2), r * sin(a / 2), 0),
-                       (r * cos(a / 2), -r * sin(a / 2), 0),
-                       (0, 0, 0)])
+    cleanmeup = exitstack.enter_context
+
+    for calc in [
+        TIP3P(),
+        SimpleQMMM([0, 1, 2], TIP3P(), TIP3P(), TIP3P()),
+        SimpleQMMM([0, 1, 2], TIP3P(), TIP3P(), TIP3P(), vacuum=3.0),
+        cleanmeup(EIQMMM([0, 1, 2], TIP3P(), TIP3P(), i)),
+        cleanmeup(EIQMMM([3, 4, 5], TIP3P(), TIP3P(), i, vacuum=3.0)),
+        cleanmeup(EIQMMM([0, 1, 2], TIP3P(), TIP3P(), i, vacuum=3.0)),
+        cleanmeup(EIQMMM([0, 1, 2], TIP3P(), TIP3P(), ig)),
+        cleanmeup(EIQMMM([3, 4, 5], TIP3P(), TIP3P(), ig, vacuum=3.0)),
+        cleanmeup(EIQMMM([0, 1, 2], TIP3P(), TIP3P(), ig, vacuum=3.0)),
+    ]:
+        dimer = Atoms(
+            'H2OH2O',
+            [
+                (r * cos(a), 0, r * sin(a)),
+                (r, 0, 0),
+                (0, 0, 0),
+                (r * cos(a / 2), r * sin(a / 2), 0),
+                (r * cos(a / 2), -r * sin(a / 2), 0),
+                (0, 0, 0),
+            ],
+        )
         dimer.calc = calc
 
         E = []
@@ -69,14 +76,13 @@ def test_qmmm(testdir):
         assert error < 0.01
 
         dimer.constraints = FixInternals(
-            bonds=[(r, (0, 2)), (r, (1, 2)),
-                   (r, (3, 5)), (r, (4, 5))],
-            angles_deg=[(np.degrees(a), (0, 2, 1)), (np.degrees(a),
-                                                     (3, 5, 4))])
+            bonds=[(r, (0, 2)), (r, (1, 2)), (r, (3, 5)), (r, (4, 5))],
+            angles_deg=[(np.degrees(a), (0, 2, 1)), (np.degrees(a), (3, 5, 4))],
+        )
 
-        with GPMin(dimer,
-                   trajectory=calc.name + '.traj',
-                   logfile=calc.name + 'd.log') as opt:
+        with GPMin(
+            dimer, trajectory=calc.name + '.traj', logfile=calc.name + 'd.log'
+        ) as opt:
             opt.run(0.01)
 
         e0 = dimer.get_potential_energy()
@@ -84,8 +90,11 @@ def test_qmmm(testdir):
         R = dimer.positions
         v1 = R[1] - R[5]
         v2 = R[5] - (R[3] + R[4]) / 2
-        a0 = np.arccos(np.dot(v1, v2) /
-                       (np.dot(v1, v1) * np.dot(v2, v2))**0.5) / np.pi * 180
+        a0 = (
+            np.arccos(np.dot(v1, v2) / (np.dot(v1, v1) * np.dot(v2, v2)) ** 0.5)
+            / np.pi
+            * 180
+        )
         fmt = '{0:>20}: {1:.3f} {2:.3f} {3:.3f} {4:.1f}'
         print(fmt.format(calc.name, -min(E), -e0, d0, a0))
         assert abs(e0 + eexp) < 0.002

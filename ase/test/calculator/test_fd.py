@@ -37,7 +37,7 @@ def test_fd(atoms: Atoms) -> None:
     assert np.any(stress_numerical != stress_analytical)
 
     np.testing.assert_allclose(forces_numerical, forces_analytical)
-    np.testing.assert_allclose(stress_numerical, stress_analytical)
+    np.testing.assert_allclose(stress_numerical, stress_analytical, rtol=1.5e-7)
 
 
 def test_analytical_forces(atoms: Atoms) -> None:

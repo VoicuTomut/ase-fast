@@ -1,4 +1,3 @@
-# fmt: off
 from numpy.random import RandomState
 
 

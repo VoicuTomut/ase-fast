@@ -197,12 +197,11 @@ read('N2Cu.traj', 0)  # first configuration
 # function
 #
 
-from ase.visualize import view
-
 # %%
 #
 # .. code-block:: python
 #
+#    from ase.visualize import view
 #    view(slab)
 #
 # This will pop up a :mod:`ase.gui` window.  Alternative viewers can be used
