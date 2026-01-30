@@ -1,7 +1,7 @@
 """.. _selfdiffusion_example:
 
-Self-diffusion on the Al(110) surface using the NEB and Dimer method
-=====================================================================
+NEB and Dimer method for Self-diffusion on the Al(110) surface
+==============================================================
 
 """
 
