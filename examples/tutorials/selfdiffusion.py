@@ -198,7 +198,8 @@ write('neb_path.traj', images, format='traj')
 
 # %%
 # * How is the shape of the potential (symmetric/asymmetric) and does this make
-#   sense for this process (when looking at the moving adatom in the simulation)?
+#   sense for this process (when looking at the moving adatom in the
+#   simulation)?
 # * What is the energy barrier?
 #
 
