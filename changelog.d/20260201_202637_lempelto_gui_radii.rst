@@ -27,8 +27,8 @@ GUI
 ---
 
 - Default radii for atoms in ~/.ase/gui.py can now be specified as a
-dictionary. Both the list and dictionary syntaxes now support using
-atomic symbols as an alternative to atomic numbers.
+  dictionary. Both the list and dictionary syntaxes now support using
+  atomic symbols as an alternative to atomic numbers.
 
 .. Development
 .. -----------
