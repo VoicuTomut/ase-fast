@@ -64,16 +64,14 @@ class Images:
         dictionary or a list/tuple eg. [(atom, radius), ...]"""
         if not radii:
             return
-        if not hasattr(radii, 'keys'):
+        if not isinstance(radii, dict):
             _radii = {entry[0]: entry[1] for entry in radii}
         else:
             _radii = radii
-        for key in _radii:
-            if isinstance(key, int):
-                self.covalent_radii[key] = _radii[key]
-            else:
-                an = atomic_numbers[key]
-                self.covalent_radii[an] = _radii[key]
+        for key, value in _radii.items():
+            if isinstance(key, str):
+                key = atomic_numbers[key]
+            self.covalent_radii[key] = value
 
     def get_energy(self, atoms: Atoms) -> np.float64:
         try:
