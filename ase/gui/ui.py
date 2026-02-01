@@ -14,6 +14,7 @@ from tkinter.messagebox import showerror, showinfo, showwarning
 import numpy as np
 
 from ase.gui.i18n import _
+from ase.utils.parsemath import eval_expression
 
 __all__ = [
     'error', 'ask_question', 'MainWindow', 'LoadFileDialog', 'SaveFileDialog',
@@ -232,12 +233,29 @@ class SpinBox(Widget):
 
     def create(self, parent):
         self.widget = self.creator(parent)
-        bind_enter(self.widget, lambda event: self.callback())
+        bind_enter(self.widget, lambda event: self.parse_and_callback())
         self.value = self.initial
         return self.widget
 
+    def parse_value(self):
+        x = self.widget.get().replace(',', '.')
+        if not x.isnumeric():
+            try:
+                x = eval_expression(x)
+            except TypeError:
+                # eval_expression will throw a TypeError if x is not
+                # math. This is actually fine here, so no cleanup to do
+                pass
+            self.value = x
+
+    def parse_and_callback(self):
+        self.parse_value()
+        if self.callback:
+            self.callback()
+
     @property
     def value(self):
+        self.parse_value()
         x = self.widget.get().replace(',', '.')
         if '.' in x:
             return float(x)
