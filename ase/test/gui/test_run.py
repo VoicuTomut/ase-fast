@@ -689,3 +689,17 @@ def test_many_atoms_history(gui_many_images):
         gui_many_images.redo_history()
         gui_many_images.undo_history()
         assert not compare_atoms(gui_many_images.images[frame], before)
+
+
+@pytest.mark.parametrize(
+    'radii', [{'Cl': 5.0, 1: 3.0}, [[17, 5.0], ['H', 3.0]]]
+)
+def test_custom_radii(gui, radii):
+    hcl = molecule('HCl')
+    radius_scale = gui.images.atom_scale
+
+    gui.new_atoms(hcl)
+    gui.images.configure_radii(radii)
+    radii = gui.images.get_radii(gui.atoms)
+    assert radii[0] / radius_scale == pytest.approx(5.0)
+    assert radii[1] / radius_scale == pytest.approx(3.0)
