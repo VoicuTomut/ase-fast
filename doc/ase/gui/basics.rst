@@ -136,6 +136,14 @@ graph and also display Cu atoms (Z=29) with a radius of 1.6 Angstrom.
   gui_default_settings['gui_graphs_string'] = "i, e - min(E), fmax"
   gui_default_settings['covalent_radii'] = [[29,1.6]]
 
+To see a list of all settings that can be changed, along with their stock
+values, do
+
+::
+
+  from ase.gui.defaults import gui_default_settings
+  print(gui_default_settings)
+
 
 .. _high contrast:
 
