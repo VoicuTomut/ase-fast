@@ -140,6 +140,14 @@ dictionary, and atoms can be referred to using atomic symbols.
   gui_default_settings['gui_graphs_string'] = "i, e - min(E), fmax"
   gui_default_settings['covalent_radii'] = [[29,1.6]]  # or {29: 1.6}
 
+To see a list of all settings that can be changed, along with their stock
+values, do
+
+::
+
+  from ase.gui.defaults import gui_default_settings
+  print(gui_default_settings)
+
 
 .. _high contrast:
 
