@@ -199,9 +199,9 @@ Contents
 
     about
     install
+    examples_generated/index
     gettingstarted/gettingstarted
     tutorials/tutorials
-    examples_generated/index
     ase/ase
     cmdline
     tips

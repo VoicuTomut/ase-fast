@@ -1330,11 +1330,11 @@ Algorithms:
   `ase-ga <https://dtu-energy.github.io/ase-ga>`__.)
 
 * New :func:`ase.geometry.dimensionality.analyze_dimensionality` function.
-  See: :ref:`dimtutorial`.
+  See: :ref:`dim_examples`.
 
 * New :func:`ase.utils.deltacodesdft.delta` function:  Calculates the
-  difference between two DFT equation-of-states.  See the new :ref:`dcdft tut`
-  tutorial.
+  difference between two DFT equation-of-states.  See the new
+  :ref:`delta_values_example` tutorial.
 
 * Holonomic :class:`~ase.constraints.FixLinearTriatomic` for QM/MM
   calculations.
@@ -2037,7 +2037,7 @@ Version 3.7.0
 
 * ASE now runs on Windows and Mac.
 
-* :ref:`mhtutorial` added to ASE.
+* :ref:`minima_hopping` added to ASE.
 
 
 Version 3.6.0

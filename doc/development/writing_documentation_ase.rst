@@ -107,8 +107,8 @@ We have a couple of extensions to Sphinx:
 Running Python code to create figures
 =====================================
 
-If you want to include a picture in your page, *you should not* check
-in the png-file to our Git repositoy!  Instead, you should check in
+If you want to include a picture in your page, *you should not* add
+the png-file to our Git repositoy!  Instead, you should add
 the Python script you used to generate the picture (you can also
 generate csv-files or pdf-files like this).  The first line of the
 script should look like this::
@@ -116,12 +116,11 @@ script should look like this::
     # creates: fig1.png, fig2.png, table1.csv
 
 Sphinx will run the script and generate the files that you can
-then use in your rst-file.  Examples:
+then use in your rst-file.  Example:
 
-* :ref:`eos`.  Source: :git:`doc/tutorials/eos/eos.py`,
-  :git:`doc/tutorials/eos/eos.rst`
-* :ref:`lattice_constant`.  Source: :git:`doc/tutorials/lattice_constant.py`,
-  :git:`doc/tutorials/lattice_constant.rst`
+* :ref:`general-surface-section`.
+  Source: :git:`doc/ase/build/general_surface.py`,
+  :git:`doc/ase/build/surface.rst`.
 
 
 reStructedText in emacs

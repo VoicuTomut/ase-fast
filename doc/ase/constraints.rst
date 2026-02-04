@@ -230,7 +230,7 @@ A third way this constraint can be applied is to apply a restorative force if an
 
 This will apply a restorative force on atom 3 in the downward direction of magnitude k * (atom.z - 7) if the atom's vertical position exceeds 7 Angstroms. In other words, if the atom crosses to the (positive) normal side of the plane, the force is applied and directed towards the plane. (The same plane with the normal direction pointing in the -z direction would be given by (0, 0, -1, 7).)
 
-For an example of use, see the :ref:`mhtutorial` tutorial.
+For an example of use, see the :ref:`minima_hopping` tutorial.
 
 .. note::
 

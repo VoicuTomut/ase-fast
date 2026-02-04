@@ -44,7 +44,7 @@ classes in any of the calculators above.
 
 You might also be interested in the solvent MM potentials included in ASE.
 The tutorial on :ref:`tipnp water box equilibration` could be relevant to
-have a look at. For acetonitrile, have a look at :ref:`acetonitrile_md_box_equilibration`.
+have a look at. For acetonitrile, have a look at :ref:`acn_md_tutorial`.
 
 Some MD codes have more advanced solvators, such as AMBER_, and stand-alone
 programs such as PACKMOL_ might also come in handy.
