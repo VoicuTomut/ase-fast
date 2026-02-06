@@ -14,17 +14,17 @@ Version 3.27.0
 
 This is an ordinary feature release.  Highlights:
 
- * ASE now requires Python 3.10 or newer.
+* ASE now requires Python 3.10 or newer.
 
- * As part of the overall decentralisation efforts,
+* As part of the overall decentralisation efforts,
   the `ase.ga` module has moved to a standalone project,
   `ase-ga <https://dtu-energy.github.io/ase-ga/>`__.
 
- * Many :ref:`tutorials` have been ported to
-   `sphinx-gallery <https://sphinx-gallery.github.io/>__`
-   and are now tested automatically, resulting in various fixes.
+* Many :ref:`tutorials` have been ported to
+  `sphinx-gallery <https://sphinx-gallery.github.io/>__`
+  and are now tested automatically, resulting in various fixes.
 
- * Multiple improvements across the :mod:`ase.thermochemistry` module.
+* Multiple improvements across the :mod:`ase.thermochemistry` module.
 
 
 Version 3.26.0
