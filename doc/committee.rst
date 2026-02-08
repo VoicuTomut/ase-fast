@@ -7,15 +7,15 @@ The committee has the following members, where \* indicates
 members of the technical subcommittee (“maintainers“):
 
  * Alin-Marin Elena
- * \* `Adam Jackson <https://gitlab.com/ajjackson>`__
+ * \* Adam Jackson
  * Andrew Peterson
- * \* `Andrew Rosen <https://gitlab.com/AndrewRosen>`__
+ * \* Andrew Rosen
  * \* `Ask Hjorth Larsen <https://gitlab.com/askhl>`__
  * Bjørk Hammer
  * Elena Gelzinyte
  * Gabor Csanyi
  * Hanna Türk
- * James Kermode
+ * `James Kermode <https://www.warwick.ac.uk/jrkermode>`__
  * Karsten Wedel Jacobsen
  * Kristian Sommer Thygesen
  * Lars Pastewka
@@ -23,7 +23,7 @@ members of the technical subcommittee (“maintainers“):
  * Michele Ceriotti
  * Paul Erhart
  * Xing Wang
- * \* `Yuji Ikeda <https://gitlab.com/yuzie007>`__
+ * \* Yuji Ikeda
 
 The steering committee uses the `ASE-Committee mailing list
 <https://listserv.fysik.dtu.dk/mailman/listinfo/ase-committee>`__ for
