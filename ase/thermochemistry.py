@@ -306,6 +306,11 @@ class BaseThermoChem(ABC):
             self._vib_energies = vib_energies
         self.referencepressure = 1.0e5  # Pa
         if atoms:
+            # check that atoms has no periodic boundary conditions
+            # moments of inertia are wrong otherwise.
+            if atoms.pbc.any():
+                raise ValueError("Atoms object should not have periodic "
+                                 "boundary conditions for BaseThermoChem.")
             self.atoms = atoms
         self.spin = spin
 
@@ -836,7 +841,8 @@ class MSRRHOThermo(QuasiHarmonicThermo):
         number of energies. Units of energies are eV. Note, that if 'modes'
         are given, these energies are not used.
     atoms: an ASE atoms object
-        used to calculate rotational moments of inertia and molecular mass
+        used to calculate rotational moments of inertia and molecular mass.
+        Should not contain periodic boundary conditions.
     tau : float
         the vibrational energy threshold in :math:`cm^{-1}`, namcomplexed
         :math:`\\tau` in :doi:`10.1039/D1SC00621E`.
@@ -868,6 +874,11 @@ class MSRRHOThermo(QuasiHarmonicThermo):
                  treat_int_energy: bool = False,
                  modes: Optional[Sequence[AbstractMode]] = None) -> None:
 
+        # check that atoms has no periodic boundary conditions
+        # moments of inertia are wrong otherwise.
+        if atoms.pbc.any():
+            raise ValueError("Atoms object should not have periodic "
+                             "boundary conditions for MSRRHOThermo.")
         inertia = np.mean(atoms.get_moments_of_inertia())
         self.atoms = atoms
 
@@ -985,6 +996,15 @@ class HinderedThermo(BaseThermoChem):
             if inertia:
                 self.inertia = inertia * units._amu / units.m**2
             elif atoms:
+                # This is tricky because the moments of inertia
+                # only work for non-periodic systems.
+                # Check it here and raise an error if periodic
+                if atoms.get_pbc().any():
+                    raise RuntimeError('Atoms object with periodic '
+                                       'boundary conditions cannot be '
+                                       'used to calculate moments of '
+                                       'inertia. Please provide '
+                                       'a non-periodic Atoms object.')
                 self.inertia = (atoms.get_moments_of_inertia()[2] *
                                 units._amu / units.m**2)
         else:
