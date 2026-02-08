@@ -309,13 +309,6 @@ def _parse_box_bound(line: str, cell_lines: list[str]) -> tuple:
     return cell, celldisp, pbc
 
 
-def get_max_index(index):
-    if np.isscalar(index):
-        return index
-    elif isinstance(index, slice):
-        return index.stop if (index.stop is not None) else float('inf')
-
-
 def _colnames2dtypes(colnames: list[str]) -> list[tuple[str, Any]]:
     # Determine the data types for each column
     dtype: list[tuple[str, Any]] = []
