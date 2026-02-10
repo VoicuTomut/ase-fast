@@ -1,8 +1,9 @@
 # fmt: off
 
-import numpy as np
 from pathlib import Path
 from typing import IO
+
+import numpy as np
 
 from ase import Atoms
 from ase.optimize import BFGS
@@ -96,8 +97,8 @@ class RFO(BFGS):
         """Compute step from first eigenvector of gradient-augmented Hessian"""
         # Update Hessian BFGS-style
         super().update(pos, -gradient, self.pos0, self.forces0)
-        self.aug_H[:-1, :-1] =  self.H / self.damping**2
-        self.aug_H[-1, :-1] =  gradient / self.damping
+        self.aug_H[:-1, :-1] = self.H / self.damping**2
+        self.aug_H[-1, :-1] = gradient / self.damping
         self.aug_H[:-1, -1] = gradient / self.damping
         V = np.linalg.eigh(self.aug_H)[1]
         dpos = V[:, 0][:-1] / V[:, 0][-1] / self.damping
