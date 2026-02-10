@@ -29,7 +29,7 @@ Local optimization
 
 The local optimization algorithms available in ASE are: :class:`BFGS`,
 :class:`BFGSLineSearch`, :class:`LBFGS`, :class:`LBFGSLineSearch`,
-:class:`GoodOldQuasiNewton`, :class:`CellAwareBFGS`,
+:class:`GoodOldQuasiNewton`, :class:`CellAwareBFGS`, :class:`RFO`,
 :class:`GPMin`, :class:`MDMin`, :class:`FIRE` and :class:`FIRE2`/ABC-FIRE.
 
 .. seealso::
@@ -202,6 +202,19 @@ CellAwareBFGS
 CellAwareBFGS requires a :class:`UnitCellFilter` (usually the :class:`FrechetCellFilter` is the best choice) and can use additional information about the system (bulk modulus, Posson ratio) to inform the optimization process.
 
 .. class:: CellAwareBFGS
+
+RFO
+---
+
+.. autoclass:: RFO
+
+Read about this algorithm here:
+
+  | A. Banerjee, N. Adams, J. Simons, R. Shepard,
+  | :doi:`Search for Stationary Points on Surfaces <10.1021/j100247a015>`
+  | J. Phys. Chem. 1985, 89, 52-57.
+
+Note that ``damping`` is the reciprocal of coordinate scale :math:`a` from the reference.
 
 GPMin
 -----
