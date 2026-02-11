@@ -30,7 +30,6 @@ Calculating diffusion/dissociation properties
    neb/diffusion
    constraints/diffusion
    dissociation
-   selfdiffusion/al110
 
 
 .. original toctree was (in case we want to try to keep the ordering when
