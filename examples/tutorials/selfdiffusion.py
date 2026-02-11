@@ -154,7 +154,7 @@ neb = NEB(images)
 neb.interpolate()
 
 # %%
-# Perform the NEB calculation minimizing the force bellow 0.05 eV/A
+# Perform the NEB calculation minimizing the force below 0.05 eV/A
 from ase.optimize import MDMin
 
 minimizer = MDMin(neb)
