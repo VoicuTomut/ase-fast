@@ -410,6 +410,21 @@ def test_cell_editor(gui):
     assert (gui.atoms.pbc == newpbc).all()
 
 
+def test_input_arithmetic(gui):
+    """Using the cell editor to check that arithmetic in the SpinBoxes
+    is parsed correctly"""
+    au = bulk('Au')
+    gui.new_atoms(au.copy())
+    double_cell = au.cell * 2
+
+    dia = gui.cell_editor()
+
+    for lengths in dia.cell_grid:
+        lengths[3].value = str(lengths[3].value) + '*2'
+    dia.apply_magnitudes()
+    assert gui.atoms.cell == pytest.approx(double_cell[:])
+
+
 def test_constrain(gui, atoms):
     gui.select_all()
     dia = gui.constraints_window()
@@ -674,3 +689,17 @@ def test_many_atoms_history(gui_many_images):
         gui_many_images.redo_history()
         gui_many_images.undo_history()
         assert not compare_atoms(gui_many_images.images[frame], before)
+
+
+@pytest.mark.parametrize(
+    'radii', [{'Cl': 5.0, 1: 3.0}, [[17, 5.0], ['H', 3.0]]]
+)
+def test_custom_radii(gui, radii):
+    hcl = molecule('HCl')
+    radius_scale = gui.images.atom_scale
+
+    gui.new_atoms(hcl)
+    gui.images.configure_radii(radii)
+    radii = gui.images.get_radii(gui.atoms)
+    assert radii[0] / radius_scale == pytest.approx(5.0)
+    assert radii[1] / radius_scale == pytest.approx(3.0)

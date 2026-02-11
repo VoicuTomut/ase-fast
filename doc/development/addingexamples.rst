@@ -16,7 +16,7 @@ Our examples are all part of the main ASE Gitlab_ repository.
 Please read and follow our contribution guidelines (:ref:`contribute`).
 
 You can find the source code of existing examples in the :git:`examples` folder in Gitlab_.
-These are rendered to pages in the :ref:`examplesgallery` on the ASE website.
+These are rendered as the :ref:`tutorials` on the ASE website.
 
 .. _examples: https://gitlab.com/ase/ase/-/tree/master/examples
 

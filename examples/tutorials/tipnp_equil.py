@@ -1,4 +1,4 @@
-""".. _tipnp water box equilibration example:
+""".. _tipnp water box equilibration:
 
 Equilibrating a TIPnP Water Box
 ===============================

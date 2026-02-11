@@ -82,7 +82,7 @@ wien2k_volume  : 11.951
 
 .. seealso::
 
-    :ref:`dcdft tut`.
+    :ref:`delta_values_example`.
 
 
 G2 neutral test set of molecules

@@ -8,7 +8,7 @@ import numpy as np
 from ase import Atoms
 from ase.calculators.singlepoint import SinglePointCalculator
 from ase.constraints import FixAtoms
-from ase.data import covalent_radii
+from ase.data import atomic_numbers, covalent_radii
 from ase.geometry import find_mic
 from ase.gui.defaults import read_defaults
 from ase.gui.history import History
@@ -20,6 +20,7 @@ class Images:
     def __init__(self, images=None):
         self.covalent_radii = covalent_radii.copy()
         self.config = read_defaults()
+        self.configure_radii(self.config['covalent_radii'])
         self.atom_scale = self.config['radii_scale']
         if images is None:
             images = [Atoms()]
@@ -57,6 +58,20 @@ class Images:
 
     def scale_radii(self, scaling_factor):
         self.covalent_radii *= scaling_factor
+
+    def configure_radii(self, radii):
+        """Configure the GUI atom radii with a {atom: radius, ...}
+        dictionary or a list/tuple eg. [(atom, radius), ...]"""
+        if not radii:
+            return
+        if not isinstance(radii, dict):
+            _radii = {entry[0]: entry[1] for entry in radii}
+        else:
+            _radii = radii
+        for key, value in _radii.items():
+            if isinstance(key, str):
+                key = atomic_numbers[key]
+            self.covalent_radii[key] = value
 
     def get_energy(self, atoms: Atoms) -> np.float64:
         try:

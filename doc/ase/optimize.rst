@@ -550,7 +550,7 @@ The code is written such that a stopped simulation (e.g., killed by the batching
 
 Note that these searches can be quite slow, so it can pay to have multiple searches running at a time. Multiple searches can run in parallel and share one list of minima. (Run each script from a separate directory but specify the location to the same absolute location for ``minima_traj``). Each search will use the global information of the list of minima, but will keep its own local information of the initial temperature and :math:`E_\mathrm{diff}`.
 
-For an example of use, see the :ref:`mhtutorial` tutorial.
+For an example of use, see the :ref:`minima_hopping` tutorial.
 
 Transition state search
 =======================

@@ -18,7 +18,6 @@ information can be obtained from ioformats['xyz'].
 import functools
 import inspect
 import io
-import numbers
 import os
 import re
 import sys
@@ -998,11 +997,10 @@ def filetype(
     return format
 
 
-def index2range(index, length):
+def index2range(index: int | slice, length: int) -> range:
     """Convert slice or integer to range.
 
     If index is an integer, range will contain only that integer."""
-    obj = range(length)[index]
-    if isinstance(obj, numbers.Integral):
-        obj = range(obj, obj + 1)
-    return obj
+    if isinstance(index, int):
+        return range(index, index + 1)
+    return range(length)[index]

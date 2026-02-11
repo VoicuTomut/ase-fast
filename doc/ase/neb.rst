@@ -119,7 +119,7 @@ calculators attached.
 
         * :ref:`diffusion tutorial`
         * :ref:`neb2`
-        * :ref:`idpp_tutorial`
+        * :ref:`neb_idpp_tutorial`
 
 .. note::
 

@@ -595,11 +595,16 @@ def test_non_subscriptable_move_mask(tmp_path):
     ase.io.write(tmp_path / "out.extxyz", (a for a in [atoms]))
 
 
-def test_iread_xyz(images: list[Atoms]) -> None:
+@pytest.mark.parametrize('index', (0, -1, slice(None), slice(None, None, -1)))
+def test_iread_xyz(images: list[Atoms], index: int | slice) -> None:
     """Test if `iread_xyz` works."""
     # This will not be needed once `read_xyz` is reimplemented with `iread_xyz`.
     fd = StringIO()
     write_xyz(fd, images)
     fd.seek(0)
-    for i, atoms2 in enumerate(iread_xyz(fd)):
-        assert not compare_atoms(images[i], atoms2)
+    if isinstance(index, int):
+        images_ref = images[slice(index, index + 1)]
+    else:
+        images_ref = images[index]
+    for atoms1, atoms2 in zip(images_ref, iread_xyz(fd, index=index)):
+        assert not compare_atoms(atoms1, atoms2)
