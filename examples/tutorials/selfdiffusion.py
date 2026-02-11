@@ -207,7 +207,7 @@ write('neb_path.traj', images, format='traj')
 # %%
 #
 #
-# Beyound your first NEB calculation
+# Beyond your first NEB calculation
 # ----------------------------------
 #
 # You now can redo the same process to find the energy barrier
