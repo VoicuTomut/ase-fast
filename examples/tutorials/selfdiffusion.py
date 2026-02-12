@@ -162,7 +162,8 @@ minimizer = MDMin(neb)
 minimizer.run(fmax=0.05)
 
 # %%
-# Visualize the minimum energy path (MEP) in side view to see the motion
+# Visualize the minimum energy path (MEP) in side view to see the motion.
+# Here, we look at the surface slab in yz direction.
 for image in images:
     fig, ax = plt.subplots()
     plot_atoms(image, ax, rotation=('-90x, 90y,0z'))
