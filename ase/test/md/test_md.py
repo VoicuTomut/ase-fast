@@ -1,7 +1,7 @@
 # fmt: off
 import pytest
 
-from ase import units
+from ase import Atoms, units
 from ase.build import bulk
 from ase.calculators.emt import EMT
 from ase.io import Trajectory
@@ -25,12 +25,11 @@ def test_md(atoms, testdir):
         md.attach(f)
         with Trajectory('Cu2.traj', 'w', atoms) as traj:
             md.attach(traj.write, interval=3)
-            md.run(steps=20)
+            converged = md.run(steps=20)
+        assert converged is True
 
     with Trajectory('Cu2.traj', 'r') as traj:
-        traj[-1]
-
-    # Really?? No assertion at all?
+        assert isinstance(traj[-1], Atoms)
 
 
 @pytest.mark.parametrize("md_class", [VelocityVerlet])

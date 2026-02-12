@@ -40,19 +40,20 @@ Supported :mod:`Calculators <ase.calculators>`
 |ABACUS| |abinit| |Asap| |Atomistica| |BigDFT| |CASTEP| |CP2K| |CRYSTAL| |DeePMD-kit| |deMon| |dftb|
 |dftd4| |DFTK| |elk| |exciting| |EMT|
 |fhi-aims| |fleur| |gamess_us| |gpaw| |gromacs|
-|hotbit| |jdftx| |kim| |lammps| |nwchem|
+|hotbit| |jdftx| |kim| |lammps| |mopac| |nwchem|
 |octopus| |onetep| |openmx| |plumed|  |psi4| |qchem| |q_espresso| |siesta| |turbomole| |vasp|
 |xtb| |orca|
+
 :mod:`ACE-Molecule <ase.calculators.acemolecule>`
 :mod:`~ase.calculators.amber`
 :mod:`DMol³ <ase.calculators.dmol>`
 :mod:`Gaussian <ase.calculators.gaussian>`
 :mod:`Grimme DFT-D3 <ase.calculators.dftd3>`
 :mod:`~ase.calculators.gulp`
-Mopac_
 :mod:`~ase.calculators.qmmm`
 :mod:`~ase.calculators.tip3p`
-:mod:`~deMon-Nano <ase.calculators.demonnano>`
+:mod:`deMon-Nano <ase.calculators.demonnano>`
+`Skala <https://microsoft.github.io/skala/ase.html>`_
 
 
 `Reference publication on ASE <https://iopscience.iop.org/article/10.1088/1361-648X/aa680e/meta>`__
@@ -62,6 +63,8 @@ Mopac_
 
 News
 ====
+
+* :ref:`ASE version 3.27.0 <releasenotes>` released (28 December 2025).
 
 * :ref:`ASE version 3.26.0 <releasenotes>` released (12 August 2025).
 
@@ -196,9 +199,9 @@ Contents
 
     about
     install
+    examples_generated/index
     gettingstarted/gettingstarted
     tutorials/tutorials
-    examples_generated/index
     ase/ase
     cmdline
     tips
@@ -213,12 +216,14 @@ Contents
 .. |ABACUS| image:: static/abacus.png
    :target: https://gitlab.com/1041176461/ase-abacus
    :align: middle
+   :height: 75 px
 .. |abinit| image:: static/abinit.png
    :target: ase/calculators/abinit.html
    :align: middle
 .. |Asap| image:: static/asap.png
    :target: https://wiki.fysik.dtu.dk/asap
    :align: middle
+   :height: 75 px
 .. |Atomistica| image:: static/atomistica.png
    :target: https://github.com/Atomistica/atomistica
    :align: middle
@@ -286,6 +291,11 @@ Contents
 .. |lammps| image:: static/lammps.png
    :target: ase/calculators/lammps.html
    :align: middle
+   :height: 75 px
+.. |mopac| image:: https://openmopac.net/images/logo.png
+   :target: ase/calculators/mopac.html
+   :align: middle
+   :height: 75 px
 .. |nwchem| image:: static/nwchem.png
    :target: ase/calculators/nwchem.html
    :align: middle
@@ -328,7 +338,6 @@ Contents
    :target: ase/calculators/orca.html
    :align: middle
 
-.. _Mopac: ase/calculators/mopac.html
-.. _Sphinx: http://sphinx.pocoo.org
+.. _Sphinx: https://www.sphinx-doc.org/
 .. _Asap: https://wiki.fysik.dtu.dk/asap
 .. _CAMd: https://www.fysik.dtu.dk/english/research/camd/

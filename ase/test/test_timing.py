@@ -1,4 +1,3 @@
-# fmt: off
 import time
 
 from ase.utils.timing import Timer, timer

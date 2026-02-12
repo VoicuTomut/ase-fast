@@ -24,6 +24,9 @@ gui_default_settings = {
     'show_bonds': False,
     'shift_cell': False,
     'swap_mouse': False,
+    'movie_rate': 'auto',  # can set to float
+    'movie_skip': 'auto',  # can set to int
+    'movie_rock': False,
 }
 
 

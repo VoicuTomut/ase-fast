@@ -51,3 +51,8 @@ If you call any ``Analysis.get_xxx()`` the information is calculated from the ca
 .. currentmodule:: ase.geometry.analysis.Analysis
 .. autoclass:: ase.geometry.analysis.Analysis
     :members:
+
+Individual tools
+----------------
+
+.. autofunction:: ase.geometry.rdf.get_rdf

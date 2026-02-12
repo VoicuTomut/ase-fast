@@ -1,24 +1,14 @@
-.. _tutorials:
 
-Tutorials
-=========
+.. _old_tutorials:
 
-Python
-------
+Tutorials (legacy format)
+=========================
 
-If you are not familiar with Python please read :ref:`what is python`.
+.. note::
 
-.. toctree::
-   :hidden:
-
-   ../python
-
-If your ASE scripts make extensive use of matrices you may want to familiarize yourself with :ref:`numpy`.
-
-.. toctree::
-   :hidden:
-
-   ../numpy
+   We are porting the ASE tutorials to sphinx-gallery.
+   Tutorials in this section will be ported and moved
+   to :ref:`tutorials`.
 
 ASE
 ---
@@ -26,33 +16,11 @@ ASE
 Most of the tutorials will use the :mod:`EMT <ase.calculators.emt>` potential,
 but any other :mod:`Calculator <ase.calculators>` could be plugged in instead.
 
-Basic property calculations
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-.. toctree::
-   :maxdepth: 1
+.. note::
 
-   atomization
-   eos/eos
-   lattice_constant
-
-Surface adsorption
-^^^^^^^^^^^^^^^^^^
-.. toctree::
-   :maxdepth: 1
-
-   db/db
-
-Global optimization
-^^^^^^^^^^^^^^^^^^^
-.. toctree::
-   :maxdepth: 1
-
-   minimahopping/minimahopping
-   ga/ga_optimize
-   ga/ga_fcc_alloys
-   ga/ga_convex_hull
-   ga/ga_bulk
-   ga/ga_molecular_crystal
+  The :mod:`ase.ga` package has moved to
+  `ase-ga <https://dtu-energy.github.io/ase-ga/>`_
+  including tutorials.
 
 Calculating diffusion/dissociation properties
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -62,24 +30,16 @@ Calculating diffusion/dissociation properties
    neb/diffusion
    constraints/diffusion
    dissociation
-   neb/idpp
    selfdiffusion/al110
 
-ASE database
-^^^^^^^^^^^^
-.. toctree::
-   :maxdepth: 1
 
-   tut06_database/database
-
-Molecular Dynamics
-^^^^^^^^^^^^^^^^^^
-.. toctree::
-   :maxdepth: 1
-
-   md/md
-   tipnp_equil/tipnp_equil
-   acn_equil/acn_equil
+.. original toctree was (in case we want to try to keep the ordering when
+.. moving to sphinx-gallery):
+..   neb/diffusion
+..   constraints/diffusion
+..   dissociation
+..   neb/idpp  [ported to new tutorials]
+..   selfdiffusion/al110
 
 Uncategorized
 ^^^^^^^^^^^^^
@@ -88,8 +48,6 @@ Uncategorized
 
    defects/defects
    qmmm/qmmm
-   dimensionality/dimensionality
-   deltacodesdft/deltacodesdft
    wannier/wannier
    tut03_vibrations/vibrations
 

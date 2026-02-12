@@ -1,12 +1,13 @@
-# fmt: off
 from ase import Atoms
 
 
 def test_set_get_angle():
     "Test that set_angle() and get_angle() in Atoms are consistent"
 
-    atoms = Atoms('HHCCHH', [[-1, 1, 0], [-1, -1, 0], [0, 0, 0],
-                             [1, 0, 0], [2, 1, 0], [2, -1, 0]])
+    atoms = Atoms(
+        'HHCCHH',
+        [[-1, 1, 0], [-1, -1, 0], [0, 0, 0], [1, 0, 0], [2, 1, 0], [2, -1, 0]],
+    )
 
     list = [2, 3, 4]
     theta = 20

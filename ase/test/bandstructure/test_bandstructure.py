@@ -1,4 +1,3 @@
-# fmt: off
 import numpy as np
 import pytest
 
@@ -13,8 +12,7 @@ from ase.spectrum.band_structure import BandStructure
 def bs_cu():
     atoms = bulk('Cu')
     path = special_paths['fcc']
-    atoms.calc = FreeElectrons(nvalence=1,
-                              kpts={'path': path, 'npoints': 200})
+    atoms.calc = FreeElectrons(nvalence=1, kpts={'path': path, 'npoints': 200})
     atoms.get_potential_energy()
     return atoms.calc.band_structure()
 
@@ -22,10 +20,11 @@ def bs_cu():
 @pytest.fixture()
 def bs_spin(bs_cu):
     # Artificially add a second spin channel for testing
-    return BandStructure(path=bs_cu.path,
-                        energies=np.array([bs_cu.energies[0],
-                                           bs_cu.energies[0] + 1.0]),
-                        reference=bs_cu.reference)
+    return BandStructure(
+        path=bs_cu.path,
+        energies=np.array([bs_cu.energies[0], bs_cu.energies[0] + 1.0]),
+        reference=bs_cu.reference,
+    )
 
 
 def test_bandstructure(bs_cu, testdir, plt):

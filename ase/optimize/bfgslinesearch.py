@@ -92,7 +92,7 @@ class BFGSLineSearch(Optimizer):
         self.no_update = False
         self.replay = False
 
-        Optimizer.__init__(self, atoms, restart, logfile, trajectory, **kwargs)
+        super().__init__(atoms, restart, logfile, trajectory, **kwargs)
 
     def read(self):
         self.r0, self.g0, self.e0, self.task, self.H = self.load()
@@ -105,14 +105,11 @@ class BFGSLineSearch(Optimizer):
         self.e0 = None
         self.rep_count = 0
 
-    def step(self, forces=None):
+    def step(self, gradient=None):
         optimizable = self.optimizable
-
-        if forces is None:
-            forces = optimizable.get_gradient().reshape(-1, 3)
-
+        gradient = self._get_gradient(gradient)
         r = optimizable.get_x()
-        g = -forces.reshape(-1) / self.alpha
+        g = gradient / self.alpha
         p0 = self.p
         self.update(r, g, self.r0, self.g0, p0)
         # o,v = np.linalg.eigh(self.B)
@@ -122,7 +119,7 @@ class BFGSLineSearch(Optimizer):
         p_size = np.sqrt((self.p**2).sum())
         if p_size <= np.sqrt(optimizable.ndofs() / 3 * 1e-10):
             self.p /= (p_size / np.sqrt(optimizable.ndofs() / 3 * 1e-10))
-        ls = LineSearch()
+        ls = LineSearch(get_gradient_norm=self.optimizable.gradient_norm)
         self.alpha_k, e, self.e0, self.no_update = \
             ls._line_search(self.func, self.fprime, r, self.p, g, e, self.e0,
                             maxstep=self.maxstep, c1=self.c1,
@@ -179,10 +176,9 @@ class BFGSLineSearch(Optimizer):
         """Gradient of the objective function for use of the optimizers"""
         self.optimizable.set_x(x)
         self.force_calls += 1
-        # Remember that forces are minus the gradient!
         # Scale the problem as SciPy uses I as initial Hessian.
-        forces = self.optimizable.get_gradient()
-        return - forces / self.alpha
+        gradient = self.optimizable.get_gradient()
+        return gradient / self.alpha
 
     def replay_trajectory(self, traj):
         """Initialize hessian from old trajectory."""
@@ -220,7 +216,6 @@ class BFGSLineSearch(Optimizer):
         w('%s:  %3d[%3d] %02d:%02d:%02d %15.6f %12.4f\n'
             % (name, self.nsteps, self.force_calls, T[3], T[4], T[5], e,
                fmax))
-        self.logfile.flush()
 
 
 def wrap_function(function, args):

@@ -1,4 +1,3 @@
-# fmt: off
 from ase.build import bulk
 from ase.calculators.dmol import DMol3
 

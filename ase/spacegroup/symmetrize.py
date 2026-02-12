@@ -8,7 +8,7 @@ from typing import Optional
 
 import numpy as np
 
-from ase.utils import atoms_to_spglib_cell
+from ase.utils import atoms_to_spglib_cell, spglib_new_errorhandling
 
 __all__ = ['refine_symmetry', 'check_symmetry']
 
@@ -21,7 +21,10 @@ def spglib_get_symmetry_dataset(*args, **kwargs):
     older spglib versions.
     """
     import spglib
-    dataset = spglib.get_symmetry_dataset(*args, **kwargs)
+
+    dataset = spglib_new_errorhandling(spglib.get_symmetry_dataset)(
+        *args, **kwargs
+    )
     if dataset is None:
         return None
     if isinstance(dataset, dict):  # spglib < 2.5.0
@@ -144,7 +147,9 @@ def _check_and_symmetrize_positions(atoms, *, symprec, **kwargs):
     dataset = check_symmetry(atoms, symprec=symprec, **kwargs)
     # here we are assuming that primitive vectors returned by find_primitive
     #    are compatible with std_lattice returned by get_symmetry_dataset
-    res = spglib.find_primitive(atoms_to_spglib_cell(atoms), symprec=symprec)
+
+    res = spglib_new_errorhandling(spglib.find_primitive)(
+        atoms_to_spglib_cell(atoms), symprec=symprec)
     _symmetrize_positions(atoms, dataset, res)
     return dataset
 

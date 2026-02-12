@@ -5,12 +5,17 @@ MANIFEST
 .DS_Store
 */.DS_Store
 *.traj
+*.png
 /build
 /ase.egg-info
 /ase/db/static/jsmol
 doc/ase/dft/bztable.rst
 doc/tutorials/deltacodesdft/fit.json
 doc/ase/io/formatoptions.rst
+examples/tutorials/*.db
+examples/tutorials/*.ini
+examples/tutorials/*.png
+examples/tutorials/*.pov
 
 # Editor backup files
 *~
@@ -37,3 +42,7 @@ coverage-html
 # Sphinx-gallery files
 examples_generated
 sg_execution_times.rst
+
+#
+examples/*.csv
+examples/*.json

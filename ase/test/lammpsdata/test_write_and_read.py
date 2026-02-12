@@ -148,6 +148,27 @@ def test_image_flags(write_image_flags: bool, atom_style: str):
     )
 
 
+def test_atom_type_labels():
+    """Test if `atom_type_labels` works correctly."""
+    atoms_ref = bulk('Ge')
+    buf = io.StringIO()
+    write_lammps_data(buf, atoms_ref, atom_type_labels=True)
+    buf.seek(0)
+    atoms = read_lammps_data(buf)
+    np.testing.assert_array_equal(atoms.symbols, atoms_ref.symbols)
+
+
+def test_types(lammpsdata_file_path):
+    """Test if writing atom types works correctly."""
+    atoms = read_lammps_data(lammpsdata_file_path)
+    atoms.arrays['type'][0] = 2
+    lammpsdata_buf = io.StringIO()
+    write_lammps_data(lammpsdata_buf, atoms)
+    lammpsdata_buf.seek(0)
+    atoms2 = read_lammps_data(lammpsdata_buf)
+    np.testing.assert_array_equal(atoms.arrays['type'], atoms2.arrays['type'])
+
+
 def test_bonds(lammpsdata_file_path):
     """Test if writing bonds works correctly."""
     atoms = read_lammps_data(lammpsdata_file_path, atom_style='full')

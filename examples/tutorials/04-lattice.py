@@ -26,7 +26,7 @@ Finding lattice constants using EOS and the stress tensor
 # FCC
 # ^^^
 # The lattice constant :math:`a` for FCC bulk metal can be obtained using the
-# equation of state as outline in the tutorial :ref:`eos` by calculating
+# equation of state as outline in the tutorial :ref:`eos_example` by calculating
 # :math:`a^3 = V`, where :math:`V` is the volume of the unit cell.
 
 # %%

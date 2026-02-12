@@ -236,8 +236,6 @@ class ContourExploration(Dynamics):
             msg = "%6d %15.6f %15.6f %12.6f %12.6f %24.9f\n" % args
             self.logfile.write(msg)
 
-            self.logfile.flush()
-
     def rand_vect(self):
         '''Returns a random (Natoms,3) vector'''
         vect = self.rng.normal(size=(len(self._actual_atoms), 3))
@@ -382,7 +380,6 @@ class ContourExploration(Dynamics):
 
     def step(self, f=None):
         atoms = self._actual_atoms
-
         if f is None:
             f = atoms.get_forces()
 

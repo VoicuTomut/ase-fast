@@ -74,16 +74,17 @@ class CellAwareBFGS(BFGS):
         self.bulk_modulus = bulk_modulus
         self.poisson_ratio = poisson_ratio
         self.long_output = long_output
-        BFGS.__init__(self, atoms=atoms, restart=restart, logfile=logfile,
-                      trajectory=trajectory, maxstep=maxstep,
-                      alpha=alpha, append_trajectory=append_trajectory,
-                      **kwargs)
+        super().__init__(
+            atoms=atoms, restart=restart, logfile=logfile,
+            trajectory=trajectory, maxstep=maxstep,
+            alpha=alpha, append_trajectory=append_trajectory,
+            **kwargs)
         assert not isinstance(atoms, Atoms)
         if hasattr(atoms, 'exp_cell_factor'):
             assert atoms.exp_cell_factor == 1.0
 
     def initialize(self):
-        BFGS.initialize(self)
+        super().initialize()
         C_ijkl = calculate_isotropic_elasticity_tensor(
             self.bulk_modulus,
             self.poisson_ratio,
@@ -139,5 +140,3 @@ class CellAwareBFGS(BFGS):
                         tuple(cell_to_cellpar(self.atoms.atoms.cell)))
             msg += '\n'
             self.logfile.write(msg)
-
-            self.logfile.flush()

@@ -2,7 +2,7 @@
 
 import warnings
 from pathlib import Path
-from typing import IO, Optional, Union
+from typing import IO
 
 import numpy as np
 from numpy.linalg import eigh
@@ -18,12 +18,12 @@ class BFGS(Optimizer):
     def __init__(
         self,
         atoms: Atoms,
-        restart: Optional[str] = None,
-        logfile: Optional[Union[IO, str, Path]] = '-',
-        trajectory: Optional[Union[str, Path]] = None,
+        restart: str | Path | None = None,
+        logfile: IO | str | Path | None = '-',
+        trajectory: str | Path | None = None,
         append_trajectory: bool = False,
-        maxstep: Optional[float] = None,
-        alpha: Optional[float] = None,
+        maxstep: float | None = None,
+        alpha: float | None = None,
         **kwargs,
     ):
         """BFGS optimizer.
@@ -33,7 +33,7 @@ class BFGS(Optimizer):
         atoms: :class:`~ase.Atoms`
             The Atoms object to relax.
 
-        restart: str
+        restart: str | Path | None
             JSON file used to store hessian matrix. If set, file with
             such a name will be searched and hessian matrix stored will
             be used, if the file exists.
@@ -72,10 +72,11 @@ class BFGS(Optimizer):
         self.alpha = alpha
         if self.alpha is None:
             self.alpha = self.defaults['alpha']
-        Optimizer.__init__(self, atoms=atoms, restart=restart,
-                           logfile=logfile, trajectory=trajectory,
-                           append_trajectory=append_trajectory,
-                           **kwargs)
+        super().__init__(
+            atoms=atoms, restart=restart,
+            logfile=logfile, trajectory=trajectory,
+            append_trajectory=append_trajectory,
+            **kwargs)
 
     def initialize(self):
         # initial hessian
@@ -94,10 +95,8 @@ class BFGS(Optimizer):
             self.H, self.pos0, self.forces0, self.maxstep = file
 
     def step(self, gradient=None):
+        gradient = self._get_gradient(gradient)
         optimizable = self.optimizable
-
-        if gradient is None:
-            gradient = optimizable.get_gradient()
 
         pos = optimizable.get_x()
         dpos, steplengths = self.prepare_step(pos, gradient)
@@ -112,7 +111,7 @@ class BFGS(Optimizer):
     def prepare_step(self, pos, gradient):
         pos = pos.ravel()
         gradient = gradient.ravel()
-        self.update(pos, gradient, self.pos0, self.forces0)
+        self.update(pos, -gradient, self.pos0, self.forces0)
         omega, V = eigh(self.H)
 
         # FUTURE: Log this properly
@@ -127,12 +126,12 @@ class BFGS(Optimizer):
         #         self.logfile.write(msg)
         #         self.logfile.flush()
 
-        dpos = np.dot(V, np.dot(gradient, V) / np.fabs(omega))
+        dpos = np.dot(V, -np.dot(gradient, V) / np.fabs(omega))
         # XXX Here we are calling gradient_norm() on some positions.
         # Should there be a general norm concept
         steplengths = self.optimizable.gradient_norm(dpos)
         self.pos0 = pos
-        self.forces0 = gradient.copy()
+        self.forces0 = -gradient.copy()
         return dpos, steplengths
 
     def determine_step(self, dpos, steplengths):
