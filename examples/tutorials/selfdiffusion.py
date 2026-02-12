@@ -269,7 +269,8 @@ minimizer.run(fmax=0.05)
 
 
 # %%
-# Visualize the MEP in side view to see the motion
+# Visualize the MEP in side view to see the motion.
+# We are now viewing the xz direction of the cell.
 
 for image in images:
     fig, ax = plt.subplots()
