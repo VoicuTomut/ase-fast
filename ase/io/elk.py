@@ -1,6 +1,7 @@
 # fmt: off
 
 import collections
+import numbers
 from pathlib import Path
 
 import numpy as np
@@ -106,9 +107,9 @@ def write_elk_in(fd, atoms, parameters=None):
         The keys of the dict are the names of the input blocks. The dict values
         contain the contents of the input blocks. The contents can be several
         different types or data structures: 1) bool, str, int, float for scalar
-        parameters; 2) tuple or list for input over several lines in a block,
-        one element per line; 3) tuple / list of tuples for several parameters
-        in a line; 4) numpy.ndarray for array parameters of different datatypes.
+        parameters; 2) iterables for input blocks containing several lines,
+        one element per line; 3) iterables for several parameters
+        in a line, where arrays are treated as iterables
 
     Raises
     ------
@@ -132,10 +133,9 @@ def write_elk_in(fd, atoms, parameters=None):
     >>> from ase import Atoms
     >>> from ase.io.elk import write_elk_in
     >>> atoms = Atoms('FeAl', positions=[[0, 0, 0], [1.45]*3], cell=[2.9]*3)
-    >>> params = {'tasks': [0, 10], 'ngridk': np.array([8, 8, 8]),
-                  'nempty': 8, 'bfieldc': np.array((0.0, 0.0, -0.01)),
-                  'spinpol': True, 'dft+u': ((('dftu', 2), ('inpdftu', 1)),
-                  (('is', 1), ('l', 2), ('u', 0.183), ('j', 0.034911967)))}
+    >>> params = {'tasks': [[0], [10]], 'ngridk': [8, 8, 8], 'nempty': 8,
+                  'bfieldc': np.array((0.0, 0.0, -0.01)), 'spinpol': True,
+                  'dft+u': ((2, 1), (1, 2, 0.183, 0.034911967))}
     >>> write_elk_in('/path/to/elk.in', atoms, parameters=params)
     """
 
@@ -223,22 +223,18 @@ def write_elk_in(fd, atoms, parameters=None):
     if species_path is not None:
         inp['sppath'] = f"'{species_path.rstrip('/')}/'"
 
-    def get_string_value(value_, level=0):
+    def get_string_value(value_):
         if isinstance(value_, bool):
             return f'.{("false", "true")[value_]}.'
-        if isinstance(value_, (int, float, str)):
+        if isinstance(value_, (numbers.Real, str)):
             return f'{value_}'
-        if isinstance(value_, (tuple, list)):
-            if level > 0:
-                keys, values = zip(*value_)
-                vals = ' '.join(get_string_value(v, level + 1) for v in values)
-                anno = ', '.join(get_string_value(k, level + 1) for k in keys)
-                return f'{vals} : {anno}'
-            return '\n  '.join(get_string_value(e, level + 1) for e in value_)
-        if isinstance(value_, dict):
-            raise TypeError('Tuples should be used instead of dicts.')
-        assert isinstance(value_, np.ndarray), f'{type(value_)}'
-        return ' '.join(get_string_value(e.item(), level + 1) for e in value_)
+        if isinstance(value_, collections.abc.Iterable):
+            if all(isinstance(v, (str, numbers.Real)) for v in value_):
+                sep = ' '
+            else:
+                sep = '\n  '
+            return sep.join(get_string_value(e) for e in value_)
+        raise TypeError(f'Field type cannot be {type(value_)}')
 
     # write all keys
     for key, value in inp.items():
