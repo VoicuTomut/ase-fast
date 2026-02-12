@@ -8,7 +8,10 @@ NEB and Dimer method for Self-diffusion on the Al(110) surface
 
 # %%
 # In this exercise, we will find minimum-energy paths and transition states
-# using the :mod:`Nudged Elastic Band <ase.mep.neb>` method. Another method
+# using the :mod:`Nudged Elastic Band <ase.mep.neb>` method. We will illustrate
+# how NEB can be used in ASE to compute and compare three different
+# diffusion pathways for an Al atom
+# on a Al(110) surface. Finally, another method
 # for finding the transition state (i.e. the highest-energy state), the Dimer
 # method, will also be explored.
 
