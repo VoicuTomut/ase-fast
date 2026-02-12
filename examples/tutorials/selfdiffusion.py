@@ -109,7 +109,8 @@ print(mask)
 
 # %%
 # Set the :class:`~ase.constraints.FixAtoms` to the :class:`~ase.Atoms` objects,
-# and in the same loop, set the calculator (EMT)
+# and in the same loop, set the calculator (in this example we use EMT,
+# but you can use any calculator supported by ASE)
 initial.calc = EMT()
 initial.set_constraint(constraint)
 final.calc = EMT()
