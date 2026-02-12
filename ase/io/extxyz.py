@@ -13,7 +13,9 @@ import json
 import numbers
 import re
 import warnings
+from collections.abc import Iterator
 from io import StringIO, UnsupportedOperation
+from typing import TextIO
 
 import numpy as np
 
@@ -22,7 +24,7 @@ from ase.calculators.calculator import all_properties
 from ase.calculators.singlepoint import SinglePointCalculator
 from ase.constraints import FixAtoms, FixCartesian
 from ase.io.formats import index2range
-from ase.io.utils import ImageIterator
+from ase.io.utils import ImageChunk, ImageIterator
 from ase.outputs import ArrayProperty, all_outputs
 from ase.spacegroup.spacegroup import Spacegroup
 from ase.stress import voigt_6_to_full_3x3_stress
@@ -537,29 +539,27 @@ class XYZError(IOError):
     pass
 
 
-class XYZChunk:
-    def __init__(self, lines, natoms):
-        self.lines = lines
-        self.natoms = natoms
+class XYZChunk(ImageChunk):
+    def __init__(self, fd: TextIO, pos: int) -> None:
+        self.fd = fd
+        self.pos = pos
 
-    def build(self):
+    def build(self, **kwargs) -> Atoms:
         """Convert unprocessed chunk into Atoms."""
-        return _read_xyz_frame(iter(self.lines), self.natoms)
+        self.fd.seek(self.pos)
+        natoms = int(self.fd.readline().strip()[0])
+        lines = [self.fd.readline() for _ in range(1 + natoms)]
+        return _read_xyz_frame(iter(lines), natoms, **kwargs)
 
 
-def ixyzchunks(fd):
+def ixyzchunks(fd: TextIO) -> Iterator[XYZChunk]:
     """Yield unprocessed chunks (header, lines) for each xyz image."""
-    while True:
-        line = next(fd).strip()  # Raises StopIteration on empty file
-        try:
-            natoms = int(line)
-        except ValueError:
-            raise XYZError(f'Expected integer, found "{line}"')
-        try:
-            lines = [next(fd) for _ in range(1 + natoms)]
-        except StopIteration:
-            raise XYZError('Incomplete XYZ chunk')
-        yield XYZChunk(lines, natoms)
+    pos = fd.tell()
+    while line := fd.readline():
+        natoms = int(line.strip()[0])
+        _ = [fd.readline() for _ in range(1 + natoms)]
+        yield XYZChunk(fd, pos)
+        pos = fd.tell()
 
 
 iread_xyz = ImageIterator(ixyzchunks)

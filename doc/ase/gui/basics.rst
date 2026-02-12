@@ -124,17 +124,29 @@ The symbols are the same as used in the plotting data function.
 Defaults
 --------
 
-Using a file ``~/.ase/gui.py``, certain defaults can be set. If it exists,
-this file is executed after initializing the variables and colors
-normally used in ASE. One can change the default graphs that are
-plotted, and the default radii for displaying specific atoms. This
-example will display the energy evolution and the maximal force in a
-graph and also display Cu atoms (Z=29) with a radius of 1.6 Angstrom.
+Certain defaults for the GUI can be set using a file ``~/.ase/gui.py``.
+If the file exists, it is executed after initializing the variables and
+colors normally used in ASE.
+
+For example, one can change the default graphs that are plotted, and the
+default radii for displaying specific atoms. The following will change the
+default graph in the GUI to display the energy evolution and the maximal
+force and also display Cu atoms (Z=29) with a radius of 1.6 Angstrom. The
+``covalent_radii`` setting also accepts key-value pairs in the form of a
+dictionary, and atoms can be referred to using atomic symbols.
 
 ::
 
   gui_default_settings['gui_graphs_string'] = "i, e - min(E), fmax"
-  gui_default_settings['covalent_radii'] = [[29,1.6]]
+  gui_default_settings['covalent_radii'] = [[29,1.6]]  # or {29: 1.6}
+
+To see a list of all settings that can be changed, along with their stock
+values, do
+
+::
+
+  from ase.gui.defaults import gui_default_settings
+  print(gui_default_settings)
 
 
 .. _high contrast:

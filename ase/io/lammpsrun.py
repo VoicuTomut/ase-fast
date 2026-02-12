@@ -2,9 +2,9 @@
 
 import gzip
 import struct
-from collections import deque
+from collections.abc import Iterator
 from os.path import splitext
-from typing import Any
+from typing import Any, TextIO
 
 import numpy as np
 
@@ -12,7 +12,9 @@ from ase.atoms import Atoms
 from ase.calculators.lammps import convert
 from ase.calculators.singlepoint import SinglePointCalculator
 from ase.data import atomic_masses, chemical_symbols
+from ase.io.utils import ImageChunk, ImageIterator
 from ase.parallel import paropen
+from ase.utils import reader
 
 
 def read_lammps_dump(infileobj, **kwargs):
@@ -272,11 +274,10 @@ def _parse_pbc(tilt_items: list[str]) -> list[bool]:
     return ['p' in d.lower() for d in pbc_items]
 
 
-def _parse_box_bound(line: str, lines: deque) -> tuple:
+def _parse_box_bound(line: str, cell_lines: list[str]) -> tuple:
     # save labels behind "ITEM: BOX BOUNDS" in triclinic case
     # (>=lammps-7Jul09)
     tilt_items = line.split()[3:]
-    cell_lines = [lines.popleft() for _ in range(3)]
     cell_data = np.loadtxt(cell_lines)
 
     # general triclinic boxes (>=patch_17Apr2024)
@@ -333,44 +334,27 @@ def _colnames2dtypes(colnames: list[str]) -> list[tuple[str, Any]]:
     return dtype
 
 
-def read_lammps_dump_text(fileobj, index=-1, **kwargs):
-    """Process cleartext lammps dumpfiles.
-
-    :param fileobj: filestream providing the trajectory data
-    :param index: integer or slice object (default: get the last timestep)
-    :returns: list of Atoms objects
-    :rtype: list
-    """
-    # Load all dumped timesteps into memory simultaneously
-    lines = deque(fileobj.readlines())
-    index_end = get_max_index(index)
-
-    n_atoms = 0
-    images = []
-
+def _read_lammps_dump_text_frame(fd: TextIO, n: int, **kwargs) -> Atoms:
     # avoid references before assignment in case of incorrect file structure
     cell, celldisp, pbc, info = None, None, False, {}
 
-    while len(lines) > n_atoms:
-        line = lines.popleft()
+    fd.seek(n)  # jump to the position just after 'ITEM: TIMESTEP'
+    line = fd.readline()
+    info['timestep'] = int(line.split()[0])
 
-        if 'ITEM: TIMESTEP' in line:
-            line = lines.popleft()
-            # !TODO: pyflakes complains about this line -> do something
-            ntimestep = int(line.split()[0])
-            info['timestep'] = ntimestep
-
+    while line := fd.readline():
         if 'ITEM: NUMBER OF ATOMS' in line:
-            line = lines.popleft()
+            line = fd.readline()
             n_atoms = int(line.split()[0])
 
         if 'ITEM: BOX BOUNDS' in line:
-            cell, celldisp, pbc = _parse_box_bound(line, lines)
+            cell_lines = [fd.readline() for _ in range(3)]
+            cell, celldisp, pbc = _parse_box_bound(line, cell_lines)
 
         if 'ITEM: ATOMS' in line:
             colnames = line.split()[2:]
             dtype = _colnames2dtypes(colnames)
-            datarows = [lines.popleft() for _ in range(n_atoms)]
+            datarows = [fd.readline() for _ in range(n_atoms)]
             data = np.loadtxt(datarows, dtype=dtype, ndmin=1)
             out_atoms = _lammps_data_to_ase_atoms(
                 data=data,
@@ -381,12 +365,35 @@ def read_lammps_dump_text(fileobj, index=-1, **kwargs):
                 **kwargs,
             )
             out_atoms.info.update(info)
-            images.append(out_atoms)
+            return out_atoms
 
-        if len(images) > index_end >= 0:
-            break
+    raise RuntimeError('Incomplete LAMMPS dump text chunk')
 
-    return images[index]
+
+class _LAMMPSDumpTextChunk(ImageChunk):
+    def __init__(self, fd: TextIO, pos: int) -> None:
+        self.fd = fd
+        self.pos = pos
+
+    def build(self, **kwargs) -> Atoms:
+        return _read_lammps_dump_text_frame(self.fd, self.pos, **kwargs)
+
+
+def _i_lammps_dump_text_chunks(fd: TextIO) -> Iterator[_LAMMPSDumpTextChunk]:
+    while line := fd.readline():
+        if 'ITEM: TIMESTEP' in line:
+            pos = fd.tell()  # position just after 'ITEM: TIMESTEP'
+            yield _LAMMPSDumpTextChunk(fd, pos)
+
+
+iread_lammps_dump_text = ImageIterator(_i_lammps_dump_text_chunks)
+
+
+@reader
+def read_lammps_dump_text(fd, index=-1, **kwargs):
+    """Read a LAMMPS text dump file."""
+    g = iread_lammps_dump_text(fd, index=index, **kwargs)
+    return list(g) if isinstance(index, (slice, str)) else next(g)
 
 
 def read_lammps_dump_binary(

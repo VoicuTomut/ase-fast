@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import copy
 import numbers
+import warnings
 from math import cos, pi, sin
 from typing import Sequence, Union, overload
 
@@ -1101,10 +1102,22 @@ class _LimitedAtoms:
         """Get the moments of inertia along the principal axes.
 
         The three principal moments of inertia are computed from the
-        eigenvalues of the symmetric inertial tensor. Periodic boundary
-        conditions are ignored. Units of the moments of inertia are
-        amu*angstrom**2.
+        eigenvalues of the symmetric inertial tensor. Note that the result
+        can be "wrong" if a molecule is crossing periodic boundaries.
+        Units of the moments of inertia are amu*angstrom**2.
+
+        Parameters
+        ----------
+        vectors : bool
+            If true, also return the principal axes as rows in a 3x3
+            matrix.
         """
+
+        if self.pbc.any():
+            # raise a user warning that PBC are ignored
+            warnings.warn('Periodic boundary conditions are ignored '
+                          'when calculating the inertial tensor.', UserWarning)
+
         com = self.get_center_of_mass()
         positions = self.get_positions()
         positions -= com  # translate center of mass to origin

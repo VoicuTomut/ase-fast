@@ -722,7 +722,17 @@ def write_vasp_xdatcar(fd, images, label=None):
     if not isinstance(image, Atoms):
         raise TypeError("images should be a sequence of Atoms objects.")
 
-    symbol_count = _symbol_count_from_symbols(image.get_chemical_symbols())
+    _write_xdatcar_header(fd, image, label)
+    _write_xdatcar_config(fd, image, index=1)
+    for i, image in enumerate(images):
+        _write_xdatcar_header(fd, image, label)
+        # Index is off by 2: 1-indexed file vs 0-indexed Python;
+        # and we already wrote the first block.
+        _write_xdatcar_config(fd, image, i + 2)
+
+
+def _write_xdatcar_header(fd, atoms, label):
+    symbol_count = _symbol_count_from_symbols(atoms.get_chemical_symbols())
 
     if label is None:
         label = ' '.join([s for s, _ in symbol_count])
@@ -731,19 +741,13 @@ def write_vasp_xdatcar(fd, images, label=None):
     # Not using lattice constants, set it to 1
     fd.write('           1\n')
 
-    # Lattice vectors; use first image
     float_string = '{:11.6f}'
     for row_i in range(3):
         fd.write('  ')
-        fd.write(' '.join(float_string.format(x) for x in image.cell[row_i]))
+        fd.write(' '.join(float_string.format(x) for x in atoms.cell[row_i]))
         fd.write('\n')
 
     fd.write(_symbol_count_string(symbol_count, vasp5=True))
-    _write_xdatcar_config(fd, image, index=1)
-    for i, image in enumerate(images):
-        # Index is off by 2: 1-indexed file vs 0-indexed Python;
-        # and we already wrote the first block.
-        _write_xdatcar_config(fd, image, i + 2)
 
 
 def _write_xdatcar_config(fd, atoms, index):
@@ -759,7 +763,7 @@ def _write_xdatcar_config(fd, atoms, index):
     float_string = '{:11.8f}'
     scaled_positions = atoms.get_scaled_positions()
     for row in scaled_positions:
-        fd.write(' ')
+        fd.write('  ')
         fd.write(' '.join([float_string.format(x) for x in row]))
         fd.write('\n')
 

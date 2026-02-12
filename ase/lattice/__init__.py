@@ -14,6 +14,17 @@ from ase.utils import pbc2pbc
 _degrees = np.pi / 180
 
 
+def lattice_attr(name):
+    def getter(self):
+        try:
+            return self._parameters[name]
+        except KeyError:
+            raise AttributeError(name) from None
+
+    getter.__name__ = name
+    return property(getter)
+
+
 class BravaisLattice(ABC):
     """Represent Bravais lattices and data related to the Brillouin zone.
 
@@ -50,6 +61,7 @@ class BravaisLattice(ABC):
     variants: dict | None = None  # e.g. {'BCT1': <variant object>,
     #                                     'BCT2': <variant object>}
     ndim: int = 0
+    conventional_cls: str | None = None
 
     def __init__(self, **kwargs):
         p = {}
@@ -77,11 +89,6 @@ class BravaisLattice(ABC):
         'BCT2'
         """
         return self._variant.name
-
-    def __getattr__(self, name: str):
-        if name in self._parameters:
-            return self._parameters[name]
-        return self.__getattribute__(name)  # Raises error
 
     def vars(self) -> Dict[str, float]:
         """Get parameter names and values of this lattice as a dictionary."""
@@ -323,6 +330,9 @@ def bravaisclass(longname, crystal_family, lattice_system, pearson_symbol,
         cls.variant_names = []
         cls.variants = {}
         cls.ndim = ndim
+
+        for parameter in parameters:
+            setattr(cls, parameter, lattice_attr(parameter))
 
         for [name, special_point_names, special_path,
              special_points] in variants:

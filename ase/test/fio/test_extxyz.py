@@ -4,6 +4,7 @@
 # maintained by James Kermode <james.kermode@gmail.com>
 
 import sys
+from io import StringIO
 from pathlib import Path
 
 import numpy as np
@@ -18,7 +19,7 @@ from ase.calculators.mixing import LinearCombinationCalculator
 from ase.calculators.singlepoint import SinglePointCalculator
 from ase.constraints import FixAtoms, FixCartesian, FixedLine, FixedPlane
 from ase.io import extxyz
-from ase.io.extxyz import escape, save_calc_results
+from ase.io.extxyz import escape, iread_xyz, save_calc_results, write_xyz
 
 # array data of shape (N, 1) squeezed down to shape (N, ) -- bug fixed
 # in commit r4541
@@ -592,3 +593,18 @@ def test_non_subscriptable_move_mask(tmp_path):
     atoms.new_array("move_mask", np.ones(atoms.positions.shape).astype(bool))
 
     ase.io.write(tmp_path / "out.extxyz", (a for a in [atoms]))
+
+
+@pytest.mark.parametrize('index', (0, -1, slice(None), slice(None, None, -1)))
+def test_iread_xyz(images: list[Atoms], index: int | slice) -> None:
+    """Test if `iread_xyz` works."""
+    # This will not be needed once `read_xyz` is reimplemented with `iread_xyz`.
+    fd = StringIO()
+    write_xyz(fd, images)
+    fd.seek(0)
+    if isinstance(index, int):
+        images_ref = images[slice(index, index + 1)]
+    else:
+        images_ref = images[index]
+    for atoms1, atoms2 in zip(images_ref, iread_xyz(fd, index=index)):
+        assert not compare_atoms(atoms1, atoms2)
