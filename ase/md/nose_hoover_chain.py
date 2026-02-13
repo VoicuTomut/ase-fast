@@ -719,8 +719,11 @@ class MaskedMTKNPT(MTKNPT):
             The target temperature in K.
         pressure_au: float
             The external pressure in eV/Ang^3.
-        mask: 3-tuple
-            mask=(False, False, True) allows only fluctuations along c-axis.
+        mask: tuple[bool, bool, bool]
+            Boolean mask for (a, b, c) axis fluctuations. `True` enables
+            fluctuations along an axis and `False` disables them. For
+            example, `mask=(False, False, True)` allows only c-axis
+            fluctuations.
         tdamp: float
             The characteristic time scale for the thermostat in ASE time units.
             Typically, it is set to 100 times of `timestep`.
@@ -840,12 +843,14 @@ class MTKBarostat:
 
     See `MTKNPT` for the references.
 
-    Note for `mask` parameter:
+    Note for `mask` keyword argument:
         If `mask` is None, full 9 DoF cell fluctuations are allowed.
         If `mask` is a 3-tuple of booleans, only the specified axes are allowed
         to fluctuate, and its DoF is a number of the specified axes. Thus,
         `mask=(True, True, True)` gives 3 DoF cell fluctuations along a, b,
         and c axes, which is different from the full 9 DoF fluctuations.
+        Other cell fluctuations such as partially allowed off-diagonal components
+        are not supported in the current implementation.
     """
     def __init__(
         self,
