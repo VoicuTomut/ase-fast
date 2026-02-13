@@ -101,7 +101,7 @@ class AutoNEB:
         The spring constant along the NEB path
     method: str (see neb.py)
         Choice betweeen three method:
-        'aseneb', standard ase NEB implementation
+        'aseneb', legacy ase NEB implementation
         'improvedtangent', published NEB implementation
         'eb', full spring force implementation (default)
     optimizer: object

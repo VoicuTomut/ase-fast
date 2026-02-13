@@ -74,6 +74,7 @@ filterwarnings = [
     'once::ResourceWarning',
     'ignore:.*size changed, may indicate binary incompatibility',
     'ignore::ase.config.ASEEnvDeprecationWarning',
+    "ignore:The default method has changed from 'aseneb' to 'improvedtangent'",
 ]
 
 [tool.mypy]

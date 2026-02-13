@@ -74,4 +74,4 @@ def test_neb_tr(testdir):
             nsteps_neb_0 = nsteps_neb
 
     assert abs(Ef_neb - Ef_neb_0) < 1e-2
-    assert nsteps_neb_0 < nsteps_neb * 0.7
+    assert nsteps_neb_0 < nsteps_neb * 0.75
