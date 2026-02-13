@@ -327,14 +327,15 @@ class BaseNEB:
 
         if method is None:
             warnings.warn(
-                "The default method has changed from 'aseneb' to 'improvedtangent'. "
-                "The 'aseneb' method is an unpublished, custom implementation that "
-                "is not recommended as it frequently results in very poor bands. "
-                "Please explicitly set method='improvedtangent' to silence this "
-                "warning, or set method='aseneb' if you strictly require the old "
-                "behavior (results may vary). "
-                "See: https://gitlab.com/ase/ase/-/merge_requests/3952",
-                UserWarning,
+              "The default method has changed from 'aseneb' to "
+              "'improvedtangent'. The 'aseneb' method is an unpublished, "
+              "custom implementation that is not recommended as it frequently "
+              "results in very poor bands. Please explicitly set "
+              "method='improvedtangent' to silence this warning, or set "
+              "method='aseneb' if you strictly require the old behavior "
+              "(results may vary). "
+              "See: https://gitlab.com/ase/ase/-/merge_requests/3952",
+              UserWarning,
             )
             method = 'improvedtangent'
 
