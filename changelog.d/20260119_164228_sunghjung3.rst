@@ -13,10 +13,10 @@
 ..
 .. - A bullet item for the Calculators category.
 ..
-.. Optimizers
-.. ----------
-..
-.. - A bullet item for the Optimizers category.
+Optimizers
+----------
+
+- Change the default method for :class:`~ase.mep.neb.NEB` to ``'improvedtangent'`` (previously ``'aseneb'``).
 ..
 .. Molecular dynamics
 .. ------------------
@@ -48,7 +48,3 @@
 ..
 .. - A bullet item for the Bugfixes category.
 ..
-MEP
----
-
-- Change the default method for :class:`~ase.mep.neb.NEB` to ``'improvedtangent'`` (previously ``'aseneb'``).
