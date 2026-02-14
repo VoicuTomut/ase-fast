@@ -849,8 +849,8 @@ class MTKBarostat:
         to fluctuate, and its DoF is a number of the specified axes. Thus,
         `mask=(True, True, True)` gives 3 DoF cell fluctuations along a, b,
         and c axes, which is different from the full 9 DoF fluctuations.
-        Other cell fluctuations such as partially allowed off-diagonal components
-        are not supported in the current implementation.
+        Other cell fluctuations such as partially allowed off-diagonal
+        components are not supported in the current implementation.
     """
     def __init__(
         self,
