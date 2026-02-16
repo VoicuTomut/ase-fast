@@ -1,9 +1,9 @@
 """
 .. _delta_values_example:
 
-========================
-Calculating Delta-values
-========================
+=============================
+EOS: Calculating Delta-values
+=============================
 """
 
 # %%

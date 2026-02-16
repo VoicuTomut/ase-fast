@@ -2,8 +2,8 @@
 """
 .. _intro_ase_db:
 
-Introduction to ASE databases
-=============================
+ASE Databases: An Introduction
+==============================
 ASE has its own database format that can be used for storing and retrieving
 atoms (and associated data) in a compact and convenient way. In the following,
 we will create databases and interact with them through python scripts and
