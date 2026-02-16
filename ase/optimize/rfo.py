@@ -96,7 +96,7 @@ class RFO(BFGS):
     def prepare_step(self, pos, gradient):
         """Compute step from first eigenvector of gradient-augmented Hessian"""
         # Update Hessian BFGS-style
-        super().update(pos, -gradient, self.pos0, self.forces0)
+        self.update(pos, -gradient, self.pos0, self.forces0)
         self.aug_H[:-1, :-1] = self.H / self.damping**2
         self.aug_H[-1, :-1] = gradient / self.damping
         self.aug_H[:-1, -1] = gradient / self.damping
