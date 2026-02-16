@@ -66,6 +66,20 @@ Mode Ion                X                                   Y                   
    6   2 -0.504408494659  0.026140961934     -0.247717373416  0.000023641653     -0.247799914450  0.000000000000
 """  # noqa: E501,W291
 
+REF_ATOMS = Atoms(
+    symbols=['Ga', 'Sb'],
+    masses=[69.723000, 121.760000],
+    cell=[
+        [-0.011070, 3.025863, 3.025863],
+        [3.025863, -0.011070, 3.025863],
+        [3.025863, 3.025863, -0.011070],
+    ],
+    scaled_positions=[
+        [0.000361, 0.000361, 0.000361],
+        [0.749639, 0.749639, 0.749639],
+    ],
+)
+
 PHONON_FREQS_INVCM = np.array(
     [
         [
@@ -201,6 +215,7 @@ def test_castep_phonon_atoms_only() -> None:
     atoms = read_castep_phonon(text, read_vib_data=False)
 
     assert isinstance(atoms, Atoms)
+    assert atoms == REF_ATOMS
 
 
 def test_castep_phonon_vib_data() -> None:
@@ -212,6 +227,8 @@ def test_castep_phonon_vib_data() -> None:
     qpoints, weights, frequencies, displacements = vibdata
 
     assert isinstance(atoms, Atoms)
+    assert atoms == REF_ATOMS
+
     assert_allclose(qpoints, [[0, 0, 0], [0.333333, 0, 0]])
     assert_allclose(frequencies, PHONON_FREQS_INVCM * INVCM_TO_EV, rtol=1e-6)
 
@@ -228,8 +245,9 @@ def test_castep_phonon_gamma_only() -> None:
 
     frequencies, displacements = vibdata
     assert isinstance(atoms, Atoms)
-    assert frequencies.shape == (6,)
+    assert atoms == REF_ATOMS
 
+    assert frequencies.shape == (6,)
     assert_allclose(frequencies, PHONON_FREQS_INVCM[0] * INVCM_TO_EV, rtol=1e-6)
 
     assert displacements.shape == (6, 6)
