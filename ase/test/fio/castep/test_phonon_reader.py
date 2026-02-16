@@ -81,7 +81,7 @@ def test_castep_phonon_vib_data() -> None:
     qpoints, weights, frequencies, displacements = vibdata
 
     assert isinstance(atoms, Atoms)
-    assert_allclose(qpoints, [[0, 0, 0], [1/3, 0, 0]])
+    assert_allclose(qpoints, [[0, 0, 0], [0.333333, 0, 0]])
 
 
 def test_castep_phonon_gamma_only() -> None:
