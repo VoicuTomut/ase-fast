@@ -211,6 +211,7 @@ PHONON_DISP = np.array(
 
 
 def test_castep_phonon_atoms_only() -> None:
+    """Read Atoms from CASTEP .phonon data"""
     text = StringIO(PHONON_FILE)
     atoms = read_castep_phonon(text, read_vib_data=False)
 
@@ -219,6 +220,7 @@ def test_castep_phonon_atoms_only() -> None:
 
 
 def test_castep_phonon_vib_data() -> None:
+    """Read Atoms and phonon modes from CASTEP .phonon data"""
     text = StringIO(PHONON_FILE)
     vibdata, atoms = read_castep_phonon(
         text, read_vib_data=True, gamma_only=False
@@ -238,6 +240,7 @@ def test_castep_phonon_vib_data() -> None:
 
 
 def test_castep_phonon_gamma_only() -> None:
+    """Read Atoms and gamma-point phonon modes from CASTEP .phonon data"""
     text = StringIO(PHONON_FILE)
     vibdata, atoms = read_castep_phonon(
         text, read_vib_data=True, gamma_only=True
