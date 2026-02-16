@@ -231,7 +231,7 @@ def test_castep_phonon_vib_data() -> None:
     assert isinstance(atoms, Atoms)
     assert atoms == REF_ATOMS
 
-    assert_allclose(qpoints, [[0, 0, 0], [0.333333, 0, 0]])
+    assert_allclose(qpoints, np.array([[0, 0, 0], [0.333333, 0, 0]]))
     assert_allclose(frequencies, PHONON_FREQS_INVCM * INVCM_TO_EV, rtol=1e-6)
 
     for qpt_displacements in displacements:
