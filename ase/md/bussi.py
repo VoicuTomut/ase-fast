@@ -102,10 +102,6 @@ class Bussi(VelocityVerlet):
         normal_noise = noisearray[0]
         sum_of_noises = noisearray[1]
 
-        # \sum_{i=2}^{Nf} R_i^2 in Eq. (A7)
-        # 2 * standard_gamma(n / 2) is equal to chisquare(n)
-        sum_of_noises = 2.0 * self.rng.standard_gamma(0.5 * (self.ndof - 1))
-
         return math.sqrt(
             self._exp_term
             + energy_scaling_term * (sum_of_noises + normal_noise**2)
