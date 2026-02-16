@@ -48,6 +48,7 @@ sphinx_gallery_conf = {
     'reference_url': {'ase': None},
     'remove_config_comments': True,
     'prefer_full_module': ['ase'],
+    'matplotlib_animations': (True, 'mp4'),
     'within_subsection_order': 'FileNameSortKey',
 }
 
