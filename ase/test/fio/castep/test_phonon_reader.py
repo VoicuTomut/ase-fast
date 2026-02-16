@@ -1,6 +1,10 @@
 from io import StringIO
+
+from numpy.testing import assert_allclose
+
 from ase import Atoms
 from ase.io.castep import read_castep_phonon
+
 
 PHONON_FILE = """\
  BEGIN header
@@ -62,13 +66,29 @@ Mode Ion                X                                   Y                   
    6   2 -0.504408494659  0.026140961934     -0.247717373416  0.000023641653     -0.247799914450  0.000000000000
 """
 
+
 def test_castep_phonon_atoms_only() -> None:
     text = StringIO(PHONON_FILE)
     atoms = read_castep_phonon(text, read_vib_data=False)
 
     assert isinstance(atoms, Atoms)
 
-# def read_castep_phonon(fd, index=None, read_vib_data=False,
-#                        gamma_only=True, frequency_factor=None,
-#                        units=units_CODATA2002):
 
+def test_castep_phonon_vib_data() -> None:
+    text = StringIO(PHONON_FILE)
+    vibdata, atoms = read_castep_phonon(text, read_vib_data=True, gamma_only=False)
+
+    qpoints, weights, frequencies, displacements = vibdata
+
+    assert isinstance(atoms, Atoms)
+    assert_allclose(qpoints, [[0, 0, 0], [1/3, 0, 0]])
+
+
+def test_castep_phonon_gamma_only() -> None:
+    text = StringIO(PHONON_FILE)
+    vibdata, atoms = read_castep_phonon(text, read_vib_data=True, gamma_only=True)
+
+    frequencies, displacements = vibdata
+    assert isinstance(atoms, Atoms)
+    assert frequencies.shape == (6,)
+    assert displacements.shape == (6, 6)
