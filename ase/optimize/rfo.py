@@ -6,7 +6,7 @@ from typing import IO
 import numpy as np
 
 from ase import Atoms
-from ase.optimize import BFGS
+from ase.optimize.bfgs import BFGS
 
 
 class RFO(BFGS):
