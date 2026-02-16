@@ -54,8 +54,60 @@ def animate(images, ax=None,
     return animation
 
 
-def plot_atoms(atoms, ax=None, **parameters):
+def plot_atoms(atoms, ax=None, axis_off=False, **params):
     """Plot an atoms object in a matplotlib subplot.
+    Additional axis options for the Matplotlib axis
+    can be provided as params,
+    always starting with 'ax_' to show their affiliation
+    to the axis.
+
+    Parameters
+    ----------
+    atoms : Atoms object
+    ax : Matplotlib subplot object
+    rotation : str, optional
+        In degrees. In the form '10x,20y,30z'
+    show_unit_cell : int, optional, default 2
+        Draw the unit cell as dashed lines depending on value:
+        0: Don't
+        1: Do
+        2: Do, making sure cell is visible
+    radii : float, optional
+        The radii of the atoms
+    colors : list of strings, optional
+        Color of the atoms, must be the same length as
+        the number of atoms in the atoms object.
+    scale : float, optional
+        Scaling of the plotted atoms and lines.
+    offset : tuple (float, float), optional
+        Offset of the plotted atoms and lines.
+
+    Axis Parameters
+    ---------------
+    All axis parameters for Matplotlib objects that
+    can be set by 
+    `Matplotlib Axes Set <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set.html>`_ .
+    """
+
+    ax_parameters=dict([(i.split('ax_')[-1],params[i]) for i in params.keys() if 'ax_' in i])
+    parameters=dict([(i,params[i]) for i in params.keys() if ('ax_' not in i)])
+
+    if isinstance(atoms, list):
+        assert len(atoms) == 1
+        atoms = atoms[0]
+
+    import matplotlib.pyplot as plt
+    if ax is None:
+        ax = plt.gca()
+    Matplotlib(atoms, ax, **parameters).write()
+    ax.set(**ax_parameters)    
+    if axis_off:
+        ax.set_axis_off()
+    return ax
+
+def plot_only_atoms(atoms, ax=None, **parameters):
+    """Plot an atoms object in a matplotlib subplot. The axis
+    is turned of by default.
 
     Parameters
     ----------
@@ -86,4 +138,6 @@ def plot_atoms(atoms, ax=None, **parameters):
     if ax is None:
         ax = plt.gca()
     Matplotlib(atoms, ax, **parameters).write()
+    ax.set_axis_off()
     return ax
+
