@@ -1,10 +1,10 @@
 from io import StringIO
 
+import numpy as np
 from numpy.testing import assert_allclose
 
 from ase import Atoms
 from ase.io.castep import read_castep_phonon
-
 
 PHONON_FILE = """\
  BEGIN header
@@ -64,7 +64,30 @@ Mode Ion                X                                   Y                   
    5   2  0.000038011875  0.000018017654      0.435118961715 -0.000081887453     -0.435046564381  0.000000000000
    6   1 -0.321212720030 -0.570087319311     -0.161431625946 -0.266230513240     -0.161454616472 -0.266338906300
    6   2 -0.504408494659  0.026140961934     -0.247717373416  0.000023641653     -0.247799914450  0.000000000000
-"""
+"""  # noqa: E501,W291
+
+PHONON_FREQS_INVCM = np.array(
+    [
+        [
+            -0.017701,
+            -0.014453,
+            -0.010220,
+            227.038174,
+            227.038204,
+            229.610545,
+        ],
+        [
+            40.750320,
+            40.986472,
+            127.037788,
+            215.635623,
+            220.637147,
+            221.436705,
+        ],
+    ]
+)
+
+INVCM_TO_EV = 0.000123984257
 
 
 def test_castep_phonon_atoms_only() -> None:
@@ -76,19 +99,30 @@ def test_castep_phonon_atoms_only() -> None:
 
 def test_castep_phonon_vib_data() -> None:
     text = StringIO(PHONON_FILE)
-    vibdata, atoms = read_castep_phonon(text, read_vib_data=True, gamma_only=False)
+    vibdata, atoms = read_castep_phonon(
+        text, read_vib_data=True, gamma_only=False
+    )
 
     qpoints, weights, frequencies, displacements = vibdata
 
     assert isinstance(atoms, Atoms)
     assert_allclose(qpoints, [[0, 0, 0], [0.333333, 0, 0]])
-
+    assert_allclose(frequencies, PHONON_FREQS_INVCM * INVCM_TO_EV, rtol=1e-6)
 
 def test_castep_phonon_gamma_only() -> None:
     text = StringIO(PHONON_FILE)
-    vibdata, atoms = read_castep_phonon(text, read_vib_data=True, gamma_only=True)
+    vibdata, atoms = read_castep_phonon(
+        text, read_vib_data=True, gamma_only=True
+    )
 
     frequencies, displacements = vibdata
     assert isinstance(atoms, Atoms)
     assert frequencies.shape == (6,)
+
+    assert_allclose(
+        frequencies,
+        PHONON_FREQS_INVCM[0] * INVCM_TO_EV,
+        rtol=1e-6
+    )
+
     assert displacements.shape == (6, 6)
