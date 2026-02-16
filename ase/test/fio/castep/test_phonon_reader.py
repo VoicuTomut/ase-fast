@@ -192,9 +192,8 @@ PHONON_DISP = np.array(
             ],
         ],
     ],
-    dtype="complex128",
+    dtype='complex128',
 )
-
 
 
 def test_castep_phonon_atoms_only() -> None:
@@ -231,11 +230,7 @@ def test_castep_phonon_gamma_only() -> None:
     assert isinstance(atoms, Atoms)
     assert frequencies.shape == (6,)
 
-    assert_allclose(
-        frequencies,
-        PHONON_FREQS_INVCM[0] * INVCM_TO_EV,
-        rtol=1e-6
-    )
+    assert_allclose(frequencies, PHONON_FREQS_INVCM[0] * INVCM_TO_EV, rtol=1e-6)
 
     assert displacements.shape == (6, 6)
     assert issubclass(displacements.dtype.type, np.complexfloating)
