@@ -1,10 +1,10 @@
 """.. _acn_md_tutorial:
 
-Equilibrating an MD box of acetonitrile
-=======================================
+Equilibrating a box of acetonitrile with MD
+===========================================
 
 Goals
-=====
+-----
 
 In this tutorial we learn how to perform a thermal equilibration of a box
 of acetonitrile molecules using ASE. We will:
@@ -17,7 +17,7 @@ of acetonitrile molecules using ASE. We will:
 * scale small box of 27 molecules to 216 molecules.
 
 ACN model
-=========
+---------
 
 The acetonitrile force field implemented in ASE (:mod:`ase.calculators.acn`)
 is an interaction potential between three-site linear molecules. The atoms

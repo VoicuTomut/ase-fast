@@ -2,9 +2,16 @@
 """
 .. _eos_example:
 
-=======================
-Equation of state (EOS)
-=======================
+==========================================
+EOS: Introduction to the Equation of state
+==========================================
+
+The equation of states (EOS) can be used to compute the
+minimum lattice constants for a bulk material.
+In the following, we demonstrate how the ASE Equation
+of state function can be used to compute the
+minimum energy lattice constant and pressure
+for FCC silver.
 
 First, do a bulk calculation for different lattice constants:
 """

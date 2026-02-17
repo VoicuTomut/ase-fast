@@ -1,7 +1,7 @@
 r""".. _minima_hopping:
 
-Constrained minima hopping (global optimization)
-================================================
+Global optimization: Constrained minima hopping
+===============================================
 
 This is an example of a search for a global optimum geometric
 configuration using the minima hopping algorithm,

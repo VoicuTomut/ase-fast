@@ -1,7 +1,7 @@
 """.. _dissociation:
 
-Dissociation of a molecule using the NEB method
-===============================================
+NEB: Dissociation of a molecule using the NEB method
+====================================================
 
 In this tutorial we provide an illustrative
 example of a nudged-elastic band (NEB) calculation.
