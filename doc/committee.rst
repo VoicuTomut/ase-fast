@@ -30,7 +30,8 @@ members of the technical subcommittee (“maintainers“):
  * `Kristian Sommer Thygesen
    <https://dtu.dk/person/kristian-sommer-thygesen?id=13069>`__
  * Lars Pastewka
- * Michael Herbst
+ * `Michael Herbst
+   <https://michael-herbst.com>`__
  * Michele Ceriotti
  * Paul Erhart
  * Xing Wang
