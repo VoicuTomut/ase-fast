@@ -29,7 +29,7 @@ members of the technical subcommittee (“maintainers“):
  * `Hanna Türk (EPFL, Switzerland)
    <https://people.epfl.ch/hanna.tuerk>`__
    https://gitlab.com/HannaTuerk
- * `James Kermode (University of Warwick, UK)
+ * `James Kermode [committee chair] (University of Warwick, UK)
    <https://www.warwick.ac.uk/jrkermode>`__
  * `Karsten Wedel Jacobsen  (DTU, Denmark)
    <https://dtu.dk/person/karsten-wedel-jacobsen?id=988>`__
