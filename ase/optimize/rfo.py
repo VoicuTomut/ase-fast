@@ -1,9 +1,5 @@
-from pathlib import Path
-from typing import IO
-
 import numpy as np
 
-from ase import Atoms
 from ase.optimize.bfgs import BFGS
 
 
@@ -21,68 +17,30 @@ class RFO(BFGS):
 
     def __init__(
         self,
-        atoms: Atoms,
-        restart: str | Path | None = None,
-        logfile: IO | str | Path | None = '-',
-        trajectory: str | Path | None = None,
-        append_trajectory: bool = False,
-        maxstep: float | None = None,
-        alpha: float | None = None,
+        *args,
         damping: float | None = None,
         **kwargs,
     ):
         """
         Parameters
         ----------
-        atoms: :class:`~ase.Atoms`
-            The Atoms object to relax.
-
-        restart: str | Path | None
-            JSON file used to store hessian matrix. If set, file with
-            such a name will be searched and hessian matrix stored will
-            be used, if the file exists.
-
-        trajectory: str or Path
-            Trajectory file used to store optimisation path.
-
-        logfile: file object, Path, or str
-            If *logfile* is a string, a file with that name will be opened.
-            Use '-' for stdout.
-
-        maxstep: float
-            Used to set the maximum distance an atom can move per
-            iteration (default value is 0.2 Å).
-
-        alpha: float
-            Initial guess for the Hessian (curvature of energy surface). A
-            conservative value of 70.0 is the default, but number of needed
-            steps to converge might be less if a lower value is used. However,
-            a lower value also means risk of instability.
+        *args
+            Positional arguments passed to :class:`~ase.optimize.bfgs.BFGS`.
 
         damping: float
             Determines transition threshold between quasi-Newton-like and
             rational function damped steps. The larger the value, the larger
             and stronger the damped regime. (default is 1.0 Å^-1).
 
-        kwargs : dict, optional
-            Extra arguments passed to
-            :class:`~ase.optimize.optimize.Optimizer`.
+        **kwargs
+            Keyword arguments passed to :class:`~ase.optimize.bfgs.BFGS`.
         """
         if damping is None:
             self.damping = self.defaults['damping']
         else:
             self.damping = damping
 
-        super().__init__(
-            atoms=atoms,
-            restart=restart,
-            logfile=logfile,
-            trajectory=trajectory,
-            append_trajectory=append_trajectory,
-            maxstep=maxstep,
-            alpha=alpha,
-            **kwargs,
-        )
+        super().__init__(*args, **kwargs)
 
     def initialize(self):
         # Initialize Hessian
