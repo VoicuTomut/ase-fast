@@ -165,7 +165,13 @@ def test_nvtberendsen(asap3, equilibrated, dynamicsparams, allraise):
 @pytest.mark.optimize()
 @pytest.mark.slow()
 def test_langevin(asap3, equilibrated, dynamicsparams, allraise):
-    propagate(Atoms(equilibrated), asap3, Langevin, dynamicsparams['langevin'])
+    propagate(
+        Atoms(equilibrated),
+        asap3,
+        Langevin,
+        dynamicsparams['langevin'],
+        com_not_thermalized=True,
+    )
 
 
 @pytest.mark.optimize()
