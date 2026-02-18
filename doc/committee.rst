@@ -33,7 +33,8 @@ The steering committee uses the `ASE-Committee mailing list
 <https://listserv.fysik.dtu.dk/mailman/listinfo/ase-committee>`__ for
 communication.  It is possible to contact the committee using the mailing
 list, but it is mostly used for internal communication.  Most questions
-from non-members should probably go to the `ASE users :ref:`mail list`.
+from non-members should probably go to the
+:ref:`ASE-users mailing list <mailinglist>`.
 
 The steering committee meets occasionally.  Minutes from the
 steering committee meetings are made public at the
