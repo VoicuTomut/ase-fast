@@ -113,7 +113,7 @@ atoms.constraints = FixLinearTriatomic(triples=triples)
 # Assign ACN with cutoff = half the smallest box edge. Langevin MD at
 # 300 K, 2 fs timestep. Save a frame every step.
 #
-#.. note::
+# .. note::
 #
 #   This example uses a relatively large timestep to demonstrate
 #   the usage of the code. In general, a smaller timestep
@@ -133,7 +133,7 @@ md = Langevin(
     logfile=tag + '.log',
 )
 traj = Trajectory(tag + '.traj', 'w', atoms)
-md.attach(traj.write, interval=50) # writing the structure every 100 fs
+md.attach(traj.write, interval=50)  # writing the structure every 100 fs
 md.run(10)  # 10 timestseps @ 2 fs = 0.02 ps
 
 
@@ -146,6 +146,7 @@ md.run(10)  # 10 timestseps @ 2 fs = 0.02 ps
 
 times_ps, epots, ekins, etots, temps = [], [], [], [], []
 sample_interval = 10  # sample every 10 MD steps for lighter plots
+
 
 def sample():
     # Time in ps (same as MDLogger: dyn.get_time() / (1000 * units.fs))
@@ -170,7 +171,8 @@ md.run(1500)  # 1500 timesteps @ 2 fs = 3 ps
 # Does the system equilibrated well?
 # What is the average temperature? Should we run longer simulations?
 fig, ax = plt.subplots(figsize=(6, 4))
-ax.axhline(300, color="black", linestyle="--") # line at 300 K for comparison
+# line at 300 K for comparison
+ax.axhline(300, color='black', linestyle='--')
 ax.plot(times_ps, temps, label='T (K)')
 ax.set_xlabel('Time (ps)')
 ax.set_ylabel('Temperature (K)')
@@ -222,7 +224,8 @@ md.run(10)  # 10 timesteps @ 2 fs = 0.02 ps
 
 # %%
 # This simulation is only run very briefly to show how to scale a simulation.
-# Try running the simulation longer and plot the temperature and other properties.
+# Try running the simulation longer and plot the
+# temperature and other properties.
 # Does this size take longer to equilibrate?
 #
 # Next steps
