@@ -33,11 +33,11 @@
 ..
 .. - A bullet item for the Development category.
 ..
-.. Documentation
-.. -------------
-..
-.. - A bullet item for the Documentation category.
-..
+Documentation
+-------------
+
+- Move Partly occupied Wannier Functions tutorial to sphinx gallery
+
 .. Other changes
 .. -------------
 ..
