@@ -215,4 +215,4 @@ for row in db.select(relaxed=True):
 # Advanced tutorial
 # -----------------
 # An additional tutorial using the ASE databases for adsorbates on metals
-# can be found at https://ase-lib.org/tutorials/db/db.html.
+# can be found at :ref:`adsorbate_db tutorials`.
