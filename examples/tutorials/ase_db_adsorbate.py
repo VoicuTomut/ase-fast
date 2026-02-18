@@ -37,6 +37,8 @@ from ase.io import write
 from ase.optimize import BFGS
 from ase.visualize.plot import plot_atoms
 
+# sphinx_gallery_thumbnail_number = -1
+
 bulk_syms = ['Al', 'Ni', 'Cu', 'Pd', 'Ag', 'Pt', 'Au']
 path_to_bulk_db = Path('bulk.db')
 
