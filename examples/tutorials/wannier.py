@@ -41,14 +41,13 @@ from ase.dft.wannier import Wannier
 atoms = molecule('C6H6')
 atoms.center(vacuum=3.5)
 
-calc = GPAW(mode='fd', h=0.21, xc='PBE', txt='benzene.txt', nbands=18)
+calc = GPAW(mode='pw', xc='PBE', txt='benzene.txt', nbands=18)
 atoms.calc = calc
 atoms.get_potential_energy()
 
 calc = calc.fixed_density(
     txt='benzene-harris.txt',
     nbands=40,
-    eigensolver='cg',
     convergence={'bands': 35},
 )
 atoms.get_potential_energy()
@@ -145,13 +144,11 @@ plt.show()
 # %%
 kpts = monkhorst_pack((13, 1, 1))
 calc = GPAW(
-    mode='fd',
-    h=0.21,
+    mode='pw',
     xc='PBE',
     kpts=kpts,
     nbands=12,
     txt='poly.txt',
-    eigensolver='cg',
     convergence={'bands': 9},
     symmetry='off',
 )
