@@ -25,6 +25,8 @@ with 1, 2 and 3 layers and we will use database files to store the results.
 
 from pathlib import Path
 
+import matplotlib.pyplot as plt
+
 from ase import Atoms
 from ase.build import add_adsorbate, bulk, fcc111
 from ase.calculators.emt import EMT
@@ -33,7 +35,6 @@ from ase.db import connect
 from ase.eos import calculate_eos
 from ase.io import write
 from ase.optimize import BFGS
-import matplotlib.pyplot as plt
 from ase.visualize.plot import plot_atoms
 
 bulk_syms = ['Al', 'Ni', 'Cu', 'Pd', 'Ag', 'Pt', 'Au']
