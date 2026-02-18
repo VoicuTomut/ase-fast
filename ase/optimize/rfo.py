@@ -34,7 +34,7 @@ class RFO(BFGS):
         Parameters
         ----------
         *args
-            Positional arguments passed to :class:`~ase.optimize.bfgs.BFGS`.
+            Positional arguments passed to :class:`~ase.optimize.BFGS`.
 
         damping: float
             Determines transition threshold between quasi-Newton-like and
@@ -42,7 +42,7 @@ class RFO(BFGS):
             and stronger the damped regime. (default is 1.0 Å^-1).
 
         **kwargs
-            Keyword arguments passed to :class:`~ase.optimize.bfgs.BFGS`.
+            Keyword arguments passed to :class:`~ase.optimize.BFGS`.
         """
         if damping is None:
             self.damping = self.defaults['damping']
