@@ -1,5 +1,3 @@
-# fmt: off
-
 from pathlib import Path
 from typing import IO
 
@@ -17,6 +15,7 @@ class RFO(BFGS):
     function damped steps outside of it. The ``damping`` factor determines
     the transition threshold between the regimes.
     """
+
     # default parameters
     defaults = {**BFGS.defaults, 'damping': 1.0}
 
@@ -75,11 +74,15 @@ class RFO(BFGS):
             self.damping = damping
 
         super().__init__(
-            atoms=atoms, restart=restart,
-            logfile=logfile, trajectory=trajectory,
+            atoms=atoms,
+            restart=restart,
+            logfile=logfile,
+            trajectory=trajectory,
             append_trajectory=append_trajectory,
-            maxstep=maxstep, alpha=alpha,
-            **kwargs)
+            maxstep=maxstep,
+            alpha=alpha,
+            **kwargs,
+        )
 
     def initialize(self):
         # Initialize Hessian
