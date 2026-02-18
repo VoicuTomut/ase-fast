@@ -6,46 +6,47 @@ The ASE Steering Committee defines overall goals for the ASE project.
 The committee has the following members, where \* indicates
 members of the technical subcommittee (“maintainers“):
 
- * `Alin-Marin Elena
+ * `Alin-Marin Elena (STFC, UK)
    <https://alin.elena.re/>`__
    https://gitlab.com/drFaustroll
- * Adam Jackson \*
+ * Adam Jackson \* (STFC, UK)
    https://gitlab.com/ajjackson
- * `Andrew Peterson
+ * `Andrew Peterson (Brown University, USA)
    <https://engineering.brown.edu/people/andrew-peterson>`__
- * `Andrew Rosen \*
+ * `Andrew Rosen (Princeton University, USA) \*
    <https://cbe.princeton.edu/people/andrew-rosen>`__
    https://gitlab.com/AndrewRosen
- * `Ask Hjorth Larsen \*
+ * `Ask Hjorth Larsen \* (DTU, Denmark)
    <https://dtu.dk/person/ask-hjorth-larsen?id=17508>`__
    https://gitlab.com/askhl
- * `Bjørk Hammer
+ * `Bjørk Hammer (Aarhus University, Denmark)
    <https://pure.au.dk/portal/en/persons/hammer%40phys.au.dk>`__
- * `Elena Gelzinyte
+ * `Elena Gelzinyte (University of Cambridge, UK)
    <https://bender.group.ch.cam.ac.uk/person/eg475>`__
- * `Gabor Csanyi
+ * `Gabor Csanyi (University of Cambridge, UK)
    <https://www.eng.cam.ac.uk/profiles/gc121>`__
- * `Hanna Türk
+ * `Hanna Türk (EPFL, Switzerland)
    <https://people.epfl.ch/hanna.tuerk>`__
    https://gitlab.com/HannaTuerk
- * `James Kermode
+ * `James Kermode (University of Warwick, UK)
    <https://www.warwick.ac.uk/jrkermode>`__
- * `Karsten Wedel Jacobsen
+ * `Karsten Wedel Jacobsen  (DTU, Denmark)
    <https://dtu.dk/person/karsten-wedel-jacobsen?id=988>`__
- * `Kristian Sommer Thygesen
+ * `Kristian Sommer Thygesen  (DTU, Denmark)
    <https://dtu.dk/person/kristian-sommer-thygesen?id=13069>`__
- * `Lars Pastewka
+ * `Lars Pastewka (University of Freiburg, Germany)
    <https://www.livmats.uni-freiburg.de/en/people/principal-investigators/lars-pastewka>`__
- * `Michael Herbst
+ * `Michael Herbst (EPFL, Switzerland)
    <https://michael-herbst.com>`__
- * `Michele Ceriotti
+ * `Michele Ceriotti (EPFL, Switzerland)
    <https://people.epfl.ch/michele.ceriotti>`__
- * `Paul Erhart
+ * `Paul Erhart (Chalmers University, Sweden)
    <https://materialsmodeling.org/people/paul-erhart/>`__
    https://gitlab.com/erhart
  * `Xing Wang
    <https://www.psi.ch/en/lms/people/xing-wang>`__
- * `Yuji Ikeda \* <https://www.imw.uni-stuttgart.de/team/Ikeda/>`__
+ * `Yuji Ikeda \* (University of Stuttgart, Germany)
+   <https://www.imw.uni-stuttgart.de/team/Ikeda/>`__
    https://gitlab.com/yuzie007
 
 The steering committee uses the `ASE-Committee mailing list
