@@ -28,8 +28,6 @@ carbon (hydrogens are not explicit). Therefore:
 * use the atomic sequence **Me–C–N** repeated for all molecules,
 * keep molecules **rigid** during MD with :class:`FixLinearTriatomic`.
 """
-import time
-start_time = time.time()
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -42,8 +40,10 @@ from ase.io import Trajectory
 from ase.md import Langevin
 from ase.visualize.plot import plot_atoms
 
+# sphinx_gallery_thumbnail_number = 2
+
 # %%
-# Step 1: molecule
+# Step 1: Molecule
 # ----------------
 # Build one CH3–C≡N as a linear triatomic “C–C–N”. The first carbon is
 # the methyl site; we assign it the CH3 mass. Rotate slightly to avoid
@@ -99,9 +99,6 @@ ax.set_axis_off()
 plt.tight_layout()
 plt.show()
 
-print("2 --- %s seconds ---" % (time.time() - start_time))
-start_time = time.time()
-
 # %%
 # Step 3: Set constraints
 # -----------------------
@@ -109,8 +106,6 @@ start_time = time.time()
 nm = 27
 triples = [(3 * i, 3 * i + 1, 3 * i + 2) for i in range(nm)]
 atoms.constraints = FixLinearTriatomic(triples=triples)
-print("3 --- %s seconds ---" % (time.time() - start_time))
-start_time = time.time()
 
 # %%
 # Step 4: MD run for 27-molecules system
@@ -123,7 +118,8 @@ start_time = time.time()
 #   This example uses a relatively large timestep to demonstrate
 #   the usage of the code. In general, a smaller timestep
 #   should be used for this molecular dynamics simulation.
-#   Generally, the timestep depends on the chemical system
+#   Generally, the timestep depends on the chemical system,
+#   its constraints
 #   and is in the order of 0.5-2~fs.
 
 atoms.calc = ACN(rc=np.min(np.diag(atoms.cell)) / 2)
@@ -138,44 +134,18 @@ md = Langevin(
 )
 traj = Trajectory(tag + '.traj', 'w', atoms)
 md.attach(traj.write, interval=50) # writing the structure every 100 fs
-md.run(250)  # 250 timestseps @ 2 fs = 0.5 ps
+md.run(10)  # 10 timestseps @ 2 fs = 0.02 ps
 
-print("4 --- %s seconds ---" % (time.time() - start_time))
-start_time = time.time()
 
 # %%
-# Step 5: scale system size to 216 molecules
-# ------------------------------------------
-# Repeat 2×2×2 to reach 216 molecules. Reapply constraints and update
-# the ACN cutoff for the new cell.
-atoms.set_constraint()
-atoms = atoms.repeat((2, 2, 2))
-
-nm = 216
-triples = [(3 * i, 3 * i + 1, 3 * i + 2) for i in range(nm)]
-atoms.constraints = FixLinearTriatomic(triples=triples)
-
-atoms.calc = ACN(rc=np.min(np.diag(atoms.cell)) / 2)
-print("5 --- %s seconds ---" % (time.time() - start_time))
-start_time = time.time()
-
-# %%
-# Step 6: MD run for 216-molecules system
-# ---------------------------------------
-tag = 'acn_216mol_300K'
-md = Langevin(
-    atoms,
-    2 * units.fs,
-    temperature_K=300,
-    friction=0.01,
-    logfile=tag + '.log',
-)
-traj = Trajectory(tag + '.traj', 'w', atoms)
-md.attach(traj.write, interval=50)
+# Step 4: Monitoring a MD simulation
+# ----------------------------------
+# Tracking different properties such as the temperature of a system
+# makes sense to monitor the behavior of a system and insure correct
+# physics.
 
 times_ps, epots, ekins, etots, temps = [], [], [], [], []
 sample_interval = 10  # sample every 10 MD steps for lighter plots
-
 
 def sample():
     # Time in ps (same as MDLogger: dyn.get_time() / (1000 * units.fs))
@@ -193,13 +163,14 @@ def sample():
 # initial sample at t=0
 sample()
 md.attach(sample, interval=sample_interval)
-md.run(250)  # 250 timesteps @ 2 fs = 0.5 ps
+md.run(1500)  # 1500 timesteps @ 2 fs = 3 ps
 
 # %%
 # Plot Instantaneous temperature vs time.
 # Does the system equilibrated well?
 # What is the average temperature? Should we run longer simulations?
 fig, ax = plt.subplots(figsize=(6, 4))
+ax.axhline(300, color="black", linestyle="--") # line at 300 K for comparison
 ax.plot(times_ps, temps, label='T (K)')
 ax.set_xlabel('Time (ps)')
 ax.set_ylabel('Temperature (K)')
@@ -208,9 +179,52 @@ ax.grid(True, linewidth=0.5, alpha=0.5)
 plt.tight_layout()
 plt.show()
 
-print("6 --- %s seconds ---" % (time.time() - start_time))
+# %%
+# Hint: How does the temperature of the atoms align with the black dashed
+# line at 300 K? Try running for 5 ps and 10 ps,
+# is the system equilibrated then?
 
 # %%
+# Step 6: Scale system size to 216 molecules
+# ------------------------------------------
+# Repeat 2×2×2 to reach 216 molecules. Reapply constraints and update
+# the ACN cutoff for the new cell.
+atoms.set_constraint()
+atoms = atoms.repeat((2, 2, 2))
+
+nm = 216
+triples = [(3 * i, 3 * i + 1, 3 * i + 2) for i in range(nm)]
+atoms.constraints = FixLinearTriatomic(triples=triples)
+
+atoms.calc = ACN(rc=np.min(np.diag(atoms.cell)) / 2)
+
+# %%
+# Step 7: MD run for 216-molecules system
+# ---------------------------------------
+tag = 'acn_216mol_300K'
+md = Langevin(
+    atoms,
+    2 * units.fs,
+    temperature_K=300,
+    friction=0.01,
+    logfile=tag + '.log',
+)
+traj = Trajectory(tag + '.traj', 'w', atoms)
+md.attach(traj.write, interval=50)
+
+times_ps, epots, ekins, etots, temps = [], [], [], [], []
+sample_interval = 10  # sample every 10 MD steps for lighter plots
+
+# initial sample at t=0
+sample()
+md.attach(sample, interval=sample_interval)
+md.run(10)  # 10 timesteps @ 2 fs = 0.02 ps
+
+# %%
+# This simulation is only run very briefly to show how to scale a simulation.
+# Try running the simulation longer and plot the temperature and other properties.
+# Does this size take longer to equilibrate?
+#
 # Next steps
 # ----------
 # * View trajectories::
