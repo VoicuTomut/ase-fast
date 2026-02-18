@@ -9,17 +9,22 @@ members of the technical subcommittee (“maintainers“):
  * `Alin-Marin Elena
    <https://alin.elena.re/>`__
    https://gitlab.com/drFaustroll
- * \* Adam Jackson
+ * Adam Jackson \*
    https://gitlab.com/ajjackson
- * Andrew Peterson
- * \* Andrew Rosen
+ * `Andrew Peterson
+   <https://engineering.brown.edu/people/andrew-peterson>`__
+ * `Andrew Rosen \*
+   <https://cbe.princeton.edu/people/andrew-rosen>`__
    https://gitlab.com/AndrewRosen
- * \* `Ask Hjorth Larsen
+ * `Ask Hjorth Larsen \*
    <https://dtu.dk/person/ask-hjorth-larsen?id=17508>`__
    https://gitlab.com/askhl
- * Bjørk Hammer
- * Elena Gelzinyte
- * Gabor Csanyi
+ * `Bjørk Hammer
+   <https://pure.au.dk/portal/en/persons/hammer%40phys.au.dk>`__
+ * `Elena Gelzinyte
+   <https://bender.group.ch.cam.ac.uk/person/eg475>`__
+ * `Gabor Csanyi
+   <https://www.eng.cam.ac.uk/profiles/gc121>`__
  * `Hanna Türk
    <https://people.epfl.ch/hanna.tuerk>`__
    https://gitlab.com/HannaTuerk
@@ -29,13 +34,18 @@ members of the technical subcommittee (“maintainers“):
    <https://dtu.dk/person/karsten-wedel-jacobsen?id=988>`__
  * `Kristian Sommer Thygesen
    <https://dtu.dk/person/kristian-sommer-thygesen?id=13069>`__
- * Lars Pastewka
+ * `Lars Pastewka
+   <https://www.livmats.uni-freiburg.de/en/people/principal-investigators/lars-pastewka>`__
  * `Michael Herbst
    <https://michael-herbst.com>`__
- * Michele Ceriotti
- * Paul Erhart
- * Xing Wang
- * \* Yuji Ikeda
+ * `Michele Ceriotti
+   <https://people.epfl.ch/michele.ceriotti>`__
+ * `Paul Erhart
+   <https://materialsmodeling.org/people/paul-erhart/>`__
+   https://gitlab.com/erhart
+ * `Xing Wang
+   <https://www.psi.ch/en/lms/people/xing-wang>`__
+ * `Yuji Ikeda \* <https://www.imw.uni-stuttgart.de/team/Ikeda/>`__
    https://gitlab.com/yuzie007
 
 The steering committee uses the `ASE-Committee mailing list
