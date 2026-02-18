@@ -1,4 +1,5 @@
 import numpy as np
+import scipy
 
 from ase.optimize.bfgs import BFGS
 
@@ -70,7 +71,7 @@ class RFO(BFGS):
         self.aug_H[:-1, :-1] = self.H / self.damping**2
         self.aug_H[-1, :-1] = gradient / self.damping
         self.aug_H[:-1, -1] = gradient / self.damping
-        V = np.linalg.eigh(self.aug_H, subset_by_index=(0, 0))[1]
+        V = scipy.linalg.eigh(self.aug_H, subset_by_index=(0, 0))[1]
         dpos = V[:, 0][:-1] / V[:, 0][-1] / self.damping
         steplengths = self.optimizable.gradient_norm(dpos)
         self.pos0 = pos
