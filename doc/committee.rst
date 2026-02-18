@@ -14,6 +14,7 @@ members of the technical subcommittee (“maintainers“):
    https://gitlab.com/ajjackson
  * `Andrew Peterson (Brown University, USA)
    <https://engineering.brown.edu/people/andrew-peterson>`__
+   https://gitlab.com/andrew_peterson
  * `Andrew Rosen (Princeton University, USA) \*
    <https://cbe.princeton.edu/people/andrew-rosen>`__
    https://gitlab.com/AndrewRosen
@@ -31,6 +32,7 @@ members of the technical subcommittee (“maintainers“):
    https://gitlab.com/HannaTuerk
  * `James Kermode [committee chair] (University of Warwick, UK)
    <https://www.warwick.ac.uk/jrkermode>`__
+   https://gitlab.com/jameskermode
  * `Karsten Wedel Jacobsen  (DTU, Denmark)
    <https://dtu.dk/person/karsten-wedel-jacobsen?id=988>`__
  * `Kristian Sommer Thygesen  (DTU, Denmark)
