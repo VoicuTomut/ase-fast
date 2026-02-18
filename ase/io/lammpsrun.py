@@ -4,7 +4,7 @@ import gzip
 import struct
 from collections.abc import Iterator
 from os.path import splitext
-from typing import Any, TextIO
+from typing import IO, Any, TextIO
 
 import numpy as np
 
@@ -309,13 +309,6 @@ def _parse_box_bound(line: str, cell_lines: list[str]) -> tuple:
     return cell, celldisp, pbc
 
 
-def get_max_index(index):
-    if np.isscalar(index):
-        return index
-    elif isinstance(index, slice):
-        return index.stop if (index.stop is not None) else float('inf')
-
-
 def _colnames2dtypes(colnames: list[str]) -> list[tuple[str, Any]]:
     # Determine the data types for each column
     dtype: list[tuple[str, Any]] = []
@@ -396,19 +389,7 @@ def read_lammps_dump_text(fd, index=-1, **kwargs):
     return list(g) if isinstance(index, (slice, str)) else next(g)
 
 
-def read_lammps_dump_binary(
-    fileobj, index=-1, colnames=None, intformat='SMALLBIG', **kwargs
-):
-    """Read binary dump-files (after binary2txt.cpp from lammps/tools).
-
-    :param fileobj: file-stream containing the binary lammps data
-    :param index: integer or slice object (default: get the last timestep)
-    :param colnames: data is columns and identified by a header
-    :param intformat: lammps support different integer size.  Parameter set \
-    at compile-time and can unfortunately not derived from data file
-    :returns: list of Atoms-objects
-    :rtype: list
-    """
+def _read_lammps_dump_binary_data(fd, /, colnames=None, intformat='SMALLBIG'):
     # depending on the chosen compilation flag lammps uses either normal
     # integers or long long for its id or timestep numbering
     # !TODO: tags are cast to double -> missing/double ids (add check?)
@@ -418,11 +399,120 @@ def read_lammps_dump_binary(
         'BIGBIG': ('q', 'q'),
     }[intformat]
 
-    index_end = get_max_index(index)
+    # wrap struct.unpack to raise EOFError
+    def read_variables(string):
+        obj_len = struct.calcsize(string)
+        data_obj = fd.read(obj_len)
+        if obj_len != len(data_obj):
+            raise EOFError
+        return struct.unpack(string, data_obj)
 
-    # Standard columns layout from lammpsrun
-    if not colnames:
-        colnames = [
+    # Assume that the binary dump file is in the old (pre-29Oct2020)
+    # format
+    magic_string = None
+
+    # read header
+    (ntimestep,) = read_variables('=' + bigformat)
+
+    # In the new LAMMPS binary dump format (version 29Oct2020 and
+    # onward), a negative timestep is used to indicate that the next
+    # few bytes will contain certain metadata
+    if ntimestep < 0:
+        # First bigint was actually encoding the negative of the format
+        # name string length (we call this 'magic_string' to
+        magic_string_len = -ntimestep
+
+        # The next `magic_string_len` bytes will hold a string
+        # indicating the format of the dump file
+        magic_string = b''.join(
+            read_variables('=' + str(magic_string_len) + 'c')
+        )
+
+        # Read endianness (integer). For now, we'll disregard the value
+        # and simply use the host machine's endianness (via '='
+        # character used with struct.calcsize).
+        #
+        # TODO: Use the endianness of the dump file in subsequent
+        #       read_variables rather than just assuming it will match
+        #       that of the host
+        read_variables('=i')
+
+        # Read revision number (integer)
+        (revision,) = read_variables('=i')
+
+        # Finally, read the actual timestep (bigint)
+        (ntimestep,) = read_variables('=' + bigformat)
+
+    _n_atoms, triclinic = read_variables('=' + bigformat + 'i')
+    boundary = read_variables('=6i')
+
+    if triclinic == 0:
+        diagdisp = read_variables('=6d')
+        offdiag = (0.0,) * 3
+        cell, celldisp = construct_cell(diagdisp, offdiag)
+    elif triclinic == 1:
+        diagdisp = read_variables('=6d')
+        offdiag = read_variables('=3d')
+        cell, celldisp = construct_cell(diagdisp, offdiag)
+    elif triclinic == 2:  # general triclinic boxes (>=patch_17Apr2024)
+        cell = np.array(read_variables('=9d')).reshape(3, 3)
+        celldisp = np.array(read_variables('=3d'))
+    else:
+        raise ValueError(triclinic)
+
+    (size_one,) = read_variables('=i')
+
+    if len(colnames) != size_one:
+        raise ValueError('Provided columns do not match binary file')
+
+    if magic_string and revision > 1:
+        # New binary dump format includes units string,
+        # columns string, and time
+        (units_str_len,) = read_variables('=i')
+
+        if units_str_len > 0:
+            # Read lammps units style
+            _ = b''.join(read_variables('=' + str(units_str_len) + 'c'))
+
+        (flag,) = read_variables('=c')
+        if flag != b'\x00':
+            # Flag was non-empty string
+            read_variables('=d')
+
+        # Length of column string
+        (columns_str_len,) = read_variables('=i')
+
+        # Read column string (e.g., "id type x y z vx vy vz fx fy fz")
+        _ = b''.join(read_variables('=' + str(columns_str_len) + 'c'))
+
+    (nchunk,) = read_variables('=i')
+
+    # lammps cells/boxes can have different boundary conditions on each
+    # sides (makes mainly sense for different non-periodic conditions
+    # (e.g. [f]ixed and [s]hrink for a irradiation simulation))
+    # periodic case: b 0 = 'p'
+    # non-peridic cases 1: 'f', 2 : 's', 3: 'm'
+    pbc = np.sum(np.array(boundary).reshape((3, 2)), axis=1) == 0
+
+    data = []
+    for _ in range(nchunk):
+        # number-of-data-entries
+        (n_data,) = read_variables('=i')
+        # retrieve per atom data
+        data += read_variables('=' + str(n_data) + 'd')
+
+    return data, cell, celldisp, pbc
+
+
+class _LAMMPSDumpBinaryChunk(ImageChunk):
+    def __init__(
+        self,
+        fd: IO,
+        colnames: list[str] | None,
+        intformat: str,
+    ) -> None:
+        # Standard columns layout from lammpsrun
+        colnames_default = [
             'id',
             'type',
             'x',
@@ -435,137 +525,72 @@ def read_lammps_dump_binary(
             'fy',
             'fz',
         ]
+        self.colnames = colnames if colnames else colnames_default
 
-    images = []
+        _ = _read_lammps_dump_binary_data(fd, self.colnames, intformat)
+        self.data = _[0]
+        self.cell = _[1]
+        self.celldisp = _[2]
+        self.pbc = _[3]
 
-    # wrap struct.unpack to raise EOFError
-    def read_variables(string):
-        obj_len = struct.calcsize(string)
-        data_obj = fileobj.read(obj_len)
-        if obj_len != len(data_obj):
-            raise EOFError
-        return struct.unpack(string, data_obj)
+    def build(self, **kwargs) -> Atoms:
+        data = np.array(self.data).reshape((-1, len(self.colnames)))
 
-    while True:
-        try:
-            # Assume that the binary dump file is in the old (pre-29Oct2020)
-            # format
-            magic_string = None
+        # convert the 2D float array to the structured array
+        dtype = _colnames2dtypes(self.colnames)
+        data = np.rec.fromarrays(data.T, dtype=dtype)
 
-            # read header
-            (ntimestep,) = read_variables('=' + bigformat)
+        # map data-chunk to ase atoms
+        return _lammps_data_to_ase_atoms(
+            data=data,
+            colnames=self.colnames,
+            cell=self.cell,
+            celldisp=self.celldisp,
+            pbc=self.pbc,
+            **kwargs,
+        )
 
-            # In the new LAMMPS binary dump format (version 29Oct2020 and
-            # onward), a negative timestep is used to indicate that the next
-            # few bytes will contain certain metadata
-            if ntimestep < 0:
-                # First bigint was actually encoding the negative of the format
-                # name string length (we call this 'magic_string' to
-                magic_string_len = -ntimestep
 
-                # The next `magic_string_len` bytes will hold a string
-                # indicating the format of the dump file
-                magic_string = b''.join(
-                    read_variables('=' + str(magic_string_len) + 'c')
-                )
+class _LAMMPSDumpBinaryChunkIterator:
+    def __init__(self) -> None:
+        self.colnames = None
+        self.intformat = ''
 
-                # Read endianness (integer). For now, we'll disregard the value
-                # and simply use the host machine's endianness (via '='
-                # character used with struct.calcsize).
-                #
-                # TODO: Use the endianness of the dump file in subsequent
-                #       read_variables rather than just assuming it will match
-                #       that of the host
-                read_variables('=i')
-
-                # Read revision number (integer)
-                (revision,) = read_variables('=i')
-
-                # Finally, read the actual timestep (bigint)
-                (ntimestep,) = read_variables('=' + bigformat)
-
-            _n_atoms, triclinic = read_variables('=' + bigformat + 'i')
-            boundary = read_variables('=6i')
-
-            if triclinic == 0:
-                diagdisp = read_variables('=6d')
-                offdiag = (0.0,) * 3
-                cell, celldisp = construct_cell(diagdisp, offdiag)
-            elif triclinic == 1:
-                diagdisp = read_variables('=6d')
-                offdiag = read_variables('=3d')
-                cell, celldisp = construct_cell(diagdisp, offdiag)
-            elif triclinic == 2:  # general triclinic boxes (>=patch_17Apr2024)
-                cell = np.array(read_variables('=9d')).reshape(3, 3)
-                celldisp = np.array(read_variables('=3d'))
-            else:
-                raise ValueError(triclinic)
-
-            (size_one,) = read_variables('=i')
-
-            if len(colnames) != size_one:
-                raise ValueError('Provided columns do not match binary file')
-
-            if magic_string and revision > 1:
-                # New binary dump format includes units string,
-                # columns string, and time
-                (units_str_len,) = read_variables('=i')
-
-                if units_str_len > 0:
-                    # Read lammps units style
-                    _ = b''.join(read_variables('=' + str(units_str_len) + 'c'))
-
-                (flag,) = read_variables('=c')
-                if flag != b'\x00':
-                    # Flag was non-empty string
-                    read_variables('=d')
-
-                # Length of column string
-                (columns_str_len,) = read_variables('=i')
-
-                # Read column string (e.g., "id type x y z vx vy vz fx fy fz")
-                _ = b''.join(read_variables('=' + str(columns_str_len) + 'c'))
-
-            (nchunk,) = read_variables('=i')
-
-            # lammps cells/boxes can have different boundary conditions on each
-            # sides (makes mainly sense for different non-periodic conditions
-            # (e.g. [f]ixed and [s]hrink for a irradiation simulation))
-            # periodic case: b 0 = 'p'
-            # non-peridic cases 1: 'f', 2 : 's', 3: 'm'
-            pbc = np.sum(np.array(boundary).reshape((3, 2)), axis=1) == 0
-
-            data = []
-            for _ in range(nchunk):
-                # number-of-data-entries
-                (n_data,) = read_variables('=i')
-                # retrieve per atom data
-                data += read_variables('=' + str(n_data) + 'd')
-            data = np.array(data).reshape((-1, size_one))
-
-            # convert the 2D float array to the structured array
-            data = np.rec.fromarrays(data.T, dtype=_colnames2dtypes(colnames))
-
-            # map data-chunk to ase atoms
-            out_atoms = _lammps_data_to_ase_atoms(
-                data=data,
-                colnames=colnames,
-                cell=cell,
-                celldisp=celldisp,
-                pbc=pbc,
-                **kwargs,
-            )
-
-            images.append(out_atoms)
-
-            # stop if requested index has been found
-            if len(images) > index_end >= 0:  # type: ignore[comparison-overlap]
+    def __call__(self, fd: IO) -> Iterator[_LAMMPSDumpBinaryChunk]:
+        while True:
+            try:
+                yield _LAMMPSDumpBinaryChunk(fd, self.colnames, self.intformat)
+            except EOFError:
                 break
 
-        except EOFError:
-            break
 
-    return images[index]
+class _LAMMPSDumpBinaryImageIterator(ImageIterator):
+    def __call__(self, fd: IO, index=None, **kwargs) -> Iterator[Atoms]:
+        _kwargs = kwargs.copy()
+        self.ichunks: _LAMMPSDumpBinaryChunkIterator
+        self.ichunks.colnames = _kwargs.pop('colnames', None)
+        self.ichunks.intformat = _kwargs.pop('intformat', 'SMALLBIG')
+        return super().__call__(fd, index, **_kwargs)
+
+
+iread_lammps_dump_binary = _LAMMPSDumpBinaryImageIterator(
+    _LAMMPSDumpBinaryChunkIterator()
+)
+
+
+def read_lammps_dump_binary(fd, /, index=-1, **kwargs):
+    """Read binary dump-files (after binary2txt.cpp from lammps/tools).
+
+    :param fileobj: file-stream containing the binary lammps data
+    :param index: integer or slice object (default: get the last timestep)
+    :param colnames: data is columns and identified by a header
+    :param intformat: lammps support different integer size.  Parameter set \
+    at compile-time and can unfortunately not derived from data file
+    :returns: list of Atoms-objects
+    :rtype: list
+    """
+    g = iread_lammps_dump_binary(fd, index=index, **kwargs)
+    return list(g) if isinstance(index, (slice, str)) else next(g)
 
 
 def _mass2element(mass):
