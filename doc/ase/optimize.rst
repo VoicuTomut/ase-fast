@@ -208,14 +208,6 @@ RFO
 
 .. autoclass:: RFO
 
-Read about this algorithm here:
-
-  | A. Banerjee, N. Adams, J. Simons, R. Shepard,
-  | :doi:`Search for Stationary Points on Surfaces <10.1021/j100247a015>`
-  | J. Phys. Chem. 1985, 89, 52-57.
-
-Note that ``damping`` is the reciprocal of coordinate scale :math:`a` from the reference.
-
 GPMin
 -----
 
