@@ -22,7 +22,7 @@ Molecular dynamics
 ------------------
 
 - Bug fix in Bussi dynamics: Would crash with GPAW calculator due to
-  random number not being properly synchronized.  MR !3976.
+  random number not being properly synchronized.  (:mr:`!3976`)
 
 ..
 .. GUI
