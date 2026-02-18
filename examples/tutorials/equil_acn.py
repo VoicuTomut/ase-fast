@@ -28,6 +28,8 @@ carbon (hydrogens are not explicit). Therefore:
 * use the atomic sequence **Me–C–N** repeated for all molecules,
 * keep molecules **rigid** during MD with :class:`FixLinearTriatomic`.
 """
+import time
+start_time = time.time()
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -97,6 +99,9 @@ ax.set_axis_off()
 plt.tight_layout()
 plt.show()
 
+print("2 --- %s seconds ---" % (time.time() - start_time))
+start_time = time.time()
+
 # %%
 # Step 3: Set constraints
 # -----------------------
@@ -104,25 +109,39 @@ plt.show()
 nm = 27
 triples = [(3 * i, 3 * i + 1, 3 * i + 2) for i in range(nm)]
 atoms.constraints = FixLinearTriatomic(triples=triples)
+print("3 --- %s seconds ---" % (time.time() - start_time))
+start_time = time.time()
 
 # %%
 # Step 4: MD run for 27-molecules system
 # --------------------------------------
 # Assign ACN with cutoff = half the smallest box edge. Langevin MD at
-# 300 K, 1 fs timestep. Save a frame every step.
+# 300 K, 2 fs timestep. Save a frame every step.
+#
+#.. note::
+#
+#   This example uses a relatively large timestep to demonstrate
+#   the usage of the code. In general, a smaller timestep
+#   should be used for this molecular dynamics simulation.
+#   Generally, the timestep depends on the chemical system
+#   and is in the order of 0.5-2~fs.
+
 atoms.calc = ACN(rc=np.min(np.diag(atoms.cell)) / 2)
 
 tag = 'acn_27mol_300K'
 md = Langevin(
     atoms,
-    1 * units.fs,
+    2 * units.fs,
     temperature_K=300,
     friction=0.01,
     logfile=tag + '.log',
 )
 traj = Trajectory(tag + '.traj', 'w', atoms)
-md.attach(traj.write, interval=10)
-md.run(5000)  # 5 ps @ 1 fs
+md.attach(traj.write, interval=50) # writing the structure every 100 fs
+md.run(250)  # 250 timestseps @ 2 fs = 0.5 ps
+
+print("4 --- %s seconds ---" % (time.time() - start_time))
+start_time = time.time()
 
 # %%
 # Step 5: scale system size to 216 molecules
@@ -137,6 +156,8 @@ triples = [(3 * i, 3 * i + 1, 3 * i + 2) for i in range(nm)]
 atoms.constraints = FixLinearTriatomic(triples=triples)
 
 atoms.calc = ACN(rc=np.min(np.diag(atoms.cell)) / 2)
+print("5 --- %s seconds ---" % (time.time() - start_time))
+start_time = time.time()
 
 # %%
 # Step 6: MD run for 216-molecules system
@@ -150,7 +171,7 @@ md = Langevin(
     logfile=tag + '.log',
 )
 traj = Trajectory(tag + '.traj', 'w', atoms)
-md.attach(traj.write, interval=10)
+md.attach(traj.write, interval=50)
 
 times_ps, epots, ekins, etots, temps = [], [], [], [], []
 sample_interval = 10  # sample every 10 MD steps for lighter plots
@@ -172,7 +193,7 @@ def sample():
 # initial sample at t=0
 sample()
 md.attach(sample, interval=sample_interval)
-md.run(1000)  # 6 ps @ 2 fs
+md.run(250)  # 250 timesteps @ 2 fs = 0.5 ps
 
 # %%
 # Plot Instantaneous temperature vs time.
@@ -186,6 +207,8 @@ ax.legend(loc='best')
 ax.grid(True, linewidth=0.5, alpha=0.5)
 plt.tight_layout()
 plt.show()
+
+print("6 --- %s seconds ---" % (time.time() - start_time))
 
 # %%
 # Next steps
