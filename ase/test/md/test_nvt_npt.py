@@ -100,57 +100,71 @@ def equilibrated_lower_tri(asap3, dynamicsparams):
 
 
 def propagate(
-    atoms,
+    atoms: Atoms,
     asap3,
     algorithm,
     algoargs,
     max_pressure_error=None,
     com_not_thermalized=False,
 ):
-    print(f'Propagating algorithm in {str(algorithm)}.  Natoms = {len(atoms)}')
-    T = []
-    p = []
+    print(f'Propagating algorithm in {str(algorithm)}')
+    print(f'Natoms = {len(atoms)}')
+
+    temperature_ref = algoargs['temperature_K']
+    print(f'Target T = {temperature_ref} K')
+
+    # In NVT, the reduced instant temperatures follow the reduced chi squared
+    # distribution, i.e., Gamma(alpha=df/2, theta=2/df), where df is the DOF.
+    # The standard deviation of this distribution is sqrt(2/df).
+    df = 3 * (len(atoms) - 1) if com_not_thermalized else 3 * len(atoms)
+    temperature_std_ref = np.sqrt(2.0 / df) * temperature_ref
+    print(f'Expected std(T) = {temperature_std_ref} K')
+
+    T = np.full(2000, np.nan)
+    p = np.full(2000, np.nan)
     with algorithm(
         atoms, timestep=20 * fs, logfile='-', loginterval=1000, **algoargs
     ) as md:
         # Gather 2000 data points for decent statistics
         for _ in range(2000):
             md.run(5)
-            T.append(atoms.get_temperature())
+            T[_] = atoms.get_temperature()
             pres = -atoms.get_stress(include_ideal_gas=True)[:3].sum() / 3
-            p.append(pres)
+            p[_] = pres
+
+    # When the COM motion is suppressed, the degrees of freedom is reduced by 3,
+    # and the instant temperatures are underestimated correspondingly in
+    # `atoms.get_tepmerature()` (unless we set the `FixCom` ASE constraint).
+    # For comparison with the target temperature, the instant temperatures are
+    # rescaled here.
+    if com_not_thermalized:
+        T *= len(atoms) / (len(atoms) - 1)
+
+    p /= bar  # convert pressures in the ASE unit to bar
+
     Tmean = np.mean(T)
-    p = np.array(p)
     pmean = np.mean(p)
-    print(
-        'Temperature: {:.2f} K +/- {:.2f} K  (N={})'.format(
-            Tmean, np.std(T), len(T)
-        )
-    )
-    print(
-        'Center-of-mass corrected temperature: {:.2f} K'.format(
-            Tmean * len(atoms) / (len(atoms) - 1)
-        )
-    )
-    print(
-        'Pressure: {:.2f} bar +/- {:.2f} bar  (N={})'.format(
-            pmean / bar, np.std(p) / bar, len(p)
-        )
-    )
+
+    print(f'Temperature: {Tmean:.2f} K +/- {np.std(T):.2f} K  (N={len(T)})')
+    print(f'Pressure: {pmean:.2f} bar +/- {np.std(p):.2f} bar  (N={len(p)})')
+
     # Temperature error: We should be able to detect a error of 1/N_atoms
     # The factor .67 is arbitrary, smaller than 1.0 so we consistently
     # detect errors, but not so small that we get false positives.
-    maxtemperr = 0.67 * 1 / len(atoms)
-    targettemp = algoargs['temperature_K']
-    if com_not_thermalized:
-        targettemp *= (len(atoms) - 1) / len(atoms)
-    assert Tmean == pytest.approx(targettemp, abs=maxtemperr * targettemp)
+    maxtemperr = 0.67 * 1 / len(atoms) * temperature_ref
+    assert Tmean == pytest.approx(temperature_ref, abs=maxtemperr)
+
+    # Test std(T): Note: Berendsen does not reproduce T fluctuation in NVT/NPT.
+    if algorithm not in {NVTBerendsen, NPTBerendsen}:
+        assert np.std(T) == pytest.approx(temperature_std_ref, abs=maxtemperr)
+
     if max_pressure_error:
         try:
             # Different algorithms use different keywords
             targetpressure = algoargs['pressure_au']
         except KeyError:
             targetpressure = algoargs['externalstress']
+        pmean *= bar  # convert back to the ASE unit
         assert pmean == pytest.approx(targetpressure, abs=max_pressure_error)
 
 
