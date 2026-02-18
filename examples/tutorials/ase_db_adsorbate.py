@@ -13,13 +13,6 @@ with 1, 2 and 3 layers and we will use database files to store the results.
     The :mod:`ase.db` module documentation.
 
 """
-# %%
-#
-# .. centered:: |Cu1O| |Cu2O| |Cu3O|
-#
-# .. |Cu1O| image:: ../../../examples/tutorials/Cu1O.png
-# .. |Cu2O| image:: ../../../examples/tutorials/Cu2O.png
-# .. |Cu3O| image:: ../../../examples/tutorials/Cu3O.png
 
 # %%
 # Bulk
@@ -32,6 +25,8 @@ with 1, 2 and 3 layers and we will use database files to store the results.
 
 from pathlib import Path
 
+import matplotlib.pyplot as plt
+
 from ase import Atoms
 from ase.build import add_adsorbate, bulk, fcc111
 from ase.calculators.emt import EMT
@@ -40,6 +35,9 @@ from ase.db import connect
 from ase.eos import calculate_eos
 from ase.io import write
 from ase.optimize import BFGS
+from ase.visualize.plot import plot_atoms
+
+# sphinx_gallery_thumbnail_number = -1
 
 bulk_syms = ['Al', 'Ni', 'Cu', 'Pd', 'Ag', 'Pt', 'Au']
 path_to_bulk_db = Path('bulk.db')
@@ -77,6 +75,17 @@ with connect(path_to_bulk_db) as bulk_db:
 #    Rows: 7
 #    Keys: bm
 #    $ ase gui bulk.db
+
+# %%
+# The last line opens the graphical user interface in which you can visually
+# inspect the structures. Alternatively, the structures can be visualized
+# using Python, which we do here for gold:
+fig, ax = plt.subplots(figsize=(3, 3))
+plot_atoms(atoms, ax)
+ax.set_axis_off()
+# %%
+#
+# .. highlight:: bash
 #
 # The :file:`bulk.db` is an SQLite3_ database in a single file::
 #
@@ -148,7 +157,16 @@ with connect(path_to_ads_db) as ads_db:
                     ads_db.write(
                         atoms, id=myid, layers=nlayer, surf=symb, ads=ads
                     )
-
+# %%
+# Let's visualize the copper surfaces with 1, 2 and 3 layers that have
+# oxygen adsorbed:
+fig, axes = plt.subplots(ncols=3, figsize=(8, 2))
+with connect(path_to_ads_db) as ads_db:
+    for i, nlayer in enumerate(nlayers):
+        atoms = ads_db.get(surf='Cu', ads='O', layers=nlayer).toatoms()
+        atoms_sc = atoms * (4, 4, 1)
+        plot_atoms(atoms_sc, axes[i], rotation='-70x,0y,0z')
+        axes[i].set_axis_off()
 # %%
 # We now have a new database file with 63 rows::
 #
@@ -306,7 +324,9 @@ with connect(path_to_ads_db) as ads_db:
 #    Keys: ads, ea, height, layers, surf
 
 # %%
-# Finally, we can load specific structures of the database and create figures:
+# Finally, we can create more visually appealing figures using a renderer
+# rather than :meth:`ase.visualize.plot.plot_atoms`. These are saved as
+# PNG files. See :mod:`ase.io` for more examples of rendering structures.
 
 with connect(path_to_ads_db) as ads_db:
     for nlayer in nlayers:
