@@ -9,7 +9,8 @@ members of the technical subcommittee (“maintainers“):
  * `Alin-Marin Elena (STFC, UK)
    <https://alin.elena.re/>`__
    https://gitlab.com/drFaustroll
- * Adam Jackson \* (STFC, UK)
+ * `Adam Jackson \* (STFC, UK)
+   <https://www.sc.stfc.ac.uk/research-and-expertise/computational-materials-and-molecular-science/>`__
    https://gitlab.com/ajjackson
  * `Andrew Peterson (Brown University, USA)
    <https://engineering.brown.edu/people/andrew-peterson>`__
@@ -43,7 +44,7 @@ members of the technical subcommittee (“maintainers“):
  * `Paul Erhart (Chalmers University, Sweden)
    <https://materialsmodeling.org/people/paul-erhart/>`__
    https://gitlab.com/erhart
- * `Xing Wang
+ * `Xing Wang (PSI, Switzerland)
    <https://www.psi.ch/en/lms/people/xing-wang>`__
  * `Yuji Ikeda \* (University of Stuttgart, Germany)
    <https://www.imw.uni-stuttgart.de/team/Ikeda/>`__
