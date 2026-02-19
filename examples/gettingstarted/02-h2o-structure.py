@@ -129,8 +129,6 @@ view(g2)  # View all 162 systems
 # We could equally well substitute
 # another calculator, often accessed through imports like ``from
 # ase.calculators.emt import EMT`` or ``from ase.calculators.aims import
-# Aims``.  For a list, see :mod:`ase.calculators` or run:
-#
-# .. highlight:: bash
+# Aims``.  For a list, see :mod:`ase.calculators` or run::
 #
 #    $ ase info --calculators
