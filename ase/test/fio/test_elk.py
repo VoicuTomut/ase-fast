@@ -39,8 +39,12 @@ spinpol
   .true.
 
 dft+u
-  2 1
-  1 2 0.183 0.034911967
+  2  1
+  1  2  0.183  0.034911967
+
+mommtfix
+  1  1  0.0 0.0 0.0
+  1  2  0.0  0.0  0.0
 
 sppath
   '/path/to/species/'
@@ -66,7 +70,9 @@ def test_elk_in_param_types():
     params = {'tasks': [[0], [10]], 'ngridk': (8, 8, 8), 'nempty': 8,
               'bfieldc': np.array((0.0, 0.0, -0.01)), 'spinpol': True,
               'sppath': '/path/to/species',
-              'dft+u': ((2, 1), (1, 2, 0.183, 0.034911967))}
+              'dft+u': ((2, 1), (1, 2, 0.183, 0.034911967)),
+              'mommtfix': ((1, 1, np.array((0.0, 0.0, 0.0))),
+                           (1, 2, 0.0, 0.0, 0.0))}
     atoms = Atoms('FeAl', positions=[[0, 0, 0], [1.45] * 3], cell=[2.9] * 3)
     buf = io.StringIO()
     write(buf, atoms, format='elk-in', parameters=params)

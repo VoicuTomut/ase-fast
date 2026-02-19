@@ -108,8 +108,9 @@ def write_elk_in(fd, atoms, parameters=None):
         contain the contents of the input blocks. The contents can be several
         different types or data structures: 1) bool, str, int, float for scalar
         parameters; 2) iterables for input blocks containing several lines,
-        one element per line; 3) iterables for several parameters
-        in a line, where arrays are treated as iterables
+        one element per line; 3) iterables for several parameters in a line,
+        where arrays are treated as iterables; 4) iterables at the innermost
+        level describing array parameters
 
     Raises
     ------
@@ -230,10 +231,14 @@ def write_elk_in(fd, atoms, parameters=None):
             return f'{value_}'
         if isinstance(value_, collections.abc.Iterable):
             if all(isinstance(v, (str, numbers.Real)) for v in value_):
-                sep = ' '
-            else:
-                sep = '\n  '
-            return sep.join(get_string_value(e) for e in value_)
+                return ' '.join(get_string_value(v) for v in value_)
+            lines = []
+            for v in value_:
+                if isinstance(v, (str, numbers.Real)):
+                    lines.append(get_string_value(v))
+                else:
+                    lines.append('  '.join(get_string_value(e) for e in v))
+            return '\n  '.join(lines)
         raise TypeError(f'Field type cannot be {type(value_)}')
 
     # write all keys
