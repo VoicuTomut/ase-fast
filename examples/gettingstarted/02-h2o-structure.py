@@ -4,10 +4,10 @@ Structure optimization: :mol:`H_2O`
 ===================================
 
 Let's calculate the structure of the :mol:`H_2O` molecule.
-Part of this tutorial is exercise-based, so refer back to what you learnt 
-from :ref:`introductionexample` and :ref:`atomscalculators`. 
-Suggested solutions to the exercises are found after each exercise, 
-but try solving them youself first! 
+Part of this tutorial is exercise-based, so refer back to what you learnt
+from :ref:`introductionexample` and :ref:`atomscalculators`.
+Suggested solutions to the exercises are found after each exercise,
+but try solving them youself first!
 """
 # %%
 # .. admonition:: Exercise
@@ -18,10 +18,10 @@ but try solving them youself first!
 #
 # Solution:
 
-import matplotlib.pyplot as plt 
-
 from ase import Atoms
 from ase.visualize.plot import plot_atoms
+
+import matplotlib.pyplot as plt
 
 atoms = Atoms('HOH', positions=[[0, 0, -1], [0, 1, 0], [0, 0, 1]])
 atoms.center(vacuum=3.0)
@@ -30,18 +30,18 @@ fig, ax = plt.subplots()
 plot_atoms(atoms, ax, rotation='10x,60y,0z')
 ax.set_axis_off()
 
-#%%
+# %%
 # .. admonition:: Exercise
 #
 #    Run a self-consistent calculation of the approximate :mol:`H_2O` molecule
 #    using GPAW.
-# 
+#
 # Solution:
 
-#from gpaw import GPAW
-from ase.calculators.emt import EMT
-#calc = GPAW(mode='lcao', basis='dzp', txt='gpaw.txt')
-atoms.calc = EMT()#calc
+from gpaw import GPAW
+
+calc = GPAW(mode='lcao', basis='dzp', txt='gpaw.txt')
+atoms.calc = calc
 
 # %%
 # Optimizers
@@ -62,7 +62,7 @@ from ase.optimize import BFGS
 opt = BFGS(atoms, trajectory='opt.traj', logfile='opt.log')
 opt.run(fmax=0.05)
 
-# %% 
+# %%
 # The ``trajectory`` keyword above ensures that the trajectory of intermediate
 # geometries is written to :file:`opt.traj`.
 #
@@ -72,16 +72,17 @@ opt.run(fmax=0.05)
 #   Use the mouse to drag a box around and select the three atoms —
 #   this will display the angles between them.
 #   What is H–O–H angle of :mol:`H_2O`?
-# 
+#
 # Solution:
 
-from ase.visualize import view
 from ase.io import read
+from ase.visualize import view
+
 atoms = read('opt.traj', ':')
 view(atoms)
 
-# %% 
-# Note that the above will open in a separate graphical window. 
+# %%
+# Note that the above will open in a separate graphical window.
 # As always in ASE, we can do things programmatically, too,
 # if we know the right incantations:
 
@@ -95,7 +96,7 @@ print(atoms[-1].get_angle(1, 2, 0))
 #
 # G2 molecule dataset
 # -------------------
-# 
+#
 # ASE knows many common molecules, so we did not really need to type in
 # all the molecular coordinates ourselves.  As luck would have it, the
 # :func:`ase.build.molecule` function does exactly what we need:
@@ -129,7 +130,7 @@ view(g2)  # View all 162 systems
 # another calculator, often accessed through imports like ``from
 # ase.calculators.emt import EMT`` or ``from ase.calculators.aims import
 # Aims``.  For a list, see :mod:`ase.calculators` or run:
-# 
+#
 # .. highlight:: bash
 #
-#   $ ase info --calculators
+#    $ ase info --calculators
