@@ -74,18 +74,22 @@ opt.run(fmax=0.05)
 #   What is H–O–H angle of :mol:`H_2O`?
 #
 # Solution:
-
-from ase.io import read
-from ase.visualize import view
-
-atoms = read('opt.traj', ':')
-view(atoms)
+#
+# .. code-block:: python
+#
+#    from ase.io import read
+#    from ase.visualize import view
+#
+#    atoms = read('opt.traj', ':')
+#    view(atoms)
 
 # %%
 # Note that the above will open in a separate graphical window.
 # As always in ASE, we can do things programmatically, too,
 # if we know the right incantations:
 
+from ase.io import read
+atoms = read('opt.traj', ':')
 print(atoms[-1].get_angle(0, 1, 2))
 print(atoms[-1].get_angle(2, 0, 1))
 print(atoms[-1].get_angle(1, 2, 0))
@@ -119,8 +123,14 @@ from ase.collections import g2
 
 print(g2.names)  # These are the molecule names
 atoms = g2['CH3CH2OH']
-view(atoms)
-view(g2)  # View all 162 systems
+
+# %%
+# To visualize the selected molecule as well as all 162 systems, run
+#
+# .. code-block:: python
+#
+#    view(atoms)
+#    view(g2)
 
 # %%
 # Use another calculator
