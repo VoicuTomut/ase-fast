@@ -57,12 +57,14 @@ class RFO(BFGS):
         super().initialize()
         n = len(self.H0)
         self.aug_H = np.zeros((n + 1, n + 1))
+        self.v0 = None
 
     def read(self):
         # Read Hessian
         super().read()
         n = len(self.H)
         self.aug_H = np.zeros((n + 1, n + 1))
+        self.v0 = None
 
     def prepare_step(self, pos, gradient):
         """Compute step from first eigenvector of gradient-augmented Hessian"""
@@ -71,8 +73,18 @@ class RFO(BFGS):
         self.aug_H[:-1, :-1] = self.H / self.damping**2
         self.aug_H[-1, :-1] = gradient / self.damping
         self.aug_H[:-1, -1] = gradient / self.damping
-        V = scipy.linalg.eigh(self.aug_H, subset_by_index=(0, 0))[1]
-        dpos = V[:, 0][:-1] / V[:, 0][-1] / self.damping
+
+        # Try Lanczos and fall back to dense solver in case of convergence
+        # issues
+        try:
+            V = scipy.sparse.linalg.eigsh(
+                self.aug_H, k=1, which='SA', v0=self.v0, maxiter=50
+            )[1]
+        except scipy.sparse.linalg.ArpackNoConvergence:
+            V = scipy.linalg.eigh(self.aug_H, subset_by_index=(0, 0))[1]
+
+        self.v0 = V[:, 0]
+        dpos = self.v0[:-1] / self.v0[-1] / self.damping
         steplengths = self.optimizable.gradient_norm(dpos)
         self.pos0 = pos
         self.forces0 = -gradient.copy()
