@@ -18,10 +18,10 @@ but try solving them youself first!
 #
 # Solution:
 
+import matplotlib.pyplot as plt
+
 from ase import Atoms
 from ase.visualize.plot import plot_atoms
-
-import matplotlib.pyplot as plt
 
 atoms = Atoms('HOH', positions=[[0, 0, -1], [0, 1, 0], [0, 0, 1]])
 atoms.center(vacuum=3.0)
