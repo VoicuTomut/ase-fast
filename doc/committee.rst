@@ -16,8 +16,9 @@ members of the technical subcommittee (“maintainers“):
  * `Paul Erhart (Chalmers University, Sweden)
    <https://materialsmodeling.org/people/paul-erhart/>`__
    https://gitlab.com/erhart
- * `Elena Gelzinyte (University of Cambridge, UK)
-   <https://bender.group.ch.cam.ac.uk/person/eg475>`__
+ * `Elena Gelžinytė (CuspAI, UK)
+   <https://scholar.google.com/citations?user=fdW8TrYAAAAJ>`__
+   https://gitlab.com/gelzinyte
  * `Bjørk Hammer (Aarhus University, Denmark)
    <https://pure.au.dk/portal/en/persons/hammer%40phys.au.dk>`__
  * `Michael Herbst (EPFL, Switzerland)
