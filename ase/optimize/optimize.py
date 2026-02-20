@@ -505,8 +505,15 @@ class Optimizer(Dynamics):
         self.fmax = fmax
         return Dynamics.run(self, steps=steps)
 
-    def gradient_converged(self, gradient):
+    def converged(self, forces=None):
         """Did the optimization converge?"""
+        if forces is not None:
+            gradient = -forces.ravel()
+        else:
+            gradient = self.optimizable.get_gradient()
+        return self.gradient_converged(gradient)
+
+    def gradient_converged(self, gradient):
         assert gradient.ndim == 1
         return self.optimizable.converged(gradient, self.fmax)
 
