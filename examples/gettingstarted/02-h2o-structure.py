@@ -89,6 +89,7 @@ opt.run(fmax=0.05)
 # if we know the right incantations:
 
 from ase.io import read
+
 atoms = read('opt.traj', ':')
 print(atoms[-1].get_angle(0, 1, 2))
 print(atoms[-1].get_angle(2, 0, 1))
