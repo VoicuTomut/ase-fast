@@ -94,7 +94,7 @@ class CellAwareBFGS(BFGS):
         cell_H[np.ix_(ind, ind)] = C_ijkl.reshape((9, 9))[
             np.ix_(ind, ind)] * self.atoms.atoms.cell.volume
 
-    def converged(self, gradient):
+    def gradient_converged(self, gradient):
         # XXX currently ignoring gradient
         forces = self.atoms.atoms.get_forces()
         stress = self.atoms.atoms.get_stress(voigt=False) * self.atoms.mask

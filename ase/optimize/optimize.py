@@ -335,7 +335,7 @@ class Dynamics(BaseDynamics):
 
         # check convergence
         gradient = self.optimizable.get_gradient()
-        is_converged = self.converged(gradient)
+        is_converged = self.gradient_converged(gradient)
         yield is_converged
 
         # run the algorithm until converged or max_steps reached
@@ -351,7 +351,7 @@ class Dynamics(BaseDynamics):
 
             # check convergence
             gradient = self.optimizable.get_gradient()
-            is_converged = self.converged(gradient)
+            is_converged = self.gradient_converged(gradient)
             yield is_converged
 
     def run(self, steps=DEFAULT_MAX_STEPS):
@@ -376,7 +376,7 @@ class Dynamics(BaseDynamics):
             pass
         return converged
 
-    def converged(self, gradient):
+    def gradient_converged(self, gradient):
         """" a dummy function as placeholder for a real criterion, e.g. in
         Optimizer """
         return False
@@ -505,7 +505,7 @@ class Optimizer(Dynamics):
         self.fmax = fmax
         return Dynamics.run(self, steps=steps)
 
-    def converged(self, gradient):
+    def gradient_converged(self, gradient):
         """Did the optimization converge?"""
         assert gradient.ndim == 1
         return self.optimizable.converged(gradient, self.fmax)

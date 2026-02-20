@@ -156,7 +156,7 @@ class PreconFIRE(Optimizer):
         self.smax = smax
         return super().run(fmax, steps)
 
-    def converged(self, gradient):
+    def gradient_converged(self, gradient):
         """Did the optimization converge?"""
         # XXX ignoring gradient
         forces = self._actual_atoms.get_forces()

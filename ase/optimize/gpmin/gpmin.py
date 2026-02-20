@@ -274,7 +274,7 @@ class GPMin(Optimizer, GaussianProcess):
             f1 = -optimizable.get_gradient()
             self.function_calls += 1
             self.force_calls += 1
-            if self.converged(f1):
+            if self.gradient_converged(f1):
                 break
 
             count += 1

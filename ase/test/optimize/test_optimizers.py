@@ -101,7 +101,7 @@ def test_unconverged(optcls, atoms, kwargs):
     with optcls(atoms, **kwargs) as opt:
         opt.run(fmax=fmax, steps=1)  # only one step to not get converged
     gradient = opt.optimizable.get_gradient()
-    assert not opt.converged(gradient)
+    assert not opt.gradient_converged(gradient)
     assert opt.todict()["fmax"] == 1e-9
 
 
