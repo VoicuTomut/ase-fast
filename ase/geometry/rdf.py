@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import math
+from collections.abc import Iterable
 
 import numpy as np
 
 from ase import Atoms
 from ase.cell import Cell
 from ase.neighborlist import NeighborList
+from ase.symbols import symbols2numbers
 
 
 class CellTooSmall(Exception):
@@ -24,7 +26,7 @@ def get_rdf(
     rmax: float,
     nbins: int,
     distance_matrix: np.ndarray | None = None,
-    elements: list[int] | tuple | None = None,
+    elements: Iterable[int | str] | None = None,
     no_dists: bool = False,
     volume: float | None = None,
 ):
@@ -50,9 +52,13 @@ def get_rdf(
         An array of distances between atoms, typically
         obtained by atoms.get_all_distances().
         Default None meaning that a NeighborList will be used.
-    elements : list[int] | tuple[int, int]
-        List of two atomic numbers. If elements is not None the partial
+    elements : Iterable[int | str] | None, default: None
+        Two atomic numbers of chemical symbols. If not None, the partial
         RDF for the supplied elements will be returned.
+
+        .. versionadded:: 3.28.0
+            Each item of ``elements`` can be a chemical element symbol.
+
     no_dists : bool
         If True then the second array with RDF distances will not be returned.
     volume : float or None
@@ -85,13 +91,15 @@ def get_rdf(
     natoms = len(atoms)
     dr = float(rmax / nbins)
 
-    if elements is None:
+    atomic_numbers = None if elements is None else symbols2numbers(elements)
+
+    if atomic_numbers is None:
         i_indices = np.arange(natoms)
         n = natoms  # number of center atoms
         rho = natoms / vol  # average number density
     else:
-        i_indices = np.where(atoms.numbers == elements[0])[0]
-        j_indices = np.where(atoms.numbers == elements[1])[0]
+        i_indices = np.where(atoms.numbers == atomic_numbers[0])[0]
+        j_indices = np.where(atoms.numbers == atomic_numbers[1])[0]
         n = len(i_indices)  # number of center atoms
         rho = len(j_indices) / vol  # average number density
 
@@ -102,8 +110,8 @@ def get_rdf(
         rdf = np.zeros(nbins + 1)
         for i in i_indices:
             j_indices, offsets = nl.get_neighbors(i)
-            if elements is not None:
-                mask = atoms.numbers[j_indices] == elements[1]
+            if atomic_numbers is not None:
+                mask = atoms.numbers[j_indices] == atomic_numbers[1]
                 j_indices = j_indices[mask]
                 offsets = offsets[mask]
 
@@ -118,7 +126,7 @@ def get_rdf(
             rdf += np.bincount(indices, minlength=nbins + 1)[: nbins + 1]
     else:
         indices = np.asarray(np.ceil(distance_matrix / dr), dtype=int)
-        if elements is None:
+        if atomic_numbers is None:
             x = indices.ravel()
         else:
             x = indices[i_indices][:, j_indices].ravel()
