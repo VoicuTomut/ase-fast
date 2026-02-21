@@ -123,3 +123,13 @@ def test_partial_rdfs() -> None:
 
     np.testing.assert_allclose(rdfs_partial[(29, 79)], rdfs_partial[(79, 29)])
     np.testing.assert_allclose(rdf_total, rdf_weighted_average)
+
+
+def test_elements() -> None:
+    """Test if chemical symbols can be specified for `elements`."""
+    atoms = L1_2(['Au', 'Cu'], size=(3, 3, 3), latticeconstant=2 * np.sqrt(2))
+    rmax = 4.2
+    nbins = 100
+    rdf0 = get_rdf(atoms, rmax=rmax, nbins=nbins, elements=[79, 29])[0]
+    rdf1 = get_rdf(atoms, rmax=rmax, nbins=nbins, elements=['Au', 'Cu'])[0]
+    np.testing.assert_array_equal(rdf0, rdf1)
