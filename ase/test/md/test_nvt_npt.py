@@ -27,7 +27,11 @@ def dynamicsparams():
         taup=taup,
         compressibility_au=1 / Bgold,
     )
-    langevinparam = dict(temperature_K=300, friction=1 / (2 * taut))
+    langevinparam = dict(
+        temperature_K=300,
+        friction=1 / (2 * taut),
+        fixcm=False,
+    )
     nhparam = dict(temperature_K=300, tdamp=taut)
     # NPT uses different units.  The factor 1.3 is the bulk modulus of gold in
     # ev/Å^3
@@ -184,7 +188,6 @@ def test_langevin(asap3, equilibrated, dynamicsparams, allraise):
         asap3,
         Langevin,
         dynamicsparams['langevin'],
-        com_not_thermalized=True,
     )
 
 

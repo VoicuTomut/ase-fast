@@ -51,6 +51,7 @@ def test_CO2linear_Au111_langevin(testdir):
         trajectory='langevin_%.1f.traj' % fr,
         logfile='langevin_%.1f.log' % fr,
         loginterval=20,
+        fixcm=False,
         rng=rng,
     ) as dyn:
         dyn.run(100)

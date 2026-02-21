@@ -36,7 +36,7 @@ def run(temperature_K: float) -> np.ndarray:
         timestep=1.0 * units.fs,
         temperature_K=temperature_K,
         friction=0.01 / units.fs,
-        fixcm=True,
+        fixcm=False,
         rng=rng,
     ) as dyn:
         for i, _ in enumerate(dyn.irun(steps)):

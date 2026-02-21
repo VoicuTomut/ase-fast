@@ -1,4 +1,3 @@
-# fmt: off
 import numpy as np
 import pytest
 
@@ -46,6 +45,7 @@ def test_verlet_thermostats_asap(asap3, testdir, allraise):
             kw.update(rng=rng)
             if MDalgo is Langevin:
                 kw['friction'] = 0.0
+                kw['fixcm'] = False
             elif MDalgo is Andersen:
                 kw['andersen_prob'] = 0.0
 
@@ -73,13 +73,13 @@ def test_verlet_thermostats_asap(asap3, testdir, allraise):
 
                 def recorder():
                     temp.append(a_md.get_temperature())
+
                 md.attach(recorder, interval=1)
                 md.run(7000)
                 temp = np.array(temp)
                 avgtemp = np.mean(temp)
                 fluct = np.std(temp)
-                print("Temperature is {:.2f} K +/- {:.2f} K".format(avgtemp,
-                                                                    fluct))
+                print(f'Temperature is {avgtemp:.2f} K +/- {fluct:.2f} K')
                 assert abs(avgtemp - T_high) < 10.0
 
 
@@ -91,6 +91,7 @@ def prepare_md(atoms, calculator):
 
 
 def thermalize(temp, atoms, rng):
-    MaxwellBoltzmannDistribution(atoms, temperature_K=temp, force_temp=True,
-                                 rng=rng)
+    MaxwellBoltzmannDistribution(
+        atoms, temperature_K=temp, force_temp=True, rng=rng
+    )
     Stationary(atoms)
