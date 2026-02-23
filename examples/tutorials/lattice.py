@@ -118,9 +118,11 @@ E = (p[0] + p[1]*a_int_grid + p[2]*c_int_grid +
      p[3]*a_int_grid**2 + p[4]*a_int_grid*c_int_grid + p[5]*c_int_grid**2)
 
 plt.imshow(E.T, cmap ="viridis", origin = "lower", extent=[min(c_int), max(c_int), min(a_int), max(a_int)])
+plt.colorbar()
 plt.tight_layout()
-plt.xlabel("c lattice")
-plt.xlabel("a lattice")
+plt.title("Interpolated energy, eV")
+plt.xlabel("c lattice constant, Å")
+plt.ylabel("a lattice constant, Å")
 plt.show()
 # %%
 # Using the stress tensor
