@@ -10,10 +10,9 @@ Surface diffusion energy barriers using the Nudged Elastic Band  (NEB) method
 from ase.build import add_adsorbate, fcc100
 from ase.calculators.emt import EMT
 from ase.constraints import FixAtoms
-from ase.optimize import QuasiNewton
 from ase.io import read
 from ase.mep import NEB
-from ase.optimize import BFGS
+from ase.optimize import BFGS, QuasiNewton
 from ase.parallel import world
 from ase.visualize import view
 
@@ -64,7 +63,7 @@ qn.run(fmax=0.05)
 
 # %%
 # .. note::  Notice how the tags are used to select the constrained atoms
-# 
+#
 # Now, do the NEB calculation:
 
 # %%
@@ -98,7 +97,7 @@ qn.run(fmax=0.05)
 # %%
 # You can also create a series of plots like above, that show the progression
 # of the NEB relaxation, directly at the command line::
-# 
+#
 #   $ ase nebplot --share-x --share-y neb.traj
 #
 # For more customizable analysis of the output of many NEB jobs, you can use
@@ -149,7 +148,7 @@ nebtools.plot_band(ax)
 
 # %%
 # .. note::
-# 
+#
 #   For this reaction, the reaction coordinate is very simple: The
 #   *x*-coordinate of the Au atom.  In such cases, the NEB method is
 #   overkill, and a simple constraint method should be used like in this
@@ -166,7 +165,7 @@ nebtools.plot_band(ax)
 # %%
 # Restarting NEB
 # ==============
-# 
+#
 # Restart NEB from the trajectory file:
 
 # %%
@@ -185,14 +184,14 @@ qn.run(fmax=0.005)
 # %%
 # Parallelizing over images with MPI
 # ==================================
-# 
+#
 # Instead of having one process do the calculations for all three
 # internal images in turn, it will be faster to have three processes do
 # one image each. In order to be able to run python with MPI
 # you need a special parallel python interpreter, for example gpaw python
 # (see `GPAW parallel runs <https://gpaw.readthedocs.io/documentation/parallel_runs/parallel_runs.html>`_)
 # and set ``parallel=True`` in the NEB calculation.
-# 
+#
 # The example below can then be run
 # with ``mpiexec -p 3 gpaw python diffusion_parallel.py``:
 
@@ -201,16 +200,16 @@ initial = read('initial.traj')
 final = read('final.traj')
 
 constraint = FixAtoms(mask=[atom.tag > 1 for atom in initial])
-   
-n_images = 1 # Set to number of processes you use with mpiexec
+
+n_images = 1  # Set to number of processes you use with mpiexec
 images = [initial]
 j = world.rank * n_images // world.size  # my image number
 for i in range(n_images):
-   image = initial.copy()
-   if i == j: 
-       image.calc = EMT()
-   image.set_constraint(constraint)
-   images.append(image)
+    image = initial.copy()
+    if i == j:
+        image.calc = EMT()
+    image.set_constraint(constraint)
+    images.append(image)
 images.append(final)
 
 neb = NEB(images, parallel=True, method='improvedtangent')
