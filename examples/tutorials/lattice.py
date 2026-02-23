@@ -106,6 +106,7 @@ with open('lattice_constant.csv', 'w') as fd:
 print('The optimized lattice constants are:')
 print(f'a = {a0:.3f} Å, c = {c0:.3f} Å')
 
+# %%
 
 import matplotlib.pyplot as plt
 
@@ -119,7 +120,6 @@ E = (p[0] + p[1]*a_int_grid + p[2]*c_int_grid +
 
 plt.imshow(E.T, cmap ="viridis", origin = "lower", extent=[min(c_int), max(c_int), min(a_int), max(a_int)])
 plt.colorbar()
-plt.tight_layout()
 plt.title("Interpolated energy, eV")
 plt.xlabel("c lattice constant, Å")
 plt.ylabel("a lattice constant, Å")
