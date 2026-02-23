@@ -10,8 +10,6 @@ from ase import Atoms
 from ase.units import Bohr, Hartree
 from ase.utils import reader, writer
 
-# elk_parameters = {'swidth': Hartree}
-
 
 @reader
 def read_elk(fd):
@@ -216,11 +214,6 @@ def write_elk_in(fd, atoms, parameters=None):
         inp['stype'] = stype
         inp['swidth'] = parameters['smearing'][1] / Hartree
         del inp['smearing']
-
-    # convert keys to ELK units
-    # for key, value in inp.items():
-    #    if key in elk_parameters:
-    #        inp[key] /= elk_parameters[key]
 
     # Elk seems to concatenate path and filename in such a way
     # that we must put a / at the end:
