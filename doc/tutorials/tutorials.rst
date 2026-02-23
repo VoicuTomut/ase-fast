@@ -47,7 +47,6 @@ Uncategorized
 
    defects/defects
    qmmm/qmmm
-   tut03_vibrations/vibrations
 
 
 Further reading
