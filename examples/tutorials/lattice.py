@@ -111,14 +111,16 @@ print(f'a = {a0:.3f} Å, c = {c0:.3f} Å')
 import matplotlib.pyplot as plt
 
 a_int = a0 * np.linspace(1 - eps, 1 + eps, 100)
-c_int = c0* np.linspace(1 - eps, 1 + eps, 100)
+c_int = c0 * np.linspace(1 - eps, 1 + eps, 100)
 
 a_int_grid, c_int_grid = np.meshgrid(a_int, c_int)
 
-E = (p[0] + p[1]*a_int_grid + p[2]*c_int_grid +
-     p[3]*a_int_grid**2 + p[4]*a_int_grid*c_int_grid + p[5]*c_int_grid**2)
+E = (p[0] + p[1] * a_int_grid + p[2] * c_int_grid
+     + p[3] * a_int_grid**2 + p[4] * a_int_grid * c_int_grid
+     + p[5] * c_int_grid**2)
 
-plt.imshow(E.T, cmap ="viridis", origin = "lower", extent=[min(c_int), max(c_int), min(a_int), max(a_int)])
+plt.imshow(E.T, cmap="viridis", origin="lower",
+           extent=[min(c_int), max(c_int), min(a_int), max(a_int)])
 plt.colorbar()
 plt.title("Interpolated energy, eV")
 plt.xlabel("c lattice constant, Å")
