@@ -138,6 +138,9 @@ def write_elk_in(fd, atoms, parameters=None):
                   'bfieldc': np.array((0.0, 0.0, -0.01)), 'spinpol': True,
                   'dft+u': ((2, 1), (1, 2, 0.183, 0.034911967))}
     >>> write_elk_in('/path/to/elk.in', atoms, parameters=params)
+    Note: ``np.array((0.0, 0.0, -0.01))``, ``[0.0, 0.0, -0.01]``,
+          ``[[0.0, 0.0, -0.01]]``, and any combinations of lists, tuples, and
+          ndarrays, are equivalent
     """
 
     if parameters is None:
