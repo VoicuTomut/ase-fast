@@ -6,17 +6,10 @@
 I/O
 ---
 
-- elk-in: arrays parameters are only accepted as numpy arrays
 - elk-in: add the string parameter type
 - elk-in: parameters: top-level tuple to describe an input block
 - elk-in: nested tuples to describe the multi-key inputs within a line
-- elk-in: add a doc string
-- elk-in: fix E1101 ('parameters' has no attribute 'smearing')
-
-Calculators
------------
-
-- ELK Calculator: edit the doc string
+- remove partial inconsistent ase->elk units conversion
 
 .. Optimizers
 .. ----------
