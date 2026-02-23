@@ -38,7 +38,7 @@ import matplotlib.pyplot as plt
 from ase.visualize.plot import plot_atoms
 
 fig, ax = plt.subplots()
-plot_atoms(atoms, ax, rotation=('0x,0y,0z'))
+plot_atoms(atoms, ax, rotation=('0x,0y,-20z'))
 ax.set_axis_off()
 
 # %%
