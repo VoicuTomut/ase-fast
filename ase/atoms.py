@@ -2013,6 +2013,9 @@ class Atoms(_LimitedAtoms):
             for constraint in self.constraints:
                 if md and hasattr(constraint, 'redistribute_forces_md'):
                     constraint.redistribute_forces_md(self, forces)
+                # Always adjust forces if no MD.  In the case of MD,
+                # forces only need adjustment if a term is added to the
+                # potential energy by the constraint.
                 if not md or hasattr(constraint, 'adjust_potential_energy'):
                     constraint.adjust_forces(self, forces)
         return forces

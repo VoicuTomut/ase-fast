@@ -2,12 +2,14 @@ I/O
 ---
 
 - Accelerate :func:`~ase.io.lammpsrun.read_lammps_dump_text`
-  using a NumPy structured array (mr:`3939`)
+  using a NumPy structured array (:mr:`3939`)
 
-- Accelerate :func:`~ase.io.lammpsrun.read_lammps_dump_text`
-  by parsing the data file only for necessary frames (mr:`3959`)
+- Accelerate :func:`~ase.io.lammpsrun.read_lammps_dump_text` and
+  :func:`~ase.io.lammpsrun.read_lammps_dump_binary` by parsing the data file
+  only for necessary frames (:mr:`3959`, :mr:`3972`)
 
 Bugfixes
 --------
-- Fix :func:`~ase.io.lammpsrun.read_lammps_dump_text` to interpret ``index``
-  with negative ``start`` / ``stop`` / ``step`` correctly (mr:`3959`)
+- Fix :func:`~ase.io.lammpsrun.read_lammps_dump_text` and
+  :func:`~ase.io.lammpsrun.read_lammps_dump_binary` to interpret ``index`` with
+  negative ``start`` / ``stop`` / ``step`` correctly (:mr:`3959`, :mr:`3972`)
