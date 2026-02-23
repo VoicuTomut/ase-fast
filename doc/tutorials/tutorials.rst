@@ -27,16 +27,12 @@ Calculating diffusion/dissociation properties
 .. toctree::
    :maxdepth: 1
 
-   neb/diffusion
    constraints/diffusion
-   dissociation
 
 
 .. original toctree was (in case we want to try to keep the ordering when
 .. moving to sphinx-gallery):
-..   neb/diffusion
 ..   constraints/diffusion
-..   dissociation
 ..   neb/idpp  [ported to new tutorials]
 ..   selfdiffusion/al110
 
