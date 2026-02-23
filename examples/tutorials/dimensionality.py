@@ -33,6 +33,14 @@ atoms.set_tags(m.components)
 # from ase.visualize import view
 # view(atoms)
 
+import matplotlib.pyplot as plt
+
+from ase.visualize.plot import plot_atoms
+
+fig, ax = plt.subplots()
+plot_atoms(atoms, ax, rotation=('90x,0y,90z'))
+ax.set_axis_off()
+
 # %%
 # Coloring the atoms by their tags shows the distinct bonded clusters, which in
 # this case are separate layers.
