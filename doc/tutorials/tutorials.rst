@@ -48,7 +48,6 @@ Uncategorized
    defects/defects
    qmmm/qmmm
    wannier/wannier
-   tut03_vibrations/vibrations
 
 
 Further reading
