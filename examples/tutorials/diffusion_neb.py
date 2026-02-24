@@ -14,7 +14,8 @@ from ase.io import read
 from ase.mep import NEB
 from ase.optimize import BFGS, QuasiNewton
 from ase.parallel import world
-from ase.visualize import view
+from ase.visualize.plot import plot_atoms
+import matplotlib.pyplot as plt
 
 # %%
 # First, set up the initial and final states:
@@ -30,7 +31,9 @@ slab.center(axis=2, vacuum=4.0)
 # Make sure the structure is correct:
 
 # %%
-view(slab)
+fig, ax = plt.subplots()
+plot_atoms(slab, ax)
+ax.set_axis_off()
 
 # %%
 # Fix second and third layers:
@@ -88,7 +91,13 @@ qn.run(fmax=0.05)
 
 # %%
 # Visualize the results with::
-#
+fig, ax = plt.subplots()
+plot_atoms(final, ax)
+ax.set_axis_off()
+
+# %%
+# or from the command line:
+# 
 #    $ ase gui neb.traj@-5:
 #
 # and select Tools->NEB.
