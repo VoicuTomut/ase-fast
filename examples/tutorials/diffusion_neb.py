@@ -7,6 +7,8 @@ Surface diffusion energy barriers using the Nudged Elastic Band  (NEB) method
 """
 
 # %%
+import matplotlib.pyplot as plt
+
 from ase.build import add_adsorbate, fcc100
 from ase.calculators.emt import EMT
 from ase.constraints import FixAtoms
@@ -15,7 +17,6 @@ from ase.mep import NEB
 from ase.optimize import BFGS, QuasiNewton
 from ase.parallel import world
 from ase.visualize.plot import plot_atoms
-import matplotlib.pyplot as plt
 
 # %%
 # First, set up the initial and final states:
@@ -97,7 +98,7 @@ ax.set_axis_off()
 
 # %%
 # or from the command line:
-# 
+#
 #    $ ase gui neb.traj@-5:
 #
 # and select Tools->NEB.
