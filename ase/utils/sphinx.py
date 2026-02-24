@@ -14,6 +14,7 @@ from docutils.parsers.rst.roles import set_classes
 
 def png_scraper(block, block_vars, gallery_conf):
     import shutil
+
     from sphinx_gallery.scrapers import figure_rst
 
     src_file = Path(block_vars['src_file'])
