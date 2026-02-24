@@ -26,7 +26,6 @@ structure for which ASE already knows the lattice constants:
   $ ase build -x fcc Al
   $ ase build -x fcc Cu
   $ ase build -x fcc Au
-
 This creates three files: :file:`Al.json`, :file:`Cu.json` and :file:`Au.json`.
 If you want to, you can inspect them with ASE's ``gui`` command, however we
 want to construct a database containing these structures. To do this we can use
@@ -48,6 +47,10 @@ from ase.db import connect
 from ase.filters import FrechetCellFilter
 from ase.optimize import BFGS
 
+import matplotlib.animation as animation
+import matplotlib.pyplot as plt
+from ase.visualize.plot import plot_atoms
+
 dbfile = Path('database.db')
 dbfile.unlink(missing_ok=True)
 
@@ -57,6 +60,28 @@ db = connect(dbfile)
 for structure in structures:
     db.write(bulk(structure))
 
+fig, ax = plt.subplots()
+
+def update(frame):
+    ax.clear()
+    atoms = db.get(id=frame + 1)
+    plot_atoms(atoms, ax=ax, rotation=('90x,0y,0z'))
+    ax.set_title(f"Structure {frame+1}")
+    ax.set_axis_off()
+    # Fix axis limits so scaling doesn't jump
+    ax.set_xlim(-5, 5)
+    ax.set_ylim(-5, 5)
+
+
+ani = animation(
+    fig,
+    update,
+    frames=len(db),
+    interval=1000,  # milliseconds between frames
+    repeat=True
+)
+
+plt.show()
 # %%
 # Inspecting a database on the command line
 # -----------------------------------------
