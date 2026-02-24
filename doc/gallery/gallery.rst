@@ -77,15 +77,6 @@ Pretty pictures
 :download:`cosb3.py <../ase/spacegroup/spacegroup-cosb3.py>`
 
 
-Periodic table
-==============
-
-.. image:: ptable.png
-   :width: 10cm
-
-:download:`ptable.py`
-
-
 Fine tuning POV-Ray settings for high quality images
 ====================================================
 

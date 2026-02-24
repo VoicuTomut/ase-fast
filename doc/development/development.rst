@@ -4,7 +4,7 @@
 Development
 ===========
 
-As a developer, you should subscribe to the ASE :ref:`mail list`.
+As a developer, you should subscribe to the ASE :ref:`mailinglist`.
 
 
 Development topics:

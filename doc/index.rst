@@ -209,6 +209,7 @@ Contents
     releasenotes
     contact
     ecosystem
+    committee
     development/development
     faq
     events/events
