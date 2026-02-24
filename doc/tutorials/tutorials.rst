@@ -22,19 +22,16 @@ but any other :mod:`Calculator <ase.calculators>` could be plugged in instead.
   `ase-ga <https://dtu-energy.github.io/ase-ga/>`_
   including tutorials.
 
-Calculating diffusion/dissociation properties
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-.. toctree::
-   :maxdepth: 1
-
-   constraints/diffusion
-
-
-.. original toctree was (in case we want to try to keep the ordering when
-.. moving to sphinx-gallery):
-..   constraints/diffusion
-..   neb/idpp  [ported to new tutorials]
-..   selfdiffusion/al110
+#Calculating diffusion/dissociation properties
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#.. toctree::
+#   :maxdepth: 1
+#
+#.. original toctree was (in case we want to try to keep the ordering when
+#.. moving to sphinx-gallery):
+#..   constraints/diffusion
+#..   neb/idpp  [ported to new tutorials]
+#..   selfdiffusion/al110
 
 Uncategorized
 ^^^^^^^^^^^^^
