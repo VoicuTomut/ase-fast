@@ -68,64 +68,51 @@ for i in range(5):
     # Move gold atom along x-axis:
     slab[-1].x += slab.get_cell()[0, 0] / 8
 
-# %%
-# The result can be analysed with the command :command:`ase gui mep?.traj -n
-# -1` (choose :menuselection:`Tools --> NEB`).  The barrier is found to
-# be 0.35 eV - exactly as in the :ref:`NEB <diffusion tutorial>`
-# tutorial.
-#
 # Let's visualize the saved trajectory.
 # Here is code to visualize
 # a side-view of the path (unit cell repeated twice):
 
-import matplotlib.animation as animation
 
 from ase.io import read
 
 configs = [read(f'mep{i}.traj', '-1') for i in range(5)]
 
-fig, axs = plt.subplots(
-    nrows=2,
-    gridspec_kw={'height_ratios': [0.5, 1.0]},
+# for easier visualization, let's repeat the structures
+configs_repeated = [config.repeat((2, 1, 1)) for config in configs]
+
+# %%
+# We can visualize the structures with `ase.visualize.plot.animate`:
+
+from ase.visualize.plot import animate
+
+animate(
+    configs_repeated,
+    ax=None,
+    interval=500,  # in ms; same default value as in FuncAnimation
+    rotation=('-90x,0y,0z'),
 )
+
+# %%
+# Let's plot the energy and look at the barrier.
 
 # get the potential energies of the structures
 energies = [config.get_potential_energy() for config in configs]
 # set last energy value to 0 for easier comparison
 energies = [energy - energies[-1] for energy in energies]
-# for easier visualization, let's repeat the structures
-configs = [config.repeat((2, 1, 1)) for config in configs]
+plt.ylabel(r'$E(i) - E_{\mathrm{final}}$ (meV)')
+plt.xlabel('Image number')
+plt.plot(range(1, len(energies) + 1), energies)
 
 
-axs[0].plot(range(1, len(energies) + 1), energies)
-scat = axs[0].scatter(range(1, len(energies) + 1), energies)
-axs[0].set_ylabel(r'$E(i) - E_{\mathrm{final}}$ (meV)')
-axs[0].set_xlabel('Image number')
+# %%
+# The barrier is found to
+# be 0.35 eV - exactly as in the :ref:`NEB <diffusion tutorial>`
+# tutorial.
+#
+# The result can also be analysed with the
+# command :command:`ase gui mep?.traj -n
+# -1` (choose :menuselection:`Tools --> NEB`).
 
-# Plot the atomic structure, focussing on the two Nitrogen atoms
-plot_atoms(configs[0], axs[1], rotation=('-90x,0y,0z'), show_unit_cell=1)
-axs[1].set_axis_off()
-axs[1].set_ylim(0.0, 15)
-axs[1].set_xlim(0.0, 15)
-axs[1].set_yticks([0.0, 0.15, 0.3])
-
-
-def animate(i):
-    scat.set_offsets((range(1, len(energies) + 1)[i], energies[i]))
-
-    # Remove the previous atomic plot
-    [p.remove() for p in axs[1].patches]
-    plot_atoms(configs[i], axs[1], rotation=('-90x,0y,0z'), show_unit_cell=1)
-    axs[1].set_axis_off()
-    axs[1].set_xlim(0.0, 15)
-    axs[1].set_ylim(0.0, 15)
-    axs[1].set_yticks([0.0, 0.15, 0.3])
-    return (scat,)
-
-
-ani = animation.FuncAnimation(
-    fig, animate, repeat=True, frames=len(configs), interval=500
-)
 
 # %%
 # .. seealso::
