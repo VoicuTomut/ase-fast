@@ -53,11 +53,8 @@ Band-structure
 Nudged elastic band calculations
 ================================
 
-.. image:: ../tutorials/neb/diffusion-barrier.png
-   :width: 10cm
 
 :mod:`ase.mep.neb`
-:download:`barrier.py <../tutorials/neb/diffusion5.py>`
 
 
 Nanoparticle

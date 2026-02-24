@@ -69,7 +69,7 @@ minimizations performed on the *atoms* object.
 
 This constraint is useful for finding minimum energy barriers for
 reactions where the path can be described well by a single bond
-length (see the :ref:`mep2` tutorial).
+length (see the :ref:`dissociation` tutorial).
 
 Important: If fixing multiple bond lengths, use the FixBondLengths class
 below, particularly if the same atom is fixed to multiple partners.
