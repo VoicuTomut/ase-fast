@@ -62,27 +62,27 @@ for structure in structures:
 
 fig, ax = plt.subplots()
 
+
 def animate(i):
     # Remove previous atomic artists only
     for p in ax.patches:
         p.remove()
 
-    plot_atoms(bulk(structures[i]), ax, rotation="90x,0y,0z")
+    plot_atoms(
+        bulk(structures[i]) * 3, ax, rotation='0x,30y,0z', show_unit_cell=0
+    )
     ax.set_axis_off()
-    ax.set_xlim(-5, 5)
-    ax.set_ylim(-5, 5)
+    ax.set_xlim(0, 18)
+    ax.set_ylim(0, 13)
+    ax.set_title(structures[i])
 
     return ()
 
+
 ani = FuncAnimation(
-    fig,
-    animate,
-    frames=len(structures),
-    interval=1000,
-    repeat=True
+    fig, animate, frames=len(structures), interval=1000, repeat=True
 )
 
-plt.show()
 # %%
 # Inspecting a database on the command line
 # -----------------------------------------
