@@ -6,10 +6,10 @@ Periodic Table
 
 """
 
+import matplotlib.pyplot as plt
 
 from ase.utils.ptable import ptable
 from ase.visualize.plot import plot_atoms
-import matplotlib.pyplot as plt
 
 atoms = ptable()
 atoms.write('ptable.png')
