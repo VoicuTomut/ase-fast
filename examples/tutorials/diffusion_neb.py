@@ -202,7 +202,7 @@ qn.run(fmax=0.005)
 # and set ``parallel=True`` in the NEB calculation.
 #
 # The example below can then be run
-# with ``mpiexec -p 3 gpaw python diffusion_parallel.py``:
+# with ``gpaw -P3 python diffusion_parallel.py``:
 
 # %%
 initial = read('initial.traj')
