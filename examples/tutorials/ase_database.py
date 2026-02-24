@@ -62,22 +62,23 @@ for structure in structures:
 
 fig, ax = plt.subplots()
 
-def update(frame):
-    ax.clear()
-    atoms = db.get(id=frame + 1)
-    plot_atoms(atoms, ax=ax, rotation=('90x,0y,0z'))
-    ax.set_title(f"Structure {frame+1}")
+def animate(i):
+    # Remove previous atomic artists only
+    for p in ax.patches:
+        p.remove()
+
+    plot_atoms(bulk(structures[i]), ax, rotation="90x,0y,0z")
     ax.set_axis_off()
-    # Fix axis limits so scaling doesn't jump
     ax.set_xlim(-5, 5)
     ax.set_ylim(-5, 5)
 
+    return ()
 
 ani = FuncAnimation(
     fig,
-    update,
-    frames=len(db),
-    interval=1000,  # milliseconds between frames
+    animate,
+    frames=len(structures),
+    interval=1000,
     repeat=True
 )
 
