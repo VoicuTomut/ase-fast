@@ -1,8 +1,7 @@
-.. _gallery_test:
 
 ============
-Test gallery
+Gallery
 ============
 
-Hello world
+
 
