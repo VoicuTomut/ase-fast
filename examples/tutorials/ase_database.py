@@ -47,7 +47,7 @@ from ase.db import connect
 from ase.filters import FrechetCellFilter
 from ase.optimize import BFGS
 
-import matplotlib.animation as animation
+from matplotlib.animation import FuncAnimation
 import matplotlib.pyplot as plt
 from ase.visualize.plot import plot_atoms
 
@@ -73,7 +73,7 @@ def update(frame):
     ax.set_ylim(-5, 5)
 
 
-ani = animation(
+ani = FuncAnimation(
     fig,
     update,
     frames=len(db),
