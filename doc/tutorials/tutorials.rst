@@ -41,7 +41,6 @@ Uncategorized
 .. toctree::
    :maxdepth: 1
 
-   defects/defects
    qmmm/qmmm
 
 
