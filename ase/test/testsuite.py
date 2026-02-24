@@ -1,4 +1,3 @@
-# fmt: off
 import argparse
 import os
 import sys
@@ -29,8 +28,13 @@ def all_test_modules_and_groups():
         yield testpath
 
 
-def test(calculators=tuple(), jobs=0, verbose=False,
-         stream='ignored', strict='ignored'):
+def test(
+    calculators=tuple(),
+    jobs=0,
+    verbose=False,
+    stream='ignored',
+    strict='ignored',
+):
     """Run the tests programmatically.
 
     This is here for compatibility and perhaps convenience."""
@@ -53,6 +57,7 @@ def test(calculators=tuple(), jobs=0, verbose=False,
 
 def have_module(module):
     import importlib.util
+
     return importlib.util.find_spec(module) is not None
 
 
@@ -62,7 +67,6 @@ MULTIPROCESSING_AUTO = -1
 
 
 def choose_how_many_workers(jobs):
-
     if jobs == MULTIPROCESSING_AUTO:
         if have_module('xdist'):
             jobs = min(cpu_count(), MULTIPROCESSING_MAX_AUTO_WORKERS)
@@ -113,46 +117,75 @@ class CLICommand:
     @staticmethod
     def add_arguments(parser):
         parser.add_argument(
-            '-c', '--calculators', default='',
+            '-c',
+            '--calculators',
+            default='',
             help='comma-separated list of calculators to test; '
-            'see --help-calculators')
-        parser.add_argument('--help-calculators', action='store_true',
-                            help='show extended help about calculator tests '
-                            'and exit')
-        parser.add_argument('--list', action='store_true',
-                            help='print all tests and exit')
-        parser.add_argument('--list-calculators', action='store_true',
-                            help='print all calculator names and exit')
+            'see --help-calculators',
+        )
         parser.add_argument(
-            '-j', '--jobs', type=int, metavar='N',
+            '--help-calculators',
+            action='store_true',
+            help='show extended help about calculator tests and exit',
+        )
+        parser.add_argument(
+            '--list', action='store_true', help='print all tests and exit'
+        )
+        parser.add_argument(
+            '--list-calculators',
+            action='store_true',
+            help='print all calculator names and exit',
+        )
+        parser.add_argument(
+            '-j',
+            '--jobs',
+            type=int,
+            metavar='N',
             default=MULTIPROCESSING_AUTO,
             help='number of worker processes.  If pytest-xdist is available,'
             ' defaults to all available processors up to a maximum of {}.  '
-            '0 disables multiprocessing'
-            .format(MULTIPROCESSING_MAX_AUTO_WORKERS))
-        parser.add_argument('-v', '--verbose', action='store_true',
-                            help='write test outputs to stdout.  '
-                            'Mostly useful when inspecting a single test')
-        parser.add_argument('--strict', action='store_true',
-                            help='convert warnings to errors.  '
-                            'This option currently has no effect')
-        parser.add_argument('--fast', action='store_true',
-                            help='skip slow tests')
-        parser.add_argument('--coverage', action='store_true',
-                            help='measure code coverage.  '
-                            'Requires pytest-cov')
-        parser.add_argument('--nogui', action='store_true',
-                            help='do not run graphical tests')
-        parser.add_argument('tests', nargs='*',
-                            help='specify particular test files '
-                            'or directories')
-        parser.add_argument('--pytest', nargs=argparse.REMAINDER,
-                            help='forward all remaining arguments to pytest.  '
-                            'See pytest --help')
+            '0 disables multiprocessing'.format(
+                MULTIPROCESSING_MAX_AUTO_WORKERS
+            ),
+        )
+        parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true',
+            help='write test outputs to stdout.  '
+            'Mostly useful when inspecting a single test',
+        )
+        parser.add_argument(
+            '--strict',
+            action='store_true',
+            help='convert warnings to errors.  '
+            'This option currently has no effect',
+        )
+        parser.add_argument(
+            '--fast', action='store_true', help='skip slow tests'
+        )
+        parser.add_argument(
+            '--coverage',
+            action='store_true',
+            help='measure code coverage.  Requires pytest-cov',
+        )
+        parser.add_argument(
+            '--nogui', action='store_true', help='do not run graphical tests'
+        )
+        parser.add_argument(
+            'tests',
+            nargs='*',
+            help='specify particular test files or directories',
+        )
+        parser.add_argument(
+            '--pytest',
+            nargs=argparse.REMAINDER,
+            help='forward all remaining arguments to pytest.  '
+            'See pytest --help',
+        )
 
     @staticmethod
     def run(args):
-
         if args.help_calculators:
             print(help_calculators)
             sys.exit(0)
@@ -181,10 +214,12 @@ class CLICommand:
             add_args('-m', 'not slow')
 
         if args.coverage:
-            add_args('--cov=ase',
-                     '--cov-config=.coveragerc',
-                     # '--cov-report=term',
-                     '--cov-report=html')
+            add_args(
+                '--cov=ase',
+                '--cov-config=.coveragerc',
+                # '--cov-report=term',
+                '--cov-report=html',
+            )
 
         if args.tests:
             for testname in args.tests:
@@ -204,8 +239,9 @@ class CLICommand:
             print('    ' + line)
 
         if not have_module('pytest'):
-            raise CLIError('Cannot import pytest; please install pytest '
-                           'to run tests')
+            raise CLIError(
+                'Cannot import pytest; please install pytest to run tests'
+            )
 
         # We run pytest through Popen rather than pytest.main().
         #
@@ -213,7 +249,8 @@ class CLICommand:
         # would interfere with code coverage measurement.
         # (Flush so we don't get our stream mixed with the pytest output)
         sys.stdout.flush()
-        proc = Popen([sys.executable, '-m', 'pytest'] + pytest_args,
-                     cwd=str(testdir))
+        proc = Popen(
+            [sys.executable, '-m', 'pytest'] + pytest_args, cwd=str(testdir)
+        )
         exitcode = proc.wait()
         sys.exit(exitcode)

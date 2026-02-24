@@ -1,4 +1,3 @@
-# fmt: off
 import numpy as np
 
 import ase.units as units
@@ -20,24 +19,29 @@ from ase.constraints import FixLinearTriatomic
 from ase.md.verlet import VelocityVerlet
 
 
-def test_rattle_linear(testdir):
+def test_rattle_linear(testdir, exitstack):
     """Test RATTLE and QM/MM for rigid linear acetonitrile."""
 
     sigma = np.array([sigma_me, sigma_c, sigma_n])
     epsilon = np.array([epsilon_me, epsilon_c, epsilon_n])
     i = LJInteractionsGeneral(sigma, epsilon, sigma, epsilon, 3)
 
-    for calc in [ACN(),
-                 SimpleQMMM([0, 1, 2], ACN(), ACN(), ACN()),
-                 EIQMMM([0, 1, 2], ACN(), ACN(), i)]:
-
-        dimer = Atoms('CCNCCN',
-                      [(-r_mec, 0, 0),
-                       (0, 0, 0),
-                       (r_cn, 0, 0),
-                       (r_mec, 3.7, 0),
-                       (0, 3.7, 0),
-                       (-r_cn, 3.7, 0)])
+    for calc in [
+        ACN(),
+        SimpleQMMM([0, 1, 2], ACN(), ACN(), ACN()),
+        exitstack.enter_context(EIQMMM([0, 1, 2], ACN(), ACN(), i)),
+    ]:
+        dimer = Atoms(
+            'CCNCCN',
+            [
+                (-r_mec, 0, 0),
+                (0, 0, 0),
+                (r_cn, 0, 0),
+                (r_mec, 3.7, 0),
+                (0, 3.7, 0),
+                (-r_cn, 3.7, 0),
+            ],
+        )
 
         masses = dimer.get_masses()
         masses[::3] = m_me
@@ -53,10 +57,13 @@ def test_rattle_linear(testdir):
         d2 = dimer[3:].get_all_distances()
         e = dimer.get_potential_energy()
 
-        with VelocityVerlet(dimer, 2.0 * units.fs,
-                            trajectory=calc.name + '.traj',
-                            logfile=calc.name + '.log',
-                            loginterval=20) as md:
+        with VelocityVerlet(
+            dimer,
+            2.0 * units.fs,
+            trajectory=calc.name + '.traj',
+            logfile=calc.name + '.log',
+            loginterval=20,
+        ) as md:
             md.run(100)
 
         de = dimer.get_potential_energy() - e

@@ -145,7 +145,7 @@ class FIRE2(Optimizer):
         self.v, self.dt = self.load()
 
     def step(self, f=None):
-        gradient = self._get_gradient(f)
+        gradient = -self._get_gradient(f)
         optimizable = self.optimizable
 
         if self.v is None:
@@ -168,7 +168,7 @@ class FIRE2(Optimizer):
                 self.v[:] *= 0.0
 
         # euler semi implicit
-        gradient = optimizable.get_gradient()
+        gradient = -optimizable.get_gradient()
         self.v += self.dt * gradient
 
         if self.use_abc:

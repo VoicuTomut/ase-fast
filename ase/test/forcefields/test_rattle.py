@@ -1,4 +1,3 @@
-# fmt: off
 import pytest
 
 import ase.units as units
@@ -10,13 +9,14 @@ from ase.md.verlet import VelocityVerlet
 
 
 @pytest.mark.slow()
-def test_rattle(testdir):
-
+def test_rattle(testdir, exitstack):
     i = LJInteractions({('O', 'O'): (epsilon0, sigma0)})
 
-    for calc in [TIP3P(),
-                 SimpleQMMM([0, 1, 2], TIP3P(), TIP3P(), TIP3P()),
-                 EIQMMM([0, 1, 2], TIP3P(), TIP3P(), i)]:
+    for calc in [
+        TIP3P(),
+        SimpleQMMM([0, 1, 2], TIP3P(), TIP3P(), TIP3P()),
+        exitstack.enter_context(EIQMMM([0, 1, 2], TIP3P(), TIP3P(), i)),
+    ]:
         dimer = s22('Water_dimer')
 
         for m in [0, 3]:
@@ -32,10 +32,13 @@ def test_rattle(testdir):
         dimer.calc = calc
 
         e = dimer.get_potential_energy()
-        with VelocityVerlet(dimer, 8.0 * units.fs,
-                            trajectory=calc.name + '.traj',
-                            logfile=calc.name + '.log',
-                            loginterval=5) as md:
+        with VelocityVerlet(
+            dimer,
+            8.0 * units.fs,
+            trajectory=calc.name + '.traj',
+            logfile=calc.name + '.log',
+            loginterval=5,
+        ) as md:
             md.run(25)
         de = dimer.get_potential_energy() - e
         assert abs(de - -0.028) < 0.001

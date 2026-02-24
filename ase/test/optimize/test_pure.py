@@ -33,9 +33,9 @@ class BoothFunctionOptimizable(Optimizable):
         return a * a + b * b
 
     def get_gradient(self):
+        x, y = self.xy
         a, b = self.ab(*self.xy)
-        # XXX negative gradient
-        return -np.array([2 * a + 4 * b, 4 * a + 2 * b])
+        return np.array([2 * a + 4 * b, 4 * a + 2 * b])
 
     def iterimages(self):
         return iter([])

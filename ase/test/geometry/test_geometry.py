@@ -7,7 +7,7 @@ from ase.build import bulk, cut, fcc111
 from ase.cell import Cell
 from ase.geometry import get_layers, wrap_positions
 from ase.spacegroup import crystal
-from ase.utils import atoms_to_spglib_cell
+from ase.utils import atoms_to_spglib_cell, spglib_new_errorhandling
 
 
 def test_geometry():
@@ -88,7 +88,8 @@ def test_geometry():
     try:
         import spglib
         for atoms, no_ref in zip([ag, si], [225, 227]):
-            dataset = spglib.get_symmetry_dataset(atoms_to_spglib_cell(atoms))
+            dataset = spglib_new_errorhandling(spglib.get_symmetry_dataset)(
+                atoms_to_spglib_cell(atoms))
             no = dataset.number if is_dataclass(dataset) else dataset['number']
             assert no == no_ref
     except ImportError:

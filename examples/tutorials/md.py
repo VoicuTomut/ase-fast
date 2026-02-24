@@ -1,4 +1,4 @@
-""".. _md_tutorials_basic:
+""".. _md_tutorial:
 
 ==================
 Molecular dynamics

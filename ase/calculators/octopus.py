@@ -1,5 +1,3 @@
-# fmt: off
-
 """ASE-interface to Octopus.
 
 Ask Hjorth Larsen <asklarsen@gmail.com>
@@ -30,8 +28,10 @@ class OctopusProfile(BaseProfile):
     def version(self):
         import re
         from subprocess import check_output
-        txt = check_output([*self._split_command, '--version'],
-                           encoding='ascii')
+
+        txt = check_output(
+            [*self._split_command, '--version'], encoding='ascii'
+        )
         match = re.match(r'octopus\s*(.+)', txt)
         # With MPI it prints the line for each rank, but we just match
         # the first line.
@@ -65,14 +65,16 @@ class OctopusTemplate(CalculatorTemplate):
                 kpts, eigs, occs = read_eigenvalues_file(fd)
                 kpt_weights = np.ones(len(kpts))  # XXX ?  Or 1 / len(kpts) ?
                 # XXX New Octopus probably has symmetry reduction !!
-            results.update(eigenvalues=eigs, occupations=occs,
-                           ibz_kpoints=kpts,
-                           kpoint_weights=kpt_weights)
+            results.update(
+                eigenvalues=eigs,
+                occupations=occs,
+                ibz_kpoints=kpts,
+                kpoint_weights=kpt_weights,
+            )
         return results
 
     def execute(self, directory, profile):
-        profile.run(directory, None, self.outputname,
-                    errorfile=self.errorname)
+        profile.run(directory, None, self.outputname, errorfile=self.errorname)
 
     def write_input(self, profile, directory, atoms, parameters, properties):
         txt = generate_input(atoms, process_special_kwargs(atoms, parameters))
@@ -94,14 +96,17 @@ class Octopus(GenericFileIOCalculator):
         Label is always taken as a subdirectory.
         Restart is taken to be a label."""
 
-        super().__init__(profile=profile,
-                         template=OctopusTemplate(),
-                         directory=directory,
-                         parameters=kwargs)
+        super().__init__(
+            profile=profile,
+            template=OctopusTemplate(),
+            directory=directory,
+            parameters=kwargs,
+        )
 
     @classmethod
     def recipe(cls, **kwargs):
         from ase import Atoms
+
         system = Atoms()
         calc = Octopus(CalculationMode='recipe', **kwargs)
         system.calc = calc
@@ -110,5 +115,6 @@ class Octopus(GenericFileIOCalculator):
         except OctopusIOError:
             pass
         else:
-            raise OctopusIOError('Expected recipe, but found '
-                                 'useful physical output!')
+            raise OctopusIOError(
+                'Expected recipe, but found useful physical output!'
+            )

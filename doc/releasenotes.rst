@@ -6,12 +6,25 @@ Release notes
 
 A comprehensive list of changes can be found in the :ref:`changelog`.
 
-Git master branch
-=================
 
-:git:`master <>`.
+Version 3.27.0
+==============
 
-* No changes yet
+28 December 2025: :git:`3.27.0 <../3.27.0>`
+
+This is an ordinary feature release.  Highlights:
+
+* ASE now requires Python 3.10 or newer.
+
+* As part of the overall decentralisation efforts,
+  the `ase.ga` module has moved to a standalone project,
+  `ase-ga <https://dtu-energy.github.io/ase-ga/>`__.
+
+* Many :ref:`tutorials` have been ported to
+  `sphinx-gallery <https://sphinx-gallery.github.io/>__`
+  and are now tested automatically, resulting in various fixes.
+
+* Multiple improvements across the :mod:`ase.thermochemistry` module.
 
 
 Version 3.26.0
@@ -929,7 +942,8 @@ Algorithms:
   for nanowire and thin film structures.
 
 * Added a new tutorial on molecular crystal structure prediction using
-  a genetic algorithm, see :ref:`ga_molecular_crystal_tutorial`.
+  a genetic algorithm (Update: moved to `ase-ga
+  <https://dtu-energy.github.io/ase-ga/tutorials/ga_molecular_crystal.html>`__.)
 
 * Allow setting the initial hessian in ``optimize.BFGS`` via the keyword ``alpha`` or
   explicitly via ``opt.H0 = ...`` after instantiation.
@@ -1288,14 +1302,15 @@ Algorithms:
   criterion, although this behaviour may change in future versions.
 
 * The genetic algorithm module :mod:`ase.ga` now has operators for crystal
-  structure prediction. See :ref:`ga_bulk_tutorial`.
+  structure prediction.  (Update: moved to
+  `ase-ga <https://dtu-energy.github.io/ase-ga>`__.)
 
 * New :func:`ase.geometry.dimensionality.analyze_dimensionality` function.
-  See: :ref:`dimtutorial`.
+  See: :ref:`dim_examples`.
 
 * New :func:`ase.utils.deltacodesdft.delta` function:  Calculates the
-  difference between two DFT equation-of-states.  See the new :ref:`dcdft tut`
-  tutorial.
+  difference between two DFT equation-of-states.  See the new
+  :ref:`delta_values_example` tutorial.
 
 * Holonomic :class:`~ase.constraints.FixLinearTriatomic` for QM/MM
   calculations.
@@ -1573,7 +1588,7 @@ Version 3.15.0
   :ref:`Turbomole <turbomole qmmm>` and :mod:`DFTB+ <ase.calculators.dftb>`
   as the QM part.
 
-* New :ref:`db tutorial` tutorial.
+* New :ref:`adsorbate_db tutorials` tutorial.
 
 * :mod:`ase.gui`:  Improved atom colouring options; support the Render Scene (povray) and Ctrl+R rotation features again; updated German and Chinese translations.
 
@@ -1998,7 +2013,7 @@ Version 3.7.0
 
 * ASE now runs on Windows and Mac.
 
-* :ref:`mhtutorial` added to ASE.
+* :ref:`minima_hopping` added to ASE.
 
 
 Version 3.6.0

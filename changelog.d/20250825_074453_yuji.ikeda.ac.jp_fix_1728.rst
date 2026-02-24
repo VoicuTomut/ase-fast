@@ -1,5 +1,0 @@
-I/O
----
-
-- Add support for reading the energy and the dipole moment from "external" in
-  :meth:`ase.io.gaussian.read_gausian_out` (:mr:`3801`)

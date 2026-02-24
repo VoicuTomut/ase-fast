@@ -31,6 +31,7 @@ autoclass_content = 'both'
 modindex_common_prefix = ['ase.']
 nitpick_ignore = [
     ('envvar', 'VASP_PP_PATH'),
+    ('envvar', 'VASP_PP_VERSION'),
     ('envvar', 'ASE_ABC_COMMAND'),
     ('envvar', 'LAMMPS_COMMAND'),
     ('envvar', 'ASE_NWCHEM_COMMAND'),
@@ -47,6 +48,8 @@ sphinx_gallery_conf = {
     'reference_url': {'ase': None},
     'remove_config_comments': True,
     'prefer_full_module': ['ase'],
+    'matplotlib_animations': (True, 'mp4'),
+    'within_subsection_order': 'FileNameSortKey',
 }
 
 html_theme = 'sphinx_book_theme'

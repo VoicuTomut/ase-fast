@@ -33,9 +33,10 @@ class MinimaHopping:
         'timestep': 1.0,  # fs, timestep for MD simulations
         'optimizer': QuasiNewton,  # local optimizer to use
         'minima_traj': 'minima.traj',  # storage file for minima list
-        'fmax': 0.05}  # eV/A, max force for optimizations
+        'fmax': 0.05,  # eV/A, max force for optimizations
+        'rng': None}
 
-    def __init__(self, atoms, **kwargs):
+    def __init__(self, atoms, comm=world, **kwargs):
         """Initialize with an ASE atoms object and keyword arguments."""
         self._atoms = atoms
         for key in kwargs:
@@ -52,6 +53,7 @@ class MinimaHopping:
         self._previous_energy = None
         self._temperature = self._T0
         self._Ediff = self._Ediff0
+        self.comm = comm
 
     def __call__(self, totalsteps=None, maxtemp=None):
         """Run the minima hopping algorithm. Can specify stopping criteria
@@ -84,7 +86,7 @@ class MinimaHopping:
 
         status = np.array(-1.)
         exists = self._read_minima()
-        if world.rank == 0:
+        if self.comm.rank == 0:
             if not exists:
                 # Fresh run with new minima file.
                 status = np.array(0.)
@@ -94,8 +96,8 @@ class MinimaHopping:
             else:
                 # Must be resuming from within a working directory.
                 status = np.array(2.)
-        world.barrier()
-        world.broadcast(status, 0)
+        self.comm.barrier()
+        self.comm.broadcast(status, 0)
 
         if status == 2.:
             self._resume()
@@ -116,9 +118,9 @@ class MinimaHopping:
         file. Note it will almost always be interrupted in the middle of
         either a qn or md run or when exceeding totalsteps, so it only has
         been tested in those cases currently."""
-        f = paropen(self._logfile, 'r')
-        lines = f.read().splitlines()
-        f.close()
+        with paropen(self._logfile, 'r', comm=self.comm) as fd:
+            lines = fd.read().splitlines()
+
         self._log('msg', 'Attempting to resume stopped run.')
         self._log('msg', 'Using existing minima file with %i prior '
                   'minima: %s' % (len(self._minima), self._minima_traj))
@@ -226,32 +228,30 @@ class MinimaHopping:
     def _log(self, cat='msg', message=None):
         """Records the message as a line in the log file."""
         if cat == 'init':
-            if world.rank == 0:
+            if self.comm.rank == 0:
                 if os.path.exists(self._logfile):
                     raise RuntimeError(f'File exists: {self._logfile}')
-            fd = paropen(self._logfile, 'w')
-            fd.write('par: %12s %12s %12s\n' % ('T (K)', 'Ediff (eV)',
-                                                'mdmin'))
-            fd.write('ene: %12s %12s %12s\n' % ('E_current', 'E_previous',
-                                                'Difference'))
-            fd.close()
+            with paropen(self._logfile, 'w', comm=self.comm) as fd:
+                fd.write('par: %12s %12s %12s\n' % ('T (K)', 'Ediff (eV)',
+                                                    'mdmin'))
+                fd.write('ene: %12s %12s %12s\n' % ('E_current', 'E_previous',
+                                                    'Difference'))
             return
-        fd = paropen(self._logfile, 'a')
-        if cat == 'msg':
-            line = f'msg: {message}'
-        elif cat == 'par':
-            line = ('par: %12.4f %12.4f %12i' %
-                    (self._temperature, self._Ediff, self._mdmin))
-        elif cat == 'ene':
-            current = self._atoms.get_potential_energy()
-            if self._previous_optimum:
-                previous = self._previous_energy
-                line = ('ene: %12.5f %12.5f %12.5f' %
-                        (current, previous, current - previous))
-            else:
-                line = ('ene: %12.5f' % current)
-        fd.write(line + '\n')
-        fd.close()
+        with paropen(self._logfile, 'a', comm=self.comm) as fd:
+            if cat == 'msg':
+                line = f'msg: {message}'
+            elif cat == 'par':
+                line = ('par: %12.4f %12.4f %12i' %
+                        (self._temperature, self._Ediff, self._mdmin))
+            elif cat == 'ene':
+                current = self._atoms.get_potential_energy()
+                if self._previous_optimum:
+                    previous = self._previous_energy
+                    line = ('ene: %12.5f %12.5f %12.5f' %
+                            (current, previous, current - previous))
+                else:
+                    line = ('ene: %12.5f' % current)
+            fd.write(line + '\n')
 
     def _optimize(self):
         """Perform an optimization."""
@@ -314,7 +314,8 @@ class MinimaHopping:
         if not thermalized:
             MaxwellBoltzmannDistribution(self._atoms,
                                          temperature_K=self._temperature,
-                                         force_temp=True)
+                                         force_temp=True,
+                                         rng=self._rng)
         traj = io.Trajectory('md%05i.traj' % self._counter, 'a',
                              self._atoms)
         dyn = VelocityVerlet(self._atoms, timestep=self._timestep * units.fs)

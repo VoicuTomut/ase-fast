@@ -25,7 +25,7 @@ class Movie:
 
         # TRANSLATORS: This function plays an animation forwards and backwards
         # alternatingly, e.g. for displaying vibrational movement
-        self.rock = ui.CheckButton(_('Rock'))
+        self.rock = ui.CheckButton(_('Rock'), value=gui.config['movie_rock'])
 
         win.add([play, stop, self.rock])
 
@@ -36,6 +36,10 @@ class Movie:
         else:
             skipdefault = 0
             tdefault = min(max(len(gui.images) / 5.0, 1.0), 30)
+        if gui.config['movie_rate'] != 'auto':
+            tdefault = gui.config['movie_rate']
+        if gui.config['movie_skip'] != 'auto':
+            skipdefault = gui.config['movie_skip']
         self.time = ui.SpinBox(tdefault, 1.0, 99, 0.1)
         self.skip = ui.SpinBox(skipdefault, 0, 99, 1)
         win.add([_(' Frame rate: '), self.time, _(' Skip frames: '),

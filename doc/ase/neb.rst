@@ -118,8 +118,8 @@ calculators attached.
    :ref:`tutorials`:
 
         * :ref:`diffusion tutorial`
-        * :ref:`neb2`
-        * :ref:`idpp_tutorial`
+        * :ref:`dissociation`
+        * :ref:`neb_idpp_tutorial`
 
 .. note::
 

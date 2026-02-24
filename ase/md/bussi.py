@@ -90,15 +90,17 @@ class Bussi(VelocityVerlet):
             / self.ndof
         )
 
-        # R1 in Eq. (A7)
-        noisearray = self.rng.standard_normal(size=(1,))
         # ASE mpi interfaces can only broadcast arrays, not scalars
-        self.comm.broadcast(noisearray, 0)
-        normal_noise = noisearray[0]
-
+        noisearray = np.zeros((2,))
+        # R1 in Eq. (A7)
+        noisearray[0] = self.rng.standard_normal()
         # \sum_{i=2}^{Nf} R_i^2 in Eq. (A7)
         # 2 * standard_gamma(n / 2) is equal to chisquare(n)
-        sum_of_noises = 2.0 * self.rng.standard_gamma(0.5 * (self.ndof - 1))
+        noisearray[1] = 2.0 * self.rng.standard_gamma(0.5 * (self.ndof - 1))
+
+        self.comm.broadcast(noisearray, 0)
+        normal_noise = noisearray[0]
+        sum_of_noises = noisearray[1]
 
         return math.sqrt(
             self._exp_term

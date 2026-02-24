@@ -764,7 +764,7 @@ class Calculator(BaseCalculator):
         Read result from self.label file.  Raise ReadError if the file
         is not there.  If the file is corrupted or contains an error
         message from the calculation, a ReadError should also be
-        raised.  In case of succes, these attributes must set:
+        raised.  In case of success, these attributes must set:
 
         atoms: Atoms object
             The state of the atoms from last calculation.

@@ -30,12 +30,10 @@ def lammpsdump():
     def factory(
         bounds='pp pp pp',
         position_cols='x y z',
-        have_element=True,
         have_id=False,
         have_type=True,
         have_property_atom=False,
     ):
-        _element = 'element' if have_element else 'unk0'
         _id = 'id' if have_id else 'unk1'
         _type = 'type' if have_type else 'unk2'
         _i_property = 'i_property' if have_property_atom else 'unk3'
@@ -52,7 +50,7 @@ def lammpsdump():
         0.0e+00 4e+00
         0.0e+00 5.0e+00
         0.0e+00 2.0e+01
-        ITEM: ATOMS {_element} {_id} {_type} {position_cols}\
+        ITEM: ATOMS element {_id} {_type} {position_cols}\
         {_i_property} {_i2_property} {_d_property} {_d2_property}
         C  1 1 0.5 0.6 0.7 1 2 1.0 2.0
         C  3 1 0.6 0.1 1.9 3 4 3.0 4.0
@@ -69,12 +67,10 @@ def lammpsdump_single_atom():
     def factory(
         bounds='pp pp pp',
         position_cols='x y z',
-        have_element=True,
         have_id=False,
         have_type=True,
         have_charge=True,
     ):
-        _element = 'element' if have_element else 'unk0'
         _id = 'id' if have_id else 'unk1'
         _type = 'type' if have_type else 'unk2'
         _charge = 'q' if have_charge else 'unk3'
@@ -88,7 +84,7 @@ def lammpsdump_single_atom():
         0.0e+00 4e+00
         0.0e+00 5.0e+00
         0.0e+00 2.0e+01
-        ITEM: ATOMS {_element} {_id} {_charge} {_type} {position_cols}
+        ITEM: ATOMS element {_id} {_type} {_charge} {position_cols}
         C  1 1 1.0 0.5 0.6 0.7
         """
 
@@ -198,11 +194,14 @@ def test_lammpsdump_no_element(fmt, lammpsdump_no_element):
     assert np.all(atoms.get_chemical_symbols() == np.array(['C']))
 
 
-def test_lammpsdump_errors(fmt, lammpsdump):
+def test_lammpsdump_no_element_no_type_no_mass(fmt, lammpsdump_no_element):
     # elements not given
     with pytest.raises(ValueError, match='Cannot determine atom types.*'):
-        _ = fmt.parse_atoms(lammpsdump(have_element=False, have_type=False))
+        buf = lammpsdump_no_element(have_type=False, have_mass=False)
+        _ = fmt.parse_atoms(buf)
 
+
+def test_lammpsdump_no_positions(fmt, lammpsdump):
     # positions not given
     with pytest.raises(
         ValueError, match='No atomic positions found in LAMMPS output'

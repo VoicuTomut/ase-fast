@@ -1,4 +1,3 @@
-# fmt: off
 from ase.collections import s22
 
 

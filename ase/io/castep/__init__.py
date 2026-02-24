@@ -27,7 +27,12 @@ from ase.geometry.cell import cellpar_to_cell
 from ase.io.castep.castep_reader import read_castep_castep
 from ase.parallel import paropen
 from ase.spacegroup import Spacegroup
-from ase.utils import atoms_to_spglib_cell, reader, writer
+from ase.utils import (
+    atoms_to_spglib_cell,
+    reader,
+    spglib_new_errorhandling,
+    writer,
+)
 
 from .geom_md_ts import (
     read_castep_geom,
@@ -713,7 +718,8 @@ def read_castep_cell(fd, index=None, calculator_args={}, find_spg=False,
             spglib = None
 
         if spglib is not None:
-            symmd = spglib.get_symmetry_dataset(atoms_to_spglib_cell(atoms))
+            symmd = spglib_new_errorhandling(spglib.get_symmetry_dataset)(
+                atoms_to_spglib_cell(atoms))
             atoms_spg = Spacegroup(int(symmd['number']))
             atoms.info['spacegroup'] = atoms_spg
 
@@ -861,33 +867,36 @@ def read_castep_phonon(fd, index=None, read_vib_data=False,
         fields = lines[L].split()
         qpoints.append([float(x) for x in fields[2:5]])
         weights.append(float(fields[5]))
-    freqs = []
-    for _ in range(Nb):
-        L += 1
-        fields = lines[L].split()
-        freqs.append(frequency_factor * float(fields[1]))
-    frequencies.append(np.array(freqs))
 
-    # skip the two Phonon Eigenvectors header lines
-    L += 2
-
-    # generate a list of displacements with a structure that is identical to
-    # what is stored internally in the Vibrations class (see in
-    # ase.vibrations.Vibrations.modes):
-    #      np.array(displacements).shape == (Nb,3*N)
-
-    disps = []
-    for _ in range(Nb):
-        disp_coords = []
-        for _ in range(N):
+        freqs = []
+        for _ in range(Nb):
             L += 1
             fields = lines[L].split()
-            disp_x = float(fields[2]) + float(fields[3]) * 1.0j
-            disp_y = float(fields[4]) + float(fields[5]) * 1.0j
-            disp_z = float(fields[6]) + float(fields[7]) * 1.0j
-            disp_coords.extend([disp_x, disp_y, disp_z])
-        disps.append(np.array(disp_coords))
-    displacements.append(np.array(disps))
+            freqs.append(frequency_factor * float(fields[1]))
+        frequencies.append(np.array(freqs))
+
+        # skip the two Phonon Eigenvectors header lines
+        L += 2
+
+        # generate a list of displacements with a structure that is identical to
+        # what is stored internally in the Vibrations class (see in
+        # ase.vibrations.Vibrations.modes):
+        #      np.array(displacements).shape == (Nb,3*N)
+
+        disps = []
+        for _ in range(Nb):
+            disp_coords = []
+            for _ in range(N):
+                L += 1
+                fields = lines[L].split()
+                disp_x = float(fields[2]) + float(fields[3]) * 1.0j
+                disp_y = float(fields[4]) + float(fields[5]) * 1.0j
+                disp_z = float(fields[6]) + float(fields[7]) * 1.0j
+                disp_coords.extend([disp_x, disp_y, disp_z])
+            disps.append(np.array(disp_coords))
+        displacements.append(np.array(disps))
+
+        L += 1
 
     if read_vib_data:
         if gamma_only:

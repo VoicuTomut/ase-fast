@@ -149,3 +149,4 @@ class AddAtoms:
                 return
 
         self.gui.add_atoms_and_select(newatoms)
+        self.gui.update_history()

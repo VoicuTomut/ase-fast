@@ -1,5 +1,3 @@
-# fmt: off
-
 import re
 
 import numpy as np
@@ -68,8 +66,9 @@ def read_eigenvalues_file(fd):
 
     for k in range(nkpts):
         for arr, lst in [(eigsarr, eigs), (occsarr, occs)]:
-            arr[k, :, :] = [lst[k][sp] for sp
-                            in (['--'] if nspins == 1 else ['up', 'dn'])]
+            arr[k, :, :] = [
+                lst[k][sp] for sp in (['--'] if nspins == 1 else ['up', 'dn'])
+            ]
 
     for arr in arrs:
         assert not np.isnan(arr).any()
@@ -120,7 +119,6 @@ def read_static_info_kpoints(fd):
 
 
 def read_static_info_eigenvalues(fd, energy_unit):
-
     values_sknx = {}
 
     nbands = 0
@@ -155,11 +153,13 @@ def read_static_info_eigenvalues(fd, energy_unit):
     eps_skn = eps_skn.transpose(1, 0, 2).copy()
     occ_skn = occ_skn.transpose(1, 0, 2).copy()
     assert eps_skn.flags.contiguous
-    d = dict(nspins=nspins,
-             nkpts=nkpts,
-             nbands=nbands,
-             eigenvalues=eps_skn,
-             occupations=occ_skn)
+    d = dict(
+        nspins=nspins,
+        nkpts=nkpts,
+        nbands=nbands,
+        eigenvalues=eps_skn,
+        occupations=occ_skn,
+    )
     if fermilevel is not None:
         d.update(fermi_level=fermilevel)
     return d
@@ -170,6 +170,7 @@ def read_static_info_energy(fd, energy_unit):
         for line in fd:
             if line.strip().startswith(name):
                 return float(line.split('=')[-1].strip()) * energy_unit
+
     return dict(energy=get('Total'), free_energy=get('Free'))
 
 
@@ -216,8 +217,9 @@ def read_static_info(fd):
             results['dipole'] = np.array(dipole) * Debye
         elif line.startswith('Forces'):
             forceunitspec = line.split()[-1]
-            forceunit = {'[eV/A]': eV / Angstrom,
-                         '[H/b]': Hartree / Bohr}[forceunitspec]
+            forceunit = {'[eV/A]': eV / Angstrom, '[H/b]': Hartree / Bohr}[
+                forceunitspec
+            ]
             forces = []
             line = next(fd)
             assert line.strip().startswith('Ion')

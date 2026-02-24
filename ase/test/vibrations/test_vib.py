@@ -166,6 +166,7 @@ def test_vibrations_methods(testdir, random_dimer):
         assert len(image) == 2
 
     thermo = IdealGasThermo(vib_energies=vib_energies, geometry='linear',
+                            vib_selection='abs_highest',
                             atoms=vib.atoms, symmetrynumber=2, spin=0)
     thermo.get_gibbs_energy(temperature=298.15, pressure=2 * 101325.,
                             verbose=False)
