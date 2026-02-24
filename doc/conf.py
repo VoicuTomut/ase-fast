@@ -50,6 +50,7 @@ sphinx_gallery_conf = {
     'prefer_full_module': ['ase'],
     'matplotlib_animations': (True, 'mp4'),
     'within_subsection_order': 'FileNameSortKey',
+    'image_scrapers': ('ase.utils.sphinx.png_scraper', ),
 }
 
 html_theme = 'sphinx_book_theme'
