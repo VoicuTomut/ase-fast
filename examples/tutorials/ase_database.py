@@ -41,14 +41,14 @@ convert them into a ASE database named :file:`database.db` using the following:
 
 from pathlib import Path
 
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+
 from ase.build import bulk
 from ase.calculators.emt import EMT
 from ase.db import connect
 from ase.filters import FrechetCellFilter
 from ase.optimize import BFGS
-
-from matplotlib.animation import FuncAnimation
-import matplotlib.pyplot as plt
 from ase.visualize.plot import plot_atoms
 
 dbfile = Path('database.db')
