@@ -16,6 +16,7 @@ atoms.write('ptable.png')
 
 fig, ax = plt.subplots()
 ax = plot_atoms(atoms)
+ax.set_axis_off()
 fig.tight_layout()
 
 # Calling "povray ptable_pov.ini" will render it with povray.
