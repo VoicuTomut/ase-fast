@@ -31,7 +31,6 @@ def png_scraper(block, block_vars, gallery_conf):
         shutil.move(png, this_image_path)
 
     return figure_rst(image_names, gallery_conf['src_dir'])
-    raise SystemExit(1)
 
 
 def mol_role(role, rawtext, text, lineno, inliner, options={}, content=[]):
