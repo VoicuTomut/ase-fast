@@ -1,5 +1,3 @@
-# fmt: off
-
 """Storage and analysis for vibrational data"""
 
 import collections
@@ -65,23 +63,27 @@ class VibrationsData:
         hessian: RealSequence4D | np.ndarray,
         indices: Sequence[int] | np.ndarray | None = None,
     ) -> None:
-
         if indices is None:
-            indices = np.asarray(self.indices_from_constraints(atoms),
-                                 dtype=int)
+            indices = np.asarray(
+                self.indices_from_constraints(atoms), dtype=int
+            )
 
         self._indices = np.array(indices, dtype=int)
 
-        n_atoms = self._check_dimensions(atoms, np.asarray(hessian),
-                                         indices=self._indices)
+        n_atoms = self._check_dimensions(
+            atoms, np.asarray(hessian), indices=self._indices
+        )
         self._atoms = atoms.copy()
 
-        self._hessian2d = (np.asarray(hessian)
-                           .reshape(3 * n_atoms, 3 * n_atoms).copy())
+        self._hessian2d = (
+            np.asarray(hessian).reshape(3 * n_atoms, 3 * n_atoms).copy()
+        )
 
-    _setter_error = ("VibrationsData properties cannot be modified: construct "
-                     "a new VibrationsData with consistent atoms, Hessian and "
-                     "(optionally) indices/mask.")
+    _setter_error = (
+        'VibrationsData properties cannot be modified: construct '
+        'a new VibrationsData with consistent atoms, Hessian and '
+        '(optionally) indices/mask.'
+    )
 
     @classmethod
     def from_2d(
@@ -110,11 +112,15 @@ class VibrationsData:
         assert indices is not None  # Show Mypy that indices is now a sequence
 
         hessian_2d_array = np.asarray(hessian_2d)
-        n_atoms = cls._check_dimensions(atoms, hessian_2d_array,
-                                        indices=indices, two_d=True)
+        n_atoms = cls._check_dimensions(
+            atoms, hessian_2d_array, indices=indices, two_d=True
+        )
 
-        return cls(atoms, hessian_2d_array.reshape(n_atoms, 3, n_atoms, 3),
-                   indices=indices)
+        return cls(
+            atoms,
+            hessian_2d_array.reshape(n_atoms, 3, n_atoms, 3),
+            indices=indices,
+        )
 
     @staticmethod
     def indices_from_constraints(atoms: Atoms) -> list[int]:
@@ -140,13 +146,12 @@ class VibrationsData:
         """
         # Only fully fixed atoms supported by VibrationsData
         const_indices = constrained_indices(
-            atoms, only_include=(FixCartesian, FixAtoms))
+            atoms, only_include=(FixCartesian, FixAtoms)
+        )
         # Invert the selection to get free atoms
         indices = np.setdiff1d(
-            np.array(
-                range(
-                    len(atoms))),
-            const_indices).astype(int)
+            np.array(range(len(atoms))), const_indices
+        ).astype(int)
         # TODO: use numpy.typing to resolve this error.
         return indices.tolist()  # type: ignore[return-value]
 
@@ -221,12 +226,16 @@ class VibrationsData:
             ref_shape = [n_atoms, 3, n_atoms, 3]
             ref_shape_txt = '{n:d}x3x{n:d}x3'.format(n=n_atoms)
 
-        if (isinstance(hessian, np.ndarray)
-                and hessian.shape == tuple(ref_shape)):
+        if isinstance(hessian, np.ndarray) and hessian.shape == tuple(
+            ref_shape
+        ):
             return n_atoms
         else:
-            raise ValueError("Hessian for these atoms should be a "
-                             "{} numpy array.".format(ref_shape_txt))
+            raise ValueError(
+                'Hessian for these atoms should be a {} numpy array.'.format(
+                    ref_shape_txt
+                )
+            )
 
     def get_atoms(self) -> Atoms:
         return self._atoms.copy()
@@ -307,20 +316,24 @@ class VibrationsData:
         else:
             indices = self.get_indices()
 
-        return {'atoms': self.get_atoms(),
-                'hessian': self.get_hessian(),
-                'indices': indices}
+        return {
+            'atoms': self.get_atoms(),
+            'hessian': self.get_hessian(),
+            'indices': indices,
+        }
 
     @classmethod
     def fromdict(cls, data: dict[str, Any]) -> 'VibrationsData':
         # mypy is understandably suspicious of data coming from a dict that
         # holds mixed types, but it can see if we sanity-check with 'assert'
         assert isinstance(data['atoms'], Atoms)
-        assert isinstance(data['hessian'], (collections.abc.Sequence,
-                                            np.ndarray))
+        assert isinstance(
+            data['hessian'], (collections.abc.Sequence, np.ndarray)
+        )
         if data['indices'] is not None:
-            assert isinstance(data['indices'], (collections.abc.Sequence,
-                                                np.ndarray))
+            assert isinstance(
+                data['indices'], (collections.abc.Sequence, np.ndarray)
+            )
             for index in data['indices']:
                 assert isinstance(index, Integral)
 
@@ -339,20 +352,22 @@ class VibrationsData:
         masses = active_atoms.get_masses()
 
         if not np.all(masses):
-            raise ValueError('Zero mass encountered in one or more of '
-                             'the vibrated atoms. Use Atoms.set_masses()'
-                             ' to set all masses to non-zero values.')
+            raise ValueError(
+                'Zero mass encountered in one or more of '
+                'the vibrated atoms. Use Atoms.set_masses()'
+                ' to set all masses to non-zero values.'
+            )
         mass_weights = np.repeat(masses**-0.5, 3)
 
-        omega2, vectors = np.linalg.eigh(mass_weights
-                                         * self.get_hessian_2d()
-                                         * mass_weights[:, np.newaxis])
+        omega2, vectors = np.linalg.eigh(
+            mass_weights * self.get_hessian_2d() * mass_weights[:, np.newaxis]
+        )
 
         unit_conversion = units._hbar * units.m / sqrt(units._e * units._amu)
-        energies = unit_conversion * omega2.astype(complex)**0.5
+        energies = unit_conversion * omega2.astype(complex) ** 0.5
 
         modes = vectors.T.reshape(n_atoms * 3, n_atoms, 3)
-        modes = modes * masses[np.newaxis, :, np.newaxis]**-0.5
+        modes = modes * masses[np.newaxis, :, np.newaxis] ** -0.5
 
         return (energies, modes)
 
@@ -486,9 +501,10 @@ class VibrationsData:
 
         energies = self.get_energies()
 
-        return ('\n'.join(self._tabulate_from_energies(energies,
-                                                       im_tol=im_tol))
-                + '\n')
+        return (
+            '\n'.join(self._tabulate_from_energies(energies, im_tol=im_tol))
+            + '\n'
+        )
 
     @classmethod
     def _tabulate_from_energies(
@@ -496,9 +512,11 @@ class VibrationsData:
         energies: Sequence[complex] | np.ndarray,
         im_tol: float = 1e-8,
     ) -> list[str]:
-        summary_lines = ['---------------------',
-                         '  #    meV     cm^-1',
-                         '---------------------']
+        summary_lines = [
+            '---------------------',
+            '  #    meV     cm^-1',
+            '---------------------',
+        ]
 
         for n, e in enumerate(energies):
             if abs(e.imag) > im_tol:
@@ -508,12 +526,17 @@ class VibrationsData:
                 c = ''
                 e = e.real
 
-            summary_lines.append('{index:3d} {mev:6.1f}{im:1s}  {cm:7.1f}{im}'
-                                 .format(index=n, mev=(e * 1e3),
-                                         cm=(e / units.invcm), im=c))
+            summary_lines.append(
+                '{index:3d} {mev:6.1f}{im:1s}  {cm:7.1f}{im}'.format(
+                    index=n, mev=(e * 1e3), cm=(e / units.invcm), im=c
+                )
+            )
         summary_lines.append('---------------------')
-        summary_lines.append('Zero-point energy: {:.3f} eV'.format(
-            cls._calculate_zero_point_energy(energies=energies)))
+        summary_lines.append(
+            'Zero-point energy: {:.3f} eV'.format(
+                cls._calculate_zero_point_energy(energies=energies)
+            )
+        )
 
         return summary_lines
 
@@ -541,8 +564,9 @@ class VibrationsData:
 
         """
 
-        mode = (self.get_modes(all_atoms=True)[mode_index]
-                * sqrt(temperature / abs(self.get_energies()[mode_index])))
+        mode = self.get_modes(all_atoms=True)[mode_index] * sqrt(
+            temperature / abs(self.get_energies()[mode_index])
+        )
 
         for phase in np.linspace(0, 2 * pi, frames, endpoint=False):
             atoms = self.get_atoms()
@@ -606,11 +630,14 @@ class VibrationsData:
 
         """
 
-        all_images = list(self._get_jmol_images(atoms=self.get_atoms(),
-                                                energies=self.get_energies(),
-                                                modes=self.get_modes(
-                                                    all_atoms=True),
-                                                ir_intensities=ir_intensities))
+        all_images = list(
+            self._get_jmol_images(
+                atoms=self.get_atoms(),
+                energies=self.get_energies(),
+                modes=self.get_modes(all_atoms=True),
+                ir_intensities=ir_intensities,
+            )
+        )
         ase.io.write(filename, all_images, format='extxyz')
 
     @staticmethod
@@ -660,9 +687,12 @@ class VibrationsData:
                 energy = energy.real
 
             image = atoms.copy()
-            image.info.update({'mode#': str(i),
-                               'frequency_cm-1': energy / units.invcm,
-                               })
+            image.info.update(
+                {
+                    'mode#': str(i),
+                    'frequency_cm-1': energy / units.invcm,
+                }
+            )
             image.arrays['mode'] = mode
 
             # Custom masses are quite useful in vibration analysis, but will
@@ -686,15 +716,22 @@ class VibrationsData:
         masses = self._atoms[self.get_mask()].get_masses()
 
         # Get weights as N_moving_atoms x N_modes array
-        vectors = self.get_modes() / masses[np.newaxis, :, np.newaxis]**-0.5
-        all_weights = (np.linalg.norm(vectors, axis=-1)**2).T
+        vectors = self.get_modes() / masses[np.newaxis, :, np.newaxis] ** -0.5
+        all_weights = (np.linalg.norm(vectors, axis=-1) ** 2).T
 
         mask = self.get_mask()
-        all_info = [{'index': i, 'symbol': a.symbol}
-                    for i, a in enumerate(self._atoms) if mask[i]]
+        all_info = [
+            {'index': i, 'symbol': a.symbol}
+            for i, a in enumerate(self._atoms)
+            if mask[i]
+        ]
 
-        return DOSCollection([RawDOSData(energies, weights, info=info)
-                              for weights, info in zip(all_weights, all_info)])
+        return DOSCollection(
+            [
+                RawDOSData(energies, weights, info=info)
+                for weights, info in zip(all_weights, all_info)
+            ]
+        )
 
     def with_new_masses(
         self: VD,
@@ -717,5 +754,6 @@ class VibrationsData:
 
         new_atoms = self.get_atoms()
         new_atoms.set_masses(masses)
-        return self.__class__(new_atoms, self.get_hessian(),
-                              indices=self.get_indices())
+        return self.__class__(
+            new_atoms, self.get_hessian(), indices=self.get_indices()
+        )
