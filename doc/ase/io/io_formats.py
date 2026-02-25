@@ -12,19 +12,11 @@ with open('formatoptions.rst', 'w') as fd:
         print(name, file=fd)
         print('----------------------------------------', file=fd)
         if fmt.can_read:
-            print(
-                '\n .. autofunction:: {:}.read_{:}\n\n'.format(
-                    fmt.module_name, fmt._formatname
-                ),
-                file=fd,
-            )
+            ln = f'.. autofunction:: {fmt.module_name}.read_{fmt._formatname}'
+            print(f'\n{ln}\n\n', file=fd)
         if fmt.can_write:
-            print(
-                '\n .. autofunction:: {:}.write_{:}\n\n'.format(
-                    fmt.module_name, fmt._formatname
-                ),
-                file=fd,
-            )
+            ln = f'.. autofunction:: {fmt.module_name}.write_{fmt._formatname}'
+            print(f'\n{ln}\n\n', file=fd)
         if (not fmt.can_read) and (not fmt.can_write):
             print(
                 '\n No automatic documentation of this module found.', file=fd
