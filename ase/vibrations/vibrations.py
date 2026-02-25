@@ -6,7 +6,7 @@ import sys
 from collections import namedtuple
 from math import log, pi, sqrt
 from pathlib import Path
-from typing import Iterator, Tuple
+from typing import Iterator
 
 import numpy as np
 
@@ -105,9 +105,11 @@ class Vibrations(AtomicDisplacements):
       "Inelastic transport theory from first-principles: methodology and
       applications for nanoscale devices", Phys. Rev. B 75, 205413 (2007)
 
-    atoms: Atoms object
+    Parameters
+    ----------
+    atoms: :class:`~ase.Atoms`
         The atoms to work on.
-    indices: list of int
+    indices: list[int] | :obj:`None`, default: None
         List of indices of atoms to vibrate.  Default behavior is
         to vibrate all atoms.
     name: str
@@ -119,8 +121,8 @@ class Vibrations(AtomicDisplacements):
         supported. Default is 2 which will displace each atom +delta and
         -delta for each cartesian coordinate.
 
-    Example:
-
+    Examples
+    --------
     >>> from ase import Atoms
     >>> from ase.calculators.emt import EMT
     >>> from ase.optimize import BFGS
@@ -150,7 +152,14 @@ class Vibrations(AtomicDisplacements):
 
     """
 
-    def __init__(self, atoms, indices=None, name='vib', delta=0.01, nfree=2):
+    def __init__(
+        self,
+        atoms: Atoms,
+        indices: list[int] | None = None,
+        name: str = 'vib',
+        delta: float = 0.01,
+        nfree: int = 2,
+    ):
         assert nfree in [2, 4]
         self.atoms = atoms
         self.calc = atoms.calc
@@ -217,7 +226,6 @@ class Vibrations(AtomicDisplacements):
                     handle.save(result)
 
     def _check_old_pickles(self):
-        from pathlib import Path
         eq_pickle_path = Path(f'{self.name}.eq.pckl')
         pickle2json_instructions = f"""\
 Found old pickle files such as {eq_pickle_path}.  \
@@ -226,26 +234,29 @@ Please remove them and recalculate or run \
         if len(self.cache) == 0 and eq_pickle_path.exists():
             raise RuntimeError(pickle2json_instructions)
 
-    def iterdisplace(self, inplace=False) -> \
-            Iterator[Tuple[Displacement, Atoms]]:
+    def iterdisplace(
+        self,
+        inplace: bool = False,
+    ) -> Iterator[tuple[Displacement, Atoms]]:
         """Iterate over initial and displaced structures.
 
         Use this to export the structures for each single-point calculation
         to an external program instead of using ``run()``. Then save the
         calculated gradients to <name>.json and continue using this instance.
 
-        Parameters:
-        ------------
-        inplace: bool
+        Parameters
+        ----------
+        inplace: bool, default: :obj:`False`
             If True, the atoms object will be modified in-place. Otherwise a
             copy will be made.
 
-        Yields:
-        --------
-        disp: Displacement
+        Yields
+        ------
+        disp: :class:`Displacement`
             Displacement object with information about the displacement.
-        atoms: Atoms
+        atoms: :class:`~ase.Atoms`
             Atoms object with the displaced structure.
+
         """
         # XXX change of type of disp
         atoms = self.atoms if inplace else self.atoms.copy()
@@ -397,24 +408,35 @@ Please remove them and recalculate or run \
         s = units._hbar * 1e10 / sqrt(units._e * units._amu)
         self.hnu = s * omega2.astype(complex)**0.5
 
-    def get_vibrations(self, method='standard', direction='central',
-                       read_cache=True, **kw):
+    def get_vibrations(
+        self,
+        method='standard',
+        direction='central',
+        read_cache=True,
+        **kw,
+    ):
         """Get vibrations as VibrationsData object
 
         If read() has not yet been called, this will be called to assemble data
         from the outputs of run(). Most of the arguments to this function are
         options to be passed to read() in this case.
 
-        Args:
-            method (str): Calculation method passed to read()
-            direction (str): Finite-difference scheme passed to read()
-            read_cache (bool): The VibrationsData object will be cached for
-                quick access. Set False to force regeneration of the cache with
-                the current atoms/Hessian/indices data.
-            **kw: Any remaining keyword arguments are passed to read()
+        Parameters
+        ----------
+        method : str
+            Calculation method passed to read()
+        direction : str
+            Finite-difference scheme passed to read()
+        read_cache : bool
+            The :class:`VibrationsData` object will be cached for quick access.
+            Set :obj:`False` to force regeneration of the cache with the
+            current atoms/Hessian/indices data.
+        **kw : dict
+            Any remaining keyword arguments are passed to read()
 
-        Returns:
-            VibrationsData
+        Returns
+        -------
+        :class:`VibrationsData`
 
         """
         if read_cache and (self._vibrations is not None):
@@ -425,21 +447,38 @@ Please remove them and recalculate or run \
                     direction.lower() != self.direction):
                 self.read(method, direction, **kw)
 
-            return VibrationsData.from_2d(self.atoms, self.H,
-                                          indices=self.indices)
+            return VibrationsData.from_2d(
+                self.atoms,
+                self.H,
+                indices=self.indices,
+            )
 
-    def get_energies(self, method='standard', direction='central', **kw):
+    def get_energies(
+        self,
+        method: str = 'standard',
+        direction: str = 'central',
+        **kw,
+    ):
         """Get vibration energies in eV."""
         return self.get_vibrations(method=method,
                                    direction=direction, **kw).get_energies()
 
-    def get_frequencies(self, method='standard', direction='central'):
+    def get_frequencies(
+        self,
+        method: str = 'standard',
+        direction: str = 'central',
+    ):
         """Get vibration frequencies in cm^-1."""
         return self.get_vibrations(method=method,
                                    direction=direction).get_frequencies()
 
-    def summary(self, method='standard', direction='central', freq=None,
-                log=sys.stdout):
+    def summary(
+        self,
+        method: str = 'standard',
+        direction: str = 'central',
+        freq=None,
+        log=sys.stdout,
+    ):
         if freq is not None:
             energies = freq * units.invcm
         else:
@@ -463,9 +502,16 @@ Please remove them and recalculate or run \
         """Get mode number ."""
         return self.get_vibrations().get_modes(all_atoms=True)[n]
 
-    def write_mode(self, n=None, kT=units.kB * 300, nimages=30):
-        """Write mode number n to trajectory file. If n is not specified,
-        writes all non-zero modes."""
+    def write_mode(
+        self,
+        n: int | None = None,
+        kT: float = units.kB * 300.0,
+        nimages: int = 30,
+    ) -> None:
+        """Write mode number n to trajectory file.
+
+        If n is not specified, writes all non-zero modes.
+        """
         if n is None:
             for index, energy in enumerate(self.get_energies()):
                 if abs(energy) > 1e-5:
@@ -481,7 +527,7 @@ Please remove them and recalculate or run \
                                               temperature=kT, frames=nimages)):
                 traj.write(image)
 
-    def show_as_force(self, n, scale=0.2, show=True):
+    def show_as_force(self, n: int, scale: float = 0.2, show: bool = True):
         return self.get_vibrations().show_as_force(n, scale=scale, show=show)
 
     def write_jmol(self):
@@ -518,21 +564,33 @@ Please remove them and recalculate or run \
                          (symbols[i], pos[0], pos[1], pos[2],
                           mode[i, 0], mode[i, 1], mode[i, 2]))
 
-    def fold(self, frequencies, intensities,
-             start=800.0, end=4000.0, npts=None, width=4.0,
-             type='Gaussian', normalize=False):
+    def fold(
+        self,
+        frequencies,
+        intensities,
+        start: float = 800.0,
+        end: float = 4000.0,
+        npts: int | None = None,
+        width: float = 4.0,
+        type: str = 'Gaussian',
+        normalize: bool = False,
+    ):
         """Fold frequencies and intensities within the given range
         and folding method (Gaussian/Lorentzian).
         The energy unit is cm^-1.
-        normalize=True ensures the integral over the peaks to give the
-        intensity.
+
+        Paramters
+        ---------
+        normalize : bool, default: False
+            If :obj:`True`, the integral over the peaks gives the intensity.
+
         """
 
         lctype = type.lower()
         assert lctype in ['gaussian', 'lorentzian']
         if not npts:
             npts = int((end - start) / width * 10 + 1)
-        prefactor = 1
+        prefactor = 1.0
         if lctype == 'lorentzian':
             intensities = intensities * width * pi / 2.
             if normalize:
@@ -557,15 +615,32 @@ Please remove them and recalculate or run \
                                       2. / sigma**2)).sum()
         return [energies, prefactor * spectrum]
 
-    def write_dos(self, out='vib-dos.dat', start=800, end=4000,
-                  npts=None, width=10,
-                  type='Gaussian', method='standard', direction='central'):
+    def write_dos(
+        self,
+        out: str = 'vib-dos.dat',
+        start: float = 800.0,
+        end: float = 4000.0,
+        npts: int | None = None,
+        width: float = 10.0,
+        type: str = 'Gaussian',
+        method: str = 'standard',
+        direction: str = 'central',
+    ) -> None:
         """Write out the vibrational density of states to file.
 
         First column is the wavenumber in cm^-1, the second column the
         folded vibrational density of states.
-        Start and end points, and width of the Gaussian/Lorentzian
-        should be given in cm^-1."""
+
+        Parameters
+        ----------
+        start : float
+            Start points in cm^-1.
+        end : float
+            End points in cm^-1.
+        width : float
+            Width of the Gaussian/Lorentzian in cm^-1.
+
+        """
         frequencies = self.get_frequencies(method, direction).real
         intensities = np.ones(len(frequencies))
         energies, spectrum = self.fold(frequencies, intensities,
