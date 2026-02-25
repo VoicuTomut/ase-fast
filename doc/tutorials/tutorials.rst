@@ -42,8 +42,6 @@ Uncategorized
    :maxdepth: 1
 
    defects/defects
-   qmmm/qmmm
-
 
 Further reading
 ---------------
