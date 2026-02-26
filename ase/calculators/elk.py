@@ -128,13 +128,23 @@ class ELK(GenericFileIOCalculator):
         Parameters
         ----------
         **kwargs : dict, optional
-            ASE standard keywords like ``xc``, ``kpts`` and ``smearing`` or any
-            Elk-native keywords.
+            ASE standard keywords like ``xc``, ``kpts`` and ``smearing`` (in ASE
+            units) or any Elk-native keywords (numeric parameters in Elk units).
+            All numeric parameters that are passed using Elk-native keys must be
+            in Elk units.
 
         Examples
         --------
-        >>> calc = ELK(tasks=0, ngridk=(3, 3, 3))
-
+        >>> import numpy as np
+        >>> from ase.calculators.elk import ELK
+        >>> calc = ELK(tasks=[0], ngridk=np.array([3, 3, 3]))
+        >>> params = {'tasks': [[0], [10]], 'ngridk': [8, 8, 8], 'nempty': 8,
+                      'bfieldc': np.array((0.0, 0.0, -0.01)), 'spinpol': True,
+                      'dft+u': ((2, 1), (1, 2, 0.183, 0.034911967))}
+        >>> calc = ELK(**params)
+        Note: ``np.array((0.0, 0.0, -0.01))``, ``[0.0, 0.0, -0.01]``,
+              ``[[0.0, 0.0, -0.01]]``, and any combinations of lists, tuples,
+              and ndarrays, are equivalent
         """
         if command is not self._deprecated:
             raise RuntimeError(COMPATIBILITY_MSG)

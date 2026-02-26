@@ -1,6 +1,7 @@
 # fmt: off
 
 import collections
+import numbers
 from pathlib import Path
 
 import numpy as np
@@ -8,8 +9,6 @@ import numpy as np
 from ase import Atoms
 from ase.units import Bohr, Hartree
 from ase.utils import reader, writer
-
-elk_parameters = {'swidth': Hartree}
 
 
 @reader
@@ -89,6 +88,59 @@ def read_elk(fd):
 
 @writer
 def write_elk_in(fd, atoms, parameters=None):
+    """
+    Writes an ASE Atoms object and optional parameters to an `elk.in` file.
+
+    The format of `elk.in` and the meaning of the parameters is documented under
+    https://elk.sourceforge.io/. All numeric parameters that are passed using
+    Elk-native keys must be in Elk units.
+
+    Parameters
+    ----------
+    fd : path or file object
+        A file path or an opened, writable file or file-like object
+    atoms : Atoms object
+        An ASE Atoms object with the atomic structure
+    parameters : dict
+        The keys of the dict are the names of the input blocks. The dict values
+        contain the contents of the input blocks. The contents can be several
+        different types or data structures: 1) bool, str, int, float for scalar
+        parameters; 2) iterables for input blocks containing several lines,
+        one element per line; 3) iterables for several parameters in a line,
+        where arrays are treated as iterables; 4) iterables at the innermost
+        level describing array parameters
+
+    Raises
+    ------
+    RuntimeError
+        This exception is raised in case of inconsistencies between parameters.
+    TypeError
+        This exception is raised in case of a wrong parameter type.
+
+    Returns
+    -------
+    None
+        The function writes directly to the provided file object.
+
+    See Also
+    --------
+    ase.calculators.elk.ELK : The ASE Elk calculator
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from ase import Atoms
+    >>> from ase.io.elk import write_elk_in
+    >>> atoms = Atoms('FeAl', positions=[[0, 0, 0], [1.45]*3], cell=[2.9]*3)
+    >>> params = {'tasks': [[0], [10]], 'ngridk': [8, 8, 8], 'nempty': 8,
+                  'bfieldc': np.array((0.0, 0.0, -0.01)), 'spinpol': True,
+                  'dft+u': ((2, 1), (1, 2, 0.183, 0.034911967))}
+    >>> write_elk_in('/path/to/elk.in', atoms, parameters=params)
+    Note: ``np.array((0.0, 0.0, -0.01))``, ``[0.0, 0.0, -0.01]``,
+          ``[[0.0, 0.0, -0.01]]``, and any combinations of lists, tuples, and
+          ndarrays, are equivalent
+    """
+
     if parameters is None:
         parameters = {}
 
@@ -152,36 +204,47 @@ def write_elk_in(fd, atoms, parameters=None):
         del inp['kpts']
 
     if 'smearing' in parameters:
-        name = parameters.smearing[0].lower()
+        name = parameters['smearing'][0].lower()
         if name == 'methfessel-paxton':
-            stype = parameters.smearing[2]
+            stype = parameters['smearing'][2]
         else:
             stype = {'gaussian': 0,
                      'fermi-dirac': 3,
                      }[name]
         inp['stype'] = stype
-        inp['swidth'] = parameters.smearing[1]
+        inp['swidth'] = parameters['smearing'][1] / Hartree
         del inp['smearing']
 
-    # convert keys to ELK units
-    for key, value in inp.items():
-        if key in elk_parameters:
-            inp[key] /= elk_parameters[key]
+    # Elk seems to concatenate path and filename in such a way
+    # that we must put a / at the end:
+    if species_path is not None:
+        inp['sppath'] = f"'{species_path.rstrip('/')}/'"
+
+    def get_string_value(value_):
+        if isinstance(value_, bool):
+            return f'.{("false", "true")[value_]}.'
+        if isinstance(value_, (numbers.Real, str)):
+            return f'{value_}'
+        if isinstance(value_, collections.abc.Iterable):
+            if all(isinstance(v, (str, numbers.Real)) for v in value_):
+                return ' '.join(get_string_value(v) for v in value_)
+            lines = []
+            for v in value_:
+                if isinstance(v, (str, numbers.Real)):
+                    lines.append(get_string_value(v))
+                else:
+                    lines.append('  '.join(get_string_value(e) for e in v))
+            return '\n  '.join(lines)
+        raise TypeError(f'Field type cannot be {type(value_)}')
 
     # write all keys
     for key, value in inp.items():
-        fd.write(f'{key}\n')
-        if isinstance(value, bool):
-            fd.write(f'.{("false", "true")[value]}.\n\n')
-        elif isinstance(value, (int, float)):
-            fd.write(f'{value}\n\n')
-        else:
-            fd.write('%s\n\n' % ' '.join([str(x) for x in value]))
+        fd.write(f'{key}\n  {get_string_value(value)}\n\n')
 
     # cell
     fd.write('avec\n')
     for vec in atoms.cell:
-        fd.write('%.14f %.14f %.14f\n' % tuple(vec / Bohr))
+        fd.write('  %.14f %.14f %.14f\n' % tuple(vec / Bohr))
     fd.write('\n')
 
     # atoms
@@ -195,22 +258,15 @@ def write_elk_in(fd, atoms, parameters=None):
         else:
             species[symbol] = [(a, m)]
             symbols.append(symbol)
-    fd.write('atoms\n%d\n' % len(species))
+    fd.write('atoms\n  %d\n' % len(species))
     # scaled = atoms.get_scaled_positions(wrap=False)
     scaled = np.linalg.solve(atoms.cell.T, atoms.positions.T).T
     for symbol in symbols:
-        fd.write(f"'{symbol}.in' : spfname\n")
-        fd.write('%d\n' % len(species[symbol]))
+        fd.write(f"  '{symbol}.in' : spfname\n")
+        fd.write('  %d\n' % len(species[symbol]))
         for a, m in species[symbol]:
-            fd.write('%.14f %.14f %.14f 0.0 0.0 %.14f\n' %
+            fd.write('  %.14f %.14f %.14f 0.0 0.0 %.14f\n' %
                      (tuple(scaled[a]) + (m,)))
-    fd.write('\n')
-
-    # Elk seems to concatenate path and filename in such a way
-    # that we must put a / at the end:
-    if species_path is not None:
-        fd.write('sppath\n')
-        fd.write(f"'{species_path.rstrip('/')}/'\n\n")
 
 
 class ElkReader:
