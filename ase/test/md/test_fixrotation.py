@@ -2,6 +2,7 @@
 import numpy as np
 
 from ase.build import bulk
+from ase.constraints import FixCom
 from ase.md import Langevin
 from ase.md.fix import FixRotation
 from ase.md.velocitydistribution import MaxwellBoltzmannDistribution, Stationary
@@ -42,6 +43,7 @@ def test_fixrotation_asap(asap3):
         Stationary(atoms)
         check_inertia(atoms)
         com = atoms.get_center_of_mass()
+        atoms.set_constraint(FixCom())
         with Langevin(
                 atoms,
                 timestep=20 * fs,
@@ -49,6 +51,7 @@ def test_fixrotation_asap(asap3):
                 friction=1e-3,
                 logfile='-',
                 loginterval=500,
+                fixcm=False,
                 rng=rng
         ) as md:
             fx = FixRotation(atoms)

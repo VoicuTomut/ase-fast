@@ -1,5 +1,5 @@
-# fmt: off
 """Test to ensure that md logger and trajectory contain same data"""
+
 import numpy as np
 import pytest
 
@@ -15,7 +15,7 @@ from ase.optimize import BFGS, FIRE
 
 @pytest.fixture()
 def atoms():
-    dimer = s22.create_s22_system("Water_dimer")
+    dimer = s22.create_s22_system('Water_dimer')
     dimer.constraints = FixBondLengths(
         [(3 * i + j, 3 * i + (j + 1) % 3) for i in range(2) for j in [0, 1, 2]]
     )
@@ -28,12 +28,12 @@ def calc():
 
 
 def fmax(forces):
-    return np.sqrt((forces ** 2).sum(axis=1).max())
+    return np.sqrt((forces**2).sum(axis=1).max())
 
 
 md_cls_and_kwargs = [
     (VelocityVerlet, {}),
-    (Langevin, {"temperature_K": 300, "friction": 0.02}),
+    (Langevin, {'temperature_K': 300, 'friction': 0.02, 'fixcm': False}),
 ]
 
 
@@ -62,10 +62,10 @@ def test_optimizer(cls, testdir, atoms, calc):
 
 @pytest.mark.parametrize('cls_and_kwargs', md_cls_and_kwargs)
 def test_md(cls_and_kwargs, atoms, calc, testdir):
-    """ run MD for 10 steps and verify that trajectory and log coincide """
+    """run MD for 10 steps and verify that trajectory and log coincide"""
 
     cls, kwargs = cls_and_kwargs
-    if hasattr(atoms, "constraints"):
+    if hasattr(atoms, 'constraints'):
         del atoms.constraints
 
     atoms.calc = calc
@@ -74,8 +74,13 @@ def test_md(cls_and_kwargs, atoms, calc, testdir):
     trajectory = 'md.traj'
     timestep = 1 * u.fs
 
-    with cls(atoms, logfile=logfile, timestep=timestep,
-             trajectory=trajectory, **kwargs) as md:
+    with cls(
+        atoms,
+        logfile=logfile,
+        timestep=timestep,
+        trajectory=trajectory,
+        **kwargs,
+    ) as md:
         md.run(steps=5)
         md.run(steps=5)
 

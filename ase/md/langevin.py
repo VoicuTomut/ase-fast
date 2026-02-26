@@ -51,6 +51,16 @@ class Langevin(MolecularDynamics):
             If True, the position and momentum of the center of mass is
             kept unperturbed.  Default: True.
 
+            .. deprecated:: 3.28.0
+
+                The implementation of ``fixcm=True`` does not strictly sample
+                the correct NVT distributions for positions and momenta.
+                The deviations are typically small for large systems but can be
+                more pronounced for small systems.
+
+                Use :class:`~ase.constraints.FixCom` instead.
+                ``fixcm`` will be removed from ASE in the near future.
+
         rng: RNG object (optional)
             Random number generator, by default numpy.random.  Must have a
             standard_normal method matching the signature of
@@ -60,6 +70,8 @@ class Langevin(MolecularDynamics):
             Additional arguments passed to
             :class:`~ase.md.md.MolecularDynamics` base class.
 
+        Notes
+        -----
         The temperature and friction are normally scalars, but in principle one
         quantity per atom could be specified by giving an array.
 
@@ -85,6 +97,18 @@ class Langevin(MolecularDynamics):
         self.temp = units.kB * self._process_temperature(
             temperature, temperature_K, 'eV'
         )
+
+        if fixcm:
+            msg = (
+                'The implementation of `fixcm=True` in `Langevin` does not '
+                'strictly sample the correct NVT distributions. '
+                'The deviations are typically small for large systems but can '
+                'be more pronounced for small systems. '
+                'Use `fixcm=False` together with `ase.constraints.FixCom`. '
+                '`fixcm` is deprecated since ASE 3.28.0 and will be removed in '
+                'a future release.'
+            )
+            warnings.warn(msg, FutureWarning)
         self.fix_com = fixcm
 
         if rng is None:
@@ -165,6 +189,10 @@ class Langevin(MolecularDynamics):
         # temperature slightly, and we have to correct.
         self.rnd_pos = self.c5 * eta
         self.rnd_vel = self.c3 * xi - self.c4 * eta
+        # https://gitlab.com/ase/ase/-/merge_requests/3986
+        # The implementation of `fixcm=True` does not strictly sample the
+        # correct NVT distributions for positions and momenta.
+        # It is deprecated and will be removed in a future ASE release.
         if self.fix_com:
             factor = np.sqrt(natoms / (natoms - 1.0))
             self.rnd_pos -= self.rnd_pos.sum(axis=0) / natoms

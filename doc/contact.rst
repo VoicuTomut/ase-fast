@@ -4,7 +4,7 @@
 Contact
 =======
 
-.. _mail list:
+.. _mailinglist:
 
 Mailing List
 ============

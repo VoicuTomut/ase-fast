@@ -30,4 +30,3 @@ Note: Most of this content has been moved to
 
    external_calculators/ext_intro
    tut02_h2o_structure/h2o
-   tut04_bulk/bulk
