@@ -1,0 +1,4 @@
+Bugfixes
+--------
+
+- Fix missing @writer decorator for :func:~ase.io.espresso.write_fortran_namelist` so can take str filenames
