@@ -77,8 +77,6 @@ def write_sdf(
     if num_atoms > 999:
         raise ValueError('Cannot write more than 999 atoms.')
 
-    bonds = []
-
     if connectivity is not None:
         bonds = connectivity2bonds(connectivity)
     else:
