@@ -1,4 +1,4 @@
-"""Reads chemical data in SDF format (wraps the molfile format).
+"""Reads chemical data in SDF format (wraps the MDL Molfile V2000 format).
 
 See https://en.wikipedia.org/wiki/Chemical_table_file#SDF
 """
