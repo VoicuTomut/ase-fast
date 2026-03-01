@@ -1,9 +1,13 @@
 # fmt: off
 import io
 
+import numpy as np
 import pytest
 
 from ase import Atoms
+from ase.build import molecule
+from ase.calculators.calculator import compare_atoms
+from ase.io import read, write
 from ase.io.sdf import get_num_atoms_sdf_v2000, read_sdf
 
 DIFFICULT_BUT_VALID_FIRST_LINE = '184192  0  0  0  0  0  0  0  0999 V2000'
@@ -60,3 +64,18 @@ def test_read_sdf() -> None:
 def test_get_num_atoms_sdf_v2000() -> None:
     """Test the reading of the first line."""
     assert get_num_atoms_sdf_v2000(DIFFICULT_BUT_VALID_FIRST_LINE) == 184
+
+
+def test_write_and_read_sdf() -> None:
+    """Test consistency between read_sdf and write_sdf"""
+    atoms0 = molecule('H2O')
+    # Convert to semiheavy water
+    atoms0[2].mass = 2.014
+
+    connectivity0 = np.array([[0, 1, 1], [1, 0, 0], [1, 0, 0]])
+    write('1.sdf', atoms0, comment='HDO', connectivity=connectivity0)
+    atoms1 = read('1.sdf')
+    assert not compare_atoms(atoms0, atoms1, tol=1e-4), (
+        'Read/Write inconsistent'
+    )
+    # TODO: Compare atomic masses and connectivity, once read_sdf supports it
