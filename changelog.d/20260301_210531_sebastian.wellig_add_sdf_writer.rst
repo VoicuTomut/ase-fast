@@ -6,7 +6,7 @@
 I/O
 ---
 
-- Add writers for MDL Molefile V2000 based MOL and SDF formats.
+- Add writers for MDL Molfile V2000 based MOL and SDF formats.
 
 .. Calculators
 .. -----------
