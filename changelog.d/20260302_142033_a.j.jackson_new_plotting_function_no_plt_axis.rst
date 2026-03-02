@@ -1,0 +1,69 @@
+.. A new scriv changelog fragment.
+..
+.. Uncomment the header that is right (remove the leading dots).
+..
+ I/O
+ ---
+
+ - **BREAKING CHANGE:** Changes have been made to
+   ``ase.visualize.plot.plot_atoms()``. These are intended to "do the
+   right thing" and streamling common usages especially in tutorial
+   material.  (:mr:`3979`)
+
+   - always remove axis decorations to give a cleaner output.
+
+   - If no existing Axes are provided, create a new Figure. (Existing
+     behaviour is to work on the "current" Axes, possibly overwriting
+     an unrelated plot.)
+
+   - As a (non-breaking) additional feature, parameters prepended by
+     "ax_" can be supplied; these will be passed to an ax.set() call
+     so minor Matplotlib formatting details can be included in the
+     function call.
+
+ - A lower-level function ase.visualize.plot.plot_atoms_raw() is
+   provided which simply plots to a provided Matplotlib Axes; other
+   formatting is left to the user. This is recommended for use in
+   composite figures where the default/fixed behaviours of
+   plot_atoms() are unweildy.
+
+.. Calculators
+.. -----------
+..
+.. - A bullet item for the Calculators category.
+..
+.. Optimizers
+.. ----------
+..
+.. - A bullet item for the Optimizers category.
+..
+.. Molecular dynamics
+.. ------------------
+..
+.. - A bullet item for the Molecular dynamics category.
+..
+.. GUI
+.. ---
+..
+.. - A bullet item for the GUI category.
+..
+.. Development
+.. -----------
+..
+.. - A bullet item for the Development category.
+..
+.. Documentation
+.. -------------
+..
+.. - A bullet item for the Documentation category.
+..
+.. Other changes
+.. -------------
+..
+.. - A bullet item for the Other changes category.
+..
+.. Bugfixes
+.. --------
+..
+.. - A bullet item for the Bugfixes category.
+..
