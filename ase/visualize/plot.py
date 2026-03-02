@@ -1,16 +1,29 @@
 # fmt: off
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from ase.io.utils import PlottingVariables, make_patch_list
+
+if TYPE_CHECKING:
+    from matplotlib.axes import Axes
+
+    from ase.atoms import Atoms
 
 
 class Matplotlib(PlottingVariables):
     def __init__(self, atoms, ax,
                  rotation='', radii=None,
                  colors=None, scale=1, offset=(0, 0), **parameters):
-        PlottingVariables.__init__(
-            self, atoms, rotation=rotation,
-            radii=radii, colors=colors, scale=scale,
-            extra_offset=offset, **parameters)
+        super().__init__(
+            atoms,
+            rotation=rotation,
+            radii=radii,
+            colors=colors,
+            scale=scale,
+            extra_offset=offset,
+            **parameters,
+        )
 
         self.ax = ax
         self.figure = ax.figure
@@ -54,12 +67,18 @@ def animate(images, ax=None,
     return animation
 
 
-def plot_atoms(atoms, ax=None, axis_off=False, **params):
-    """Plot an atoms object in a matplotlib subplot.
-    Additional axis options for the Matplotlib axis
-    can be provided as params,
-    always starting with 'ax_' to show their affiliation
-    to the axis.
+def plot_atoms(atoms: Atoms, ax: Axes | None = None, **params) -> Axes:
+    """Plot an Atoms object in a matplotlib subplot.
+
+    Additional axis options for the Matplotlib axis can be provided as params,
+    always starting with 'ax_' to show their affiliation to the axis.
+    These are equivalent to calls to ax.set().
+
+    Axis decorations will always be removed.
+
+    For finer control of plot appearance or composition of custom plot
+    arrangements, consider using plot_atoms_raw() to plot directly to given
+    Matplotlib Axes.
 
     Parameters
     ----------
@@ -87,7 +106,8 @@ def plot_atoms(atoms, ax=None, axis_off=False, **params):
     All axis parameters for Matplotlib objects that
     can be set by
     `Matplotlib Axes Set <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set.html>`_ .
-    """
+
+    """  # noqa: E501
     import matplotlib.pyplot as plt
     if ax is None:
         _, ax = plt.subplots()
@@ -109,9 +129,18 @@ def plot_atoms(atoms, ax=None, axis_off=False, **params):
 
     return ax
 
-def plot_atoms_raw(atoms, ax, **parameters) -> None:
-    """Plot an atoms object in a matplotlib subplot. The axis
-    is turned of by default.
+
+def plot_atoms_raw(atoms: Atoms, ax: Axes, **parameters) -> None:
+    """Plot Atoms to a matplotlib subplot without additional formatting.
+
+    Compared to plot_atoms this is more "barebones". To reproduce the
+    additional features of plot_atoms:
+
+    - create a figure and axes if necessary using plt.subplots()
+
+    - disable decorations by calling ax.set_axis_off()
+
+    - set matplotlib axis properties directly by calling ax.set()
 
     Parameters
     ----------
