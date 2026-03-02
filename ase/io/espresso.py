@@ -1882,6 +1882,7 @@ def read_espresso_ph(fileobj):
     return results
 
 
+@writer
 def write_fortran_namelist(
         fd,
         input_data=None,

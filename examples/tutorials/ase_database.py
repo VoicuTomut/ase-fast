@@ -58,6 +58,34 @@ for structure in structures:
     db.write(bulk(structure))
 
 # %%
+import matplotlib.gridspec as gridspec
+import matplotlib.pyplot as plt
+
+from ase.visualize.plot import plot_atoms
+
+fig = plt.figure()
+gs = gridspec.GridSpec(2, 2, figure=fig, hspace=0.3, wspace=0.2)
+
+ax1 = fig.add_subplot(gs[0, 0])
+ax2 = fig.add_subplot(gs[0, 1])
+ax3 = fig.add_subplot(gs[1, 0])
+
+# Hide unused bottom-right cell
+ax_unused = fig.add_subplot(gs[1, 1])
+ax_unused.axis('off')
+
+# --- Center bottom axis manually ---
+pos1 = ax1.get_position()
+pos3 = ax3.get_position()
+new_x0 = 0.5 - pos3.width / 2
+ax3.set_position([new_x0, pos3.y0, pos3.width, pos3.height])
+
+for name, ax in zip(structures, [ax1, ax2, ax3]):
+    plot_atoms(bulk(name) * 3, ax, rotation='0x,30y,0z', show_unit_cell=0)
+    ax.set_title(name)
+    ax.set_axis_off()
+
+# %%
 # Inspecting a database on the command line
 # -----------------------------------------
 # We can inspect the database using the ``db`` command::

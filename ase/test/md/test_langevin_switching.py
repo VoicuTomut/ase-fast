@@ -1,4 +1,3 @@
-# fmt: off
 import numpy as np
 import pytest
 
@@ -36,19 +35,35 @@ def test_langevin_switching():
     dF_theory = F2 - F1
 
     # switch_forward
-    with SwitchLangevin(atoms, calc1, calc2, dt * units.fs,
-                        temperature_K=T, friction=0.01,
-                        n_eq=n_steps, n_switch=n_steps,
-                        rng=rng) as dyn_forward:
+    with SwitchLangevin(
+        atoms,
+        calc1,
+        calc2,
+        dt * units.fs,
+        temperature_K=T,
+        friction=0.01,
+        n_eq=n_steps,
+        n_switch=n_steps,
+        fixcm=False,
+        rng=rng,
+    ) as dyn_forward:
         MaxwellBoltzmannDistribution(atoms, temperature_K=2 * T, rng=rng)
         dyn_forward.run()
         dF_forward = dyn_forward.get_free_energy_difference() / len(atoms)
 
     # switch_backwards
-    with SwitchLangevin(atoms, calc2, calc1, dt * units.fs,
-                        temperature_K=T, friction=0.01,
-                        n_eq=n_steps, n_switch=n_steps,
-                        rng=rng) as dyn_backward:
+    with SwitchLangevin(
+        atoms,
+        calc2,
+        calc1,
+        dt * units.fs,
+        temperature_K=T,
+        friction=0.01,
+        n_eq=n_steps,
+        n_switch=n_steps,
+        fixcm=False,
+        rng=rng,
+    ) as dyn_backward:
         MaxwellBoltzmannDistribution(atoms, temperature_K=2 * T, rng=rng)
         dyn_backward.run()
         dF_backward = -dyn_backward.get_free_energy_difference() / len(atoms)
