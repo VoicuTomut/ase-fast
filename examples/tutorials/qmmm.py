@@ -191,15 +191,16 @@ sigHH = 1.0
 epsOO = epsilon0
 sigOO = sigma0
 
-parameters = {'H': (epsHH, sigHH),
-              'O': (epsOO, sigOO)}
+parameters = {'H': (epsHH, sigHH), 'O': (epsOO, sigOO)}
 
 
 def lorenz_berthelot(p):
     combined = {}
     for comb in it.product(p.keys(), repeat=2):
-        combined[comb] = ((p[comb[0]][0] * p[comb[1]][0])**0.5,
-                        (p[comb[0]][1] + p[comb[1]][1]) / 2)
+        combined[comb] = (
+            (p[comb[0]][0] * p[comb[1]][0]) ** 0.5,
+            (p[comb[0]][1] + p[comb[1]][1]) / 2,
+        )
     return combined
 
 
@@ -242,8 +243,9 @@ atoms.calc = EIQMMM(
     TIP3P(),
     interaction,
     embedding=embedding,
-    vacuum=4.,  # Now QM cell has walls min. 4 Å from QM atoms
-    output='qmmm.log')
+    vacuum=4.0,  # Now QM cell has walls min. 4 Å from QM atoms
+    output='qmmm.log',
+)
 
 # %%
 # This will center the QM subsystem in the MM cell. For QM codes with no single
@@ -270,10 +272,14 @@ sigma_mm = np.array([sigma0, 0, 0])  # Hydrogens have 0 LJ parameters
 epsilon_mm = np.array([epsilon0, 0, 0])
 sigma_qm = np.array([sigma0, 0, 0])
 epsilon_qm = np.array([epsilon0, 0, 0])
-interaction = LJInteractionsGeneral(sigma_qm, epsilon_qm,
-                                    sigma_mm, epsilon_mm,
-                                    qm_molecule_size=3,
-                                    mm_molecule_size=3)
+interaction = LJInteractionsGeneral(
+    sigma_qm,
+    epsilon_qm,
+    sigma_mm,
+    epsilon_mm,
+    qm_molecule_size=3,
+    mm_molecule_size=3,
+)
 # %%
 # The ``qm_molecule_size`` and ``mm_molecule_size`` should
 # be the number of atoms
@@ -337,12 +343,17 @@ epsCl = 0.71 * units.kcal / units.mol
 
 # in this sub-atoms object, CombineMM only sees Cl and Water,
 # and Cl is here atom 3 and 4
-mmcalc = CombineMM([3, 4],  # indices of the counterion atoms in the MM region
-                   apm1=1, apm2=3,  # atoms per 'molecule' of each subgroup
-                   calc1=ACI(-1, epsCl, sigCl),  # Counterion calculator
-                   calc2=TIP3P(),  # Water calculator
-                   sig1=[sigCl], eps1=[epsCl],  # LJ Params for subgroup1
-                   sig2=sigma_mm, eps2=epsilon_mm)  # LJ params for subgroup2
+mmcalc = CombineMM(
+    [3, 4],  # indices of the counterion atoms in the MM region
+    apm1=1,
+    apm2=3,  # atoms per 'molecule' of each subgroup
+    calc1=ACI(-1, epsCl, sigCl),  # Counterion calculator
+    calc2=TIP3P(),  # Water calculator
+    sig1=[sigCl],
+    eps1=[epsCl],  # LJ Params for subgroup1
+    sig2=sigma_mm,
+    eps2=epsilon_mm,
+)  # LJ params for subgroup2
 
 atoms_mm = Atoms([i for i in atoms if i.index > 2 and i.number != 11])
 print(atoms_mm)
@@ -370,15 +381,19 @@ print('MM', atoms_mm.get_potential_energy())
 sigNa = 4.07
 epsNa = 0.0005 * units.kcal / units.mol
 
-sigma_qm = (np.array([sigma0, 0, 0, sigNa, sigNa]))
-epsilon_qm = (np.array([epsilon0, 0, 0, epsNa, epsNa]))
+sigma_qm = np.array([sigma0, 0, 0, sigNa, sigNa])
+epsilon_qm = np.array([epsilon0, 0, 0, epsNa, epsNa])
 sigma_mm = (np.array([sigma0, 0, 0]), np.array([sigCl]))
 epsilon_mm = (np.array([epsilon0, 0, 0]), np.array([epsCl]))
 
-interaction = LJInteractionsGeneral(sigma_qm, epsilon_qm,
-                                    sigma_mm, epsilon_mm,
-                                    qm_molecule_size=5,
-                                    mm_molecule_size=5)
+interaction = LJInteractionsGeneral(
+    sigma_qm,
+    epsilon_qm,
+    sigma_mm,
+    epsilon_mm,
+    qm_molecule_size=5,
+    mm_molecule_size=5,
+)
 
 
 # %%
