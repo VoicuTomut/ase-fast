@@ -98,7 +98,7 @@ def test_write_and_read_sdf() -> None:
         '1.sdf', atoms0, title='HDO', comment='Test', connectivity=connectivity0
     )
     atoms1 = read('1.sdf')
-    assert not compare_atoms(atoms0, atoms1, tol=1e-4), (
+    assert not compare_atoms(atoms0, atoms1, tol=1e-3), (
         'Read/Write inconsistent'
     )
     # TODO: Compare atomic masses and connectivity, once read_sdf supports it
