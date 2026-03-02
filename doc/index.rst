@@ -201,7 +201,6 @@ Contents
     install
     examples_generated/index
     gettingstarted/gettingstarted
-    tutorials/tutorials
     ase/ase
     cmdline
     tips
