@@ -11,10 +11,11 @@ import numpy as np
 from ase.atoms import Atoms
 from ase.data import atomic_masses_iupac2016
 from ase.io.utils import connectivity2bonds, validate_comment_line
+from ase.io.extxyz import save_calc_results
 from ase.utils import reader, writer
 
 
-def serialize_property_block(prop: str, data: list[tuple[int, int]]) -> str:
+def serialize_property_v2000(prop: str, data: list[tuple[int, int]]) -> str:
     """Serialize atom-index-value pairs to a V2000 property block."""
     block = ''
     # Split data into up to eight pairs per chunk
@@ -113,7 +114,7 @@ def write_sdf(
         file_obj.write(f'{i + 1:3}{j + 1:3}  1' + 4 * '  0' + '\n')
 
     if isotope_data:
-        file_obj.write(serialize_property_block('ISO', isotope_data))
+        file_obj.write(serialize_property_v2000('ISO', isotope_data))
 
     file_obj.write(f'M  END\n{record_separator}')
 
