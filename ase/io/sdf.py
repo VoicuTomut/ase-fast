@@ -100,10 +100,10 @@ def write_sdf(
 
     isotope_data = []
 
-    for i, atom in enumerate(atoms):
+    for i, atom in enumerate(atoms, start=1):
         expected_mass = atomic_masses_iupac2016[atom.number]
         if not np.isclose(atom.mass, expected_mass, rtol=0, atol=1e-3):
-            isotope_data.append((i + 1, int(round(atom.mass))))
+            isotope_data.append((i, int(round(atom.mass))))
 
         for coord in atom.position:
             file_obj.write(f'{coord:10.4f}')
