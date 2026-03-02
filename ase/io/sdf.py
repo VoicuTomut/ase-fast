@@ -11,7 +11,6 @@ import numpy as np
 from ase.atoms import Atoms
 from ase.data import atomic_masses_iupac2016
 from ase.io.utils import connectivity2bonds, validate_comment_line
-from ase.io.extxyz import save_calc_results
 from ase.utils import reader, writer
 
 
