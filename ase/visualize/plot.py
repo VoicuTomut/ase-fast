@@ -85,27 +85,31 @@ def plot_atoms(atoms, ax=None, axis_off=False, **params):
     Axis Parameters
     ---------------
     All axis parameters for Matplotlib objects that
-    can be set by 
+    can be set by
     `Matplotlib Axes Set <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set.html>`_ .
     """
+    import matplotlib.pyplot as plt
+    if ax is None:
+        _, ax = plt.subplots()
 
-    ax_parameters=dict([(i.split('ax_')[-1],params[i]) for i in params.keys() if 'ax_' in i])
-    parameters=dict([(i,params[i]) for i in params.keys() if ('ax_' not in i)])
+    ax_parameters = {
+        key[3:]: value for key, value in params.items() if key[:3] == 'ax_'
+    }
+    parameters = {
+        key: value for key, value in params.items() if key[:3] != 'ax_'
+    }
 
     if isinstance(atoms, list):
         assert len(atoms) == 1
         atoms = atoms[0]
 
-    import matplotlib.pyplot as plt
-    if ax is None:
-        ax = plt.gca()
-    Matplotlib(atoms, ax, **parameters).write()
-    ax.set(**ax_parameters)    
-    if axis_off:
-        ax.set_axis_off()
+    plot_atoms_raw(atoms, ax, **parameters)
+    ax.set_axis_off()
+    ax.set(**ax_parameters)
+
     return ax
 
-def plot_only_atoms(atoms, ax=None, **parameters):
+def plot_atoms_raw(atoms, ax, **parameters) -> None:
     """Plot an atoms object in a matplotlib subplot. The axis
     is turned of by default.
 
@@ -129,15 +133,6 @@ def plot_only_atoms(atoms, ax=None, **parameters):
         Scaling of the plotted atoms and lines.
     offset : tuple (float, float), optional
         Offset of the plotted atoms and lines.
+
     """
-    if isinstance(atoms, list):
-        assert len(atoms) == 1
-        atoms = atoms[0]
-
-    import matplotlib.pyplot as plt
-    if ax is None:
-        ax = plt.gca()
     Matplotlib(atoms, ax, **parameters).write()
-    ax.set_axis_off()
-    return ax
-
