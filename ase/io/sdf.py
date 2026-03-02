@@ -3,11 +3,11 @@
 See https://en.wikipedia.org/wiki/Chemical_table_file#SDF
 """
 
+from datetime import datetime
 from typing import TextIO
 
 import numpy as np
 
-from ase import __version__
 from ase.atoms import Atoms
 from ase.data import atomic_masses_iupac2016
 from ase.io.utils import connectivity2bonds, validate_comment_line
@@ -47,6 +47,7 @@ def get_num_atoms_sdf_v2000(first_line: str) -> int:
 def write_sdf(
     file_obj: TextIO,
     atoms: Atoms,
+    title: str = '',
     comment: str = '',
     connectivity: np.ndarray | None = None,
     record_separator: str = '$$$$\n',
@@ -61,6 +62,9 @@ def write_sdf(
     atoms : Atoms
         An ASE Atoms object with the atomic structure.
 
+    title: str
+        Optional line for molecule name.
+
     comment: str
         Optional comments.
 
@@ -71,6 +75,7 @@ def write_sdf(
     record_separator: str
         Separator line used between records.
     """
+    title = validate_comment_line(title, name='Title')
     comment = validate_comment_line(comment)
     num_atoms = len(atoms)
 
@@ -87,7 +92,8 @@ def write_sdf(
     if num_bonds > 999:
         raise ValueError('Cannot write more than 999 bonds.')
 
-    file_obj.write(f'{comment}\n ASE {__version__}\n\n')
+    timestamp = datetime.now().strftime('%m%d%y%H%M')
+    file_obj.write(f'{title}\n  {"ASE":>8}{timestamp}3D\n{comment}\n')
     file_obj.write(f'{num_atoms:3}{num_bonds:3}')
     file_obj.write(8 * '  0' + '999 V2000\n')
 

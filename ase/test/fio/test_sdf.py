@@ -94,7 +94,9 @@ def test_write_and_read_sdf() -> None:
     atoms0[2].mass = 2.014
 
     connectivity0 = np.array([[0, 1, 1], [1, 0, 0], [1, 0, 0]])
-    write('1.sdf', atoms0, comment='HDO', connectivity=connectivity0)
+    write(
+        '1.sdf', atoms0, title='HDO', comment='Test', connectivity=connectivity0
+    )
     atoms1 = read('1.sdf')
     assert not compare_atoms(atoms0, atoms1, tol=1e-4), (
         'Read/Write inconsistent'

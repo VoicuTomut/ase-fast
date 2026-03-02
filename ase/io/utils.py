@@ -651,12 +651,12 @@ def segment_list(data, segment_size):
     return [data[i:i + segment_size] for i in range(0, len(data), segment_size)]
 
 
-def validate_comment_line(comment: str) -> str:
+def validate_comment_line(comment: str, name: str = 'Comment line') -> str:
     """Strip trailing whitespace and check for illegal characters."""
     comment = comment.rstrip()
 
     if '\n' in comment:
-        raise ValueError('Comment line should not have line breaks.')
+        raise ValueError(f'{name} should not have line breaks.')
 
     return comment
 
