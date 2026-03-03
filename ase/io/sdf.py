@@ -21,10 +21,10 @@ def serialize_property_v2000(prop: str, data: list[tuple[int, int]]) -> str:
     chunks = [data[i : i + 8] for i in range(0, len(data), 8)]
 
     for chunk in chunks:
-        block += f'M {prop:>4}{len(chunk):3}'
+        block += f'M  {prop:3}{len(chunk):3}'
 
         for i_atom, value in chunk:
-            block += f'{i_atom:4}{value:4}'
+            block += f' {i_atom:3} {value:3}'
 
         block += '\n'
 
