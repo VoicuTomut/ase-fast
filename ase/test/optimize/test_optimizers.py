@@ -95,6 +95,8 @@ def test_optimize(optcls, atoms, ref_atoms, kwargs):
     assert final_fmax < fmax
     assert opt.converged()
     assert opt.converged(forces=forces)
+    with pytest.warns(FutureWarning):
+        assert opt.converged(gradient=-forces.ravel())
 
 
 @pytest.mark.optimize()

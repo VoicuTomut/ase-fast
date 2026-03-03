@@ -505,9 +505,13 @@ class Optimizer(Dynamics):
         self.fmax = fmax
         return Dynamics.run(self, steps=steps)
 
-    def converged(self, forces=None):
+    def converged(self, forces=None, *, gradient=None):
         """Did the optimization converge?"""
-        if forces is not None:
+        if gradient is not None:
+            warnings.warn(
+                'The gradient keyword will be removed in 3.29.0',
+                FutureWarning)
+        elif forces is not None:
             gradient = -forces.ravel()
         else:
             gradient = self.optimizable.get_gradient()
