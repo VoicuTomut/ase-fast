@@ -16,11 +16,6 @@
      behaviour is to work on the "current" Axes, possibly overwriting
      an unrelated plot.)
 
-   - As a (non-breaking) additional feature, parameters prepended by
-     "ax_" can be supplied; these will be passed to an ax.set() call
-     so minor Matplotlib formatting details can be included in the
-     function call.
-
  - A lower-level function ase.visualize.plot.plot_atoms_raw() is
    provided which simply plots to a provided Matplotlib Axes; other
    formatting is left to the user. This is recommended for use in

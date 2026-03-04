@@ -67,12 +67,8 @@ def animate(images, ax=None,
     return animation
 
 
-def plot_atoms(atoms: Atoms, ax: Axes | None = None, **params) -> Axes:
+def plot_atoms(atoms: Atoms, ax: Axes | None = None, **kwargs) -> Axes:
     """Plot an Atoms object in a matplotlib subplot.
-
-    Additional axis options for the Matplotlib axis can be provided as params,
-    always starting with 'ax_' to show their affiliation to the axis.
-    These are equivalent to calls to ax.set().
 
     Axis decorations will always be removed.
 
@@ -101,36 +97,22 @@ def plot_atoms(atoms: Atoms, ax: Axes | None = None, **params) -> Axes:
     offset : tuple (float, float), optional
         Offset of the plotted atoms and lines.
 
-    Axis Parameters
-    ---------------
-    All axis parameters for Matplotlib objects that
-    can be set by
-    `Matplotlib Axes Set <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set.html>`_ .
-
     """  # noqa: E501
     import matplotlib.pyplot as plt
     if ax is None:
         _, ax = plt.subplots()
 
-    ax_parameters = {
-        key[3:]: value for key, value in params.items() if key[:3] == 'ax_'
-    }
-    parameters = {
-        key: value for key, value in params.items() if key[:3] != 'ax_'
-    }
-
     if isinstance(atoms, list):
         assert len(atoms) == 1
         atoms = atoms[0]
 
-    plot_atoms_raw(atoms, ax, **parameters)
+    plot_atoms_raw(atoms, ax, **kwargs)
     ax.set_axis_off()
-    ax.set(**ax_parameters)
 
     return ax
 
 
-def plot_atoms_raw(atoms: Atoms, ax: Axes, **parameters) -> None:
+def plot_atoms_raw(atoms: Atoms, ax: Axes, **kwargs) -> None:
     """Plot Atoms to a matplotlib subplot without additional formatting.
 
     Compared to plot_atoms this is more "barebones". To reproduce the
@@ -164,4 +146,4 @@ def plot_atoms_raw(atoms: Atoms, ax: Axes, **parameters) -> None:
         Offset of the plotted atoms and lines.
 
     """
-    Matplotlib(atoms, ax, **parameters).write()
+    Matplotlib(atoms, ax, **kwargs).write()
