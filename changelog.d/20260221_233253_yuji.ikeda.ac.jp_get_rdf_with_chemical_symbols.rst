@@ -1,0 +1,55 @@
+.. A new scriv changelog fragment.
+..
+.. Uncomment the header that is right (remove the leading dots).
+..
+.. I/O
+.. ---
+..
+.. - A bullet item for the I/O category.
+..
+.. Calculators
+.. -----------
+..
+.. - A bullet item for the Calculators category.
+..
+.. Optimizers
+.. ----------
+..
+.. - A bullet item for the Optimizers category.
+..
+.. Molecular dynamics
+.. ------------------
+..
+.. - A bullet item for the Molecular dynamics category.
+..
+.. GUI
+.. ---
+..
+.. - A bullet item for the GUI category.
+..
+.. Development
+.. -----------
+..
+.. - A bullet item for the Development category.
+..
+.. Documentation
+.. -------------
+..
+.. - A bullet item for the Documentation category.
+..
+Other changes
+-------------
+
+- Deprecate :meth:`ase.geometry.analysis.Analysis.get_rdf` due to bugs when
+  ``elements`` is not ``None``. This method will be removed soon.
+  Use :func:`ase.geometry.rdf.get_rdf` instead (:mr:`3993`)
+
+- Change :func:`ase.geometry.rdf.get_rdf` so that ``elements`` can accept
+  chemical symbols (:mr:`3993`)
+
+..
+.. Bugfixes
+.. --------
+..
+.. - A bullet item for the Bugfixes category.
+..
