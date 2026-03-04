@@ -6,6 +6,7 @@ from xml.dom import minidom
 import numpy as np
 
 from ase import Atoms
+from ase.io.utils import connectivity2bonds
 from ase.utils import writer
 
 
@@ -307,12 +308,11 @@ def _write_xsd_html(images, connectivity=None):
     atom_cell = images[0].get_cell()
     atom_positions = images[0].get_positions()
     # Set up bonds
-    bonds = []
     if connectivity is not None:
-        for i in range(connectivity.shape[0]):
-            for j in range(i + 1, connectivity.shape[0]):
-                if connectivity[i, j]:
-                    bonds.append([i, j])
+        bonds = connectivity2bonds(connectivity)
+    else:
+        bonds = []
+
     nbonds = len(bonds)
 
     # non-periodic system

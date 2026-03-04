@@ -24,7 +24,7 @@ from ase.calculators.calculator import all_properties
 from ase.calculators.singlepoint import SinglePointCalculator
 from ase.constraints import FixAtoms, FixCartesian
 from ase.io.formats import index2range
-from ase.io.utils import ImageChunk, ImageIterator
+from ase.io.utils import ImageChunk, ImageIterator, validate_comment_line
 from ase.outputs import ArrayProperty, all_outputs
 from ase.spacegroup.spacegroup import Spacegroup
 from ase.stress import voigt_6_to_full_3x3_stress
@@ -937,9 +937,7 @@ def write_xyz(fileobj, images, comment='', columns=None,
 
         if plain or comment != '':
             # override key/value pairs with user-speficied comment string
-            comm = comment.rstrip()
-            if '\n' in comm:
-                raise ValueError('Comment line should not have line breaks.')
+            comm = validate_comment_line(comment)
 
         # Pack fr_cols into record array
         data = np.zeros(natoms, dtype)

@@ -1,14 +1,16 @@
-# fmt: off
-import io
+from io import StringIO
 
+import numpy as np
 import pytest
 
 from ase import Atoms
-from ase.io.sdf import get_num_atoms_sdf_v2000, read_sdf
+from ase.build import molecule
+from ase.calculators.calculator import compare_atoms
+from ase.io.sdf import get_num_atoms_sdf_v2000, read_sdf, write_sdf
 
 DIFFICULT_BUT_VALID_FIRST_LINE = '184192  0  0  0  0  0  0  0  0999 V2000'
 
-VALID_SDF_V2000_COFFEE = '''
+VALID_SDF_V2000_COFFEE = """
      RDKit          3D
 
  24  0  0  0  0  0  0  0  0  0999 V2000
@@ -38,25 +40,41 @@ VALID_SDF_V2000_COFFEE = '''
    -2.9346    2.1021   -0.8849 H   0  0  0  0  0  0  0  0  0  0  0  0
 M  END
 $$$$
-'''
+"""
 
 
 def test_read_sdf() -> None:
     """Test SDF V2000 reader."""
-    with io.StringIO(VALID_SDF_V2000_COFFEE) as file_obj:
+    with StringIO(VALID_SDF_V2000_COFFEE) as file_obj:
         atoms: Atoms = read_sdf(file_obj)
 
     assert len(atoms) == 24
-    assert atoms.get_chemical_symbols() == ['O', 'O', 'N', 'N', 'N', 'N', 'C',
-                                            'C', 'C', 'C', 'C',
-                                            'C', 'C', 'C', 'H', 'H', 'H', 'H',
-                                            'H', 'H', 'H', 'H',
-                                            'H', 'H']
-    assert atoms.get_positions()[0] == pytest.approx((0.4700, 2.5688, 0.0006))
-    assert atoms.get_positions()[-1] == pytest.approx(
-        (-2.9346, 2.1021, -0.8849))
+    positions = atoms.get_positions()
+    chemical_symbols = atoms.get_chemical_symbols()
+    assert chemical_symbols == ['O'] * 2 + ['N'] * 4 + ['C'] * 8 + ['H'] * 10
+    assert positions[0] == pytest.approx((0.4700, 2.5688, 0.0006))
+    assert positions[-1] == pytest.approx((-2.9346, 2.1021, -0.8849))
 
 
 def test_get_num_atoms_sdf_v2000() -> None:
     """Test the reading of the first line."""
     assert get_num_atoms_sdf_v2000(DIFFICULT_BUT_VALID_FIRST_LINE) == 184
+
+
+def test_write_and_read_sdf() -> None:
+    """Test consistency between read_sdf and write_sdf"""
+    atoms0 = molecule('H2O')
+    # Convert to semiheavy water
+    atoms0[2].mass = 2.014
+
+    connectivity0 = np.array([[0, 1, 1], [1, 0, 0], [1, 0, 0]])
+    fd = StringIO()
+    write_sdf(
+        fd, atoms0, title='HDO', comment='Test', connectivity=connectivity0
+    )
+    fd.seek(0)
+    atoms1 = read_sdf(fd)
+    assert not compare_atoms(atoms0, atoms1, tol=1e-3), (
+        'Read/Write inconsistent'
+    )
+    # TODO: Compare atomic masses and connectivity, once read_sdf supports it
