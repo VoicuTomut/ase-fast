@@ -1,4 +1,4 @@
-import io
+from io import StringIO
 
 import numpy as np
 import pytest
@@ -6,8 +6,7 @@ import pytest
 from ase import Atoms
 from ase.build import molecule
 from ase.calculators.calculator import compare_atoms
-from ase.io import read, write
-from ase.io.sdf import get_num_atoms_sdf_v2000, read_sdf
+from ase.io.sdf import get_num_atoms_sdf_v2000, read_sdf, write_sdf
 
 DIFFICULT_BUT_VALID_FIRST_LINE = '184192  0  0  0  0  0  0  0  0999 V2000'
 
@@ -46,7 +45,7 @@ $$$$
 
 def test_read_sdf() -> None:
     """Test SDF V2000 reader."""
-    with io.StringIO(VALID_SDF_V2000_COFFEE) as file_obj:
+    with StringIO(VALID_SDF_V2000_COFFEE) as file_obj:
         atoms: Atoms = read_sdf(file_obj)
 
     assert len(atoms) == 24
@@ -94,10 +93,12 @@ def test_write_and_read_sdf() -> None:
     atoms0[2].mass = 2.014
 
     connectivity0 = np.array([[0, 1, 1], [1, 0, 0], [1, 0, 0]])
-    write(
-        '1.sdf', atoms0, title='HDO', comment='Test', connectivity=connectivity0
+    fd = StringIO()
+    write_sdf(
+        fd, atoms0, title='HDO', comment='Test', connectivity=connectivity0
     )
-    atoms1 = read('1.sdf')
+    fd.seek(0)
+    atoms1 = read_sdf(fd)
     assert not compare_atoms(atoms0, atoms1, tol=1e-3), (
         'Read/Write inconsistent'
     )
