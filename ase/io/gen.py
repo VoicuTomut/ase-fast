@@ -6,6 +6,7 @@ Refer to DFTB+ manual for GEN format description.
 
 Note: GEN format only supports single snapshot.
 """
+import re
 from typing import Dict, Sequence, Union
 
 from ase.atoms import Atoms
@@ -37,11 +38,21 @@ def read_gen(fileobj):
     del lines[:2]
     positions = []
     symbols = []
+    tags = []
     for line in lines[:natoms]:
         _dummy, symbolid, x, y, z = line.split()[:5]
-        symbols.append(symboldict[int(symbolid)])
+        symbol = symboldict[int(symbolid)]
+        parts = re.findall(r'\d+|[a-zA-Z]+', symbol)
+        if len(parts) == 1:
+            symbols.append(parts[0])
+        else:
+            # If symbolid contains digits, it is a tag
+            symbols.append(parts[0])
+            tags.append(int(parts[1]))
         positions.append([float(x), float(y), float(z)])
-    image = Atoms(symbols=symbols, positions=positions)
+    if not tags:
+        tags = None
+    image = Atoms(symbols=symbols, positions=positions, tags=tags)
     del lines[:natoms]
 
     # If Supercell, parse periodic vectors.
@@ -71,6 +82,7 @@ def write_gen(
     fileobj,
     images: Union[Atoms, Sequence[Atoms]],
     fractional: bool = False,
+    with_tags=False
 ):
     """Write structure in GEN format (refer to DFTB+ manual).
        Multiple snapshots are not allowed. """
@@ -86,10 +98,12 @@ def write_gen(
         atoms = images
 
     symbols = atoms.get_chemical_symbols()
+    tags = atoms.get_tags()
 
     # Define a dictionary with symbols-id
     symboldict: Dict[str, int] = {}
-    for sym in symbols:
+    for sym, tag in zip(symbols, tags):
+        sym = f'{sym}{tag}' if with_tags else sym
         if sym not in symboldict:
             symboldict[sym] = len(symboldict) + 1
     # An ordered symbol list is needed as ordered dictionary
@@ -116,7 +130,7 @@ def write_gen(
 
     fileobj.write(f'{natoms:d}  {pb_flag:<5s}\n')
     for sym in orderedsymbols:
-        fileobj.write(f'{sym:<5s}')
+        fileobj.write(f'{sym:<7s}')
     fileobj.write('\n')
 
     if fractional:
@@ -124,8 +138,9 @@ def write_gen(
     else:
         coords = atoms.get_positions(wrap=False)
 
-    for sym, (x, y, z) in zip(symbols, coords):
+    for sym, tag, (x, y, z) in zip(symbols, tags, coords):
         ind += 1
+        sym = f'{sym}{tag}' if with_tags else sym
         symbolid = symboldict[sym]
         fileobj.write(
             f'{ind:-6d} {symbolid:d} {x:22.15f} {y:22.15f} {z:22.15f}\n')
