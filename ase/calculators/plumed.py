@@ -222,6 +222,7 @@ class Plumed(Calculator):
         self.plumed.cmd("performCalc")
         energy_bias = np.zeros((1,))
         self.plumed.cmd("getBias", energy_bias)
+        energy_bias = energy_bias[0]
         return [energy_bias, forces_bias, virial_bias]
 
     def write_plumed_files(self, images):
