@@ -91,6 +91,9 @@ class FixConstraint:
 
     def copy(self):
         """Copy constraint."""
+        # Import here to prevent circular imports
+        from ase.constraints import dict2constraint
+
         return dict2constraint(self.todict().copy())
 
     def todict(self):
