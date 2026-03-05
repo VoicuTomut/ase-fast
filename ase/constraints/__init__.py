@@ -19,6 +19,7 @@ from ase.constraints.fixinternals import FixInternals
 from ase.constraints.fixlineartriatomic import FixLinearTriatomic
 from ase.constraints.fixparametricrelations import (
     FixCartesianParametricRelations,
+    FixParametricRelations,
     FixScaledParametricRelations,
 )
 from ase.constraints.fixscaled import FixScaled
