@@ -19,8 +19,14 @@ class FixSymmetry(FixConstraint):
     Requires spglib package to be available.
     """
 
-    def __init__(self, atoms, symprec=0.01, adjust_positions=True,
-                 adjust_cell=True, verbose=False):
+    def __init__(
+        self,
+        atoms,
+        symprec=0.01,
+        adjust_positions=True,
+        adjust_cell=True,
+        verbose=False,
+    ):
         self.atoms = atoms.copy()
         self.symprec = symprec
         self.verbose = verbose
@@ -49,52 +55,72 @@ class FixSymmetry(FixConstraint):
         # gradient
         max_delta_deform_grad = np.max(np.abs(delta_deform_grad))
         if max_delta_deform_grad > 0.25:
-            raise RuntimeError('FixSymmetry adjust_cell does not work properly'
-                               ' with large deformation gradient step {} > 0.25'
-                               .format(max_delta_deform_grad))
+            raise RuntimeError(
+                'FixSymmetry adjust_cell does not work properly'
+                ' with large deformation gradient step {} > 0.25'.format(
+                    max_delta_deform_grad
+                )
+            )
         elif max_delta_deform_grad > 0.15:
-            warn('FixSymmetry adjust_cell may be ill behaved with large '
-                 'deformation gradient step {}'.format(max_delta_deform_grad))
+            warn(
+                'FixSymmetry adjust_cell may be ill behaved with large '
+                'deformation gradient step {}'.format(max_delta_deform_grad)
+            )
 
-        symmetrized_delta_deform_grad = symmetrize_rank2(cur_cell, cur_cell_inv,
-                                                         delta_deform_grad,
-                                                         self.rotations)
-        cell[:] = np.dot(cur_cell,
-                         (symmetrized_delta_deform_grad + np.eye(3)).T)
+        symmetrized_delta_deform_grad = symmetrize_rank2(
+            cur_cell, cur_cell_inv, delta_deform_grad, self.rotations
+        )
+        cell[:] = np.dot(
+            cur_cell, (symmetrized_delta_deform_grad + np.eye(3)).T
+        )
 
     def adjust_positions(self, atoms, new):
         if not self.do_adjust_positions:
             return
         # symmetrize changes in position as rank 1 tensors
         step = new - atoms.positions
-        symmetrized_step = symmetrize_rank1(atoms.get_cell(),
-                                            atoms.cell.reciprocal().T, step,
-                                            self.rotations, self.translations,
-                                            self.symm_map)
+        symmetrized_step = symmetrize_rank1(
+            atoms.get_cell(),
+            atoms.cell.reciprocal().T,
+            step,
+            self.rotations,
+            self.translations,
+            self.symm_map,
+        )
         new[:] = atoms.positions + symmetrized_step
 
     def adjust_forces(self, atoms, forces):
         # symmetrize forces as rank 1 tensors
         # print('adjusting forces')
-        forces[:] = symmetrize_rank1(atoms.get_cell(),
-                                     atoms.cell.reciprocal().T, forces,
-                                     self.rotations, self.translations,
-                                     self.symm_map)
+        forces[:] = symmetrize_rank1(
+            atoms.get_cell(),
+            atoms.cell.reciprocal().T,
+            forces,
+            self.rotations,
+            self.translations,
+            self.symm_map,
+        )
 
     def adjust_stress(self, atoms, stress):
         # symmetrize stress as rank 2 tensor
         raw_stress = voigt_6_to_full_3x3_stress(stress)
-        symmetrized_stress = symmetrize_rank2(atoms.get_cell(),
-                                              atoms.cell.reciprocal().T,
-                                              raw_stress, self.rotations)
+        symmetrized_stress = symmetrize_rank2(
+            atoms.get_cell(),
+            atoms.cell.reciprocal().T,
+            raw_stress,
+            self.rotations,
+        )
         stress[:] = full_3x3_to_voigt_6_stress(symmetrized_stress)
 
     def index_shuffle(self, atoms, ind):
         if len(atoms) != len(ind) or len(set(ind)) != len(ind):
-            raise RuntimeError("FixSymmetry can only accomodate atom"
-                               " permutions, and len(Atoms) == {} "
-                               "!= len(ind) == {} or ind has duplicates"
-                               .format(len(atoms), len(ind)))
+            raise RuntimeError(
+                'FixSymmetry can only accomodate atom'
+                ' permutions, and len(Atoms) == {} '
+                '!= len(ind) == {} or ind has duplicates'.format(
+                    len(atoms), len(ind)
+                )
+            )
 
         ind_reversed = np.zeros((len(ind)), dtype=int)
         ind_reversed[ind] = range(len(ind))

@@ -29,10 +29,17 @@ class FixInternals(FixConstraint):
     Fixing planar angles is not supported at the moment.
     """
 
-    def __init__(self, bonds=None, angles=None, dihedrals=None,
-                 angles_deg=None, dihedrals_deg=None,
-                 bondcombos=None,
-                 mic=False, epsilon=1.e-7):
+    def __init__(
+        self,
+        bonds=None,
+        angles=None,
+        dihedrals=None,
+        angles_deg=None,
+        dihedrals_deg=None,
+        bondcombos=None,
+        mic=False,
+        epsilon=1.0e-7,
+    ):
         """
         A constrained internal coordinate is defined as a nested list:
         '[value, [atom indices]]'. The constraint is initialized with a list of
@@ -88,8 +95,12 @@ class FixInternals(FixConstraint):
         self.mic = mic
         self.epsilon = epsilon
 
-        self.n = (len(self.bonds) + len(self.angles) + len(self.dihedrals)
-                  + len(self.bondcombos))
+        self.n = (
+            len(self.bonds)
+            + len(self.angles)
+            + len(self.dihedrals)
+            + len(self.bondcombos)
+        )
 
         # Initialize these at run-time:
         self.constraints = []
@@ -108,15 +119,18 @@ class FixInternals(FixConstraint):
             cell = atoms.cell
             pbc = atoms.pbc
         self.constraints = []
-        for data, ConstrClass in [(self.bonds, self.FixBondLengthAlt),
-                                  (self.angles, self.FixAngle),
-                                  (self.dihedrals, self.FixDihedral),
-                                  (self.bondcombos, self.FixBondCombo)]:
+        for data, ConstrClass in [
+            (self.bonds, self.FixBondLengthAlt),
+            (self.angles, self.FixAngle),
+            (self.dihedrals, self.FixDihedral),
+            (self.bondcombos, self.FixBondCombo),
+        ]:
             for datum in data:
                 targetvalue = datum[0]
                 if targetvalue is None:  # set to current value
-                    targetvalue = ConstrClass.get_value(atoms, datum[1],
-                                                        self.mic)
+                    targetvalue = ConstrClass.get_value(
+                        atoms, datum[1], self.mic
+                    )
                 constr = ConstrClass(targetvalue, datum[1], masses, cell, pbc)
                 self.constraints.append(constr)
         self.initialized = True
@@ -136,8 +150,9 @@ class FixInternals(FixConstraint):
         self.initialize(atoms)
         for subconstr in self.constraints:
             if isinstance(definition[0], Sequence):  # Combo constraint
-                defin = [d + [c] for d, c in zip(subconstr.indices,
-                                                 subconstr.coefs)]
+                defin = [
+                    d + [c] for d, c in zip(subconstr.indices, subconstr.coefs)
+                ]
                 if defin == definition:
                     return subconstr
             else:  # identify primitive constraints by their indices
@@ -203,13 +218,17 @@ class FixInternals(FixConstraint):
         return list(set(cons))
 
     def todict(self):
-        return {'name': 'FixInternals',
-                'kwargs': {'bonds': self.bonds,
-                           'angles_deg': self.angles,
-                           'dihedrals_deg': self.dihedrals,
-                           'bondcombos': self.bondcombos,
-                           'mic': self.mic,
-                           'epsilon': self.epsilon}}
+        return {
+            'name': 'FixInternals',
+            'kwargs': {
+                'bonds': self.bonds,
+                'angles_deg': self.angles,
+                'dihedrals_deg': self.dihedrals,
+                'bondcombos': self.bondcombos,
+                'mic': self.mic,
+                'epsilon': self.epsilon,
+            },
+        }
 
     def adjust_positions(self, atoms, newpos):
         self.initialize(atoms)
@@ -223,12 +242,17 @@ class FixInternals(FixConstraint):
             if maxerr < self.epsilon:
                 return
         msg = 'FixInternals.adjust_positions did not converge.'
-        if any(constr.targetvalue > 175. or constr.targetvalue < 5. for constr
-                in self.constraints if isinstance(constr, self.FixAngle)):
-            msg += (' This may be caused by an almost planar angle.'
-                    ' Support for planar angles would require the'
-                    ' implementation of ghost, i.e. dummy, atoms.'
-                    ' See issue #868.')
+        if any(
+            constr.targetvalue > 175.0 or constr.targetvalue < 5.0
+            for constr in self.constraints
+            if isinstance(constr, self.FixAngle)
+        ):
+            msg += (
+                ' This may be caused by an almost planar angle.'
+                ' Support for planar angles would require the'
+                ' implementation of ghost, i.e. dummy, atoms.'
+                ' See issue #868.'
+            )
         raise ValueError(msg)
 
     def adjust_forces(self, atoms, forces):
@@ -301,7 +325,7 @@ class FixInternals(FixConstraint):
             self.coefs = np.asarray([defin[-1] for defin in indices])
             self.masses = masses
             self.jacobian = []  # geometric Jacobian matrix, Wilson B-matrix
-            self.sigma = 1.  # difference between current and target value
+            self.sigma = 1.0  # difference between current and target value
             self.projected_force = None  # helps optimizers scan along constr.
             self.cell = cell
             self.pbc = pbc
@@ -323,8 +347,9 @@ class FixInternals(FixConstraint):
             newpos += dnewpos.reshape(newpos.shape)
 
         def adjust_forces(self, positions, forces):
-            self.projected_forces = ((self.jacobian @ forces.ravel())
-                                     * self.jacobian)
+            self.projected_forces = (
+                self.jacobian @ forces.ravel()
+            ) * self.jacobian
             self.jacobian /= np.linalg.norm(self.jacobian)
 
     class FixBondCombo(FixInternalsBase):
@@ -336,8 +361,9 @@ class FixInternals(FixConstraint):
 
         def get_jacobian(self, pos):
             bondvectors = [pos[k] - pos[h] for h, k in self.indices]
-            derivs = get_distances_derivatives(bondvectors, cell=self.cell,
-                                               pbc=self.pbc)
+            derivs = get_distances_derivatives(
+                bondvectors, cell=self.cell, pbc=self.pbc
+            )
             return self.finalize_jacobian(pos, len(bondvectors), 2, derivs)
 
         def setup_jacobian(self, pos):
@@ -345,9 +371,9 @@ class FixInternals(FixConstraint):
 
         def adjust_positions(self, oldpos, newpos):
             bondvectors = [newpos[k] - newpos[h] for h, k in self.indices]
-            (_, ), (dists, ) = conditional_find_mic([bondvectors],
-                                                    cell=self.cell,
-                                                    pbc=self.pbc)
+            (_,), (dists,) = conditional_find_mic(
+                [bondvectors], cell=self.cell, pbc=self.pbc
+            )
             value = self.coefs @ dists
             self.sigma = value - self.targetvalue
             self.finalize_positions(newpos)
@@ -357,17 +383,19 @@ class FixInternals(FixConstraint):
             return FixInternals.get_bondcombo(atoms, indices, mic)
 
         def __repr__(self):
-            return (f'FixBondCombo({self.targetvalue}, {self.indices}, '
-                    '{self.coefs})')
+            return (
+                f'FixBondCombo({self.targetvalue}, {self.indices}, '
+                '{self.coefs})'
+            )
 
     class FixBondLengthAlt(FixBondCombo):
         """Constraint subobject for fixing bond length within FixInternals.
         Fix distance between atoms with indices a1, a2."""
 
         def __init__(self, targetvalue, indices, masses, cell, pbc):
-            if targetvalue <= 0.:
+            if targetvalue <= 0.0:
                 raise ZeroDivisionError('Invalid targetvalue for fixed bond')
-            indices = [list(indices) + [1.]]  # bond definition with coef 1.
+            indices = [list(indices) + [1.0]]  # bond definition with coef 1.
             super().__init__(targetvalue, indices, masses, cell=cell, pbc=pbc)
 
         @staticmethod
@@ -387,9 +415,9 @@ class FixInternals(FixConstraint):
 
         def __init__(self, targetvalue, indices, masses, cell, pbc):
             """Fix atom movement to construct a constant angle."""
-            if targetvalue <= 0. or targetvalue >= 180.:
+            if targetvalue <= 0.0 or targetvalue >= 180.0:
                 raise ZeroDivisionError('Invalid targetvalue for fixed angle')
-            indices = [list(indices) + [1.]]  # angle definition with coef 1.
+            indices = [list(indices) + [1.0]]  # angle definition with coef 1.
             super().__init__(targetvalue, indices, masses, cell=cell, pbc=pbc)
 
         def gather_vectors(self, pos):
@@ -399,8 +427,9 @@ class FixInternals(FixConstraint):
 
         def get_jacobian(self, pos):
             v0, v1 = self.gather_vectors(pos)
-            derivs = get_angles_derivatives(v0, v1, cell=self.cell,
-                                            pbc=self.pbc)
+            derivs = get_angles_derivatives(
+                v0, v1, cell=self.cell, pbc=self.pbc
+            )
             return self.finalize_jacobian(pos, len(v0), 3, derivs)
 
         def setup_jacobian(self, pos):
@@ -427,7 +456,7 @@ class FixInternals(FixConstraint):
         """
 
         def __init__(self, targetvalue, indices, masses, cell, pbc):
-            indices = [list(indices) + [1.]]  # dihedral def. with coef 1.
+            indices = [list(indices) + [1.0]]  # dihedral def. with coef 1.
             super().__init__(targetvalue, indices, masses, cell=cell, pbc=pbc)
 
         def gather_vectors(self, pos):
@@ -438,8 +467,9 @@ class FixInternals(FixConstraint):
 
         def get_jacobian(self, pos):
             v0, v1, v2 = self.gather_vectors(pos)
-            derivs = get_dihedrals_derivatives(v0, v1, v2, cell=self.cell,
-                                               pbc=self.pbc)
+            derivs = get_dihedrals_derivatives(
+                v0, v1, v2, cell=self.cell, pbc=self.pbc
+            )
             return self.finalize_jacobian(pos, len(v0), 4, derivs)
 
         def setup_jacobian(self, pos):

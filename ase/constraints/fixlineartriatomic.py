@@ -9,29 +9,29 @@ class FixLinearTriatomic(FixConstraint):
 
     def __init__(self, triples):
         """Apply RATTLE-type bond constraints between outer atoms n and m
-           and linear vectorial constraints to the position of central
-           atoms o to fix the geometry of linear triatomic molecules of the
-           type:
+        and linear vectorial constraints to the position of central
+        atoms o to fix the geometry of linear triatomic molecules of the
+        type:
 
-           n--o--m
+        n--o--m
 
-           Parameters:
+        Parameters:
 
-           triples: list
-               Indices of the atoms forming the linear molecules to constrain
-               as triples. Sequence should be (n, o, m) or (m, o, n).
+        triples: list
+            Indices of the atoms forming the linear molecules to constrain
+            as triples. Sequence should be (n, o, m) or (m, o, n).
 
-           When using these constraints in molecular dynamics or structure
-           optimizations, atomic forces need to be redistributed within a
-           triple. The function redistribute_forces_optimization implements
-           the redistribution of forces for structure optimization, while
-           the function redistribute_forces_md implements the redistribution
-           for molecular dynamics.
+        When using these constraints in molecular dynamics or structure
+        optimizations, atomic forces need to be redistributed within a
+        triple. The function redistribute_forces_optimization implements
+        the redistribution of forces for structure optimization, while
+        the function redistribute_forces_md implements the redistribution
+        for molecular dynamics.
 
-           References:
+        References:
 
-           Ciccotti et al. Molecular Physics 47 (1982)
-           :doi:`10.1080/00268978200100942`
+        Ciccotti et al. Molecular Physics 47 (1982)
+        :doi:`10.1080/00268978200100942`
         """
         self.triples = np.asarray(triples)
         if self.triples.shape[1] != 3:
@@ -61,15 +61,17 @@ class FixLinearTriatomic(FixConstraint):
         self.bondlengths_nm = self.bondlengths.sum(axis=1)
 
         C1 = self.bondlengths[:, ::-1] / self.bondlengths_nm[:, None]
-        C2 = (C1[:, 0] ** 2 * self.mass_o * self.mass_m +
-              C1[:, 1] ** 2 * self.mass_n * self.mass_o +
-              self.mass_n * self.mass_m)
+        C2 = (
+            C1[:, 0] ** 2 * self.mass_o * self.mass_m
+            + C1[:, 1] ** 2 * self.mass_n * self.mass_o
+            + self.mass_n * self.mass_m
+        )
         C2 = C1 / C2[:, None]
         C3 = self.mass_n * C1[:, 1] - self.mass_m * C1[:, 0]
         C3 = C2 * self.mass_o[:, None] * C3[:, None]
         C3[:, 1] *= -1
         C3 = (C3 + 1) / np.vstack((self.mass_n, self.mass_m)).T
-        C4 = (C1[:, 0]**2 + C1[:, 1]**2 + 1)
+        C4 = C1[:, 0] ** 2 + C1[:, 1] ** 2 + 1
         C4 = C1 / C4[:, None]
 
         self.C1 = C1
@@ -89,14 +91,13 @@ class FixLinearTriatomic(FixConstraint):
         d1 = new_n - new_m - r0 + d0
         a = np.einsum('ij,ij->i', d0, d0)
         b = np.einsum('ij,ij->i', d1, d0)
-        c = np.einsum('ij,ij->i', d1, d1) - self.bondlengths_nm ** 2
-        g = (b - (b**2 - a * c)**0.5) / (a * self.C3.sum(axis=1))
+        c = np.einsum('ij,ij->i', d1, d1) - self.bondlengths_nm**2
+        g = (b - (b**2 - a * c) ** 0.5) / (a * self.C3.sum(axis=1))
         g = g[:, None] * self.C3
         new_n -= g[:, 0, None] * d0
         new_m += g[:, 1, None] * d0
         if np.allclose(d0, r0):
-            new_o = (self.C1[:, 0, None] * new_n
-                     + self.C1[:, 1, None] * new_m)
+            new_o = self.C1[:, 0, None] * new_n + self.C1[:, 1, None] * new_m
         else:
             v1, _ = find_mic(new_n, atoms.cell, atoms.pbc)
             v2, _ = find_mic(new_m, atoms.cell, atoms.pbc)
@@ -119,17 +120,18 @@ class FixLinearTriatomic(FixConstraint):
         d = old[self.n_ind] - old[self.m_ind]
         d, _ = find_mic(d, atoms.cell, atoms.pbc)
         dv = p_n / mass_nn - p_m / mass_mm
-        k = np.einsum('ij,ij->i', dv, d) / self.bondlengths_nm ** 2
+        k = np.einsum('ij,ij->i', dv, d) / self.bondlengths_nm**2
         k = self.C3 / (self.C3.sum(axis=1)[:, None]) * k[:, None]
         p_n -= k[:, 0, None] * mass_nn * d
         p_m += k[:, 1, None] * mass_mm * d
-        p_o = (mass_oo * (self.C1[:, 0, None] * p_n / mass_nn +
-                          self.C1[:, 1, None] * p_m / mass_mm))
+        p_o = mass_oo * (
+            self.C1[:, 0, None] * p_n / mass_nn
+            + self.C1[:, 1, None] * p_m / mass_mm
+        )
 
         self.set_slices(p_n, p_m, p_o, p)
 
     def adjust_forces(self, atoms, forces):
-
         if self.bondlengths is None:
             self.initialize(atoms)
 
@@ -147,7 +149,7 @@ class FixLinearTriatomic(FixConstraint):
         d = old[self.n_ind] - old[self.m_ind]
         d, _ = find_mic(d, atoms.cell, atoms.pbc)
         df = fr_n - fr_m
-        k = -np.einsum('ij,ij->i', df, d) / self.bondlengths_nm ** 2
+        k = -np.einsum('ij,ij->i', df, d) / self.bondlengths_nm**2
         forces[self.n_ind] = fr_n + k[:, None] * d * A[:, 0, None]
         forces[self.m_ind] = fr_m - k[:, None] * d * A[:, 1, None]
         forces[self.o_ind] = fr_o + k[:, None] * d * B
@@ -166,12 +168,17 @@ class FixLinearTriatomic(FixConstraint):
         C4_1 = self.C4[:, 0, None]
         C4_2 = self.C4[:, 1, None]
 
-        fr_n = ((1 - C4_1 * C1_1) * forces_n -
-                C4_1 * (C1_2 * forces_m - forces_o))
-        fr_m = ((1 - C4_2 * C1_2) * forces_m -
-                C4_2 * (C1_1 * forces_n - forces_o))
-        fr_o = ((1 - 1 / (C1_1**2 + C1_2**2 + 1)) * forces_o +
-                C4_1 * forces_n + C4_2 * forces_m)
+        fr_n = (1 - C4_1 * C1_1) * forces_n - C4_1 * (
+            C1_2 * forces_m - forces_o
+        )
+        fr_m = (1 - C4_2 * C1_2) * forces_m - C4_2 * (
+            C1_1 * forces_n - forces_o
+        )
+        fr_o = (
+            (1 - 1 / (C1_1**2 + C1_2**2 + 1)) * forces_o
+            + C4_1 * forces_n
+            + C4_2 * forces_m
+        )
 
         return fr_n, fr_m, fr_o
 
@@ -204,13 +211,15 @@ class FixLinearTriatomic(FixConstraint):
             mr3 = 1.0
             mr4 = 1.0
 
-        fr_n = ((1 - C1_1 * C2_1 * mass_oo * mass_mm) * forces_n -
-                C2_1 * (C1_2 * mr1 * mass_oo * mass_nn * forces_m -
-                        mr2 * mass_mm * mass_nn * forces_o))
+        fr_n = (1 - C1_1 * C2_1 * mass_oo * mass_mm) * forces_n - C2_1 * (
+            C1_2 * mr1 * mass_oo * mass_nn * forces_m
+            - mr2 * mass_mm * mass_nn * forces_o
+        )
 
-        fr_m = ((1 - C1_2 * C2_2 * mass_oo * mass_nn) * forces_m -
-                C2_2 * (C1_1 * mr3 * mass_oo * mass_mm * forces_n -
-                        mr4 * mass_mm * mass_nn * forces_o))
+        fr_m = (1 - C1_2 * C2_2 * mass_oo * mass_nn) * forces_m - C2_2 * (
+            C1_1 * mr3 * mass_oo * mass_mm * forces_n
+            - mr4 * mass_mm * mass_nn * forces_o
+        )
 
         self.set_slices(fr_n, fr_m, 0.0, forces)
 
@@ -230,10 +239,12 @@ class FixLinearTriatomic(FixConstraint):
         bondlengths = np.zeros((len(self.triples), 2))
 
         for i in range(len(self.triples)):
-            bondlengths[i, 0] = atoms.get_distance(self.n_ind[i],
-                                                   self.o_ind[i], mic=True)
-            bondlengths[i, 1] = atoms.get_distance(self.o_ind[i],
-                                                   self.m_ind[i], mic=True)
+            bondlengths[i, 0] = atoms.get_distance(
+                self.n_ind[i], self.o_ind[i], mic=True
+            )
+            bondlengths[i, 1] = atoms.get_distance(
+                self.o_ind[i], self.m_ind[i], mic=True
+            )
 
         return bondlengths
 
@@ -241,8 +252,10 @@ class FixLinearTriatomic(FixConstraint):
         return np.unique(self.triples.ravel())
 
     def todict(self):
-        return {'name': 'FixLinearTriatomic',
-                'kwargs': {'triples': self.triples.tolist()}}
+        return {
+            'name': 'FixLinearTriatomic',
+            'kwargs': {'triples': self.triples.tolist()},
+        }
 
     def index_shuffle(self, atoms, ind):
         """Shuffle the indices of the three atoms in this constraint"""

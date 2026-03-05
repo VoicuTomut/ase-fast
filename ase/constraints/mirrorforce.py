@@ -47,7 +47,7 @@ class MirrorForce(FixConstraint):
 
     """
 
-    def __init__(self, a1, a2, max_dist=2.5, min_dist=1., fmax=0.1):
+    def __init__(self, a1, a2, max_dist=2.5, min_dist=1.0, fmax=0.1):
         self.indices = [a1, a2]
         self.min_dist = min_dist
         self.max_dist = max_dist
@@ -68,27 +68,24 @@ class MirrorForce(FixConstraint):
         f = df.dot(dist)
         con_saved = atoms.constraints
         try:
-            con = [con for con in con_saved
-                   if not isinstance(con, MirrorForce)]
+            con = [con for con in con_saved if not isinstance(con, MirrorForce)]
             atoms.set_constraint(con)
             forces_copy = atoms.get_forces()
         finally:
             atoms.set_constraint(con_saved)
-        df1 = -1 / 2. * f * dist
+        df1 = -1 / 2.0 * f * dist
         forces_copy[self.indices] += (df1, -df1)
         # Check if forces would be converged if the bond with mirrored forces
         # would also be fixed
         if (forces_copy**2).sum(axis=1).max() < self.fmax**2:
-            factor = 1.
+            factor = 1.0
         else:
-            factor = 0.
-        df1 = -(1 + factor) / 2. * f * dist
+            factor = 0.0
+        df1 = -(1 + factor) / 2.0 * f * dist
         forces[self.indices] += (df1, -df1)
 
     def index_shuffle(self, atoms, ind):
-        """Shuffle the indices of the two atoms in this constraint
-
-        """
+        """Shuffle the indices of the two atoms in this constraint"""
         newa = [-1, -1]  # Signal error
         for new, old in slice2enlist(ind, len(atoms)):
             for i, a in enumerate(self.indices):
@@ -100,11 +97,21 @@ class MirrorForce(FixConstraint):
 
     def __repr__(self):
         return 'MirrorForce(%d, %d, %f, %f, %f)' % (
-            self.indices[0], self.indices[1], self.max_dist, self.min_dist,
-            self.fmax)
+            self.indices[0],
+            self.indices[1],
+            self.max_dist,
+            self.min_dist,
+            self.fmax,
+        )
 
     def todict(self):
-        return {'name': 'MirrorForce',
-                'kwargs': {'a1': self.indices[0], 'a2': self.indices[1],
-                           'max_dist': self.max_dist,
-                           'min_dist': self.min_dist, 'fmax': self.fmax}}
+        return {
+            'name': 'MirrorForce',
+            'kwargs': {
+                'a1': self.indices[0],
+                'a2': self.indices[1],
+                'max_dist': self.max_dist,
+                'min_dist': self.min_dist,
+                'fmax': self.fmax,
+            },
+        }

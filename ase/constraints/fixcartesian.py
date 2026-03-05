@@ -35,9 +35,10 @@ class FixCartesian(IndexedConstraint):
         forces[self.index] *= ~self.mask[None, :]
 
     def todict(self):
-        return {'name': 'FixCartesian',
-                'kwargs': {'a': self.index.tolist(),
-                           'mask': self.mask.tolist()}}
+        return {
+            'name': 'FixCartesian',
+            'kwargs': {'a': self.index.tolist(), 'mask': self.mask.tolist()},
+        }
 
     def __repr__(self):
         name = type(self).__name__

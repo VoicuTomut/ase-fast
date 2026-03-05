@@ -42,8 +42,7 @@ class FixedMode(FixConstraint):
         return []
 
     def todict(self):
-        return {'name': 'FixedMode',
-                'kwargs': {'mode': self.mode.tolist()}}
+        return {'name': 'FixedMode', 'kwargs': {'mode': self.mode.tolist()}}
 
     def __repr__(self):
         return f'FixedMode({self.mode.tolist()})'

@@ -64,8 +64,7 @@ class Hookean(FixConstraint):
 
     def todict(self):
         dct = {'name': 'Hookean'}
-        dct['kwargs'] = {'rt': self.threshold,
-                         'k': self.spring}
+        dct['kwargs'] = {'rt': self.threshold, 'k': self.spring}
         if self._type == 'two atoms':
             dct['kwargs']['a1'] = self.indices[0]
             dct['kwargs']['a2'] = self.indices[1]
@@ -90,12 +89,11 @@ class Hookean(FixConstraint):
         if self._type == 'plane':
             A, B, C, D = self.plane
             x, y, z = positions[self.index]
-            d = ((A * x + B * y + C * z + D) /
-                 np.sqrt(A**2 + B**2 + C**2))
+            d = (A * x + B * y + C * z + D) / np.sqrt(A**2 + B**2 + C**2)
             if d < 0:
                 return
             magnitude = self.spring * d
-            direction = - np.array((A, B, C)) / np.linalg.norm((A, B, C))
+            direction = -np.array((A, B, C)) / np.linalg.norm((A, B, C))
             forces[self.index] += direction * magnitude
             return
         if self._type == 'two atoms':
@@ -122,12 +120,11 @@ class Hookean(FixConstraint):
         if self._type == 'plane':
             A, B, C, D = self.plane
             x, y, z = positions[self.index]
-            d = ((A * x + B * y + C * z + D) /
-                 np.sqrt(A**2 + B**2 + C**2))
+            d = (A * x + B * y + C * z + D) / np.sqrt(A**2 + B**2 + C**2)
             if d > 0:
                 return 0.5 * self.spring * d**2
             else:
-                return 0.
+                return 0.0
         if self._type == 'two atoms':
             p1, p2 = positions[self.indices]
         elif self._type == 'point':
@@ -136,9 +133,9 @@ class Hookean(FixConstraint):
         displace, _ = find_mic(p2 - p1, atoms.cell, atoms.pbc)
         bondlength = np.linalg.norm(displace)
         if bondlength > self.threshold:
-            return 0.5 * self.spring * (bondlength - self.threshold)**2
+            return 0.5 * self.spring * (bondlength - self.threshold) ** 2
         else:
-            return 0.
+            return 0.0
 
     def get_indices(self):
         if self._type == 'two atoms':
@@ -160,7 +157,7 @@ class Hookean(FixConstraint):
                 raise IndexError('Constraint not part of slice')
             self.indices = newa
         elif (self._type == 'point') or (self._type == 'plane'):
-            newa = -1   # Signal error
+            newa = -1  # Signal error
             for new, old in slice2enlist(ind, len(atoms)):
                 if old == self.index:
                     newa = new

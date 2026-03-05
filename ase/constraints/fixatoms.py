@@ -36,5 +36,4 @@ class FixAtoms(IndexedConstraint):
         return f'{clsname}(indices={indices})'
 
     def todict(self):
-        return {'name': 'FixAtoms',
-                'kwargs': {'indices': self.index.tolist()}}
+        return {'name': 'FixAtoms', 'kwargs': {'indices': self.index.tolist()}}

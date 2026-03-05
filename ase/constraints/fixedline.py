@@ -58,6 +58,8 @@ class FixedLine(IndexedConstraint):
     def todict(self):
         return {
             'name': 'FixedLine',
-            'kwargs': {'indices': self.index.tolist(),
-                       'direction': self.dir.tolist()}
+            'kwargs': {
+                'indices': self.index.tolist(),
+                'direction': self.dir.tolist(),
+            },
         }

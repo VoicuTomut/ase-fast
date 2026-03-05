@@ -29,12 +29,29 @@ from ase.constraints.mirrorforce import MirrorForce
 from ase.constraints.mirrortorque import MirrorTorque
 
 __all__ = [
-    'FixCartesian', 'FixBondLength', 'FixedMode',
-    'FixAtoms', 'FixScaled', 'FixCom', 'FixSubsetCom', 'FixedPlane',
-    'FixConstraint', 'FixedLine', 'FixBondLengths', 'FixLinearTriatomic',
-    'FixInternals', 'Hookean', 'ExternalForce', 'MirrorForce', 'MirrorTorque',
-    'FixParametricRelations', 'FixScaledParametricRelations',
-     'FixCartesianParametricRelations', 'FixSymmetry', 'constrained_indices']
+    'FixCartesian',
+    'FixBondLength',
+    'FixedMode',
+    'FixAtoms',
+    'FixScaled',
+    'FixCom',
+    'FixSubsetCom',
+    'FixedPlane',
+    'FixConstraint',
+    'FixedLine',
+    'FixBondLengths',
+    'FixLinearTriatomic',
+    'FixInternals',
+    'Hookean',
+    'ExternalForce',
+    'MirrorForce',
+    'MirrorTorque',
+    'FixParametricRelations',
+    'FixScaledParametricRelations',
+    'FixCartesianParametricRelations',
+    'FixSymmetry',
+    'constrained_indices',
+]
 
 
 def dict2constraint(dct: dict[str, Any]) -> FixConstraint:

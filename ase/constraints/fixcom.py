@@ -29,8 +29,7 @@ class FixCom(FixConstraint):
         forces[self.index] -= masses[:, None] * lmd
 
     def todict(self):
-        return {'name': 'FixCom',
-                'kwargs': {}}
+        return {'name': 'FixCom', 'kwargs': {}}
 
 
 class FixSubsetCom(FixCom, IndexedConstraint):
@@ -40,5 +39,7 @@ class FixSubsetCom(FixCom, IndexedConstraint):
         super().__init__(indices=indices)
 
     def todict(self):
-        return {'name': self.__class__.__name__,
-                'kwargs': {'indices': self.index.tolist()}}
+        return {
+            'name': self.__class__.__name__,
+            'kwargs': {'indices': self.index.tolist()},
+        }

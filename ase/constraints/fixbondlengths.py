@@ -7,10 +7,11 @@ from ase.geometry import find_mic
 class FixBondLengths(FixConstraint):
     maxiter = 500
 
-    def __init__(self, pairs, tolerance=1e-13,
-                 bondlengths=None, iterations=None):
+    def __init__(
+        self, pairs, tolerance=1e-13, bondlengths=None, iterations=None
+    ):
         """iterations:
-                Ignored"""
+        Ignored"""
         self.pairs = np.asarray(pairs)
         self.tolerance = tolerance
         self.bondlengths = bondlengths
@@ -89,9 +90,13 @@ class FixBondLengths(FixConstraint):
         return np.unique(self.pairs.ravel())
 
     def todict(self):
-        return {'name': 'FixBondLengths',
-                'kwargs': {'pairs': self.pairs.tolist(),
-                           'tolerance': self.tolerance}}
+        return {
+            'name': 'FixBondLengths',
+            'kwargs': {
+                'pairs': self.pairs.tolist(),
+                'tolerance': self.tolerance,
+            },
+        }
 
     def index_shuffle(self, atoms, ind):
         """Shuffle the indices of the two atoms in this constraint"""

@@ -52,11 +52,18 @@ class ExternalForce(FixConstraint):
         self.indices = newa
 
     def __repr__(self):
-        return 'ExternalForce(%d, %d, %f)' % (self.indices[0],
-                                              self.indices[1],
-                                              self.external_force)
+        return 'ExternalForce(%d, %d, %f)' % (
+            self.indices[0],
+            self.indices[1],
+            self.external_force,
+        )
 
     def todict(self):
-        return {'name': 'ExternalForce',
-                'kwargs': {'a1': self.indices[0], 'a2': self.indices[1],
-                           'f_ext': self.external_force}}
+        return {
+            'name': 'ExternalForce',
+            'kwargs': {
+                'a1': self.indices[0],
+                'a2': self.indices[1],
+                'f_ext': self.external_force,
+            },
+        }

@@ -42,9 +42,10 @@ class FixScaled(IndexedConstraint):
         forces[self.index] = cell.scaled_positions(scaled_forces)
 
     def todict(self):
-        return {'name': 'FixScaled',
-                'kwargs': {'a': self.index.tolist(),
-                           'mask': self.mask.tolist()}}
+        return {
+            'name': 'FixScaled',
+            'kwargs': {'a': self.index.tolist(), 'mask': self.mask.tolist()},
+        }
 
     def __repr__(self):
         name = type(self).__name__

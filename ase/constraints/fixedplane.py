@@ -57,8 +57,10 @@ class FixedPlane(IndexedConstraint):
     def todict(self):
         return {
             'name': 'FixedPlane',
-            'kwargs': {'indices': self.index.tolist(),
-                       'direction': self.dir.tolist()}
+            'kwargs': {
+                'indices': self.index.tolist(),
+                'direction': self.dir.tolist(),
+            },
         }
 
     def __repr__(self):

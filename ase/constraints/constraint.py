@@ -36,7 +36,7 @@ def constrained_indices(atoms, only_include=None):
 
 def _normalize(direction):
     if np.shape(direction) != (3,):
-        raise ValueError("len(direction) is {len(direction)}. Has to be 3")
+        raise ValueError('len(direction) is {len(direction)}. Has to be 3')
 
     direction = np.asarray(direction) / np.linalg.norm(direction)
     return direction
@@ -64,13 +64,15 @@ class FixConstraint:
         raise NotImplementedError
 
     def repeat(self, m: int, n: int):
-        """ basic method to multiply by m, needs to know the length
+        """basic method to multiply by m, needs to know the length
         of the underlying atoms object for the assignment of
         multiplied constraints to work.
         """
-        msg = ("Repeat is not compatible with your atoms' constraints."
-               ' Use atoms.set_constraint() before calling repeat to '
-               'remove your constraints.')
+        msg = (
+            "Repeat is not compatible with your atoms' constraints."
+            ' Use atoms.set_constraint() before calling repeat to '
+            'remove your constraints.'
+        )
         raise NotImplementedError(msg)
 
     def get_removed_dof(self, atoms: Atoms):
@@ -119,22 +121,27 @@ class IndexedConstraint(FixConstraint):
             indices = mask
         indices = np.atleast_1d(indices)
         if np.ndim(indices) > 1:
-            raise ValueError('indices has wrong amount of dimensions. '
-                             f'Got {np.ndim(indices)}, expected ndim <= 1')
+            raise ValueError(
+                'indices has wrong amount of dimensions. '
+                f'Got {np.ndim(indices)}, expected ndim <= 1'
+            )
 
         if indices.dtype == bool:
             indices = np.arange(len(indices))[indices]
         elif len(indices) == 0:
             indices = np.empty(0, dtype=int)
         elif not np.issubdtype(indices.dtype, np.integer):
-            raise ValueError('Indices must be integers or boolean mask, '
-                             f'not dtype={indices.dtype}')
+            raise ValueError(
+                'Indices must be integers or boolean mask, '
+                f'not dtype={indices.dtype}'
+            )
 
         if len(set(indices)) < len(indices):
             raise ValueError(
                 'The indices array contains duplicates. '
                 'Perhaps you want to specify a mask instead, but '
-                'forgot the mask= keyword.')
+                'forgot the mask= keyword.'
+            )
 
         self.index = indices
 
