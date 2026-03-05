@@ -29,23 +29,3 @@ from ase.spacegroup.symmetrize import (
 from ase.stress import full_3x3_to_voigt_6_stress, voigt_6_to_full_3x3_stress
 from ase.utils.parsemath import eval_expression
 
-__all__ = [
-    'FixCartesian', 'FixBondLength', 'FixedMode',
-    'FixAtoms', 'FixScaled', 'FixCom', 'FixSubsetCom', 'FixedPlane',
-    'FixConstraint', 'FixedLine', 'FixBondLengths', 'FixLinearTriatomic',
-    'FixInternals', 'Hookean', 'ExternalForce', 'MirrorForce', 'MirrorTorque',
-    'FixScaledParametricRelations', 'FixCartesianParametricRelations',
-    'FixSymmetry']
-
-
-def dict2constraint(dct: dict[str, Any]) -> FixConstraint:
-    """Convert dictionary to ASE `FixConstraint` object."""
-    if dct['name'] not in __all__:
-        raise ValueError
-    # address backward-compatibility breaking between ASE 3.22.0 and 3.23.0
-    # https://gitlab.com/ase/ase/-/merge_requests/3786
-    if dct['name'] in {'FixedLine', 'FixedPlane'} and 'a' in dct['kwargs']:
-        dct = deepcopy(dct)
-        dct['kwargs']['indices'] = dct['kwargs'].pop('a')
-    return globals()[dct['name']](**dct['kwargs'])
-
