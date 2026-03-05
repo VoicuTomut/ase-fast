@@ -33,8 +33,8 @@ __all__ = [
     'FixAtoms', 'FixScaled', 'FixCom', 'FixSubsetCom', 'FixedPlane',
     'FixConstraint', 'FixedLine', 'FixBondLengths', 'FixLinearTriatomic',
     'FixInternals', 'Hookean', 'ExternalForce', 'MirrorForce', 'MirrorTorque',
-    'FixScaledParametricRelations', 'FixCartesianParametricRelations',
-    'FixSymmetry']
+    'FixParametricRelations', 'FixScaledParametricRelations',
+     'FixCartesianParametricRelations', 'FixSymmetry', 'constrained_indices']
 
 
 def dict2constraint(dct: dict[str, Any]) -> FixConstraint:
