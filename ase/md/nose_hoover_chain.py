@@ -585,7 +585,8 @@ class MTKNPT(MolecularDynamics):
         self._q = self.atoms.get_positions()  # positions
         self._p = self.atoms.get_momenta()  # momenta
         self._h = np.array(self.atoms.get_cell())  # cell
-        self._p_g = np.zeros((3, 3))  # cell momenta
+
+        self._init_cell_momenta()
 
     @property
     def mask(self) -> tuple[bool, bool, bool] | None:
@@ -594,6 +595,9 @@ class MTKNPT(MolecularDynamics):
     @mask.setter
     def mask(self, mask: tuple[bool, bool, bool]) -> None:
         raise AttributeError()
+
+    def _init_cell_momenta(self) -> None:
+        self._p_g = np.zeros((3, 3))  # cell momenta
 
     def step(self) -> None:
         dt2 = self.dt / 2
@@ -725,6 +729,7 @@ class MaskedMTKNPT(MTKNPT):
         self.mask = mask
         super().__init__(*args, **kwargs)
 
+    def _init_cell_momenta(self) -> None:
         # Additional variables for masked MTK
         self._h0_basis = self._h / np.linalg.norm(self._h, axis=1)[:, None]
         self._p_c = np.zeros(3)  # Cell momenta for axis
