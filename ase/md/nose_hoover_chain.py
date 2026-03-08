@@ -620,7 +620,7 @@ class MTKNPT(MolecularDynamics):
             self.atoms.get_total_energy()
             + self._thermostat.get_thermostat_energy()
             + self._barostat.get_barostat_energy()
-            + np.sum(self._p_g**2) / (2 * self._barostat.W)
+            + self._get_cell_kinetic_energy()
             + self._pressure_au * self._get_volume()
         )
         return float(conserved_energy)
@@ -641,6 +641,9 @@ class MTKNPT(MolecularDynamics):
         self._update_atoms()
         stress = self.atoms.get_stress(voigt=False, include_ideal_gas=True)
         return -stress
+
+    def _get_cell_kinetic_energy(self) -> float:
+        return float(np.sum(self._p_g**2) / (2 * self._barostat.W))
 
     def _integrate_q(self, delta: float) -> None:
         """Integrate exp(i * L_1 * delta)"""
@@ -757,15 +760,8 @@ class MaskedMTKNPT(MTKNPT):
     def _p_g(self, value: np.ndarray) -> None:
         raise AttributeError()
 
-    def get_conserved_energy(self) -> float:
-        conserved_energy = (
-            self.atoms.get_total_energy()
-            + self._thermostat.get_thermostat_energy()
-            + self._barostat.get_barostat_energy()
-            + np.sum(self._p_c ** 2) / (2 * self._barostat.W)
-            + self._pressure_au * self._get_volume()
-        )
-        return float(conserved_energy)
+    def _get_cell_kinetic_energy(self) -> float:
+        return float(np.sum(self._p_c**2) / (2 * self._barostat.W))
 
     def _integrate_p_cell(self, delta: float) -> None:
         """Integrate exp(i * L_(g, 2) * delta)"""
