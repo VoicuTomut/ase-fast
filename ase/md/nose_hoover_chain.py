@@ -747,14 +747,8 @@ class MaskedMTKNPT(MTKNPT):
 
     @property
     def _p_g(self) -> np.ndarray:
-        return np.sum(
-            [
-                pc * np.outer(ec, ec)
-                for ec, pc in zip(self._h0_basis, self._p_c)
-            ]
-            ,
-            axis=0,
-        )
+        # equivalent to sum(pc * np.outer(ec, ec))
+        return (self._p_c * self._h0_basis.T) @ self._h0_basis
 
     @_p_g.setter
     def _p_g(self, value: np.ndarray) -> None:
@@ -770,16 +764,10 @@ class MaskedMTKNPT(MTKNPT):
         particle_dof = 3 * self._num_atoms_global
         kinetic_term = np.sum(self._p**2 / self.masses) / particle_dof
         pv_tensor = volume * (stress - self._pressure_au * np.eye(3))
-        for c, mc in enumerate(self.mask):
-            if not mc:
-                continue
-            gc = (
-                np.sum(
-                    pv_tensor * np.outer(self._h0_basis[c], self._h0_basis[c])
-                )
-                + kinetic_term
-            )
-            self._p_c[c] += delta * gc
+        gc = np.diag(
+            self._h0_basis @ pv_tensor @ self._h0_basis.T
+        ) + kinetic_term
+        self._p_c[self.mask] += delta * gc[self.mask]
 
     def _integrate_p_cell_by_barostat(self, delta: float) -> None:
         self._p_c = self._barostat.integrate_nhc_baro(self._p_c, delta)
