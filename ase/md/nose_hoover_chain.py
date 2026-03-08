@@ -675,11 +675,10 @@ class MTKNPT(MolecularDynamics):
         """Integrate exp(i * L_(g, 2) * delta)"""
         stress = self._get_stress()
         volume = self._get_volume()
-        G = (
-            volume * (stress - self._pressure_au * np.eye(3))
-            + np.sum(self._p**2 / self.masses) / (3 * self._num_atoms_global)
-                * np.eye(3)
-        )
+        particle_dof = 3 * self._num_atoms_global
+        kinetic_term = np.sum(self._p**2 / self.masses) / particle_dof
+        pv_tensor = volume * (stress - self._pressure_au * np.eye(3))
+        G = pv_tensor + kinetic_term * np.eye(3)
         self._p_g += delta * G
 
     def _integrate_p_cell_by_barostat(self, delta: float) -> None:
@@ -819,12 +818,10 @@ class MaskedMTKNPT(MTKNPT):
     def _integrate_p_cell(self, delta: float) -> None:
         """Integrate exp(i * L_(g, 2) * delta)"""
         stress = self._get_stress()
-        kinetic_term = np.sum(self._p**2 / self.masses) / (
-            3 * self._num_atoms_global
-        )
-        pv_tensor = self._get_volume() * (
-            stress - self._pressure_au * np.eye(3)
-        )
+        volume = self._get_volume()
+        particle_dof = 3 * self._num_atoms_global
+        kinetic_term = np.sum(self._p**2 / self.masses) / particle_dof
+        pv_tensor = volume * (stress - self._pressure_au * np.eye(3))
         for c, mc in enumerate(self._mask):
             if not mc:
                 continue
