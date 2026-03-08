@@ -573,6 +573,7 @@ class MTKNPT(MolecularDynamics):
             pdamp=pdamp,
             pchain=pchain,
             ploop=ploop,
+            mask=self.mask,
         )
 
         self._temperature_K = temperature_K
@@ -585,6 +586,14 @@ class MTKNPT(MolecularDynamics):
         self._p = self.atoms.get_momenta()  # momenta
         self._h = np.array(self.atoms.get_cell())  # cell
         self._p_g = np.zeros((3, 3))  # cell momenta
+
+    @property
+    def mask(self) -> tuple[bool, bool, bool] | None:
+        return None
+
+    @mask.setter
+    def mask(self, mask: tuple[bool, bool, bool]) -> None:
+        raise AttributeError()
 
     def step(self) -> None:
         dt2 = self.dt / 2
@@ -696,99 +705,37 @@ class MaskedMTKNPT(MTKNPT):
     """
     def __init__(
         self,
-        atoms: Atoms,
-        timestep: float,
-        temperature_K: float,
-        pressure_au: float,
+        *args,
         mask: tuple[bool, bool, bool],
-        tdamp: float,
-        pdamp: float,
-        tchain: int = 3,
-        pchain: int = 3,
-        tloop: int = 1,
-        ploop: int = 1,
         **kwargs,
     ):
         """
         Parameters
         ----------
-        atoms: ase.Atoms
-            The atoms object.
-        timestep: float
-            The time step in ASE time units.
-        temperature_K: float
-            The target temperature in K.
-        pressure_au: float
-            The external pressure in eV/Ang^3.
         mask: tuple[bool, bool, bool]
             Boolean mask for (a, b, c) axis fluctuations. `True` enables
             fluctuations along an axis and `False` disables them. For
             example, `mask=(False, False, True)` allows only c-axis
             fluctuations.
-        tdamp: float
-            The characteristic time scale for the thermostat in ASE time units.
-            Typically, it is set to 100 times of `timestep`.
-        pdamp: float
-            The characteristic time scale for the barostat in ASE time units.
-            Typically, it is set to 1000 times of `timestep`.
-        tchain: int
-            The number of thermostat variables in the Nose-Hoover thermostat.
-        pchain: int
-            The number of barostat variables in the MTK barostat.
-        tloop: int
-            The number of sub-steps in thermostat integration.
-        ploop: int
-            The number of sub-steps in barostat integration.
-        **kwargs : dict, optional
-            Additional arguments passed to :class:~ase.md.md.MolecularDynamics
-            base class.
+        *args
+            Positional arguments passed to :class:`ase.md.md.MTKNPT`.
+        **kwargs
+            Keyword arguments passed to :class:`ase.md.md.MTKNPT`.
         """
-        MolecularDynamics.__init__(
-            self,
-            atoms=atoms,
-            timestep=timestep,
-            **kwargs,
-        )
-        assert self.masses.shape == (len(self.atoms), 1)
-
-        if len(atoms.constraints) > 0:
-            raise NotImplementedError(
-                "Current implementation does not support constraints"
-            )
-
-        self._num_atoms_global = self.atoms.get_global_number_of_atoms()
-        self._thermostat = NoseHooverChainThermostat(
-            num_atoms_global=self._num_atoms_global,
-            masses=self.masses,
-            temperature_K=temperature_K,
-            tdamp=tdamp,
-            tchain=tchain,
-            tloop=tloop,
-        )
-
-        self._mask = mask
-        self._barostat = MTKBarostat(
-            num_atoms_global=self._num_atoms_global,
-            temperature_K=temperature_K,
-            pdamp=pdamp,
-            pchain=pchain,
-            ploop=ploop,
-            mask=self._mask,
-        )
-
-        self._temperature_K = temperature_K
-        self._pressure_au = pressure_au
-
-        self._kT = ase.units.kB * self._temperature_K
-
-        # The following variables are updated during self.step()
-        self._q = self.atoms.get_positions()  # positions
-        self._p = self.atoms.get_momenta()  # momenta
-        self._h = np.array(self.atoms.get_cell())  # cell
+        self.mask = mask
+        super().__init__(*args, **kwargs)
 
         # Additional variables for masked MTK
         self._h0_basis = self._h / np.linalg.norm(self._h, axis=1)[:, None]
         self._p_c = np.zeros(3)  # Cell momenta for axis
+
+    @property
+    def mask(self) -> tuple[bool, bool, bool]:
+        return self._mask
+
+    @mask.setter
+    def mask(self, mask: tuple[bool, bool, bool]) -> None:
+        self._mask = mask
 
     @property
     def _p_g(self) -> np.ndarray:
@@ -822,7 +769,7 @@ class MaskedMTKNPT(MTKNPT):
         particle_dof = 3 * self._num_atoms_global
         kinetic_term = np.sum(self._p**2 / self.masses) / particle_dof
         pv_tensor = volume * (stress - self._pressure_au * np.eye(3))
-        for c, mc in enumerate(self._mask):
+        for c, mc in enumerate(self.mask):
             if not mc:
                 continue
             gc = (
