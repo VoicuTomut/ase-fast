@@ -336,7 +336,7 @@ def test_anisotropic_npt(asap3, hcp_Cu: Atoms, tchain: int, pchain: int):
         pytest.param((False, False, True), id='uniaxial-c'),
         pytest.param((True, True, False), id='biaxial-a-b'),
         pytest.param((True, False, True), id='biaxial-a-c'),
-        pytest.param((True, True, True), id='iso'),
+        pytest.param((True, True, True), id='triaxial'),
     ]
 )
 def test_masked_npt(

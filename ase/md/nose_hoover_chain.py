@@ -228,6 +228,7 @@ class IsotropicMTKNPT(MolecularDynamics):
     by Martyna-Tobias-Klein (MTK) method [1].
 
     See also `NoseHooverChainNVT` for the references.
+    The factorization of the Liouville operator is the same as Reference [1].
 
     - [1] G. J. Martyna, D. J. Tobias, and M. L. Klein, J. Chem. Phys. 101,
           4177-4189 (1994). https://doi.org/10.1063/1.467468
@@ -496,6 +497,7 @@ class MTKNPT(MolecularDynamics):
     by Martyna-Tobias-Klein (MTK) method [1].
 
     See also `NoseHooverChainNVT` for the references.
+    The factorization of the Liouville operator is the same as Reference [1].
 
     - [1] G. J. Martyna, D. J. Tobias, and M. L. Klein, J. Chem. Phys. 101,
           4177-4189 (1994). https://doi.org/10.1063/1.467468
@@ -873,6 +875,7 @@ class MTKBarostat:
         self._W = (self._num_atoms_global + 1) * self._kT * self._pdamp**2
 
         assert pchain >= 1
+        # Virtual masses for barostat momenta. Q_j' in the original paper.
         self._R = np.zeros(self._pchain)
         self._R[0] = self._cell_dof * self._kT * self._pdamp**2
         self._R[1:] = self._kT * self._pdamp**2
@@ -882,6 +885,7 @@ class MTKBarostat:
 
     @property
     def W(self) -> float:
+        """Virtual mass for barostat momenta."""
         return self._W
 
     def get_barostat_energy(self) -> float:
