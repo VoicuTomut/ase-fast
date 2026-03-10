@@ -1,4 +1,3 @@
-# fmt: off
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -12,9 +11,17 @@ if TYPE_CHECKING:
 
 
 class Matplotlib(PlottingVariables):
-    def __init__(self, atoms, ax,
-                 rotation='', radii=None,
-                 colors=None, scale=1, offset=(0, 0), **parameters):
+    def __init__(
+        self,
+        atoms,
+        ax,
+        rotation='',
+        radii=None,
+        colors=None,
+        scale=1,
+        offset=(0, 0),
+        **parameters,
+    ):
         super().__init__(
             atoms,
             rotation=rotation,
@@ -40,10 +47,13 @@ class Matplotlib(PlottingVariables):
             self.ax.add_patch(patch)
 
 
-def animate(images, ax=None,
-            interval=200,  # in ms; same default value as in FuncAnimation
-            save_count=None,  # ignored as of 2023 with newer matplotlib
-            **parameters):
+def animate(
+    images,
+    ax=None,
+    interval=200,  # in ms; same default value as in FuncAnimation
+    save_count=None,  # ignored as of 2023 with newer matplotlib
+    **parameters,
+):
     """Convert sequence of atoms objects into Matplotlib animation.
 
     Each image is generated using plot_atoms().  Additional parameters
@@ -61,9 +71,9 @@ def animate(images, ax=None,
         ax.axis('off')
         plot_atoms(atoms, ax=ax, **parameters)
 
-    animation = FuncAnimation(fig, drawimage, frames=images,
-                              init_func=lambda: None,
-                              interval=interval)
+    animation = FuncAnimation(
+        fig, drawimage, frames=images, init_func=lambda: None, interval=interval
+    )
     return animation
 
 
@@ -99,6 +109,7 @@ def plot_atoms(atoms: Atoms, ax: Axes | None = None, **kwargs) -> Axes:
 
     """
     import matplotlib.pyplot as plt
+
     if ax is None:
         _, ax = plt.subplots()
 
