@@ -109,7 +109,7 @@ class SciPyOptimizer(Optimizer):
         gradient = self.optimizable.get_gradient()
         self.log(gradient)
         self.call_observers()
-        if self.converged(gradient):
+        if self.gradient_converged(gradient):
             raise Converged
 
     def run(self, fmax=0.05, steps=100000000):
@@ -129,7 +129,7 @@ class SciPyOptimizer(Optimizer):
         except Converged:
             pass
         gradient = self.optimizable.get_gradient()
-        return self.converged(gradient)
+        return self.gradient_converged(gradient)
 
     def dump(self, data):
         pass
