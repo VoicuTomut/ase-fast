@@ -477,6 +477,15 @@ Full Martyna-Tobias-Klein (MTK) dynamics
 .. autoclass:: MTKNPT
 
 
+Masked Martyna-Tobias-Klein (MTK) dynamics
+------------------------------------------
+
+.. module:: ase.md.nose_hoover_chain
+   :no-index:
+
+.. autoclass:: MaskedMTKNPT
+
+
 Langevin-Hoover BAOAB dynamics
 ------------------------------
 
