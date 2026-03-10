@@ -1,0 +1,19 @@
+I/O
+---
+
+- **BREAKING CHANGE:** Changes have been made to
+  :func:`ase.visualize.plot.plot_atoms`. These are intended to "do the
+  right thing" and streamline common usage especially in tutorial
+  material.  (:mr:`3979`)
+
+  - always remove axis decorations to give a cleaner output.
+
+  - If no existing Axes are provided, create a new Figure. (Existing
+    behaviour is to work on the "current" Axes, possibly overwriting
+    an unrelated plot.)
+
+- A lower-level function :func:`ase.visualize.plot.plot_atoms_raw` is
+  provided which simply plots to a provided Matplotlib Axes; other
+  formatting is left to the user. This is recommended for use in
+  composite figures where the default/fixed behaviours of
+  :func:`~ase.visualize.plot.plot_atoms` are unweildy.
