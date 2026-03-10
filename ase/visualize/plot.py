@@ -97,7 +97,7 @@ def plot_atoms(atoms: Atoms, ax: Axes | None = None, **kwargs) -> Axes:
     offset : tuple (float, float), optional
         Offset of the plotted atoms and lines.
 
-    """  # noqa: E501
+    """
     import matplotlib.pyplot as plt
     if ax is None:
         _, ax = plt.subplots()
