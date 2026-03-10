@@ -227,7 +227,7 @@ class IsotropicMTKNPT(MolecularDynamics):
     """Isothermal-isobaric molecular dynamics with isotropic volume fluctuations
     by Martyna-Tobias-Klein (MTK) method [1].
 
-    See also `NoseHooverChainNVT` for the references.
+    See also :class:`NoseHooverChainNVT` for the references.
     The factorization of the Liouville operator is the same as Reference [1].
 
     - [1] G. J. Martyna, D. J. Tobias, and M. L. Klein, J. Chem. Phys. 101,
@@ -496,7 +496,7 @@ class MTKNPT(MolecularDynamics):
     """Isothermal-isobaric molecular dynamics with volume-and-cell fluctuations
     by Martyna-Tobias-Klein (MTK) method [1].
 
-    See also `NoseHooverChainNVT` for the references.
+    See also :class:`NoseHooverChainNVT` for the references.
     The factorization of the Liouville operator is the same as Reference [1].
 
     - [1] G. J. Martyna, D. J. Tobias, and M. L. Klein, J. Chem. Phys. 101,
@@ -705,7 +705,7 @@ class MaskedMTKNPT(MTKNPT):
     """Isothermal-isobaric molecular dynamics with cell fluctuations along
     specified crystallographic axes by Martyna-Tobias-Klein (MTK) method [1].
 
-    See also `NoseHooverChainNVT` for the references.
+    See also :class:`NoseHooverChainNVT` for the references.
 
     - [1] G. J. Martyna, D. J. Tobias, and M. L. Klein, J. Chem. Phys. 101,
           4177-4189 (1994). https://doi.org/10.1063/1.467468
@@ -720,14 +720,14 @@ class MaskedMTKNPT(MTKNPT):
         Parameters
         ----------
         mask: tuple[bool, bool, bool]
-            Boolean mask for (a, b, c) axis fluctuations. `True` enables
-            fluctuations along an axis and `False` disables them. For
-            example, `mask=(False, False, True)` allows only c-axis
+            Boolean mask for (a, b, c) axis fluctuations. ``True`` enables
+            fluctuations along an axis and ``False`` disables them. For
+            example, ``mask=(False, False, True)`` allows only c-axis
             fluctuations.
         *args
-            Positional arguments passed to :class:`ase.md.md.MTKNPT`.
+            Positional arguments passed to :class:`MTKNPT`.
         **kwargs
-            Keyword arguments passed to :class:`ase.md.md.MTKNPT`.
+            Keyword arguments passed to :class:`MTKNPT`.
         """
         self.mask = mask
         super().__init__(*args, **kwargs)
