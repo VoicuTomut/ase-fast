@@ -22,7 +22,6 @@ license <license info>`.
 
 .. _Python: https://www.python.org/
 
-
 ASE provides interfaces to different codes through :mod:`Calculators
 <ase.calculators>` which are used together with the central
 :mod:`Atoms <ase.atoms>` object and the many available algorithms in
