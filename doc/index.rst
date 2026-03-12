@@ -2,12 +2,26 @@
 Atomic Simulation Environment
 =============================
 
+.. admonition:: ASE Event
+   :class: tip
+
+   The CECAM Flagship workshop *The Atomic Simulation Environment: Integration into Wider Community Projects*
+   is taking place June 15-19, 2026 in Mainz, Germany.
+   It is now open for registration (deadline: April 15, 2026).
+   Please find more information and register on the `CECAM event webpage`_.
+
+.. _CECAM event webpage: https://www.cecam.org/
+ workshop-details/the-atomic-simulation-environment-
+ integration-into-wider-community-projects-1509
+
+
 The Atomic Simulation Environment (ASE) is a set of tools and Python_
 modules for setting up, manipulating, running, visualizing and analyzing
 atomistic simulations.  The code is freely available under the :ref:`GNU LGPL
 license <license info>`.
 
 .. _Python: https://www.python.org/
+
 
 ASE provides interfaces to different codes through :mod:`Calculators
 <ase.calculators>` which are used together with the central
