@@ -98,7 +98,8 @@ def read_constraints_from_file(directory):
     directory = Path(directory)
     constraint = None
     for filename in ('CONTCAR', 'POSCAR'):
-        if (directory / filename).is_file() and (directory / filename).stat().st_size > 0:
+        if ((directory / filename).is_file() and
+            (directory / filename).stat().st_size > 0):
             constraint = read(directory / filename,
                               format='vasp',
                               parallel=False).constraints
