@@ -6,7 +6,7 @@ Atomic Simulation Environment
    :class: tip
 
    The CECAM Flagship workshop *The Atomic Simulation Environment: Integration into Wider Community Projects*
-   is taking place June 15-19, 2026 in Mainz, Germany.
+   is taking place **June 15-19, 2026 in Mainz, Germany**.
    It is now open for registration (deadline: April 15, 2026).
    Please find more information and register on the `CECAM event webpage`_.
 
