@@ -240,8 +240,8 @@ def phonon_harmonics(
 ):
     r"""Return displacements and velocities that produce a given temperature.
 
-    Parameters:
-
+    Parameters
+    ----------
     force_constants: array of size 3N x 3N
         force constants (Hessian) of the system in eV/Å²
 
@@ -272,13 +272,13 @@ def phonon_harmonics(
         True for sanity checking the phonon spectrum for negative
         frequencies at Gamma
 
-    Returns:
-
+    Returns
+    -------
     Displacements, velocities generated from the eigenmodes,
     (optional: eigenvalues, eigenvectors of dynamical matrix)
 
-    Purpose:
-
+    Notes
+    -----
     Excite phonon modes to specified temperature.
 
     This excites all phonon modes randomly so that each contributes,
@@ -312,7 +312,11 @@ def phonon_harmonics(
         a    \  m  /     ---  ai        i                i
                  a        i
 
-    Reference: [West, Estreicher; PRL 96, 22 (2006)]
+    References
+    ----------
+    D. West and S. K. Estreicher, Phys. Rev. Lett. 96, 115504 (2006).
+    https://doi.org/10.1103/PhysRevLett.96.115504
+
     """
 
     # Handle the temperature units
@@ -421,9 +425,9 @@ def PhononHarmonics(
     to produce a random, phononically correct state with the requested
     temperature.
 
-    Parameters:
-
-    atoms: ase.atoms.Atoms() object
+    Parameters
+    ----------
+    atoms: :class:`~ase.Atoms`
         Positions and momenta of this object are perturbed.
 
     force_constants: ndarray of size 3N x 3N

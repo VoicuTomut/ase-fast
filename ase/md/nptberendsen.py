@@ -36,8 +36,8 @@ class NPTBerendsen(NVTBerendsen):
         pressure and temperature.  The shape of the simulation cell is not
         altered, if that is desired use Inhomogenous_NPTBerendsen.
 
-        Parameters:
-
+        Parameters
+        ----------
         atoms: Atoms object
             The list of atoms.
 

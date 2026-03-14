@@ -64,12 +64,12 @@ class MelchionnaNPT(MolecularDynamics):
         Combined Nose-Hoover and Parrinello-Rahman dynamics, creating an
         NPT (or N,stress,T) ensemble.
 
-        The method is the one proposed by Melchionna et al. [1] and later
-        modified by Melchionna [2].  The differential equations are integrated
-        using a centered difference method [3].  See also NPTdynamics.tex
+        The method is the one proposed by Melchionna et al. [1]_ and later
+        modified by Melchionna [2]_.  The differential equations are integrated
+        using a centered difference method [3]_.  See also NPTdynamics.tex
 
-        The dynamics object is called with the following parameters:
-
+        Parameters
+        ----------
         atoms: Atoms object
             The list of atoms.
 
@@ -119,12 +119,12 @@ class MelchionnaNPT(MolecularDynamics):
             mask may also be specified as a symmetric 3x3 array
             indicating which strain values may change.
 
-        Useful parameter values:
-
+        Notes
+        -----
         * The same timestep can be used as in Verlet dynamics, i.e. 5 fs is fine
           for bulk copper.
 
-        * The ttime and pfactor are quite critical[4], too small values may
+        * The ttime and pfactor are quite critical [4]_, too small values may
           cause instabilites and/or wrong fluctuations in T / p.  Too
           large values cause an oscillation which is slow to die.  Good
           values for the characteristic times seem to be 25 fs for ttime,
@@ -133,20 +133,23 @@ class MelchionnaNPT(MolecularDynamics):
           tested, it is IMPORTANT to monitor the temperature and
           stress/pressure fluctuations.
 
+        References
+        ----------
+        .. [1] S. Melchionna, G. Ciccotti and B. L. Holian,
+            Mol. Phys. 78, 533–544 (1993).
+            https://doi.org/10.1080/00268979300100371
 
-        References:
+        .. [2] S. Melchionna,
+            Phys. Rev. E 61, 6165–6170 (2000).
+            https://doi.org/10.1103/PhysRevE.61.6165
 
-        1) S. Melchionna, G. Ciccotti and B. L. Holian, Molecular
-           Physics 78, p. 533 (1993).
+        .. [3] B. L. Holian, A. J. De Groot, W. G. Hoover, and C. G. Hoover,
+            Phys. Rev. A 41, 4552–4553 (1990).
+            https://doi.org/10.1103/PhysRevA.41.4552
 
-        2) S. Melchionna, Physical
-           Review E 61, p. 6165 (2000).
-
-        3) B. L. Holian, A. J. De Groot, W. G. Hoover, and C. G. Hoover,
-           Physical Review A 41, p. 4552 (1990).
-
-        4) F. D. Di Tolla and M. Ronchetti, Physical
-           Review E 48, p. 1726 (1993).
+        .. [4] F. D. Di Tolla and M. Ronchetti,
+            Phys. Rev. E 48, 1726–1737 (1993).
+            https://doi.org/10.1103/PhysRevE.48.1726
 
         '''
 

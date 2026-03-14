@@ -10,6 +10,12 @@ from ase.md.md import MolecularDynamics
 
 
 class NVTBerendsen(MolecularDynamics):
+    """Berendsen (constant N, V, T) molecular dynamics.
+
+    Berendsen *et al.*, J. Chem. Phys. 81, 3684–3690 (1984).
+    https://doi.org/10.1063/1.448118
+    """
+
     def __init__(
         self,
         atoms: Atoms,
@@ -21,8 +27,7 @@ class NVTBerendsen(MolecularDynamics):
         temperature_K: Optional[float] = None,
         **kwargs,
     ):
-        """Berendsen (constant N, V, T) molecular dynamics.
-
+        """
         Parameters
         ----------
         atoms: Atoms object
