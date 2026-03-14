@@ -45,9 +45,9 @@ class ContourExploration(Dynamics):
     ):
         """Contour Exploration object.
 
-        Parameters:
-
-        atoms: Atoms object
+        Parameters
+        ----------
+        atoms: :class:`~ase.Atoms`
             The Atoms object to operate on. Atomic velocities are required for
             the method. If the atoms object does not contain velocities,
             random ones will be applied.

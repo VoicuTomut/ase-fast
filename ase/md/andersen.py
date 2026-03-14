@@ -9,7 +9,11 @@ from ase.md.md import MolecularDynamics
 
 
 class Andersen(MolecularDynamics):
-    """Andersen (constant N, V, T) molecular dynamics."""
+    """Andersen (constant N, V, T) molecular dynamics.
+
+    Andersen, J. Chem. Phys. 72, 2384–2393 (1980).
+    https://doi.org/10.1063/1.439486
+    """
 
     def __init__(
         self,
@@ -50,12 +54,13 @@ class Andersen(MolecularDynamics):
             :class:`~ase.md.md.MolecularDynamics`
             base class.
 
+        Notes
+        -----
         The temperature is imposed by stochastic collisions with a heat bath
         that acts on velocity components of randomly chosen particles.
         The algorithm randomly decorrelates velocities, so dynamical properties
         like diffusion or viscosity cannot be properly measured.
 
-        H. C. Andersen, J. Chem. Phys. 72 (4), 2384–2393 (1980)
         """
         if 'communicator' in kwargs:
             msg = (
