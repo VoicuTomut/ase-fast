@@ -7,7 +7,7 @@ temperature.
 """
 
 import warnings
-from typing import Literal, Optional
+from typing import Literal
 
 import numpy as np
 
@@ -96,9 +96,9 @@ def _maxwellboltzmanndistribution(masses, temp, comm=world, rng=None):
 
 def MaxwellBoltzmannDistribution(
     atoms: Atoms,
-    temp: Optional[float] = None,
+    temp: float | None = None,
     *,
-    temperature_K: Optional[float] = None,
+    temperature_K: float | None = None,
     comm=world,
     communicator=None,
     force_temp: bool = False,

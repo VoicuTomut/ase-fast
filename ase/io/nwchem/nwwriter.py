@@ -5,7 +5,6 @@ import random
 import string
 import warnings
 from copy import deepcopy
-from typing import List, Optional, Tuple
 
 import numpy as np
 
@@ -18,7 +17,7 @@ _special_kws = ['center', 'autosym', 'autoz', 'theory', 'basis', 'xc', 'task',
 _system_type = {1: 'polymer', 2: 'surface', 3: 'crystal'}
 
 
-def _render_geom(atoms, params: dict) -> List[str]:
+def _render_geom(atoms, params: dict) -> list[str]:
     """Generate the geometry block
 
     Parameters
@@ -79,7 +78,7 @@ def _render_geom(atoms, params: dict) -> List[str]:
     return geom
 
 
-def _render_basis(theory, params: dict) -> List[str]:
+def _render_basis(theory, params: dict) -> list[str]:
     """Infer the basis set block
 
     Arguments
@@ -125,7 +124,7 @@ _special_keypairs = [('nwpw', 'simulation_cell'),
                      ]
 
 
-def _render_brillouin_zone(array, name=None) -> List[str]:
+def _render_brillouin_zone(array, name=None) -> list[str]:
     out = ['  brillouin_zone']
     if name is not None:
         out += [f'    zone_name {name}']
@@ -136,7 +135,7 @@ def _render_brillouin_zone(array, name=None) -> List[str]:
     return out
 
 
-def _render_bandpath(bp) -> List[str]:
+def _render_bandpath(bp) -> list[str]:
     if bp is None:
         return []
     out = ['nwpw']
@@ -156,7 +155,7 @@ def _format_line(key, val) -> str:
         return ' '.join([key, str(val)])
 
 
-def _format_block(key, val, nindent=0) -> List[str]:
+def _format_block(key, val, nindent=0) -> list[str]:
     prefix = '  ' * nindent
     prefix2 = '  ' * (nindent + 1)
     if val is None:
@@ -181,7 +180,7 @@ def _format_block(key, val, nindent=0) -> List[str]:
     return out
 
 
-def _render_other(params) -> List[str]:
+def _render_other(params) -> list[str]:
     """Render other commands
 
     Parameters
@@ -202,7 +201,7 @@ def _render_other(params) -> List[str]:
     return out
 
 
-def _render_set(set_params) -> List[str]:
+def _render_set(set_params) -> list[str]:
     """Render the commands for the set parameters
 
     Parameters
@@ -355,10 +354,10 @@ def _update_kpts(atoms, params) -> None:
 
 def _render_pretask(
         this_step: dict,
-        previous_basis: Optional[List[str]],
+        previous_basis: list[str] | None,
         wfc_path: str,
-        next_steps: List[dict],
-) -> Tuple[List[str], List[str]]:
+        next_steps: list[dict],
+) -> tuple[list[str], list[str]]:
     """Generate input file lines that perform a cheaper method first
 
     Parameters

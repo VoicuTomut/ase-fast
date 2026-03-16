@@ -1,6 +1,6 @@
 # fmt: off
 
-from typing import IO, Optional, Union
+from typing import IO
 
 import numpy as np
 import scipy.optimize as opt
@@ -26,8 +26,8 @@ class SciPyOptimizer(Optimizer):
     def __init__(
         self,
         atoms: Atoms,
-        logfile: Union[IO, str] = '-',
-        trajectory: Optional[str] = None,
+        logfile: IO | str = '-',
+        trajectory: str | None = None,
         callback_always: bool = False,
         alpha: float = 70.0,
         **kwargs,
@@ -202,8 +202,8 @@ class SciPyGradientlessOptimizer(Optimizer):
     def __init__(
         self,
         atoms: Atoms,
-        logfile: Union[IO, str] = '-',
-        trajectory: Optional[str] = None,
+        logfile: IO | str = '-',
+        trajectory: str | None = None,
         callback_always: bool = False,
         **kwargs,
     ):

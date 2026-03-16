@@ -1,6 +1,5 @@
 # fmt: off
 
-from typing import List, Optional
 
 import numpy as np
 
@@ -17,7 +16,7 @@ class ClusterFactory(ClusterBase):
 
     atomic_basis = np.array([[0., 0., 0.]])
 
-    element_basis: Optional[List[int]] = None
+    element_basis: list[int] | None = None
 
     # Make it possible to change the class of the object returned.
     Cluster = Cluster

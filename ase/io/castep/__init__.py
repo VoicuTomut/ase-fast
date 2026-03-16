@@ -9,7 +9,6 @@ import os
 import re
 import warnings
 from copy import deepcopy
-from typing import List, Tuple
 
 import numpy as np
 
@@ -315,8 +314,8 @@ def write_castep_cell(fd, atoms, positions_frac=False, force_write=False,
     write_freeform(fd, cell)
 
 
-def _make_block_ionic_constraints(atoms: ase.Atoms) -> List[str]:
-    constr_block: List[str] = []
+def _make_block_ionic_constraints(atoms: ase.Atoms) -> list[str]:
+    constr_block: list[str] = []
     species_indices = atoms.symbols.species_indices()
     for constr in atoms.constraints:
         if not _is_constraint_valid(constr, len(atoms)):
@@ -363,7 +362,7 @@ def _is_constraint_valid(constraint, natoms: int) -> bool:
     return True
 
 
-def _calc_normal_vectors(constr: FixedLine) -> Tuple[np.ndarray, np.ndarray]:
+def _calc_normal_vectors(constr: FixedLine) -> tuple[np.ndarray, np.ndarray]:
     direction = constr.dir
 
     i2, i1 = np.argsort(np.abs(direction))[1:]
@@ -1100,7 +1099,7 @@ def read_bands(fd, units=units_CODATA2002):
     for _ in range(4):
         fd.readline()
 
-    def _kptline_to_i_k_wt(line: str) -> Tuple[int, List[float], float]:
+    def _kptline_to_i_k_wt(line: str) -> tuple[int, list[float], float]:
         split_line = line.split()
         i_kpt = int(split_line[1]) - 1
         kpt = list(map(float, split_line[2:5]))

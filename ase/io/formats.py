@@ -22,19 +22,13 @@ import os
 import re
 import sys
 import warnings
+from collections.abc import Iterator, Sequence
 from importlib import import_module
 from importlib.metadata import entry_points
 from pathlib import PurePath
 from typing import (
     IO,
     Any,
-    Dict,
-    Iterator,
-    List,
-    Optional,
-    Sequence,
-    Tuple,
-    Union,
 )
 
 from ase.atoms import Atoms
@@ -51,7 +45,7 @@ class UnknownFileTypeError(Exception):
 
 class IOFormat:
     def __init__(self, name: str, desc: str, code: str, module_name: str,
-                 encoding: str = None) -> None:
+                 encoding: str | None = None) -> None:
         self.name = name
         self.description = desc
         assert len(code) == 2
@@ -62,12 +56,12 @@ class IOFormat:
         self.encoding = encoding
 
         # (To be set by define_io_format())
-        self.extensions: List[str] = []
-        self.globs: List[str] = []
-        self.magic: List[str] = []
-        self.magic_regex: Optional[bytes] = None
+        self.extensions: list[str] = []
+        self.globs: list[str] = []
+        self.magic: list[str] = []
+        self.magic_regex: bytes | None = None
 
-    def _buf_as_filelike(self, data: Union[str, bytes]) -> IO:
+    def _buf_as_filelike(self, data: str | bytes) -> IO:
         encoding = self.encoding
         if encoding is None:
             encoding = 'utf-8'  # Best hacky guess.
@@ -88,7 +82,7 @@ class IOFormat:
         else:
             return io.StringIO
 
-    def parse_images(self, data: Union[str, bytes],
+    def parse_images(self, data: str | bytes,
                      **kwargs) -> Sequence[Atoms]:
         with self._buf_as_filelike(data) as fd:
             outputs = self.read(fd, **kwargs)
@@ -98,7 +92,7 @@ class IOFormat:
             else:
                 return list(self.read(fd, **kwargs))
 
-    def parse_atoms(self, data: Union[str, bytes], **kwargs) -> Atoms:
+    def parse_atoms(self, data: str | bytes, **kwargs) -> Atoms:
         images = self.parse_images(data, **kwargs)
         return images[-1]
 
@@ -236,7 +230,7 @@ class IOFormat:
         )
 
 
-ioformats: Dict[str, IOFormat] = {}  # These will be filled at run-time.
+ioformats: dict[str, IOFormat] = {}  # These will be filled at run-time.
 extension2format = {}
 
 
@@ -504,7 +498,7 @@ F('xyz', 'XYZ-file', '+F')
 register_external_io_formats('ase.ioformats')
 
 
-def get_compression(filename: str) -> Tuple[str, Optional[str]]:
+def get_compression(filename: str) -> tuple[str, str | None]:
     """
     Parse any expected file compression from the extension of a filename.
     Return the filename without the extension, and the extension. Recognises
@@ -617,13 +611,13 @@ def wrap_read_function(read, filename, index=None, **kwargs):
         yield from read(filename, index, **kwargs)
 
 
-NameOrFile = Union[str, PurePath, IO]
+NameOrFile = str | PurePath | IO
 
 
 def write(
         filename: NameOrFile,
-        images: Union[Atoms, Sequence[Atoms]],
-        format: str = None,
+        images: Atoms | Sequence[Atoms],
+        format: str | None = None,
         parallel: bool = True,
         append: bool = False,
         **kwargs: Any
@@ -738,12 +732,12 @@ def _write(filename, fd, format, io, images, parallel=None, append=False,
 
 def read(
         filename: NameOrFile,
-        index: Any = None,
-        format: Optional[str] = None,
+        index: Any | None = None,
+        format: str | None = None,
         parallel: bool = True,
         do_not_split_by_at_sign: bool = False,
         **kwargs
-) -> Union[Atoms, List[Atoms]]:
+) -> Atoms | list[Atoms]:
     """Read Atoms object(s) from file.
 
     filename: str or file
@@ -796,8 +790,8 @@ def read(
 
 def iread(
         filename: NameOrFile,
-        index: Any = None,
-        format: str = None,
+        index: Any | None = None,
+        format: str | None = None,
         parallel: bool = True,
         do_not_split_by_at_sign: bool = False,
         **kwargs

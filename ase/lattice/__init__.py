@@ -3,7 +3,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import cached_property
-from typing import Dict, List
 
 import numpy as np
 
@@ -90,7 +89,7 @@ class BravaisLattice(ABC):
         """
         return self._variant.name
 
-    def vars(self) -> Dict[str, float]:
+    def vars(self) -> dict[str, float]:
         """Get parameter names and values of this lattice as a dictionary."""
         return dict(self._parameters)
 
@@ -122,7 +121,7 @@ class BravaisLattice(ABC):
         return self._variant.special_path
 
     @property
-    def special_point_names(self) -> List[str]:
+    def special_point_names(self) -> list[str]:
         """Return all special point names as a list of strings.
 
         >>> from ase.lattice import BCT
@@ -154,7 +153,7 @@ class BravaisLattice(ABC):
         assert len(points) == len(self.special_point_names)
         return np.array(points)
 
-    def get_special_points(self) -> Dict[str, np.ndarray]:
+    def get_special_points(self) -> dict[str, np.ndarray]:
         """Return a dictionary of named special k-points for this lattice."""
         if self._variant.special_points is not None:
             return self._variant.special_points

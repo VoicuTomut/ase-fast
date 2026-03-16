@@ -13,7 +13,8 @@ import io
 import re
 import shlex
 import warnings
-from typing import Any, Dict, Iterator, List, Optional, Sequence, Tuple, Union
+from collections.abc import Iterator, Sequence
+from typing import Any
 
 import numpy as np
 
@@ -34,8 +35,8 @@ old_spacegroup_names = {'Abm2': 'Aem2',
                         'Ccca': 'Ccc1'}
 
 # CIF maps names to either single values or to multiple values via loops.
-CIFDataValue = Union[str, int, float]
-CIFData = Union[CIFDataValue, List[CIFDataValue]]
+CIFDataValue = str | int | float
+CIFData = CIFDataValue | list[CIFDataValue]
 
 
 def convert_value(value: str) -> CIFDataValue:
@@ -58,7 +59,7 @@ def convert_value(value: str) -> CIFDataValue:
         return handle_subscripts(value)
 
 
-def parse_multiline_string(lines: List[str], line: str) -> str:
+def parse_multiline_string(lines: list[str], line: str) -> str:
     """Parse semicolon-enclosed multiline string and return it."""
     assert line[0] == ';'
     strings = [line[1:].lstrip()]
@@ -70,7 +71,7 @@ def parse_multiline_string(lines: List[str], line: str) -> str:
     return '\n'.join(strings).strip()
 
 
-def parse_singletag(lines: List[str], line: str) -> Tuple[str, CIFDataValue]:
+def parse_singletag(lines: list[str], line: str) -> tuple[str, CIFDataValue]:
     """Parse a CIF tag (entries starting with underscore). Returns
     a key-value pair."""
     kv = line.split(None, 1)
@@ -88,7 +89,7 @@ def parse_singletag(lines: List[str], line: str) -> Tuple[str, CIFDataValue]:
     return key, convert_value(value)
 
 
-def parse_cif_loop_headers(lines: List[str]) -> Iterator[str]:
+def parse_cif_loop_headers(lines: list[str]) -> Iterator[str]:
     while lines:
         line = lines.pop()
         tokens = line.split()
@@ -101,9 +102,9 @@ def parse_cif_loop_headers(lines: List[str]) -> Iterator[str]:
             return
 
 
-def parse_cif_loop_data(lines: List[str],
-                        ncolumns: int) -> List[List[CIFDataValue]]:
-    columns: List[List[CIFDataValue]] = [[] for _ in range(ncolumns)]
+def parse_cif_loop_data(lines: list[str],
+                        ncolumns: int) -> list[list[CIFDataValue]]:
+    columns: list[list[CIFDataValue]] = [[] for _ in range(ncolumns)]
 
     tokens = []
     while lines:
@@ -150,7 +151,7 @@ def parse_cif_loop_data(lines: List[str],
     return columns
 
 
-def parse_loop(lines: List[str]) -> Dict[str, List[CIFDataValue]]:
+def parse_loop(lines: list[str]) -> dict[str, list[CIFDataValue]]:
     """Parse a CIF loop. Returns a dict with column tag names as keys
     and a lists of the column content as values."""
 
@@ -168,9 +169,9 @@ def parse_loop(lines: List[str]) -> Dict[str, List[CIFDataValue]]:
     return columns_dict
 
 
-def parse_items(lines: List[str], line: str) -> Dict[str, CIFData]:
+def parse_items(lines: list[str], line: str) -> dict[str, CIFData]:
     """Parse a CIF data items and return a dict with all tags."""
-    tags: Dict[str, CIFData] = {}
+    tags: dict[str, CIFData] = {}
 
     while True:
         if not lines:
@@ -209,7 +210,7 @@ class CIFBlock(collections.abc.Mapping):
     cell_tags = ['_cell_length_a', '_cell_length_b', '_cell_length_c',
                  '_cell_angle_alpha', '_cell_angle_beta', '_cell_angle_gamma']
 
-    def __init__(self, name: str, tags: Dict[str, CIFData]):
+    def __init__(self, name: str, tags: dict[str, CIFData]):
         self.name = name
         self._tags = tags
 
@@ -229,7 +230,7 @@ class CIFBlock(collections.abc.Mapping):
     def get(self, key, default=None):
         return self._tags.get(key, default)
 
-    def get_cellpar(self) -> Optional[List]:
+    def get_cellpar(self) -> list | None:
         try:
             return [self[tag] for tag in self.cell_tags]
         except KeyError:
@@ -241,7 +242,7 @@ class CIFBlock(collections.abc.Mapping):
             return Cell.new([0, 0, 0])
         return Cell.new(cellpar)
 
-    def _raw_scaled_positions(self) -> Optional[np.ndarray]:
+    def _raw_scaled_positions(self) -> np.ndarray | None:
         coords = [self.get(name) for name in ['_atom_site_fract_x',
                                               '_atom_site_fract_y',
                                               '_atom_site_fract_z']]
@@ -251,7 +252,7 @@ class CIFBlock(collections.abc.Mapping):
             return None
         return np.array(coords).T
 
-    def _raw_positions(self) -> Optional[np.ndarray]:
+    def _raw_positions(self) -> np.ndarray | None:
         coords = [self.get('_atom_site_cartn_x'),
                   self.get('_atom_site_cartn_y'),
                   self.get('_atom_site_cartn_z')]
@@ -288,7 +289,7 @@ class CIFBlock(collections.abc.Mapping):
             symbols.append(symbol)
         return symbols
 
-    def get_symbols(self) -> List[str]:
+    def get_symbols(self) -> list[str]:
         symbols = self._get_symbols_with_deuterium()
         return [symbol if symbol != 'D' else 'H' for symbol in symbols]
 
@@ -296,7 +297,7 @@ class CIFBlock(collections.abc.Mapping):
         return np.array([symbol == 'D' for symbol
                          in self._get_symbols_with_deuterium()], bool)
 
-    def _get_masses(self) -> Optional[np.ndarray]:
+    def _get_masses(self) -> np.ndarray | None:
         mask = self._where_deuterium()
         if not any(mask):
             return None
@@ -341,7 +342,7 @@ class CIFBlock(collections.abc.Mapping):
     def _get_fractional_occupancies(self):
         return self.get('_atom_site_occupancy')
 
-    def _get_setting(self) -> Optional[int]:
+    def _get_setting(self) -> int | None:
         setting_str = self.get('_symmetry_space_group_setting')
         if setting_str is None:
             return None
@@ -463,7 +464,7 @@ class CIFBlock(collections.abc.Mapping):
         cell = self.get_cell()
         assert cell.rank in [0, 3]
 
-        kwargs: Dict[str, Any] = {}
+        kwargs: dict[str, Any] = {}
         if store_tags:
             kwargs['info'] = self._tags.copy()
 
@@ -503,7 +504,7 @@ class CIFBlock(collections.abc.Mapping):
         return atoms
 
 
-def parse_block(lines: List[str], line: str) -> CIFBlock:
+def parse_block(lines: list[str], line: str) -> CIFBlock:
     assert line.lower().startswith('data_')
     blockname = line.split('_', 1)[1].rstrip()
     tags = parse_items(lines, line)
@@ -612,7 +613,7 @@ def read_cif(
     subtrans_included: bool = True,
     fractional_occupancies: bool = True,
     reader: str = 'ase',
-) -> Union[Atoms, List[Atoms]]:
+) -> Atoms | list[Atoms]:
     """Read Atoms object from CIF file.
 
     Parameters
@@ -774,8 +775,8 @@ def write_cif(fd, images, cif_format=None,
         fd.detach()
 
 
-def autolabel(symbols: Sequence[str]) -> List[str]:
-    no: Dict[str, int] = {}
+def autolabel(symbols: Sequence[str]) -> list[str]:
+    no: dict[str, int] = {}
     labels = []
     for symbol in symbols:
         if symbol in no:

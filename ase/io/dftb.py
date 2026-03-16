@@ -1,6 +1,6 @@
 # fmt: off
 
-from typing import Sequence, Union
+from collections.abc import Sequence
 
 import numpy as np
 
@@ -180,7 +180,7 @@ def read_dftb_lattice(fileobj, images=None):
 @writer
 def write_dftb(
     fileobj,
-    images: Union[Atoms, Sequence[Atoms]],
+    images: Atoms | Sequence[Atoms],
     fractional: bool = False,
 ):
     """Write structure in GEN format (refer to DFTB+ manual).

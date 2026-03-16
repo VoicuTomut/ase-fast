@@ -1,7 +1,8 @@
 """Parsers for CASTEP .geom, .md, .ts files"""
 
+from collections.abc import Callable, Sequence
 from math import sqrt
-from typing import Callable, Dict, List, Optional, Sequence, TextIO, Union
+from typing import TextIO
 
 import numpy as np
 
@@ -14,7 +15,7 @@ from ase.utils import reader, writer
 class Parser:
     """Parser for <-- `key` in .geom, .md, .ts files"""
 
-    def __init__(self, units: Optional[Dict[str, float]] = None):
+    def __init__(self, units: dict[str, float] | None = None):
         if units is None:
             from ase.io.castep import units_CODATA2002
 
@@ -22,7 +23,7 @@ class Parser:
         else:
             self.units = units
 
-    def parse(self, lines: List[str], key: str, method: Callable):
+    def parse(self, lines: list[str], key: str, method: Callable):
         """Parse <-- `key` in `lines` using `method`"""
         relevant_lines = [line for line in lines if line.strip().endswith(key)]
         if relevant_lines:
@@ -33,8 +34,8 @@ class Parser:
 @reader
 def _read_images(
     fd: TextIO,
-    index: Union[int, slice, str] = -1,
-    units: Optional[Dict[str, float]] = None,
+    index: int | slice | str = -1,
+    units: dict[str, float] | None = None,
 ):
     """Read a .geom or a .md file written by CASTEP.
 
@@ -86,7 +87,7 @@ read_castep_geom = _read_images
 read_castep_md = _read_images
 
 
-def _iread_images(fd: TextIO, units: Optional[Dict[str, float]] = None):
+def _iread_images(fd: TextIO, units: dict[str, float] | None = None):
     """Read a .geom or .md file of CASTEP MolecularDynamics as a generator."""
     parser = Parser(units)
     _read_header(fd)
@@ -103,7 +104,7 @@ iread_castep_geom = _iread_images
 iread_castep_md = _iread_images
 
 
-def _read_atoms(lines: List[str], parser: Parser) -> Atoms:
+def _read_atoms(lines: list[str], parser: Parser) -> Atoms:
     from ase.calculators.singlepoint import SinglePointCalculator
 
     energy = parser.parse(lines, '<-- E', _read_energies)
@@ -152,7 +153,7 @@ def _read_header(fd: TextIO):
             break
 
 
-def _read_energies(lines: List[str], units: Dict[str, float]) -> float:
+def _read_energies(lines: list[str], units: dict[str, float]) -> float:
     """Read force-consistent energy
 
     Notes
@@ -164,7 +165,7 @@ def _read_energies(lines: List[str], units: Dict[str, float]) -> float:
     return float(lines[0].split()[0]) * units['Eh']
 
 
-def _read_temperature(lines: List[str], units: Dict[str, float]) -> float:
+def _read_temperature(lines: list[str], units: dict[str, float]) -> float:
     """Read temperature
 
     Notes
@@ -175,7 +176,7 @@ def _read_temperature(lines: List[str], units: Dict[str, float]) -> float:
     return float(lines[0].split()[0]) * factor
 
 
-def _read_pressure(lines: List[str], units: Dict[str, float]) -> float:
+def _read_pressure(lines: list[str], units: dict[str, float]) -> float:
     """Read pressure
 
     Notes
@@ -186,7 +187,7 @@ def _read_pressure(lines: List[str], units: Dict[str, float]) -> float:
     return float(lines[0].split()[0]) * factor
 
 
-def _read_cell(lines: List[str], units: Dict[str, float]) -> np.ndarray:
+def _read_cell(lines: list[str], units: dict[str, float]) -> np.ndarray:
     bohr = units['a0']
     cell = np.array([line.split()[0:3] for line in lines], dtype=float)
     return cell * bohr
@@ -199,7 +200,7 @@ def _read_cell(lines: List[str], units: Dict[str, float]) -> np.ndarray:
 #     return cell_velocities * np.sqrt(hartree / me)
 
 
-def _read_stress(lines: List[str], units: Dict[str, float]) -> np.ndarray:
+def _read_stress(lines: list[str], units: dict[str, float]) -> np.ndarray:
     hartree = units['Eh']
     bohr = units['a0']
     stress = np.array([line.split()[0:3] for line in lines], dtype=float)
@@ -207,7 +208,7 @@ def _read_stress(lines: List[str], units: Dict[str, float]) -> np.ndarray:
 
 
 def _read_positions(
-    lines: List[str], units: Dict[str, float]
+    lines: list[str], units: dict[str, float]
 ) -> tuple[list[str], np.ndarray]:
     bohr = units['a0']
     symbols = [line.split()[0] for line in lines]
@@ -215,14 +216,14 @@ def _read_positions(
     return symbols, positions * bohr
 
 
-def _read_velocities(lines: List[str], units: Dict[str, float]) -> np.ndarray:
+def _read_velocities(lines: list[str], units: dict[str, float]) -> np.ndarray:
     hartree = units['Eh']
     me = units['me']
     velocities = np.array([line.split()[2:5] for line in lines], dtype=float)
     return velocities * np.sqrt(hartree / me)
 
 
-def _read_forces(lines: List[str], units: Dict[str, float]) -> np.ndarray:
+def _read_forces(lines: list[str], units: dict[str, float]) -> np.ndarray:
     hartree = units['Eh']
     bohr = units['a0']
     forces = np.array([line.split()[2:5] for line in lines], dtype=float)
@@ -232,8 +233,8 @@ def _read_forces(lines: List[str], units: Dict[str, float]) -> np.ndarray:
 @writer
 def write_castep_geom(
     fd: TextIO,
-    images: Union[Atoms, Sequence[Atoms]],
-    units: Optional[Dict[str, float]] = None,
+    images: Atoms | Sequence[Atoms],
+    units: dict[str, float] | None = None,
     *,
     pressure: float = 0.0,
     sort: bool = False,
@@ -293,8 +294,8 @@ def write_castep_geom(
 @writer
 def write_castep_md(
     fd: TextIO,
-    images: Union[Atoms, Sequence[Atoms]],
-    units: Optional[Dict[str, float]] = None,
+    images: Atoms | Sequence[Atoms],
+    units: dict[str, float] | None = None,
     *,
     pressure: float = 0.0,
     sort: bool = False,
@@ -389,7 +390,7 @@ def _write_time(fd: TextIO, index: int):
 def _write_energies_geom(
     fd: TextIO,
     atoms: Atoms,
-    units: Dict[str, float],
+    units: dict[str, float],
     pressure: float = 0.0,
 ):
     """Write energies (in hartree) in a CASTEP .geom file.
@@ -413,7 +414,7 @@ def _write_energies_geom(
 def _write_energies_md(
     fd: TextIO,
     atoms: Atoms,
-    units: Dict[str, float],
+    units: dict[str, float],
     pressure: float = 0.0,
 ):
     """Write energies (in hartree) in a CASTEP .md file.
@@ -444,7 +445,7 @@ def _write_energies_md(
     fd.write('  <-- E\n')
 
 
-def _write_temperature(fd: TextIO, atoms: Atoms, units: Dict[str, float]):
+def _write_temperature(fd: TextIO, atoms: Atoms, units: dict[str, float]):
     """Write temperature (in hartree) in a CASTEP .md file.
 
     CASTEP writes the temperature in a .md file with 3`N` degrees of freedom
@@ -463,7 +464,7 @@ def _write_temperature(fd: TextIO, atoms: Atoms, units: Dict[str, float]):
     fd.write('  <-- T\n')
 
 
-def _write_cell(fd: TextIO, atoms: Atoms, units: Dict[str, float]):
+def _write_cell(fd: TextIO, atoms: Atoms, units: dict[str, float]):
     bohr = units['a0']
     cell = atoms.cell / bohr  # in bohr
     for i in range(3):
@@ -473,11 +474,11 @@ def _write_cell(fd: TextIO, atoms: Atoms, units: Dict[str, float]):
         fd.write('  <-- h\n')
 
 
-def _write_cell_velocities(fd: TextIO, atoms: Atoms, units: Dict[str, float]):
+def _write_cell_velocities(fd: TextIO, atoms: Atoms, units: dict[str, float]):
     pass  # TODO: to be implemented
 
 
-def _write_stress(fd: TextIO, atoms: Atoms, units: Dict[str, float]):
+def _write_stress(fd: TextIO, atoms: Atoms, units: dict[str, float]):
     if atoms.calc is None:
         return
 
@@ -501,7 +502,7 @@ def _write_stress(fd: TextIO, atoms: Atoms, units: Dict[str, float]):
         fd.write('  <-- S\n')
 
 
-def _write_positions(fd: TextIO, atoms: Atoms, units: Dict[str, float]):
+def _write_positions(fd: TextIO, atoms: Atoms, units: dict[str, float]):
     bohr = units['a0']
     positions = atoms.positions / bohr
     symbols = atoms.symbols
@@ -514,7 +515,7 @@ def _write_positions(fd: TextIO, atoms: Atoms, units: Dict[str, float]):
         fd.write('  <-- R\n')
 
 
-def _write_forces(fd: TextIO, atoms: Atoms, units: Dict[str, float]):
+def _write_forces(fd: TextIO, atoms: Atoms, units: dict[str, float]):
     if atoms.calc is None:
         return
 
@@ -536,7 +537,7 @@ def _write_forces(fd: TextIO, atoms: Atoms, units: Dict[str, float]):
         fd.write('  <-- F\n')
 
 
-def _write_velocities(fd: TextIO, atoms: Atoms, units: Dict[str, float]):
+def _write_velocities(fd: TextIO, atoms: Atoms, units: dict[str, float]):
     hartree = units['Eh']
     me = units['me']
     velocities = atoms.get_velocities() / np.sqrt(hartree / me)

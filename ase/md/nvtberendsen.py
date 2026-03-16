@@ -1,7 +1,6 @@
 """Berendsen NVT dynamics class."""
 
 import warnings
-from typing import Optional
 
 import numpy as np
 
@@ -20,11 +19,11 @@ class NVTBerendsen(MolecularDynamics):
         self,
         atoms: Atoms,
         timestep: float,
-        temperature: Optional[float] = None,
-        taut: Optional[float] = None,
+        temperature: float | None = None,
+        taut: float | None = None,
         fixcm: bool = True,
         *,
-        temperature_K: Optional[float] = None,
+        temperature_K: float | None = None,
         **kwargs,
     ):
         """

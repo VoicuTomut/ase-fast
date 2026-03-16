@@ -10,7 +10,7 @@ Quasi-Newton algorithm
 __docformat__ = 'reStructuredText'
 
 import time
-from typing import IO, Optional, Union
+from typing import IO
 
 import numpy as np
 from numpy.linalg import eigh
@@ -113,18 +113,18 @@ class GoodOldQuasiNewton(Optimizer):
     def __init__(
         self,
         atoms: Atoms,
-        restart: Optional[str] = None,
-        logfile: Union[IO, str] = '-',
-        trajectory: Optional[str] = None,
+        restart: str | None = None,
+        logfile: IO | str = '-',
+        trajectory: str | None = None,
         fmax=None,
         converged=None,
         hessianupdate: str = 'BFGS',
         hessian=None,
         forcemin: bool = True,
         verbosity: bool = False,
-        maxradius: Optional[float] = None,
+        maxradius: float | None = None,
         diagonal: float = 20.0,
-        radius: Optional[float] = None,
+        radius: float | None = None,
         transitionstate: bool = False,
         **kwargs,
     ):

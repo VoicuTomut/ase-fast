@@ -363,10 +363,10 @@ class BandPath:
 
     def interpolate(
             self,
-            path: str = None,
-            npoints: int = None,
-            special_points: dict[str, np.ndarray] = None,
-            density: float = None,
+            path: str | None = None,
+            npoints: int | None = None,
+            special_points: dict[str, np.ndarray] | None = None,
+            density: float | None = None,
     ) -> BandPath:
         """Create new bandpath, (re-)interpolating kpoints from this one."""
         if path is None:

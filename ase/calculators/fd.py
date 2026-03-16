@@ -2,7 +2,6 @@
 
 from collections.abc import Iterable
 from functools import partial
-from typing import Optional
 
 import numpy as np
 
@@ -23,8 +22,8 @@ class FiniteDifferenceCalculator(BaseCalculator):
     def __init__(
         self,
         calc: BaseCalculator,
-        eps_disp: Optional[float] = 1e-6,
-        eps_strain: Optional[float] = 1e-6,
+        eps_disp: float | None = 1e-6,
+        eps_strain: float | None = 1e-6,
         *,
         force_consistent: bool = True,
     ) -> None:
@@ -117,8 +116,8 @@ def _numeric_force(
 def calculate_numerical_forces(
     atoms: Atoms,
     eps: float = 1e-6,
-    iatoms: Optional[Iterable[int]] = None,
-    icarts: Optional[Iterable[int]] = None,
+    iatoms: Iterable[int] | None = None,
+    icarts: Iterable[int] | None = None,
     *,
     force_consistent: bool = False,
 ) -> np.ndarray:

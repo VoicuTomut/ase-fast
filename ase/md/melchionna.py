@@ -25,7 +25,7 @@ using a centered difference method [3].
 '''
 import sys
 import weakref
-from typing import IO, Optional, Tuple, Union
+from typing import IO
 
 import numpy as np
 
@@ -47,15 +47,15 @@ class MelchionnaNPT(MolecularDynamics):
         self,
         atoms: Atoms,
         timestep: float,
-        temperature: Optional[float] = None,
-        externalstress: Optional[float] = None,
-        ttime: Optional[float] = None,
-        pfactor: Optional[float] = None,
+        temperature: float | None = None,
+        externalstress: float | None = None,
+        ttime: float | None = None,
+        pfactor: float | None = None,
         *,
-        temperature_K: Optional[float] = None,
-        mask: Optional[Union[Tuple[int], np.ndarray]] = None,
-        trajectory: Optional[str] = None,
-        logfile: Optional[Union[IO, str]] = None,
+        temperature_K: float | None = None,
+        mask: tuple[int] | np.ndarray | None = None,
+        trajectory: str | None = None,
+        logfile: IO | str | None = None,
         loginterval: int = 1,
         append_trajectory: bool = False,
     ):

@@ -4,7 +4,6 @@
 import contextlib
 import io
 import warnings
-from typing import Tuple
 
 import numpy as np
 
@@ -351,8 +350,8 @@ class VersionTooOldError(Exception):
 
 
 def read_atoms(backend,
-               header: Tuple = None,
-               traj: TrajectoryReader = None,
+               header: tuple | None = None,
+               traj: TrajectoryReader | None = None,
                _try_except: bool = True) -> Atoms:
     from ase.constraints import dict2constraint
 

@@ -6,7 +6,6 @@ from collections import Counter
 from dataclasses import dataclass
 from fractions import Fraction
 from itertools import chain, combinations, product
-from typing import List, Tuple, Union
 
 import numpy as np
 from scipy.linalg import null_space
@@ -429,7 +428,7 @@ class RedOx:
         return None
 
     def get_ref_correction(self, reference: str,
-                           alpha: float) -> Tuple[float, float]:
+                           alpha: float) -> tuple[float, float]:
         """Correct the constant and pH contributions to the reaction free energy
            based on the reference electrode of choice and the temperature
            (alpha=k_B*T*ln(10))
@@ -575,7 +574,7 @@ class Pourbaix:
             print(f'Energy: {energy:.3f} eV')
         return energy, phase
 
-    def get_equations(self, contains: Union[str, None] = None):
+    def get_equations(self, contains: str | None = None):
         """Print the chemical reactions of the available phases.
 
         the argument `contains' allows to filter for phases containing a
@@ -746,8 +745,8 @@ class PourbaixDiagram:
     pH: np.ndarray
     pour: np.ndarray
     meta: np.ndarray
-    text: List[Tuple[float, float, str]]
-    domains: List[int]
+    text: list[tuple[float, float, str]]
+    domains: list[int]
 
     def __post_init__(self):
         def _issorted(array):

@@ -1,6 +1,5 @@
 # fmt: off
 
-from typing import List, Tuple
 
 from ase.utils import (
     get_python_package_path_description,
@@ -8,7 +7,7 @@ from ase.utils import (
 )
 
 
-def format_dependency(modname: str) -> Tuple[str, str]:
+def format_dependency(modname: str) -> tuple[str, str]:
     """Return (name, info) for given module.
 
     If possible, info is the path to the module's package."""
@@ -36,7 +35,7 @@ def format_dependency(modname: str) -> Tuple[str, str]:
     return name, info
 
 
-def all_dependencies() -> List[Tuple[str, str]]:
+def all_dependencies() -> list[tuple[str, str]]:
     names = ['ase', 'numpy', 'scipy', 'matplotlib', 'spglib',
              'ase_ext', 'flask', 'psycopg2', 'pyamg']
     return [format_dependency(name) for name in names]

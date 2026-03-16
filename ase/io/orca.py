@@ -1,9 +1,8 @@
 import re
 import warnings
-from collections.abc import Iterable, Iterator
+from collections.abc import Iterable, Iterator, Sequence
 from io import StringIO
 from pathlib import Path
-from typing import List, Optional, Sequence
 
 import numpy as np
 
@@ -68,7 +67,7 @@ def write_orca(fd, atoms, params):
         fd.write('*\n')
 
 
-def read_charge(lines: List[str]) -> Optional[float]:
+def read_charge(lines: list[str]) -> float | None:
     """Read sum of atomic charges."""
     charge = None
     for line in lines:
@@ -77,7 +76,7 @@ def read_charge(lines: List[str]) -> Optional[float]:
     return charge
 
 
-def read_energy(lines: List[str]) -> Optional[float]:
+def read_energy(lines: list[str]) -> float | None:
     """Read energy."""
     energy = None
     for line in lines:
@@ -91,7 +90,7 @@ def read_energy(lines: List[str]) -> Optional[float]:
     return energy
 
 
-def read_center_of_mass(lines: List[str]) -> Optional[np.ndarray]:
+def read_center_of_mass(lines: list[str]) -> np.ndarray | None:
     """Scan through text for the center of mass"""
     # Example:
     # 'The origin for moment calculation is the CENTER OF MASS  =
@@ -107,7 +106,7 @@ def read_center_of_mass(lines: List[str]) -> Optional[np.ndarray]:
     return com
 
 
-def read_dipole(lines: List[str]) -> Optional[np.ndarray]:
+def read_dipole(lines: list[str]) -> np.ndarray | None:
     """Read dipole moment.
 
     Note that the read dipole moment is for the COM frame of reference.
@@ -154,7 +153,7 @@ def _read_atoms(lines: Sequence[str]) -> Atoms:
     return atoms
 
 
-def read_forces(lines: List[str]) -> Optional[np.ndarray]:
+def read_forces(lines: list[str]) -> np.ndarray | None:
     """Read forces from output file if available. Else return None.
 
     Taking the forces from the output files (instead of the engrad-file) to

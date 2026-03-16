@@ -26,7 +26,7 @@ import subprocess
 import sys
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any
 from warnings import warn
 from xml.etree import ElementTree
 
@@ -43,7 +43,7 @@ from ase.utils import PurePath, deprecated
 from ase.vibrations.data import VibrationsData
 
 
-def _prohibit_directory_in_label(args: List, kwargs: Dict[str, Any]) -> bool:
+def _prohibit_directory_in_label(args: list, kwargs: dict[str, Any]) -> bool:
     if len(args) >= 5 and "/" in args[4]:
         return True
     return "/" in kwargs.get("label", "")
@@ -106,7 +106,7 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore[misc]
     ]
 
     # Can be used later to set some ASE defaults
-    default_parameters: Dict[str, Any] = {}
+    default_parameters: dict[str, Any] = {}
 
     @deprecated(
         'Specifying directory in "label" is deprecated, '
@@ -1176,7 +1176,7 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore[misc]
     def get_bz_k_points(self):
         raise NotImplementedError
 
-    def read_vib_freq(self, lines=None) -> Tuple[List[float], List[float]]:
+    def read_vib_freq(self, lines=None) -> tuple[list[float], list[float]]:
         """Read vibrational frequencies.
 
         Returns:

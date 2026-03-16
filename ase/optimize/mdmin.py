@@ -1,4 +1,4 @@
-from typing import IO, Optional, Union
+from typing import IO
 
 import numpy as np
 
@@ -13,11 +13,11 @@ class MDMin(Optimizer):
     def __init__(
         self,
         atoms: Atoms,
-        restart: Optional[str] = None,
-        logfile: Union[IO, str] = '-',
-        trajectory: Optional[str] = None,
-        dt: Optional[float] = None,
-        maxstep: Optional[float] = None,
+        restart: str | None = None,
+        logfile: IO | str = '-',
+        trajectory: str | None = None,
+        dt: float | None = None,
+        maxstep: float | None = None,
         **kwargs,
     ):
         """

@@ -1,7 +1,7 @@
 # fmt: off
 
 import sys
-from typing import Any, Dict
+from typing import Any
 
 import numpy as np
 
@@ -220,7 +220,7 @@ class Runner:
         return name
 
 
-def str2dict(s: str, namespace={}, sep: str = '=') -> Dict[str, Any]:
+def str2dict(s: str, namespace={}, sep: str = '=') -> dict[str, Any]:
     """Convert comma-separated key=value string to dictionary.
 
     Examples:

@@ -4,7 +4,7 @@
 """Tools for analyzing instances of :class:`~ase.Atoms`
 """
 
-from typing import List, Optional
+from typing import List
 
 import numpy as np
 
@@ -574,7 +574,7 @@ class Analysis:
 
     @deprecated("Use `ase.geometry.rdf.get_rdf` instead.")
     def get_rdf(self, rmax, nbins, imageIdx=None, elements=None, return_dists=False,
-                volume: Optional[float] = None):
+                volume: float | None = None):
         """Get RDF.
 
         Wrapper for :func:`ase.geometry.rdf.get_rdf` with more selection possibilities.

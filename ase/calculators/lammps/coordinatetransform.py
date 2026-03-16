@@ -2,7 +2,7 @@
 
 """Prism"""
 import warnings
-from typing import Sequence, Union
+from collections.abc import Sequence
 
 import numpy as np
 
@@ -42,7 +42,7 @@ def calc_rotated_cell(cell: np.ndarray) -> np.ndarray:
 
 def calc_reduced_cell(
     cell: np.ndarray,
-    pbc: Union[np.ndarray, Sequence[bool]],
+    pbc: np.ndarray | Sequence[bool],
 ) -> np.ndarray:
     """Calculate LAMMPS cell with short lattice basis vectors
 
@@ -142,7 +142,7 @@ class Prism:
     def __init__(
         self,
         cell: np.ndarray,
-        pbc: Union[bool, np.ndarray] = True,
+        pbc: bool | np.ndarray = True,
         reduce_cell: bool = False,
         tolerance: float = 1.0e-8,
     ):

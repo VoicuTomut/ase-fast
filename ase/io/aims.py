@@ -7,7 +7,7 @@ import time
 import warnings
 from functools import cached_property
 from pathlib import Path
-from typing import Any, Dict, List, Union
+from typing import Any
 
 import numpy as np
 
@@ -224,7 +224,7 @@ def get_aims_header():
     return lines
 
 
-def _write_velocities_alias(args: List, kwargs: Dict[str, Any]) -> bool:
+def _write_velocities_alias(args: list, kwargs: dict[str, Any]) -> bool:
     arg_position = 5
     if len(args) > arg_position and args[arg_position]:
         args[arg_position - 1] = True
@@ -728,7 +728,7 @@ def parse_species_path(species_array, tier_array, species_dir):
     return species_basis_dict
 
 
-def manipulate_tiers(species_string: str, tier: Union[None, int] = 1):
+def manipulate_tiers(species_string: str, tier: None | int = 1):
     """Adds basis set functions based on the tier value.
 
     This function takes in the species file as a string, it then searches
