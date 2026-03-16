@@ -11,7 +11,7 @@ Set $ASE_MOPAC_COMMAND to something like::
 """
 import os
 import re
-from typing import Sequence
+from collections.abc import Sequence
 from warnings import warn
 
 import numpy as np

@@ -7,7 +7,7 @@ Refer to DFTB+ manual for GEN format description.
 Note: GEN format only supports single snapshot.
 """
 import re
-from typing import Dict, Sequence, Union
+from typing import Dict, Sequence
 
 from ase.atoms import Atoms
 from ase.utils import reader, writer
@@ -80,7 +80,7 @@ def read_gen(fileobj):
 @writer
 def write_gen(
     fileobj,
-    images: Union[Atoms, Sequence[Atoms]],
+    images: Atoms | Sequence[Atoms],
     fractional: bool = False,
     with_tags=False
 ):

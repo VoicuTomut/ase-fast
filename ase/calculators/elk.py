@@ -32,7 +32,6 @@ import os
 import re
 import warnings
 from pathlib import Path
-from typing import Optional
 
 from ase.calculators.genericfileio import (
     BaseProfile,
@@ -53,7 +52,7 @@ class ElkProfile(BaseProfile):
 
     configvars = {'sppath'}
 
-    def __init__(self, command, sppath: Optional[str] = None, **kwargs) -> None:
+    def __init__(self, command, sppath: str | None = None, **kwargs) -> None:
         super().__init__(command, **kwargs)
         self.sppath = sppath
 

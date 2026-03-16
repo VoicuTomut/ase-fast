@@ -124,7 +124,6 @@ Versions
 
 import numbers
 from pathlib import Path
-from typing import Set, Union
 
 import numpy as np
 
@@ -694,9 +693,9 @@ def print_ulm_info(filename, index=None, verbose=False):
         print(b[i].tostr(verbose))
 
 
-def copy(reader: Union[str, Path, Reader],
-         writer: Union[str, Path, Writer],
-         exclude: Set[str] = set(),
+def copy(reader: str | Path | Reader,
+         writer: str | Path | Writer,
+         exclude: set[str] = set(),
          name: str = '') -> None:
     """Copy from reader to writer except for keys in exclude."""
     close_reader = False

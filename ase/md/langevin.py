@@ -1,7 +1,6 @@
 """Langevin dynamics class."""
 
 import warnings
-from typing import Optional
 
 import numpy as np
 
@@ -19,11 +18,11 @@ class Langevin(MolecularDynamics):
         self,
         atoms: Atoms,
         timestep: float,
-        temperature: Optional[float] = None,
-        friction: Optional[float] = None,
+        temperature: float | None = None,
+        friction: float | None = None,
         fixcm: bool = True,
         *,
-        temperature_K: Optional[float] = None,
+        temperature_K: float | None = None,
         rng=None,
         **kwargs,
     ):

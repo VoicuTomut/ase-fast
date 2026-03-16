@@ -9,7 +9,7 @@ import sys
 import time
 import warnings
 from math import atan, cos, degrees, pi, sin, sqrt, tan
-from typing import Any, Dict
+from typing import Any
 
 import numpy as np
 
@@ -320,7 +320,7 @@ class MinModeControl(IOContext):
     be overwritten.
 
     """
-    parameters: Dict[str, Any] = {}
+    parameters: dict[str, Any] = {}
 
     def __init__(self, logfile='-', eigenmode_logfile=None, comm=world,
                  **kwargs):

@@ -8,7 +8,7 @@
 # *****END NOTICE************
 
 import time
-from typing import IO, Optional, Union
+from typing import IO
 
 import numpy as np
 from numpy import absolute, eye, isinf
@@ -31,10 +31,10 @@ class BFGSLineSearch(Optimizer):
     def __init__(
         self,
         atoms: Atoms,
-        restart: Optional[str] = None,
-        logfile: Union[IO, str] = '-',
-        maxstep: float = None,
-        trajectory: Optional[str] = None,
+        restart: str | None = None,
+        logfile: IO | str = '-',
+        maxstep: float | None = None,
+        trajectory: str | None = None,
         c1: float = 0.23,
         c2: float = 0.46,
         alpha: float = 10.0,

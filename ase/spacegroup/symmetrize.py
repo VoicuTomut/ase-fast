@@ -4,7 +4,6 @@
 Provides utility functions for FixSymmetry class
 """
 from collections.abc import MutableMapping
-from typing import Optional
 
 import numpy as np
 
@@ -96,7 +95,7 @@ class IntermediateDatasetError(Exception):
 
 def get_symmetrized_atoms(atoms,
                           symprec: float = 0.01,
-                          final_symprec: Optional[float] = None):
+                          final_symprec: float | None = None):
     """Get new Atoms object with refined symmetries.
 
     Checks internal consistency of the found symmetries.

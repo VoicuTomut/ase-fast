@@ -21,7 +21,8 @@
 #    https://doi.org/10.1016/j.commatsci.2022.111978.
 #######################################
 
-from typing import IO, Callable, Optional, Union
+from collections.abc import Callable
+from typing import IO
 
 import numpy as np
 
@@ -33,9 +34,9 @@ class FIRE2(Optimizer):
     def __init__(
         self,
         atoms: Atoms,
-        restart: Optional[str] = None,
-        logfile: Union[IO, str] = '-',
-        trajectory: Optional[str] = None,
+        restart: str | None = None,
+        logfile: IO | str = '-',
+        trajectory: str | None = None,
         dt: float = 0.1,
         maxstep: float = 0.2,
         dtmax: float = 1.0,
@@ -45,8 +46,8 @@ class FIRE2(Optimizer):
         fdec: float = 0.5,
         astart: float = 0.25,
         fa: float = 0.99,
-        position_reset_callback: Optional[Callable] = None,
-        use_abc: Optional[bool] = False,
+        position_reset_callback: Callable | None = None,
+        use_abc: bool | None = False,
         **kwargs,
     ):
         """

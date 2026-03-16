@@ -1,6 +1,6 @@
 # fmt: off
 
-from typing import IO, Any, Dict, List, Optional, Type, Union
+from typing import IO, Any
 
 from numpy.linalg import norm
 
@@ -55,14 +55,14 @@ class BFGSClimbFixInternals(BFGS):
     def __init__(
         self,
         atoms: Atoms,
-        restart: Optional[str] = None,
-        logfile: Union[IO, str] = '-',
-        trajectory: Optional[str] = None,
-        maxstep: Optional[float] = None,
-        alpha: Optional[float] = None,
-        climb_coordinate: Optional[List[FixInternals]] = None,
-        optB: Type[Optimizer] = BFGS,
-        optB_kwargs: Optional[Dict[str, Any]] = None,
+        restart: str | None = None,
+        logfile: IO | str = '-',
+        trajectory: str | None = None,
+        maxstep: float | None = None,
+        alpha: float | None = None,
+        climb_coordinate: list[FixInternals] | None = None,
+        optB: type[Optimizer] = BFGS,
+        optB_kwargs: dict[str, Any] | None = None,
         optB_fmax: float = 0.05,
         optB_fmax_scaling: float = 0.0,
         **kwargs,

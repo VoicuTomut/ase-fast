@@ -2,7 +2,7 @@
 
 from itertools import product
 from math import cos, pi, sin
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
 from matplotlib.patches import FancyArrowPatch
@@ -109,10 +109,10 @@ class SpacePlot:
 
     """
     axis_dim = 3
-    point_options: Dict[str, Any] = {}
+    point_options: dict[str, Any] = {}
 
-    def __init__(self, *, azim: Optional[float] = None,
-                 elev: Optional[float] = None):
+    def __init__(self, *, azim: float | None = None,
+                 elev: float | None = None):
         class Arrow3D(FancyArrowPatch):
             def __init__(self, ax, xs, ys, zs, *args, **kwargs):
                 FancyArrowPatch.__init__(self, (0, 0), (0, 0), *args, **kwargs)
@@ -224,11 +224,11 @@ def normalize_name(name):
 
 
 def bz_plot(cell: Cell, vectors: bool = False, paths=None, points=None,
-            azim: Optional[float] = None, elev: Optional[float] = None,
+            azim: float | None = None, elev: float | None = None,
             scale=1, interactive: bool = False,
-            transforms: Optional[list] = None,
-            repeat: Union[Tuple[int, int], Tuple[int, int, int]] = (1, 1, 1),
-            pointstyle: Optional[dict] = None,
+            transforms: list | None = None,
+            repeat: tuple[int, int] | tuple[int, int, int] = (1, 1, 1),
+            pointstyle: dict | None = None,
             ax=None, show=False, **kwargs):
     """Plot the Brillouin zone of the Cell
 
@@ -280,7 +280,7 @@ def bz_plot(cell: Cell, vectors: bool = False, paths=None, points=None,
 
     dimensions = cell.rank
     if dimensions == 3:
-        plotter: Union[SpacePlot, FlatPlot] = SpacePlot(azim=azim, elev=elev)
+        plotter: SpacePlot | FlatPlot = SpacePlot(azim=azim, elev=elev)
     else:
         plotter = FlatPlot()
     assert dimensions > 0, 'No BZ for 0D!'

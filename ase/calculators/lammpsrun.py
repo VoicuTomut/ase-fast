@@ -32,7 +32,7 @@ from re import compile as re_compile
 from tempfile import NamedTemporaryFile, mkdtemp
 from tempfile import mktemp as uns_mktemp
 from threading import Thread
-from typing import Any, Dict
+from typing import Any
 
 import numpy as np
 
@@ -137,7 +137,7 @@ class LAMMPS(Calculator):
                               "energies"]
 
     # parameters to choose options in LAMMPSRUN
-    ase_parameters: Dict[str, Any] = dict(
+    ase_parameters: dict[str, Any] = dict(
         specorder=None,
         atorder=True,
         always_triclinic=False,

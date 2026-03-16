@@ -8,7 +8,7 @@ number of enery and force calls
 import json
 import logging
 import time
-from typing import Any, Dict
+from typing import Any
 
 import numpy as np
 
@@ -22,7 +22,7 @@ class LoggingCalculator(Calculator):
     evaluations
     """
     implemented_properties = all_properties
-    default_parameters: Dict[str, Any] = {}
+    default_parameters: dict[str, Any] = {}
     name = 'LoggingCalculator'
 
     property_to_method_name = {

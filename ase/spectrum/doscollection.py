@@ -1,16 +1,11 @@
 # fmt: off
 
 import collections
+from collections.abc import Iterable, Sequence
 from functools import reduce, singledispatch
 from typing import (
     Any,
-    Dict,
-    Iterable,
-    List,
-    Optional,
-    Sequence,
     TypeVar,
-    Union,
     overload,
 )
 
@@ -57,14 +52,14 @@ class DOSCollection(collections.abc.Sequence):
 
     def plot(self,
              npts: int = 1000,
-             xmin: float = None,
-             xmax: float = None,
+             xmin: float | None = None,
+             xmax: float | None = None,
              width: float = 0.1,
              smearing: str = 'Gauss',
-             ax: Axes = None,
+             ax: Axes | None = None,
              show: bool = False,
-             filename: str = None,
-             mplargs: dict = None) -> Axes:
+             filename: str | None = None,
+             mplargs: dict | None = None) -> Axes:
         """Simple plot of collected DOS data, resampled onto a grid
 
         If the special key 'label' is present in self.info, this will be set
@@ -97,8 +92,8 @@ class DOSCollection(collections.abc.Sequence):
 
     def sample_grid(self,
                     npts: int,
-                    xmin: float = None,
-                    xmax: float = None,
+                    xmin: float | None = None,
+                    xmax: float | None = None,
                     padding: float = 3,
                     width: float = 0.1,
                     smearing: str = 'Gauss',
@@ -138,7 +133,7 @@ class DOSCollection(collections.abc.Sequence):
     def from_data(cls,
                   energies: Floats,
                   weights: Sequence[Floats],
-                  info: Sequence[Info] = None) -> 'DOSCollection':
+                  info: Sequence[Info] | None = None) -> 'DOSCollection':
         """Create a DOSCollection from data sharing a common set of energies
 
         This is a convenience method to be used when all the DOS data in the
@@ -163,7 +158,7 @@ class DOSCollection(collections.abc.Sequence):
 
     @staticmethod
     def _check_weights_and_info(weights: Sequence[Floats],
-                                info: Optional[Sequence[Info]],
+                                info: Sequence[Info] | None,
                                 ) -> Sequence[Info]:
         if info is None:
             info = [{} for _ in range(len(weights))]
@@ -222,8 +217,8 @@ class DOSCollection(collections.abc.Sequence):
 
     @staticmethod
     def _select_to_list(dos_collection: Sequence[D],         # Bug in flakes
-                        info_selection: Dict[str, str],      # misses 'D' def
-                        negative: bool = False) -> List[D]:  # noqa: F821
+                        info_selection: dict[str, str],      # misses 'D' def
+                        negative: bool = False) -> list[D]:  # noqa: F821
         query = set(info_selection.items())
 
         if negative:
@@ -337,7 +332,7 @@ class DOSCollection(collections.abc.Sequence):
                            for combo in unique_combos]
         return type(self)(collection_data)
 
-    def __add__(self, other: Union['DOSCollection', DOSData]
+    def __add__(self, other: 'DOSCollection | DOSData'
                 ) -> 'DOSCollection':
         """Join entries between two DOSCollection objects of the same type
 
@@ -359,7 +354,7 @@ class DOSCollection(collections.abc.Sequence):
 
 
 @singledispatch
-def _add_to_collection(other: Union[DOSData, DOSCollection],
+def _add_to_collection(other: DOSData | DOSCollection,
                        collection: DOSCollection) -> DOSCollection:
     if isinstance(other, type(collection)):
         return type(collection)(list(collection) + list(other))
@@ -388,7 +383,7 @@ class RawDOSCollection(DOSCollection):
 
 class GridDOSCollection(DOSCollection):
     def __init__(self, dos_series: Iterable[GridDOSData],
-                 energies: Optional[Floats] = None) -> None:
+                 energies: Floats | None = None) -> None:
         dos_list = list(dos_series)
         if energies is None:
             if len(dos_list) == 0:
@@ -418,7 +413,7 @@ class GridDOSCollection(DOSCollection):
     def get_energies(self) -> Floats:
         return self._energies.copy()
 
-    def get_all_weights(self) -> Union[Sequence[Floats], np.ndarray]:
+    def get_all_weights(self) -> Sequence[Floats] | np.ndarray:
         return self._weights.copy()
 
     def __len__(self) -> int:
@@ -446,7 +441,7 @@ class GridDOSCollection(DOSCollection):
     def from_data(cls,
                   energies: Floats,
                   weights: Sequence[Floats],
-                  info: Sequence[Info] = None) -> 'GridDOSCollection':
+                  info: Sequence[Info] | None = None) -> 'GridDOSCollection':
         """Create a GridDOSCollection from data with a common set of energies
 
         This convenience method may also be more efficient as it limits
@@ -543,14 +538,14 @@ class GridDOSCollection(DOSCollection):
 
     def plot(self,
              npts: int = 0,
-             xmin: float = None,
-             xmax: float = None,
-             width: float = None,
+             xmin: float | None = None,
+             xmax: float | None = None,
+             width: float | None = None,
              smearing: str = 'Gauss',
-             ax: Axes = None,
+             ax: Axes | None = None,
              show: bool = False,
-             filename: str = None,
-             mplargs: dict = None) -> Axes:
+             filename: str | None = None,
+             mplargs: dict | None = None) -> Axes:
         """Simple plot of collected DOS data, resampled onto a grid
 
         If the special key 'label' is present in self.info, this will be set
@@ -604,7 +599,7 @@ class GridDOSCollection(DOSCollection):
                         energies: Floats,
                         all_y: np.ndarray,
                         all_labels: Sequence[str],
-                        mplargs: Optional[Dict]):
+                        mplargs: dict | None):
         """Plot DOS data with labels to axes
 
         This is separated into another function so that subclasses can

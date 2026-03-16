@@ -2,7 +2,7 @@
 
 """Logging for molecular dynamics."""
 import weakref
-from typing import IO, Any, Union
+from typing import IO, Any
 
 from ase import Atoms, units
 from ase.parallel import world
@@ -34,7 +34,7 @@ class MDLogger(IOContext):
         self,
         dyn: Any,  # not fully annotated so far to avoid a circular import
         atoms: Atoms,
-        logfile: Union[IO, str],
+        logfile: IO | str,
         header: bool = True,
         stress: bool = False,
         peratom: bool = False,

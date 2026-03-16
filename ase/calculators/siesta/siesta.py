@@ -18,7 +18,7 @@ import shutil
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 import numpy as np
 
@@ -114,7 +114,7 @@ class SiestaParameters(Parameters):
         Parameters.__init__(self, **kwargs)
 
 
-def _nonpolarized_alias(_: List, kwargs: Dict[str, Any]) -> bool:
+def _nonpolarized_alias(_: list, kwargs: dict[str, Any]) -> bool:
     if kwargs.get("spin", None) == "UNPOLARIZED":
         kwargs["spin"] = "non-polarized"
         return True

@@ -1,6 +1,6 @@
 # fmt: off
 
-from typing import IO, Optional, Union
+from typing import IO
 
 import numpy as np
 
@@ -185,11 +185,11 @@ class ODE12r(SciPyOptimizer):
     def __init__(
         self,
         atoms: Atoms,
-        logfile: Union[IO, str] = '-',
-        trajectory: Optional[str] = None,
+        logfile: IO | str = '-',
+        trajectory: str | None = None,
         callback_always: bool = False,
         alpha: float = 1.0,
-        precon: Optional[str] = None,
+        precon: str | None = None,
         verbose: int = 0,
         rtol: float = 1e-2,
         **kwargs,

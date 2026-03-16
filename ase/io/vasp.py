@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
-from typing import List, Optional, TextIO, Tuple
+from typing import TextIO
 
 import numpy as np
 
@@ -314,7 +314,7 @@ def set_constraints(atoms: Atoms, selective_flags: np.ndarray):
     """Set constraints based on selective_flags"""
     from ase.constraints import FixAtoms, FixConstraint, FixScaled
 
-    constraints: List[FixConstraint] = []
+    constraints: list[FixConstraint] = []
     indices = []
     for ind, sflags in enumerate(selective_flags):
         if sflags.any() and not sflags.all():
@@ -768,7 +768,7 @@ def _write_xdatcar_config(fd, atoms, index):
         fd.write('\n')
 
 
-def _symbol_count_from_symbols(symbols: Symbols) -> List[Tuple[str, int]]:
+def _symbol_count_from_symbols(symbols: Symbols) -> list[tuple[str, int]]:
     """Reduce list of chemical symbols into compact VASP notation
 
     Args:
@@ -803,11 +803,11 @@ def write_vasp(
     atoms: Atoms,
     direct: bool = False,
     sort: bool = False,
-    symbol_count: Optional[List[Tuple[str, int]]] = None,
+    symbol_count: list[tuple[str, int]] | None = None,
     vasp5: bool = True,
     vasp6: bool = False,
     ignore_constraints: bool = False,
-    potential_mapping: Optional[dict] = None
+    potential_mapping: dict | None = None
 ) -> None:
     """Method to write VASP position (POSCAR/CONTCAR) files.
 
@@ -970,8 +970,8 @@ def _handle_ase_constraints(atoms: Atoms) -> np.ndarray:
 
 
 def _symbol_count_string(
-    symbol_count: List[Tuple[str, int]], vasp5: bool = True,
-    vasp6: bool = True, symbol_mapping: Optional[dict] = None
+    symbol_count: list[tuple[str, int]], vasp5: bool = True,
+    vasp6: bool = True, symbol_mapping: dict | None = None
 ) -> str:
     """Create the symbols-and-counts block for POSCAR or XDATCAR
 

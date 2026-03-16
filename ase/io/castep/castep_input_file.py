@@ -3,7 +3,6 @@
 import difflib
 import re
 import warnings
-from typing import List, Set
 
 import numpy as np
 
@@ -234,7 +233,7 @@ class CastepInputFile:
 
     """Master class for CastepParam and CastepCell to inherit from"""
 
-    _keyword_conflicts: List[Set[str]] = []
+    _keyword_conflicts: list[set[str]] = []
 
     def __init__(self, options_dict=None, keyword_tolerance=1):
         object.__init__(self)

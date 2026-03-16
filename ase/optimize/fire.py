@@ -1,6 +1,7 @@
 # fmt: off
 
-from typing import IO, Any, Callable, Dict, List, Optional, Union
+from collections.abc import Callable
+from typing import IO, Any
 
 import numpy as np
 
@@ -9,7 +10,7 @@ from ase.optimize.optimize import Optimizer
 from ase.utils import deprecated
 
 
-def _forbid_maxmove(args: List, kwargs: Dict[str, Any]) -> bool:
+def _forbid_maxmove(args: list, kwargs: dict[str, Any]) -> bool:
     """Set maxstep with maxmove if not set."""
     maxstep_index = 6
     maxmove_index = 7
@@ -44,12 +45,12 @@ class FIRE(Optimizer):
     def __init__(
         self,
         atoms: Atoms,
-        restart: Optional[str] = None,
-        logfile: Union[IO, str] = '-',
-        trajectory: Optional[str] = None,
+        restart: str | None = None,
+        logfile: IO | str = '-',
+        trajectory: str | None = None,
         dt: float = 0.1,
-        maxstep: Optional[float] = None,
-        maxmove: Optional[float] = None,
+        maxstep: float | None = None,
+        maxmove: float | None = None,
         dtmax: float = 1.0,
         Nmin: int = 5,
         finc: float = 1.1,
@@ -58,7 +59,7 @@ class FIRE(Optimizer):
         fa: float = 0.99,
         a: float = 0.1,
         downhill_check: bool = False,
-        position_reset_callback: Optional[Callable] = None,
+        position_reset_callback: Callable | None = None,
         **kwargs,
     ):
         """
