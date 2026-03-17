@@ -1,5 +1,0 @@
-I/O
----
-
-- Modified :func:`~ase.io.vasp.write_vasp_xdatcar` to print the header,
-  including the cell, for every image (:mr:`2873`)
