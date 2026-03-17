@@ -56,6 +56,7 @@ optimizers = [
     'LBFGS',
     'LBFGSLineSearch',
     'GoodOldQuasiNewton',
+    'RFO',
     # 'GPMin',
     # Maybe we should not test GPMin.  It probably needs a lot of knowledge
     # and might not well suited for generic problems.
