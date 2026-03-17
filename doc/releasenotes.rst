@@ -7,6 +7,9 @@ Release notes
 A comprehensive list of changes can be found in the :ref:`changelog`.
 
 
+.. auto-newrelease-insert-version-header-here
+
+
 Version 3.27.0
 ==============
 
