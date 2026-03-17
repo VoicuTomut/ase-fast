@@ -127,34 +127,23 @@ def main():
 
     releasenotes = ase_toplevel / 'doc/releasenotes.rst'
 
-    searchtxt = re.escape("""\
-Git master branch
-=================
+    searchtxt = '.. auto-newrelease-insert-version-header-here'
 
-:git:`master <>`.
-""")
+    date = strftime('%d %B %Y').lstrip('0')
+    header = f'Version {version}'
+    underline = '=' * len(header)
 
-    replacetxt = """\
-Git master branch
-=================
-
-:git:`master <>`.
-
-* No changes yet
-
+    replacetxt = f"""\
+{searchtxt}
 
 {header}
 {underline}
 
 {date}: :git:`{version} <../{version}>`
-"""
 
-    date = strftime('%d %B %Y').lstrip('0')
-    header = f'Version {version}'
-    underline = '=' * len(header)
-    replacetxt = replacetxt.format(
-        header=header, version=version, underline=underline, date=date
-    )
+Release notes still to be written.
+
+"""
 
     print(f'Editing {releasenotes}')
     with open(releasenotes) as fd:
