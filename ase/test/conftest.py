@@ -501,17 +501,28 @@ _filterwarnings = [
 ]
 
 
-def pytest_configure(config):
-    """Ignore certain warnings.
+_markers = [
+    'calculator: parametrizes calculator tests with calculator factories',
+    'calculator_lite: for calculator tests; include in calculators-lite job',
+    'optimize: tests of optimizers',
+    'slow: test takes longer than a few seconds',
+]
 
-    We use this hook to filter the warnings instead of pyproject.toml,
-    because if the tests run via the "ase test" command from an installation,
-    the warning configuration from pyproject.toml and the user would then be
-    spammed with warnings.
+
+def pytest_configure(config):
+    """Add configuration that would otherwise live in pyproject.toml.
+
+    We use this hook instead of pyproject.toml, because pyproject.toml
+    is invisible to the "ase test" command unless the installation is
+    editable.  Then user would then be spammed with warnings and
+    errors.
     """
 
     for line in _filterwarnings:
         config.addinivalue_line('filterwarnings', line)
+
+    for line in _markers:
+        config.addinivalue_line('markers', line)
 
 
 def pytest_addoption(parser):
