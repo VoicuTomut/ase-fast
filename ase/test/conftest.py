@@ -492,6 +492,28 @@ def exitstack():
         yield stack
 
 
+_filterwarnings = [
+    'error',
+    'once::ResourceWarning',
+    'ignore:.*size changed, may indicate binary incompatibility',
+    'ignore::ase.config.ASEEnvDeprecationWarning',
+    "ignore:The default method has changed from 'aseneb' to 'improvedtangent'",
+]
+
+
+def pytest_configure(config):
+    """Ignore certain warnings.
+
+    We use this hook to filter the warnings instead of pyproject.toml,
+    because if the tests run via the "ase test" command from an installation,
+    the warning configuration from pyproject.toml and the user would then be
+    spammed with warnings.
+    """
+
+    for line in _filterwarnings:
+        config.addinivalue_line('filterwarnings', line)
+
+
 def pytest_addoption(parser):
     parser.addoption(
         '--calculators',
