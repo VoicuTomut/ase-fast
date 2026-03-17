@@ -204,40 +204,40 @@ News
     git(f'tag pre-{version}')
     # git('tag -s {0} -m "ase-{0}"'.format(version))
 
-    buildpath = Path('build')
-    if buildpath.is_dir():
-        print('Removing stale build directory, since it exists')
-        assert Path('ase/__init__.py').exists()
-        assert Path('setup.py').exists()
-        shutil.rmtree('build')
-    else:
-        print('No stale build directory found; proceeding')
+    # buildpath = Path('build')
+    # if buildpath.is_dir():
+    #     print('Removing stale build directory, since it exists')
+    #     assert Path('ase/__init__.py').exists()
+    #     assert Path('setup.py').exists()
+    #     shutil.rmtree('build')
+    # else:
+    #     print('No stale build directory found; proceeding')
 
-    py('-m build')
+    # py('-m build')
     # py('setup.py sdist > setup_sdist.log')
     # py('setup.py bdist_wheel > setup_bdist_wheel3.log')
     # bash(f'gpg --armor --yes --detach-sign dist/ase-{version}.tar.gz')
 
-    print()
-    print('Automatic steps done.')
-    print()
-    print('Now is a good time to:')
-    print(' * check the diff')
-    print(' * run the tests')
-    print(' * verify the web-page build')
-    print()
-    print('Remaining steps')
-    print('===============')
-    print(f'git show {version}  # Inspect!')
-    print('git checkout master')
+    # print()
+    # print('Automatic steps done.')
+    # print()
+    # print('Now is a good time to:')
+    # print(' * check the diff')
+    # print(' * run the tests')
+    # print(' * verify the web-page build')
+    # print()
+    # print('Remaining steps')
+    # print('===============')
+    # print(f'git show {version}  # Inspect!')
+    # print('git checkout master')
     # print(f'git merge {branchname}')
-    print(
-        'twine upload '
-        'dist/ase-{v}.tar.gz '
-        'dist/ase-{v}-py3-none-any.whl '
-        'dist/ase-{v}.tar.gz.asc'.format(v=version)
-    )
-    print('git push --tags origin master  # Assuming your remote is "origin"')
+    # print(
+    #     'twine upload '
+    #     'dist/ase-{v}.tar.gz '
+    #     'dist/ase-{v}-py3-none-any.whl '
+    #     'dist/ase-{v}.tar.gz.asc'.format(v=version)
+    # )
+    # print('git push --tags origin master  # Assuming your remote is "origin"')
 
 
 if __name__ == '__main__':
