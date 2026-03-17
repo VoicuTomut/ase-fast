@@ -159,7 +159,7 @@ Git master branch
     print(f'Editing {releasenotes}')
     with open(releasenotes) as fd:
         txt = fd.read()
-    txt, n = re.subn(searchtxt, replacetxt, txt, re.MULTILINE)
+    txt, n = re.subn(searchtxt, replacetxt, txt, flags=re.MULTILINE)
     assert n == 1
 
     with open(releasenotes, 'w') as fd:
