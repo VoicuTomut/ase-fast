@@ -62,7 +62,8 @@ def test_units(factory):
                   'distance': 1,
                   'masses': atoms.get_masses(),
                   'charges': atoms.get_initial_charges(),
-                  'forces': forces}
+                  'forces': forces,
+                  'virial': virial}
 
     # The next values are in plumed units.
     plumed_values = {'time': files['COLVAR'][0][-1],
@@ -70,7 +71,8 @@ def test_units(factory):
                      'distance': files['COLVAR'][2][-1],
                      'masses': files['mass_charge'][1],
                      'charges': files['mass_charge'][2],
-                     'forces': np.array([[0, 0, -2], [0, 0, 2]])}
+                     'forces': np.array([[0, 0, -2], [0, 0, 2]]),
+                     'virial': np.array([[0, 0, 0], [0, 0, 0], [0, 0, -0.2]])}
 
     assert ase_values['time'] * 1 / (1000 * units.fs) == \
         approx(plumed_values['time'], abs=1E-5), \
@@ -90,6 +92,9 @@ def test_units(factory):
     assert ase_values['charges'] == approx(plumed_values['charges'],
                                            abs=1E-5), \
         "error in charges units"
+    assert ase_values['virial'] * units.mol / units.kJ == \
+        approx(plumed_values['virial'], abs=1E-5), \
+        "error in virial units"
 
 
 @pytest.mark.calculator_lite()
@@ -232,7 +237,51 @@ def test_pbc(factory):
 
     assert dist[1] == 2., "Error in PBC"
 
+@pytest.mark.calculator_lite()
+@pytest.mark.calculator('plumed')
+def test_stress_unbiased(factory):
+    """Test that stress equals unbiased stress when PLUMED adds no bias."""
+    atoms = Atoms('CO', positions=[[0, 0, 0], [0, 0, 1]])
+    atoms.set_cell([[10, 0, 0], [0, 10, 0], [0, 0, 10]])
+    atoms.set_pbc(True)
+    
+    ps = 1000 * units.fs
+    set_plumed = [f"UNITS LENGTH=A TIME={1 / ps} ENERGY={units.mol / units.kJ}",
+                  "d: DISTANCE ATOMS=1,2",
+                  "PRINT ARG=d STRIDE=1 FILE=COLVAR"]
+    
+    with factory.calc(calc=EMT(),
+                      input=set_plumed,
+                      timestep=1,
+                      atoms=atoms) as calc:
+        calc.calculate()
+        stress_total = calc.results['stress']
+        stress_unbiased = calc.calc.get_stress(atoms)
+    
+    # Since no bias, stress should equal unbiased
+    assert stress_total == approx(stress_unbiased, abs=1e-10)
 
+@pytest.mark.calculator_lite()
+@pytest.mark.calculator('plumed')
+def test_stress_shape(factory):
+    """Test that stress has the correct shape and is computed."""
+    atoms = Atoms('H2', positions=[[0, 0, 0], [0, 0, 0.7]])
+    
+    set_plumed = ["d: DISTANCE ATOMS=1,2",
+                  "UPPER_WALLS ARG=d AT=1.0 KAPPA=1"]
+    
+    with factory.calc(calc=EMT(),
+                      input=set_plumed,
+                      timestep=1,
+                      atoms=atoms) as calc:
+        calc.calculate()
+        stress = calc.results['stress']
+    
+    assert isinstance(stress, np.ndarray)
+    assert stress.shape == (6,)
+    # Check it's not all zeros (since bias is added)
+    assert not np.allclose(stress, 0)
+        
 def run(factory, inputs, name='',
         calc=LennardJones(epsilon=10, sigma=6),
         traj=None, steps=29):
