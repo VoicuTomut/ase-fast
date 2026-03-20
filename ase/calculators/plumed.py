@@ -2,7 +2,6 @@
 
 from os.path import exists
 
-from ase import stress
 import numpy as np
 
 from ase.calculators.calculator import Calculator, all_changes
