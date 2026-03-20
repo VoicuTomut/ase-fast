@@ -167,15 +167,12 @@ class Plumed(Calculator):
                                               self.istep)
         energy, forces, stress = comp
         self.istep += 1
-        self.results['energy'], self. results['forces'], self. results['stress'] = float(energy), forces, stress
+        self.results['energy'], self.results['forces'], self.results['stress'] = float(energy), forces, stress
 
     def compute_energy_and_forces(self, pos, istep):
         unbiased_energy = self.calc.get_potential_energy(self.atoms)
         unbiased_forces = self.calc.get_forces(self.atoms)
-        strs_voigt = self.calc.get_stress(self.atoms)
-        unbiased_stress =np.array([[strs_voigt[0], strs_voigt[5], strs_voigt[4]],
-                                   [strs_voigt[5], strs_voigt[1], strs_voigt[3]],
-                                   [strs_voigt[4], strs_voigt[3], strs_voigt[2]]])
+        unbiased_stress = self.calc.get_stress(self.atoms)
         volume = self.atoms.get_volume()
 
         if world.rank == 0:
@@ -185,8 +182,13 @@ class Plumed(Calculator):
         energy_bias, forces_bias, virial_bias = broadcast(ener_forc_strs)
         energy = unbiased_energy + energy_bias
         forces = unbiased_forces + forces_bias
-        # Note the minus sign due to different conventions in Plumed and ASE
-        stress = unbiased_stress + virial_bias/volume
+        biased_stress_voigt = np.array([virial_bias[0, 0],
+                                        virial_bias[1, 1],
+                                        virial_bias[2, 2],
+                                        virial_bias[1, 2],
+                                        virial_bias[0, 2],
+                                        virial_bias[0, 1]])/volume
+        stress = unbiased_stress + biased_stress_voigt
         return energy, forces, stress
 
     def compute_bias(self, pos, istep, unbiased_energy):
