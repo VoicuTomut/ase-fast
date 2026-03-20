@@ -29,7 +29,8 @@ Local optimization
 
 The local optimization algorithms available in ASE are: :class:`BFGS`,
 :class:`BFGSLineSearch`, :class:`LBFGS`, :class:`LBFGSLineSearch`,
-:class:`GPMin`, :class:`MDMin` and :class:`FIRE`.
+:class:`GoodOldQuasiNewton`, :class:`CellAwareBFGS`,
+:class:`GPMin`, :class:`MDMin`, :class:`FIRE` and :class:`FIRE2`/ABC-FIRE.
 
 .. seealso::
 
@@ -187,6 +188,20 @@ BFGS. A typical optimization should look like::
 where the trajectory and the restart save the trajectory of the
 optimization and the vectors needed to generate the Hessian Matrix.
 
+QoodOldQuasiNewton
+------------------
+
+While GOQN is an "old" optimizer in the history of ASE,
+it can be very effective and often converges in fewer steps than newer optimizers.
+
+.. class:: GoodOldQuasiNewton           
+
+CellAwareBFGS
+-------------
+
+CellAwareBFGS requires a :class:`UnitCellFilter` (usually the :class:`FrechetCellFilter` is the best choice) and can use additional information about the system (bulk modulus, Posson ratio) to inform the optimization process.
+
+.. class:: CellAwareBFGS
 
 GPMin
 -----
@@ -222,6 +237,21 @@ Read about this algorithm here:
   | Erik Bitzek, Pekka Koskinen, Franz Gähler, Michael Moseler, and Peter Gumbsch
   | :doi:`Structural Relaxation Made Simple <10.1103/PhysRevLett.97.170201>`
   | Physical Review Letters, Vol. **97**, 170201 (2006)
+
+FIRE2.0 / ABC-FIRE
+------------------
+
+FIRE2.0 and ABC-FIRE are implemented by the same class, with the latter enabled by the ``use_abc`` parameter.
+
+  | J. Guénolé, W.G. Nöhring, A. Vaid, F. Houllé, Z. Xie, A. Prakash, E. Bitzek,
+  | :doi:`Assessment and optimization of the fast inertial relaxation engine (fire) for energy minimization in atomistic simulations and its implementation in lammps <https://doi.org/10.1016/j.commatsci.2020.109584.>`
+  | Comput. Mater. Sci. 175 (2020) 109584.
+  |
+  | S. Echeverri Restrepo, P. Andric,
+  | :doi:`ABC-FIRE: Accelerated Bias-Corrected Fast Inertial Relaxation Engine <https://doi.org/10.1016/j.commatsci.2022.111978>`
+  | Comput. Mater. Sci. 218 (2023) 111978.
+
+.. class:: FIRE2
 
 
 MDMin
@@ -520,7 +550,7 @@ The code is written such that a stopped simulation (e.g., killed by the batching
 
 Note that these searches can be quite slow, so it can pay to have multiple searches running at a time. Multiple searches can run in parallel and share one list of minima. (Run each script from a separate directory but specify the location to the same absolute location for ``minima_traj``). Each search will use the global information of the list of minima, but will keep its own local information of the initial temperature and :math:`E_\mathrm{diff}`.
 
-For an example of use, see the :ref:`mhtutorial` tutorial.
+For an example of use, see the :ref:`minima_hopping` tutorial.
 
 Transition state search
 =======================

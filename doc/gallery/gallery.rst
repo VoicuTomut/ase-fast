@@ -53,11 +53,8 @@ Band-structure
 Nudged elastic band calculations
 ================================
 
-.. image:: ../tutorials/neb/diffusion-barrier.png
-   :width: 10cm
 
 :mod:`ase.mep.neb`
-:download:`barrier.py <../tutorials/neb/diffusion5.py>`
 
 
 Nanoparticle
@@ -78,15 +75,6 @@ Pretty pictures
 
 :mod:`ase.spacegroup`
 :download:`cosb3.py <../ase/spacegroup/spacegroup-cosb3.py>`
-
-
-Periodic table
-==============
-
-.. image:: ptable.png
-   :width: 10cm
-
-:download:`ptable.py`
 
 
 Fine tuning POV-Ray settings for high quality images

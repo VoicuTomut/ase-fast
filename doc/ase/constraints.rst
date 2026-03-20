@@ -69,7 +69,7 @@ minimizations performed on the *atoms* object.
 
 This constraint is useful for finding minimum energy barriers for
 reactions where the path can be described well by a single bond
-length (see the :ref:`mep2` tutorial).
+length (see the :ref:`dissociation` tutorial).
 
 Important: If fixing multiple bond lengths, use the FixBondLengths class
 below, particularly if the same atom is fixed to multiple partners.
@@ -230,7 +230,7 @@ A third way this constraint can be applied is to apply a restorative force if an
 
 This will apply a restorative force on atom 3 in the downward direction of magnitude k * (atom.z - 7) if the atom's vertical position exceeds 7 Angstroms. In other words, if the atom crosses to the (positive) normal side of the plane, the force is applied and directed towards the plane. (The same plane with the normal direction pointing in the -z direction would be given by (0, 0, -1, 7).)
 
-For an example of use, see the :ref:`mhtutorial` tutorial.
+For an example of use, see the :ref:`minima_hopping` tutorial.
 
 .. note::
 

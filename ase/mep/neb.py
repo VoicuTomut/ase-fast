@@ -126,7 +126,8 @@ class ImprovedTangentMethod(NEBMethod):
             else:
                 tangent = spring2.t * deltavmin + spring1.t * deltavmax
         # Normalize the tangent vector
-        tangent /= np.linalg.norm(tangent)
+        norm = np.linalg.norm(tangent)
+        tangent /= norm if norm > 0 else 1.0
         return tangent
 
     def add_image_force(self, state, tangential_force, tangent, imgforce,
@@ -265,7 +266,7 @@ class NEBOptimizable(Optimizable):
         self.neb = neb
 
     def get_gradient(self):
-        return self.neb.get_forces().ravel()
+        return -self.neb.get_forces().ravel()
 
     def get_value(self):
         return self.neb.get_potential_energy()
@@ -284,9 +285,18 @@ class NEBOptimizable(Optimizable):
 
 
 class BaseNEB:
-    def __init__(self, images, k=0.1, climb=False, parallel=False,
-                 remove_rotation_and_translation=False, world=None,
-                 method='aseneb', allow_shared_calculator=False, precon=None):
+    def __init__(
+            self,
+            images,
+            k=0.1,
+            climb=False,
+            parallel=False,
+            remove_rotation_and_translation=False,
+            world=None,
+            method=None,
+            allow_shared_calculator=False,
+            precon=None,
+        ):
 
         self.images = images
         self.climb = climb
@@ -314,6 +324,20 @@ class BaseNEB:
         self.emax = np.nan
 
         self.remove_rotation_and_translation = remove_rotation_and_translation
+
+        if method is None:
+            warnings.warn(
+              "The default method has changed from 'aseneb' to "
+              "'improvedtangent'. The 'aseneb' method is an unpublished, "
+              "custom implementation that is not recommended as it frequently "
+              "results in very poor bands. Please explicitly set "
+              "method='improvedtangent' to silence this warning, or set "
+              "method='aseneb' if you strictly require the old behavior "
+              "(results may vary). "
+              "See: https://gitlab.com/ase/ase/-/merge_requests/3952",
+              UserWarning,
+            )
+            method = 'improvedtangent'
 
         if method in ['aseneb', 'eb', 'improvedtangent', 'spline', 'string']:
             self.method = method
@@ -651,10 +675,21 @@ class BaseNEB:
 
 
 class DyNEB(BaseNEB):
-    def __init__(self, images, k=0.1, fmax=0.05, climb=False, parallel=False,
-                 remove_rotation_and_translation=False, world=None,
-                 dynamic_relaxation=True, scale_fmax=0., method='aseneb',
-                 allow_shared_calculator=False, precon=None):
+    def __init__(
+            self,
+            images,
+            k=0.1,
+            fmax=0.05,
+            climb=False,
+            parallel=False,
+            remove_rotation_and_translation=False,
+            world=None,
+            dynamic_relaxation=True,
+            scale_fmax=0.,
+            method=None,
+            allow_shared_calculator=False,
+            precon=None,
+        ):
         """
         Subclass of NEB that allows for scaled and dynamic optimizations of
         images. This method, which only works in series, does not perform
@@ -766,7 +801,7 @@ def _check_deprecation(keyword, kwargs):
 class NEB(DyNEB):
     def __init__(self, images, k=0.1, climb=False, parallel=False,
                  remove_rotation_and_translation=False, world=None,
-                 method='aseneb', allow_shared_calculator=False,
+                 method=None, allow_shared_calculator=False,
                  precon=None, **kwargs):
         """Nudged elastic band.
 
@@ -808,11 +843,17 @@ class NEB(DyNEB):
         method: string of method
             Choice betweeen five methods:
 
-            * aseneb: standard ase NEB implementation
-            * improvedtangent: Paper I NEB implementation
+            * aseneb: legacy ase NEB implementation
+            * improvedtangent: Paper I NEB implementation (default)
             * eb: Paper III full spring force implementation
             * spline: Paper IV spline interpolation (supports precon)
             * string: Paper IV string method (supports precon)
+
+            Defaults to 'improvedtangent' (with a warning if not specified).
+
+            .. versionchanged:: 3.27.1
+               The default changes from ``aseneb`` to ``improvedtangent``.
+
         allow_shared_calculator: bool
             Allow images to share the same calculator between them.
             Incompatible with parallelisation over images.
@@ -905,7 +946,6 @@ class NEBOptimizer(Optimizer):
             args = (name, self.nsteps, T[3], T[4], T[5], fmax)
             msg = "%s:  %3d %02d:%02d:%02d %12.4f\n" % args
             self.logfile.write(msg)
-            self.logfile.flush()
 
     def callback(self, X, F=None):
         self.log()

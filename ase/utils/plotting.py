@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any
 
 import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
@@ -7,9 +7,9 @@ from matplotlib.axes import Axes
 class SimplePlottingAxes:
     def __init__(
         self,
-        ax: Optional[Axes] = None,
+        ax: Axes | None = None,
         show: bool = False,
-        filename: str = None,
+        filename: str | None = None,
     ) -> None:
         self.ax = ax
         self.show = show

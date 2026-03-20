@@ -10,7 +10,7 @@ Quasi-Newton algorithm
 __docformat__ = 'reStructuredText'
 
 import time
-from typing import IO, Optional, Union
+from typing import IO
 
 import numpy as np
 from numpy.linalg import eigh
@@ -113,18 +113,18 @@ class GoodOldQuasiNewton(Optimizer):
     def __init__(
         self,
         atoms: Atoms,
-        restart: Optional[str] = None,
-        logfile: Union[IO, str] = '-',
-        trajectory: Optional[str] = None,
+        restart: str | None = None,
+        logfile: IO | str = '-',
+        trajectory: str | None = None,
         fmax=None,
         converged=None,
         hessianupdate: str = 'BFGS',
         hessian=None,
         forcemin: bool = True,
         verbosity: bool = False,
-        maxradius: Optional[float] = None,
+        maxradius: float | None = None,
         diagonal: float = 20.0,
-        radius: Optional[float] = None,
+        radius: float | None = None,
         transitionstate: bool = False,
         **kwargs,
     ):
@@ -189,7 +189,6 @@ class GoodOldQuasiNewton(Optimizer):
     def write_log(self, text):
         if self.logfile is not None:
             self.logfile.write(text + '\n')
-            self.logfile.flush()
 
     def set_hessian(self, hessian):
         self.hessian = hessian
@@ -290,10 +289,8 @@ class GoodOldQuasiNewton(Optimizer):
     def step(self, forces=None):
         """ Do one QN step
         """
-        forces = self._get_gradient(forces)
-
+        G = self._get_gradient(forces)
         pos = self.optimizable.get_x()
-        G = -self.optimizable.get_gradient()
         energy = self.optimizable.get_value()
 
         if hasattr(self, 'oldenergy'):

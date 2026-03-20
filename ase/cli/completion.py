@@ -9,7 +9,6 @@ Run this when ever options are changed::
 
 import sys
 from pathlib import Path
-from typing import Dict, List, Tuple
 
 # Path of the complete.py script:
 path = Path(__file__).with_name('complete.py')
@@ -33,7 +32,7 @@ class CLICommand:
 
 
 def update(path: Path,
-           subcommands: List[Tuple[str, str]],
+           subcommands: list[tuple[str, str]],
            test: bool = False) -> None:
     """Update commands dict in complete.py.
 
@@ -45,7 +44,7 @@ def update(path: Path,
     import textwrap
     from importlib import import_module
 
-    dct: Dict[str, List[str]] = {}
+    dct: dict[str, list[str]] = {}
 
     class Subparser:
         def __init__(self, command):

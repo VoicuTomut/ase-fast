@@ -4,6 +4,7 @@
 # maintained by James Kermode <james.kermode@gmail.com>
 
 import sys
+from io import StringIO
 from pathlib import Path
 
 import numpy as np
@@ -18,7 +19,7 @@ from ase.calculators.mixing import LinearCombinationCalculator
 from ase.calculators.singlepoint import SinglePointCalculator
 from ase.constraints import FixAtoms, FixCartesian, FixedLine, FixedPlane
 from ase.io import extxyz
-from ase.io.extxyz import escape, save_calc_results
+from ase.io.extxyz import escape, iread_xyz, save_calc_results, write_xyz
 
 # array data of shape (N, 1) squeezed down to shape (N, ) -- bug fixed
 # in commit r4541
@@ -108,6 +109,34 @@ def test_vec_cell(atoms, images):
 
     a = ase.io.read('structure.xyz')
     assert a[0].symbol == 'Mg'
+
+
+def test_sequence_move_mask_variable_constraints(tmp_path):
+    # in response to issue #1849
+    # Regression test: writing a sequence with move_mask and varying natoms
+    # Previously this would use constraints from the first frame for all frames.
+    # Previously this would crash with IndexError when later frames are smaller.
+    pos0 = np.zeros((71, 3), dtype=float)
+    pos0[:, 0] = np.arange(71, dtype=float)
+    a0 = Atoms('H71', positions=pos0)
+    a0.set_constraint(FixAtoms(indices=[63]))
+
+    pos1 = np.zeros((63, 3), dtype=float)
+    pos1[:, 0] = np.arange(63, dtype=float)
+    a1 = Atoms('H63', positions=pos1)
+
+    path = tmp_path / 'multi-movemask.xyz'
+    ase.io.write(path, [a0, a1], format='extxyz',)
+
+    images2 = ase.io.read(path, index=':')
+
+    assert len(images2) == 2
+
+    assert len(images2[0].constraints) == 1
+    assert isinstance(images2[0].constraints[0], FixAtoms)
+    assert np.all(images2[0].constraints[0].index == a0.constraints[0].index)
+
+    assert images2[1].constraints == []
 
 
 # read xyz with / and @ signs in key value
@@ -359,9 +388,18 @@ class TestConstraints:
         constraint2 = self._roundtrip(atoms, columns, constraint)
         assert len(constraint2) == len(atoms)
         assert isinstance(constraint2[0], FixCartesian)
-        assert np.all(constraint2[0].mask)
+        assert np.all(~constraint2[0].mask)  # unconstrained
         assert np.all(constraint2[1].mask == constraint.mask)
-        assert np.all(constraint2[2].mask)
+        assert np.all(~constraint2[2].mask)  # unconstrained
+
+    def test_list_of_fix_atoms(self, columns) -> None:
+        """Test list of `FixAtoms`."""
+        atoms = self._make_atoms()
+        constraint = [FixAtoms(0), FixAtoms(2)]
+        constraint2 = self._roundtrip(atoms, columns, constraint)
+        assert len(constraint2) == 1
+        assert isinstance(constraint2[0], FixAtoms)
+        assert np.all(constraint2[0].index == [0, 2])
 
     def test_list_of_fix_cartesian(self, columns) -> None:
         """Test list of `FixCartesian`."""
@@ -370,7 +408,7 @@ class TestConstraints:
         constraint2 = self._roundtrip(atoms, columns, constraint)
         assert len(constraint2) == len(atoms)
         assert np.all(constraint2[0].mask == constraint[0].mask)
-        assert np.all(constraint2[1].mask)
+        assert np.all(~constraint2[1].mask)  # unconstrained
         assert np.all(constraint2[2].mask == constraint[1].mask)
 
     def test_list_of_fixed_line(self, columns) -> None:
@@ -555,3 +593,18 @@ def test_non_subscriptable_move_mask(tmp_path):
     atoms.new_array("move_mask", np.ones(atoms.positions.shape).astype(bool))
 
     ase.io.write(tmp_path / "out.extxyz", (a for a in [atoms]))
+
+
+@pytest.mark.parametrize('index', (0, -1, slice(None), slice(None, None, -1)))
+def test_iread_xyz(images: list[Atoms], index: int | slice) -> None:
+    """Test if `iread_xyz` works."""
+    # This will not be needed once `read_xyz` is reimplemented with `iread_xyz`.
+    fd = StringIO()
+    write_xyz(fd, images)
+    fd.seek(0)
+    if isinstance(index, int):
+        images_ref = images[slice(index, index + 1)]
+    else:
+        images_ref = images[index]
+    for atoms1, atoms2 in zip(images_ref, iread_xyz(fd, index=index)):
+        assert not compare_atoms(atoms1, atoms2)

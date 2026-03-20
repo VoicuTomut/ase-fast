@@ -1,6 +1,5 @@
 # fmt: off
 
-from typing import Tuple
 
 import numpy as np
 
@@ -46,7 +45,7 @@ class LippincottStuttman:
     }
 
     def __call__(self, el1: str, el2: str,
-                 length: float) -> Tuple[float, float]:
+                 length: float) -> tuple[float, float]:
         """Bond polarizability
 
         Parameters
@@ -94,7 +93,7 @@ class Linearized:
         }
 
     def __call__(self, el1: str, el2: str,
-                 length: float) -> Tuple[float, float]:
+                 length: float) -> tuple[float, float]:
         """Bond polarizability
 
         Parameters

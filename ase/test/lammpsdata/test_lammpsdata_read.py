@@ -84,3 +84,36 @@ def test_general_triclinic_box() -> None:
     """Test if a general triclinic box can be parsed."""
     atoms = read_lammps_data(StringIO(BUF_GENERAL_TRICLINIC_BOX))
     np.testing.assert_allclose(atoms.cell, [[-1, 2, 3], [1, -2, 3], [1, 2, -3]])
+
+
+BUF_ATOM_TYPE_LABELS = r"""
+(written by ASE)
+
+1 atoms
+1 atom types
+
+0 1 xlo xhi
+0 1 ylo yhi
+0 1 zlo zhi
+
+Atom Type Labels
+
+1 Cu
+
+Masses
+
+1 63.54599998365315
+
+Atoms # atomic
+
+1 Cu 0 0 0 0 0 0
+
+Velocities
+
+1 0 0 0
+"""
+
+
+def test_atom_type_labels() -> None:
+    """Test if a LAMMPS data file with Atom Type Labels can be parsed."""
+    read_lammps_data(StringIO(BUF_ATOM_TYPE_LABELS))

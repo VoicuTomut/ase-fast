@@ -613,6 +613,8 @@ class SymmetryEquivalenceCheck:
 
     def _reduce_to_primitive(self, structure):
         """Reduce the two structure to their primitive type"""
+        from ase.utils import spglib_new_errorhandling
+
         try:
             import spglib
         except ImportError:
@@ -621,9 +623,9 @@ class SymmetryEquivalenceCheck:
         pos = structure.get_scaled_positions().tolist()
         numbers = structure.get_atomic_numbers()
 
-        cell, scaled_pos, numbers = spglib.standardize_cell(
-            (cell, pos, numbers), to_primitive=True
-        )
+        cell, scaled_pos, numbers = spglib_new_errorhandling(
+            spglib.standardize_cell
+        )((cell, pos, numbers), to_primitive=True)
 
         atoms = Atoms(
             scaled_positions=scaled_pos, numbers=numbers, cell=cell, pbc=True

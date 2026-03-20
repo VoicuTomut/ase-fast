@@ -1,4 +1,3 @@
-# fmt: off
 import numpy as np
 import pytest
 
@@ -7,7 +6,7 @@ from ase.build import bulk
 from ase.calculators.lj import LennardJones
 
 # test non-bulk properties
-reference_potential_energy = pytest.approx(-1.0)
+reference_energy = pytest.approx(-1.0)
 
 
 def systems_minimum():
@@ -29,9 +28,8 @@ def test_minimum_energy():
     # Minimum is at r=2^(1/6)*sigma, and it's -1.
 
     for atoms in systems_minimum():
-        assert atoms.get_potential_energy() == reference_potential_energy
-        assert atoms.get_potential_energies().sum() == \
-            reference_potential_energy
+        assert atoms.get_potential_energy() == reference_energy
+        assert atoms.get_potential_energies().sum() == reference_energy
 
 
 def test_minimum_forces():
@@ -45,24 +43,23 @@ def test_system_changes():
 
     for atoms in systems_minimum():
         atoms.calc.calculate(atoms, system_changes=['positions'])
-        assert atoms.get_potential_energy() == reference_potential_energy
+        assert atoms.get_potential_energy() == reference_energy
 
 
 def test_finite_difference():
     # ensure that we got the modified forces right
-    h = 1e-10
+    h = 1e-9
     r = 8.0
     calc = LennardJones(smooth=True, ro=6, rc=10, sigma=3)
-    atoms = Atoms('H2', positions=[[0, 0, 0], [r, 0, 0]])
-    atoms2 = Atoms('H2', positions=[[0, 0, 0], [r + h, 0, 0]])
-    atoms.calc = calc
-    atoms2.calc = calc
-
-    fd_force = (atoms2.get_potential_energy() -
-                atoms.get_potential_energy()) / h
-    force = atoms.get_forces()[0, 0]
-
-    np.testing.assert_allclose(fd_force, force)
+    atoms0 = Atoms('H2', positions=[[0, 0, 0], [r, 0, 0]])
+    atoms1 = Atoms('H2', positions=[[0, 0, 0], [r + h, 0, 0]])
+    atoms0.calc = calc
+    atoms1.calc = calc
+    e0 = atoms0.get_potential_energy()
+    e1 = atoms1.get_potential_energy()
+    fd_force = (e1 - e0) / h
+    force = atoms0.get_forces()[0, 0]
+    np.testing.assert_allclose(fd_force, force, atol=1e-6, rtol=0.0)
 
 
 # test bulk properties
@@ -72,7 +69,7 @@ reference_pressure = pytest.approx(1.473229212e-05)
 
 
 def systems_bulk():
-    atoms = bulk("Ar", cubic=True)
+    atoms = bulk('Ar', cubic=True)
     atoms.set_cell(atoms.cell * stretch, scale_atoms=True)
 
     calc = LennardJones(rc=10)
@@ -80,7 +77,7 @@ def systems_bulk():
 
     yield atoms
 
-    atoms = bulk("Ar", cubic=True)
+    atoms = bulk('Ar', cubic=True)
     atoms.set_cell(atoms.cell * stretch, scale_atoms=True)
 
     # somewhat hand-picked parameters, but ok for comparison
@@ -117,7 +114,7 @@ def test_bulk_stress():
     # check stress computation for sanity and reference
     # reference value computed for "non-smooth" LJ, so
     # we only test that
-    atoms = bulk("Ar", cubic=True)
+    atoms = bulk('Ar', cubic=True)
     atoms.set_cell(atoms.cell * stretch, scale_atoms=True)
 
     calc = LennardJones(rc=10)

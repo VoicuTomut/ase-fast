@@ -1,12 +1,16 @@
-# fmt: off
+"""Radial distribution function (RDF)."""
+
+from __future__ import annotations
 
 import math
-from typing import List, Optional, Tuple, Union
+from collections.abc import Iterable
 
 import numpy as np
 
 from ase import Atoms
 from ase.cell import Cell
+from ase.neighborlist import NeighborList
+from ase.symbols import symbols2numbers
 
 
 class CellTooSmall(Exception):
@@ -17,45 +21,64 @@ class VolumeNotDefined(Exception):
     pass
 
 
-def get_rdf(atoms: Atoms, rmax: float, nbins: int,
-            distance_matrix: Optional[np.ndarray] = None,
-            elements: Optional[Union[List[int], Tuple]] = None,
-            no_dists: Optional[bool] = False,
-            volume: Optional[float] = None):
-    """Returns two numpy arrays; the radial distribution function
-    and the corresponding distances of the supplied atoms object.
-    If no_dists = True then only the first array is returned.
+def get_rdf(
+    atoms: Atoms,
+    rmax: float,
+    nbins: int,
+    distance_matrix: np.ndarray | None = None,
+    elements: Iterable[int | str] | None = None,
+    no_dists: bool = False,
+    volume: float | None = None,
+):
+    """Calculate the radial distribution function (RDF) :math:`g(r)`.
 
-    Note that the rdf is computed following the standard solid state
-    definition which uses the cell volume in the normalization.
-    This may or may not be appropriate in cases where one or more
-    directions is non-periodic.
+    .. versionchanged:: 3.27.0
+        Partial RDFs are fixed to be consistent with LAMMPS ``compute rdf``.
+        They now satisfy :math:`g_{ij}(r) = g_{ji}(r)` and
+        :math:`g(r) = \\sum_{ij} c_i c_j g_{ij}(r)`, where `i` and `j` index
+        the elements and `c_{i,j}` are their atomic fractions.
 
-    Parameters:
-
+    Parameters
+    ----------
+    atoms : Atoms
+        ASE ``Atoms`` object for which the RDF is computed.
     rmax : float
-        The maximum distance that will contribute to the rdf.
+        The maximum distance that will contribute to the RDF.
         The unit cell should be large enough so that it encloses a
         sphere with radius rmax in the periodic directions.
-
     nbins : int
-        Number of bins to divide the rdf into.
-
+        Number of bins to divide the RDF into.
     distance_matrix : numpy.array
         An array of distances between atoms, typically
         obtained by atoms.get_all_distances().
-        Default None meaning that it will be calculated.
+        Default None meaning that a NeighborList will be used.
+    elements : Iterable[int | str] | None, default: None
+        Two atomic numbers of chemical symbols. If not None, the partial
+        RDF for the supplied elements will be returned.
 
-    elements : list or tuple
-        List of two atomic numbers. If elements is not None the partial
-        rdf for the supplied elements will be returned.
+        .. versionadded:: 3.28.0
+            Each item of ``elements`` can be a chemical element symbol.
 
     no_dists : bool
-        If True then the second array with rdf distances will not be returned.
-
+        If True then the second array with RDF distances will not be returned.
     volume : float or None
         Optionally specify the volume of the system. If specified, the volume
         will be used instead atoms.cell.volume.
+
+    Returns
+    -------
+    rdf : np.ndarray
+        RDFs.
+    rr : np.ndarray
+        Corresponding distances.
+
+    Notes
+    -----
+    The RDF is computed following the standard solid state definition which uses
+    the cell volume in the normalization.
+    This may or may not be appropriate in cases where one or more directions is
+    non-periodic.
+
     """
 
     # First check whether the cell is sufficiently large
@@ -65,38 +88,53 @@ def get_rdf(atoms: Atoms, rmax: float, nbins: int,
 
     check_cell_and_r_max(atoms, rmax)
 
-    dm = distance_matrix
-    if dm is None:
-        dm = atoms.get_all_distances(mic=True)
-
-    rdf = np.zeros(nbins + 1)
+    natoms = len(atoms)
     dr = float(rmax / nbins)
 
-    indices = np.asarray(np.ceil(dm / dr), dtype=int)
-    natoms = len(atoms)
+    atomic_numbers = None if elements is None else symbols2numbers(elements)
 
-    if elements is None:
-        # Coefficients to use for normalization
-        phi = natoms / vol
-        norm = 2.0 * math.pi * dr * phi * len(atoms)
-
-        indices_triu = np.triu(indices)
-        for index in range(nbins + 1):
-            rdf[index] = np.count_nonzero(indices_triu == index)
-
+    if atomic_numbers is None:
+        i_indices = np.arange(natoms)
+        n = natoms  # number of center atoms
+        rho = natoms / vol  # average number density
     else:
-        i_indices = np.where(atoms.numbers == elements[0])[0]
-        phi = len(i_indices) / vol
-        norm = 4.0 * math.pi * dr * phi * natoms
+        i_indices = np.where(atoms.numbers == atomic_numbers[0])[0]
+        j_indices = np.where(atoms.numbers == atomic_numbers[1])[0]
+        n = len(i_indices)  # number of center atoms
+        rho = len(j_indices) / vol  # average number density
 
+    if distance_matrix is None:
+        nl = NeighborList(np.ones(natoms) * rmax * 0.5, bothways=True)
+        nl.update(atoms)
+
+        rdf = np.zeros(nbins + 1)
         for i in i_indices:
-            for j in np.where(atoms.numbers == elements[1])[0]:
-                index = indices[i, j]
-                if index <= nbins:
-                    rdf[index] += 1
+            j_indices, offsets = nl.get_neighbors(i)
+            if atomic_numbers is not None:
+                mask = atoms.numbers[j_indices] == atomic_numbers[1]
+                j_indices = j_indices[mask]
+                offsets = offsets[mask]
+
+            if np.count_nonzero(j_indices) == 0:
+                continue
+
+            ps = atoms.positions
+            d = ps[j_indices] + offsets @ atoms.cell - ps[i]
+            distances = np.sqrt(np.add.reduce(d**2, axis=1))
+
+            indices = np.asarray(np.ceil(distances / dr), dtype=int)
+            rdf += np.bincount(indices, minlength=nbins + 1)[: nbins + 1]
+    else:
+        indices = np.asarray(np.ceil(distance_matrix / dr), dtype=int)
+        if atomic_numbers is None:
+            x = indices.ravel()
+        else:
+            x = indices[i_indices][:, j_indices].ravel()
+        rdf = np.bincount(x, minlength=nbins + 1)[: nbins + 1].astype(float)
 
     rr = np.arange(dr / 2, rmax, dr)
-    rdf[1:] /= norm * (rr * rr + (dr * dr / 12))
+    shell_volumes = 4.0 * math.pi * dr * (rr * rr + (dr * dr / 12))
+    rdf[1:] /= n * rho * shell_volumes
 
     if no_dists:
         return rdf[1:]
@@ -119,16 +157,19 @@ def check_cell_and_r_max(atoms: Atoms, rmax: float) -> None:
                 raise CellTooSmall(
                     'The cell is not large enough in '
                     f'direction {i}: {h:.3f} < 2*rmax={2 * rmax: .3f}. '
-                    f'Recommended rmax = {recommended_r_max}')
+                    f'Recommended rmax = {recommended_r_max}'
+                )
 
 
-def get_recommended_r_max(cell: Cell, pbc: List[bool]) -> float:
+def get_recommended_r_max(cell: Cell, pbc: list[bool]) -> float:
     recommended_r_max = 5.0
     vol = cell.volume
     for i in range(3):
         if pbc[i]:
-            axb = np.cross(cell[(i + 1) % 3, :],  # type: ignore[index]
-                           cell[(i + 2) % 3, :])  # type: ignore[index]
+            axb = np.cross(
+                cell[(i + 1) % 3, :],  # type: ignore[index]
+                cell[(i + 2) % 3, :],  # type: ignore[index]
+            )
             h = vol / np.linalg.norm(axb)
             assert isinstance(h, float)  # mypy
             recommended_r_max = min(h / 2 * 0.99, recommended_r_max)

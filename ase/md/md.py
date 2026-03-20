@@ -2,7 +2,7 @@
 
 """Molecular Dynamics."""
 import warnings
-from typing import IO, Optional, Union
+from typing import IO
 
 import numpy as np
 
@@ -12,8 +12,8 @@ from ase.optimize.optimize import BaseDynamics
 
 
 def process_temperature(
-    temperature: Optional[float],
-    temperature_K: Optional[float],
+    temperature: float | None,
+    temperature_K: float | None,
     orig_unit: str,
 ) -> float:
     """Handle that temperature can be specified in multiple units.
@@ -67,8 +67,8 @@ class MolecularDynamics(BaseDynamics):
         self,
         atoms: Atoms,
         timestep: float,
-        trajectory: Optional[str] = None,
-        logfile: Optional[Union[IO, str]] = None,
+        trajectory: str | None = None,
+        logfile: IO | str | None = None,
         loginterval: int = 1,
         **kwargs,
     ):
@@ -132,7 +132,8 @@ class MolecularDynamics(BaseDynamics):
 
         if logfile:
             logger = self.closelater(
-                MDLogger(dyn=self, atoms=atoms, logfile=logfile))
+                MDLogger(dyn=self, atoms=atoms, logfile=logfile,
+                         comm=self.comm))
             self.attach(logger, loginterval)
 
     def todict(self):
@@ -191,8 +192,10 @@ class MolecularDynamics(BaseDynamics):
         converged : bool
             True if the maximum number of steps are reached.
         """
-        for _ in self.irun(steps=steps):
+        converged = steps == 0
+        for converged in self.irun(steps=steps):
             pass
+        return converged
 
     def get_time(self):
         return self.nsteps * self.dt

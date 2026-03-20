@@ -1451,6 +1451,7 @@ def write_espresso_in(fd, atoms, input_data=None, pseudopotentials=None,
         fd.write(additional_cards)
 
 
+@writer
 def write_espresso_ph(
         fd,
         input_data=None,
@@ -1521,6 +1522,7 @@ def write_espresso_ph(
         fd.write("\n")
 
 
+@reader
 def read_espresso_ph(fileobj):
     """
     Function that reads the output of a ph.x calculation.
@@ -1880,6 +1882,7 @@ def read_espresso_ph(fileobj):
     return results
 
 
+@writer
 def write_fortran_namelist(
         fd,
         input_data=None,

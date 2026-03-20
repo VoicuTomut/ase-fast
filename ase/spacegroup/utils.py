@@ -1,6 +1,5 @@
 # fmt: off
 
-from typing import List
 
 import numpy as np
 
@@ -91,7 +90,7 @@ def _get_basis_spglib(atoms: Atoms, tol: float = 1e-5) -> np.ndarray:
     return scaled_positions[reduced_indices]
 
 
-def _can_use_spglib(spacegroup: _SPACEGROUP = None) -> bool:
+def _can_use_spglib(spacegroup: _SPACEGROUP | None = None) -> bool:
     """Helper dispatch function, for deciding if the spglib implementation
     can be used"""
     if not _has_spglib():
@@ -106,7 +105,7 @@ def _can_use_spglib(spacegroup: _SPACEGROUP = None) -> bool:
 
 # Dispatcher function for chosing get_basis implementation.
 def get_basis(atoms: Atoms,
-              spacegroup: _SPACEGROUP = None,
+              spacegroup: _SPACEGROUP | None = None,
               method: str = 'auto',
               tol: float = 1e-5) -> np.ndarray:
     """Function for determining a reduced basis of an atoms object.
@@ -162,7 +161,7 @@ def get_basis(atoms: Atoms,
         return _get_basis_ase(atoms, spacegroup, tol=tol)
 
 
-def _get_reduced_indices(atoms: Atoms, tol: float = 1e-5) -> List[int]:
+def _get_reduced_indices(atoms: Atoms, tol: float = 1e-5) -> list[int]:
     """Get a list of the reduced atomic indices using spglib.
     Note: Does no checks to see if spglib is installed.
 

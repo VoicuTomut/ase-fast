@@ -1,6 +1,6 @@
 # fmt: off
 
-from typing import IO, Any, Dict, List, Optional, Type, Union
+from typing import IO, Any
 
 from numpy.linalg import norm
 
@@ -55,14 +55,14 @@ class BFGSClimbFixInternals(BFGS):
     def __init__(
         self,
         atoms: Atoms,
-        restart: Optional[str] = None,
-        logfile: Union[IO, str] = '-',
-        trajectory: Optional[str] = None,
-        maxstep: Optional[float] = None,
-        alpha: Optional[float] = None,
-        climb_coordinate: Optional[List[FixInternals]] = None,
-        optB: Type[Optimizer] = BFGS,
-        optB_kwargs: Optional[Dict[str, Any]] = None,
+        restart: str | None = None,
+        logfile: IO | str = '-',
+        trajectory: str | None = None,
+        maxstep: float | None = None,
+        alpha: float | None = None,
+        climb_coordinate: list[FixInternals] | None = None,
+        optB: type[Optimizer] = BFGS,
+        optB_kwargs: dict[str, Any] | None = None,
         optB_fmax: float = 0.05,
         optB_fmax_scaling: float = 0.0,
         **kwargs,
@@ -142,7 +142,7 @@ class BFGSClimbFixInternals(BFGS):
         """Get directions for climbing and climb with optimizer 'A'."""
         proj_forces = self.get_projected_forces()
         pos = self.optimizable.get_x()
-        dpos, steplengths = self.prepare_step(pos, proj_forces)
+        dpos, steplengths = self.prepare_step(pos, -proj_forces)
         dpos = self.determine_step(dpos, steplengths)
         return pos, dpos
 
@@ -165,7 +165,7 @@ class BFGSClimbFixInternals(BFGS):
         with self.optB(self.optimizable.atoms, **self.optB_kwargs) as opt:
             opt.run(fmax)  # optimize with scaled fmax
             grad = self.optimizable.get_gradient()
-            if self.converged(grad) and fmax > self.optB_fmax:
+            if self.gradient_converged(grad) and fmax > self.optB_fmax:
                 # (final) optimization with desired fmax
                 opt.run(self.optB_fmax)
 
@@ -185,18 +185,18 @@ class BFGSClimbFixInternals(BFGS):
 
     def get_total_forces(self):
         """Return forces obeying all constraints plus projected forces."""
-        forces = self.optimizable.get_gradient()
+        forces = -self.optimizable.get_gradient()
         return forces + self.get_projected_forces()
 
-    def converged(self, gradient):
+    def gradient_converged(self, gradient):
         """Did the optimization converge based on the total forces?"""
         # XXX ignoring gradient
-        gradient = self.get_total_forces().ravel()
-        return super().converged(gradient=gradient)
+        gradient = -self.get_total_forces().ravel()
+        return super().gradient_converged(gradient=gradient)
 
     def log(self, gradient):
         forces = self.get_total_forces()
-        super().log(gradient=forces.ravel())
+        super().log(gradient=-forces.ravel())
 
 
 def get_fixinternals(atoms):

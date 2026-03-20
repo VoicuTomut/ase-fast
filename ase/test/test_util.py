@@ -1,5 +1,5 @@
 # fmt: off
-from typing import Any, Dict, List
+from typing import Any
 
 import pytest
 
@@ -45,7 +45,7 @@ class TestDeprecatedDecorator:
 
     @staticmethod
     def test_should_raise_warning_when_callback_returns_true() -> None:
-        def callback(_: List, kwargs: Dict) -> bool:
+        def callback(_: list, kwargs: dict) -> bool:
             return "test" in kwargs
 
         with pytest.warns(DummyWarning, match=DEPRECATION_MESSAGE):
@@ -75,7 +75,7 @@ class TestDeprecatedDecorator:
     def test_should_call_callback(self) -> None:
         self.callback_called = False
 
-        def callback(_: List, __: Dict) -> bool:
+        def callback(_: list, __: dict) -> bool:
             self.callback_called = True
             return True
 
@@ -89,7 +89,7 @@ class TestDeprecatedDecorator:
 
     @staticmethod
     def test_should_call_function_with_modified_args() -> None:
-        def double_summands(args: List[int], _):
+        def double_summands(args: list[int], _):
             for i, val in enumerate(args):
                 args[i] = 2 * val
 
@@ -101,7 +101,7 @@ class TestDeprecatedDecorator:
 
     @staticmethod
     def test_should_call_function_with_modified_kwargs() -> None:
-        def double_summands(_: List[int], kwargs: Dict[str, int]):
+        def double_summands(_: list[int], kwargs: dict[str, int]):
             for kwarg, val in kwargs.items():
                 kwargs[kwarg] = 2 * val
 
@@ -114,7 +114,7 @@ class TestDeprecatedDecorator:
     @staticmethod
     def test_should_raise_warning_and_modify_args_if_callback_returns_true(
     ) -> None:
-        def limit_args_to_two(args: List, _: Dict[str, Any]):
+        def limit_args_to_two(args: list, _: dict[str, Any]):
             del args[2:]
 
         deprecated_add = deprecated(

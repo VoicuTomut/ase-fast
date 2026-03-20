@@ -3,22 +3,22 @@
 import collections.abc
 import numbers
 import warnings
-from typing import Dict, Iterator, List, Sequence, Set, Union
+from collections.abc import Iterator, Sequence
 
 import numpy as np
 
 from ase.data import atomic_numbers, chemical_symbols
 from ase.formula import Formula
 
-Integers = Union[Sequence[int], np.ndarray]
+Integers = Sequence[int] | np.ndarray
 
 
-def string2symbols(s: str) -> List[str]:
+def string2symbols(s: str) -> list[str]:
     """Convert string to list of chemical symbols."""
     return list(Formula(s))
 
 
-def symbols2numbers(symbols) -> List[int]:
+def symbols2numbers(symbols) -> list[int]:
     if isinstance(symbols, str):
         symbols = string2symbols(symbols)
     numbers = []
@@ -75,7 +75,7 @@ class Symbols(collections.abc.Sequence):
         string = Formula.from_list(self).format('reduce')
         return Formula(string)
 
-    def __getitem__(self, key) -> Union['Symbols', str]:
+    def __getitem__(self, key) -> 'Symbols | str':
         num = self.numbers[key]
         if isinstance(num, numbers.Integral):
             return chemical_symbols[num]
@@ -166,11 +166,11 @@ class Symbols(collections.abc.Sequence):
                    if number in numbers]
         return np.array(indices, int)
 
-    def species(self) -> Set[str]:
+    def species(self) -> set[str]:
         """Return unique symbols as a set."""
         return set(self)
 
-    def indices(self) -> Dict[str, Integers]:
+    def indices(self) -> dict[str, Integers]:
         """Return dictionary mapping each unique symbol to indices.
 
         >>> from ase.build import molecule
@@ -179,7 +179,7 @@ class Symbols(collections.abc.Sequence):
         {'C': array([0, 1]), 'O': array([2]), 'H': array([3, 4, 5, 6, 7, 8])}
 
         """
-        dct: Dict[str, List[int]] = {}
+        dct: dict[str, list[int]] = {}
         for i, symbol in enumerate(self):
             dct.setdefault(symbol, []).append(i)
         return {key: np.array(value, int) for key, value in dct.items()}
@@ -197,7 +197,7 @@ class Symbols(collections.abc.Sequence):
 
         """
 
-        counts: Dict[str, int] = {}
+        counts: dict[str, int] = {}
         result = []
         for i, n in enumerate(self.numbers):
             counts[n] = counts.get(n, -1) + 1

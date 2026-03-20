@@ -2,10 +2,11 @@
 
 import shlex
 from abc import ABC, abstractmethod
+from collections.abc import Iterable, Mapping
 from contextlib import ExitStack
 from os import PathLike
 from pathlib import Path
-from typing import Any, Iterable, List, Mapping, Optional, Set
+from typing import Any
 
 from ase.calculators.abc import GetOutputsMixin
 from ase.calculators.calculator import (
@@ -22,7 +23,7 @@ link_calculator_docs = (
 
 
 class BaseProfile(ABC):
-    configvars: Set[str] = set()
+    configvars: set[str] = set()
 
     def __init__(self, command):
         self.command = _validate_command(command)
@@ -31,7 +32,7 @@ class BaseProfile(ABC):
     def _split_command(self):
         return shlex.split(self.command)
 
-    def get_command(self, inputfile, calc_command=None) -> List[str]:
+    def get_command(self, inputfile, calc_command=None) -> list[str]:
         """
         Get the command to run. This should be a list of strings.
 
@@ -65,8 +66,8 @@ class BaseProfile(ABC):
         """
 
     def run(
-        self, directory: Path, inputfile: Optional[str],
-        outputfile: str, errorfile: Optional[str] = None,
+        self, directory: Path, inputfile: str | None,
+        outputfile: str, errorfile: str | None = None,
         append: bool = False
     ) -> None:
         """

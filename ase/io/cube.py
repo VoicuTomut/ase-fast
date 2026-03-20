@@ -1,10 +1,7 @@
-# fmt: off
-
 """
 IO support for the Gaussian cube format.
 
-See the format specifications on:
-http://local.wasp.uwa.edu.au/~pbourke/dataformats/cube/
+See the format specifications on: https://paulbourke.net/dataformats/cube/
 """
 
 import time
@@ -43,36 +40,33 @@ def write_cube(file_obj, atoms, data=None, origin=None, comment=None):
         data = np.abs(data)
 
     if comment is None:
-        comment = "Cube file from ASE, written on " + time.strftime("%c")
+        comment = 'Cube file from ASE, written on ' + time.strftime('%c')
     else:
         comment = comment.strip()
     file_obj.write(comment)
 
-    file_obj.write("\nOUTER LOOP: X, MIDDLE LOOP: Y, INNER LOOP: Z\n")
+    file_obj.write('\nOUTER LOOP: X, MIDDLE LOOP: Y, INNER LOOP: Z\n')
 
     if origin is None:
         origin = np.zeros(3)
     else:
         origin = np.asarray(origin) / Bohr
 
-    file_obj.write(
-        "{:5}{:12.6f}{:12.6f}{:12.6f}\n".format(
-            len(atoms), *origin))
+    file_obj.write('{:5}{:12.6f}{:12.6f}{:12.6f}\n'.format(len(atoms), *origin))
 
     for i in range(3):
         n = data.shape[i]
         d = atoms.cell[i] / n / Bohr
-        file_obj.write("{:5}{:12.6f}{:12.6f}{:12.6f}\n".format(n, *d))
+        file_obj.write('{:5}{:12.6f}{:12.6f}{:12.6f}\n'.format(n, *d))
 
     positions = atoms.positions / Bohr
     numbers = atoms.numbers
     for Z, (x, y, z) in zip(numbers, positions):
         file_obj.write(
-            "{:5}{:12.6f}{:12.6f}{:12.6f}{:12.6f}\n".format(
-                Z, 0.0, x, y, z)
+            '{:5}{:12.6f}{:12.6f}{:12.6f}{:12.6f}\n'.format(Z, 0.0, x, y, z)
         )
 
-    data.tofile(file_obj, sep="\n", format="%e")
+    data.tofile(file_obj, sep='\n', format='%e')
 
 
 def read_cube(file_obj, read_data=True, program=None, verbose=False):
@@ -107,16 +101,16 @@ def read_cube(file_obj, read_data=True, program=None, verbose=False):
     # The second comment line *CAN* contain information on the axes
     # But this is by far not the case for all programs
     axes = []
-    if "OUTER LOOP" in line.upper():
-        axes = ["XYZ".index(s[0]) for s in line.upper().split()[2::3]]
+    if 'OUTER LOOP' in line.upper():
+        axes = ['XYZ'.index(s[0]) for s in line.upper().split()[2::3]]
     if not axes:
         axes = [0, 1, 2]
 
     # castep2cube files have a specific comment in the second line ...
-    if "castep2cube" in line:
+    if 'castep2cube' in line:
         program = CASTEP
         if verbose:
-            print("read_cube identified program: castep")
+            print('read_cube identified program: castep')
 
     # Third line contains actual system information:
     line = readline().split()
@@ -196,8 +190,9 @@ def read_cube(file_obj, read_data=True, program=None, verbose=False):
         # and the next begins.
         raw_volume = [float(s) for s in file_obj.read().split()]
         # Split each value at each point into a separate list.
-        raw_volumes = [np.array(raw_volume[offset::num_val])
-                       for offset in range(num_val)]
+        raw_volumes = [
+            np.array(raw_volume[offset::num_val]) for offset in range(num_val)
+        ]
 
         datas = []
 
@@ -217,10 +212,10 @@ def read_cube(file_obj, read_data=True, program=None, verbose=False):
         datas = np.array(datas)
 
         dct[DATA] = datas[0]
-        dct["origin"] = origin
-        dct["spacing"] = spacing
-        dct["labels"] = labels
-        dct["datas"] = datas
+        dct['origin'] = origin
+        dct['spacing'] = spacing
+        dct['labels'] = labels
+        dct['datas'] = datas
 
     return dct
 
@@ -229,5 +224,5 @@ def read_cube_data(filename):
     """Wrapper function to read not only the atoms information from a cube file
     but also the contained volumetric data.
     """
-    dct = read(filename, format="cube", read_data=True, full_output=True)
+    dct = read(filename, format='cube', read_data=True, full_output=True)
     return dct[DATA], dct[ATOMS]

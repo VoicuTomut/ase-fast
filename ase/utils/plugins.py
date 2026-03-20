@@ -2,23 +2,23 @@
 Utilities for plugins to ase
 """
 
-from typing import List, NamedTuple, Optional, Union
+from typing import NamedTuple
 
 
 # Name is defined in the entry point
 class ExternalIOFormat(NamedTuple):
     desc: str
     code: str
-    module: Optional[str] = None
-    glob: Optional[Union[str, List[str]]] = None
-    ext: Optional[Union[str, List[str]]] = None
-    magic: Optional[Union[bytes, List[bytes]]] = None
-    magic_regex: Optional[bytes] = None
+    module: str | None = None
+    glob: str | list[str] | None = None
+    ext: str | list[str] | None = None
+    magic: bytes | list[bytes] | None = None
+    magic_regex: bytes | None = None
 
 
 class ExternalViewer(NamedTuple):
     desc: str
-    module: Optional[str] = None
-    cli: Optional[bool] = False
-    fmt: Optional[str] = None
-    argv: Optional[List[str]] = None
+    module: str | None = None
+    cli: bool | None = False
+    fmt: str | None = None
+    argv: list[str] | None = None

@@ -1,4 +1,3 @@
-# fmt: off
 import pytest
 
 from ase.build import bulk
@@ -20,23 +19,27 @@ calc = pytest.mark.calculator
 def test_o2(factory):
     atoms = g2['O2']
     atoms.center(vacuum=2.5)
-    calculate(factory,
-              atoms,
-              BoxShape='parallelepiped',
-              SpinComponents='spin_polarized',
-              ExtraStates=2)
+    calculate(
+        factory,
+        atoms,
+        BoxShape='parallelepiped',
+        SpinComponents='spin_polarized',
+        ExtraStates=2,
+    )
 
 
 @calc('octopus')
 def test_si(factory):
-    calc = calculate(factory,
-                     bulk('Si'),  # , orthorhombic=True),
-                     KPointsGrid=[[4, 4, 4]],
-                     KPointsUseSymmetries=True,
-                     SmearingFunction='fermi_dirac',
-                     ExtraStates=2,
-                     Smearing='0.1 * eV',
-                     ExperimentalFeatures=True,
-                     Spacing='0.45 * Angstrom')
+    calc = calculate(
+        factory,
+        bulk('Si', orthorhombic=True),
+        KPointsGrid=[[2, 2, 2]],
+        KPointsUseSymmetries=True,
+        SmearingFunction='fermi_dirac',
+        ExtraStates=2,
+        Smearing='0.1 * eV',
+        ExperimentalFeatures=True,
+        Spacing='0.35 * Angstrom',
+    )
     eF = calc.get_fermi_level()
     print('eF', eF)

@@ -1,4 +1,3 @@
-# fmt: off
 # flake8: noqa
 
 """Test the CP2K ASE calulator.

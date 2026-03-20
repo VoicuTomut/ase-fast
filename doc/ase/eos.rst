@@ -14,4 +14,4 @@ Convenient helper function:
 
 .. autofunction:: ase.eos.calculate_eos
 
-.. seealso::  The :ref:`eos` tutorial.
+.. seealso::  The :ref:`eos_example` tutorial.

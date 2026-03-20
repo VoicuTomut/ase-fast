@@ -1,6 +1,6 @@
 # fmt: off
 from collections import OrderedDict
-from typing import Any, List, Tuple
+from typing import Any
 
 import numpy as np
 import pytest
@@ -23,7 +23,7 @@ class MinimalDOSData(DOSData):
 
 class TestDosData:
     """Test the abstract base class for DOS data"""
-    sample_info: List[Tuple[Any, Any]] = [
+    sample_info: list[tuple[Any, Any]] = [
         (None, {}),
         ({}, {}),
         ({'symbol': 'C', 'index': '2', 'strangekey': 'isallowed'},

@@ -1,7 +1,6 @@
 """Berendsen NVT dynamics class."""
 
 import warnings
-from typing import Optional
 
 import numpy as np
 
@@ -10,19 +9,24 @@ from ase.md.md import MolecularDynamics
 
 
 class NVTBerendsen(MolecularDynamics):
+    """Berendsen (constant N, V, T) molecular dynamics.
+
+    Berendsen *et al.*, J. Chem. Phys. 81, 3684–3690 (1984).
+    https://doi.org/10.1063/1.448118
+    """
+
     def __init__(
         self,
         atoms: Atoms,
         timestep: float,
-        temperature: Optional[float] = None,
-        taut: Optional[float] = None,
+        temperature: float | None = None,
+        taut: float | None = None,
         fixcm: bool = True,
         *,
-        temperature_K: Optional[float] = None,
+        temperature_K: float | None = None,
         **kwargs,
     ):
-        """Berendsen (constant N, V, T) molecular dynamics.
-
+        """
         Parameters
         ----------
         atoms: Atoms object

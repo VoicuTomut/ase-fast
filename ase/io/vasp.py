@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
-from typing import List, Optional, TextIO, Tuple
+from typing import TextIO
 
 import numpy as np
 
@@ -28,6 +28,8 @@ __all__ = [
     'read_vasp', 'read_vasp_out', 'iread_vasp_out', 'read_vasp_xdatcar',
     'read_vasp_xml', 'write_vasp', 'write_vasp_xdatcar'
 ]
+
+EVTOJ = 1.60217733E-19  # VASP constant.F
 
 
 def parse_poscar_scaling_factor(line: str) -> np.ndarray:
@@ -312,7 +314,7 @@ def set_constraints(atoms: Atoms, selective_flags: np.ndarray):
     """Set constraints based on selective_flags"""
     from ase.constraints import FixAtoms, FixConstraint, FixScaled
 
-    constraints: List[FixConstraint] = []
+    constraints: list[FixConstraint] = []
     indices = []
     for ind, sflags in enumerate(selective_flags):
         if sflags.any() and not sflags.all():
@@ -566,6 +568,22 @@ def read_vasp_xml(filename='vasprun.xml', index=-1):
         steps = []
 
     for step in steps:
+        cell = np.zeros((3, 3), dtype=float)
+        for i, vector in enumerate(
+                step.find('structure/crystal/varray[@name="basis"]')):
+            cell[i] = np.array([float(val) for val in vector.text.split()])
+        volume = np.linalg.det(cell)
+
+        free_energy = float(step.find('energy/i[@name="e_fr_energy"]').text)
+
+        # https://gitlab.com/ase/ase/-/merge_requests/2685
+        # e_fr_energy in calculation/energy is actually an enthalpy including
+        # the PV term, unlike that in /calculation/scstep/energy or in OUTCAR,
+        # and therefore we need to subtract the PV term.
+        pressure = parameters.get('pstress', 0.0)
+        pressure *= 1e-22 / EVTOJ  # kbar -> eV/A3
+        free_energy -= pressure * volume
+
         # Workaround for VASP bug, e_0_energy contains the wrong value
         # in calculation/energy, but calculation/scstep/energy does not
         # include classical VDW corrections. So, first calculate
@@ -581,13 +599,7 @@ def read_vasp_xml(filename='vasprun.xml', index=-1):
         de = (float(lastscf.find('i[@name="e_0_energy"]').text) -
               float(lastscf.find('i[@name="e_fr_energy"]').text))
 
-        free_energy = float(step.find('energy/i[@name="e_fr_energy"]').text)
         energy = free_energy + de
-
-        cell = np.zeros((3, 3), dtype=float)
-        for i, vector in enumerate(
-                step.find('structure/crystal/varray[@name="basis"]')):
-            cell[i] = np.array([float(val) for val in vector.text.split()])
 
         scpos = np.zeros((natoms, 3), dtype=float)
         for i, vector in enumerate(
@@ -710,7 +722,17 @@ def write_vasp_xdatcar(fd, images, label=None):
     if not isinstance(image, Atoms):
         raise TypeError("images should be a sequence of Atoms objects.")
 
-    symbol_count = _symbol_count_from_symbols(image.get_chemical_symbols())
+    _write_xdatcar_header(fd, image, label)
+    _write_xdatcar_config(fd, image, index=1)
+    for i, image in enumerate(images):
+        _write_xdatcar_header(fd, image, label)
+        # Index is off by 2: 1-indexed file vs 0-indexed Python;
+        # and we already wrote the first block.
+        _write_xdatcar_config(fd, image, i + 2)
+
+
+def _write_xdatcar_header(fd, atoms, label):
+    symbol_count = _symbol_count_from_symbols(atoms.get_chemical_symbols())
 
     if label is None:
         label = ' '.join([s for s, _ in symbol_count])
@@ -719,19 +741,13 @@ def write_vasp_xdatcar(fd, images, label=None):
     # Not using lattice constants, set it to 1
     fd.write('           1\n')
 
-    # Lattice vectors; use first image
     float_string = '{:11.6f}'
     for row_i in range(3):
         fd.write('  ')
-        fd.write(' '.join(float_string.format(x) for x in image.cell[row_i]))
+        fd.write(' '.join(float_string.format(x) for x in atoms.cell[row_i]))
         fd.write('\n')
 
     fd.write(_symbol_count_string(symbol_count, vasp5=True))
-    _write_xdatcar_config(fd, image, index=1)
-    for i, image in enumerate(images):
-        # Index is off by 2: 1-indexed file vs 0-indexed Python;
-        # and we already wrote the first block.
-        _write_xdatcar_config(fd, image, i + 2)
 
 
 def _write_xdatcar_config(fd, atoms, index):
@@ -747,12 +763,12 @@ def _write_xdatcar_config(fd, atoms, index):
     float_string = '{:11.8f}'
     scaled_positions = atoms.get_scaled_positions()
     for row in scaled_positions:
-        fd.write(' ')
+        fd.write('  ')
         fd.write(' '.join([float_string.format(x) for x in row]))
         fd.write('\n')
 
 
-def _symbol_count_from_symbols(symbols: Symbols) -> List[Tuple[str, int]]:
+def _symbol_count_from_symbols(symbols: Symbols) -> list[tuple[str, int]]:
     """Reduce list of chemical symbols into compact VASP notation
 
     Args:
@@ -787,11 +803,11 @@ def write_vasp(
     atoms: Atoms,
     direct: bool = False,
     sort: bool = False,
-    symbol_count: Optional[List[Tuple[str, int]]] = None,
+    symbol_count: list[tuple[str, int]] | None = None,
     vasp5: bool = True,
     vasp6: bool = False,
     ignore_constraints: bool = False,
-    potential_mapping: Optional[dict] = None
+    potential_mapping: dict | None = None
 ) -> None:
     """Method to write VASP position (POSCAR/CONTCAR) files.
 
@@ -954,8 +970,8 @@ def _handle_ase_constraints(atoms: Atoms) -> np.ndarray:
 
 
 def _symbol_count_string(
-    symbol_count: List[Tuple[str, int]], vasp5: bool = True,
-    vasp6: bool = True, symbol_mapping: Optional[dict] = None
+    symbol_count: list[tuple[str, int]], vasp5: bool = True,
+    vasp6: bool = True, symbol_mapping: dict | None = None
 ) -> str:
     """Create the symbols-and-counts block for POSCAR or XDATCAR
 

@@ -9,7 +9,7 @@ import sys
 import time
 import warnings
 from math import atan, cos, degrees, pi, sin, sqrt, tan
-from typing import Any, Dict
+from typing import Any
 
 import numpy as np
 
@@ -226,7 +226,6 @@ class DimerEigenmodeSearch:
                      self.control.get_counter('rotcount'),
                      self.get_curvature(), '---------', norm(f_rot_A))
             self.logfile.write(l)
-            self.logfile.flush()
 
     def get_rotational_force(self):
         """Calculate the rotational force that acts on the dimer."""
@@ -321,7 +320,7 @@ class MinModeControl(IOContext):
     be overwritten.
 
     """
-    parameters: Dict[str, Any] = {}
+    parameters: dict[str, Any] = {}
 
     def __init__(self, logfile='-', eigenmode_logfile=None, comm=world,
                  **kwargs):
@@ -1013,7 +1012,6 @@ class MinModeTranslate(Optimizer):
                 l = 'MinModeTranslate: STEP      TIME          ENERGY    ' + \
                     'MAX-FORCE     STEPSIZE    CURVATURE  ROT-STEPS\n'
             self.logfile.write(l)
-            self.logfile.flush()
 
         # Load the relevant parameters from control
         self.cg_on = self.control.get_parameter('cg_translation')
@@ -1104,7 +1102,6 @@ class MinModeTranslate(Optimizer):
                             T[3], T[4], T[5], e, fmax, '    --------',
                             curvature, rotsteps)
             self.logfile.write(l)
-            self.logfile.flush()
 
 
 def read_eigenmode(mlog, index=-1):

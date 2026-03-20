@@ -3,7 +3,6 @@
 import copy
 import os
 from collections.abc import Iterable
-from typing import Dict, Optional
 
 from ase.calculators.calculator import FileIOCalculator
 from ase.io import read, write
@@ -12,8 +11,8 @@ from ase.io import read, write
 class GaussianDynamics:
     calctype = 'optimizer'
     delete = ['force']
-    keyword: Optional[str] = None
-    special_keywords: Dict[str, str] = {}
+    keyword: str | None = None
+    special_keywords: dict[str, str] = {}
 
     def __init__(self, atoms, calc=None):
         self.atoms = atoms

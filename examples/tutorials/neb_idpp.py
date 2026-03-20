@@ -97,11 +97,11 @@ images = [initial]
 
 for i in range(9):
     images.append(initial.copy())
+images.append(final)
 
 for image in images:
     image.calc = EMT()
 
-images.append(final)
 
 # Run linear interpolation.
 neb = NEB(images)
@@ -142,11 +142,11 @@ images = [initial]
 
 for i in range(9):
     images.append(initial.copy())
+images.append(final)
 
 for image in images:
     image.calc = EMT()
 
-images.append(final)
 
 # Run IDPP interpolation.
 neb = NEB(images)

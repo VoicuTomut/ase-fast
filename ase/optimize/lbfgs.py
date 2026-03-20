@@ -1,6 +1,6 @@
 # fmt: off
 
-from typing import IO, Optional, Union
+from typing import IO
 
 import numpy as np
 
@@ -21,10 +21,10 @@ class LBFGS(Optimizer):
     def __init__(
         self,
         atoms: Atoms,
-        restart: Optional[str] = None,
-        logfile: Union[IO, str] = '-',
-        trajectory: Optional[str] = None,
-        maxstep: Optional[float] = None,
+        restart: str | None = None,
+        logfile: IO | str = '-',
+        trajectory: str | None = None,
+        maxstep: float | None = None,
         memory: int = 100,
         damping: float = 1.0,
         alpha: float = 70.0,
@@ -123,8 +123,7 @@ class LBFGS(Optimizer):
         Use the given forces, update the history and calculate the next step --
         then take it"""
 
-        forces = self._get_gradient(forces)
-
+        forces = -self._get_gradient(forces)
         pos = self.optimizable.get_x()
         self.update(pos, forces, self.r0, self.f0)
 
@@ -229,8 +228,7 @@ class LBFGS(Optimizer):
         """Gradient of the objective function for use of the optimizers"""
         self.optimizable.set_x(x)
         self.force_calls += 1
-        # Remember that forces are minus the gradient!
-        return -self.optimizable.get_gradient()
+        return self.optimizable.get_gradient()
 
     def line_search(self, r, g, e):
         p_size = np.sqrt((self.p**2).sum())

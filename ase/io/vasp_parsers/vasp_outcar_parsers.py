@@ -5,8 +5,9 @@ Module for parsing OUTCAR files.
 """
 import re
 from abc import ABC, abstractmethod
+from collections.abc import Iterator, Sequence
 from pathlib import Path, PurePath
-from typing import Any, Dict, Iterator, List, Optional, Sequence, TextIO, Union
+from typing import Any, TextIO
 from warnings import warn
 
 import numpy as np
@@ -25,10 +26,10 @@ from ase.io.utils import ImageChunk
 _OUTCAR_SCF_DELIM = 'FREE ENERGIE OF THE ION-ELECTRON SYSTEM'
 
 # Some type aliases
-_HEADER = Dict[str, Any]
+_HEADER = dict[str, Any]
 _CURSOR = int
 _CHUNK = Sequence[str]
-_RESULT = Dict[str, Any]
+_RESULT = dict[str, Any]
 
 
 class NoNonEmptyLines(Exception):
@@ -94,20 +95,24 @@ def convert_vasp_outcar_stress(stress: Sequence):
     return stress_arr
 
 
-def read_constraints_from_file(directory):
+def read_constraints_from_file(
+        directory: str | Path
+    ) -> Sequence[str] | None:
     directory = Path(directory)
     constraint = None
     for filename in ('CONTCAR', 'POSCAR'):
         if (directory / filename).is_file():
-            constraint = read(directory / filename,
+            atoms = read(directory / filename,
                               format='vasp',
-                              parallel=False).constraints
+                              parallel=False)
+            if isinstance(atoms, Atoms):
+                constraint = atoms.constraints
             break
     return constraint
 
 
 class VaspPropertyParser(ABC):
-    NAME = None  # type: str
+    NAME: str | None = None
 
     @classmethod
     def get_name(cls):
@@ -134,7 +139,7 @@ class VaspPropertyParser(ABC):
 
 
 class SimpleProperty(VaspPropertyParser, ABC):
-    LINE_DELIMITER = None  # type: str
+    LINE_DELIMITER: str | None = None
 
     def __init__(self):
         super().__init__()
@@ -150,7 +155,7 @@ class VaspChunkPropertyParser(VaspPropertyParser, ABC):
     """Base class for parsing a chunk of the OUTCAR.
     The base assumption is that only a chunk of lines is passed"""
 
-    def __init__(self, header: _HEADER = None):
+    def __init__(self, header: _HEADER | None = None):
         super().__init__()
         header = header or {}
         self.header = header
@@ -218,13 +223,13 @@ class SpeciesTypes(SimpleVaspHeaderParser):
         super().__init__(*args, **kwargs)
 
     @property
-    def species(self) -> List[str]:
+    def species(self) -> list[str]:
         """Internal storage of each found line.
         Will contain the double counting.
         Use the get_species() method to get the un-doubled list."""
         return self._species
 
-    def get_species(self) -> List[str]:
+    def get_species(self) -> list[str]:
         """The OUTCAR will contain two 'POTCAR:' entries per species.
         This method only returns the first half,
         effectively removing the double counting.
@@ -305,7 +310,7 @@ class KpointHeader(VaspHeaderPropertyParser):
         nkpts = int(parts[3])
         nbands = int(parts[-1])
 
-        results: Dict[str, Any] = {'nkpts': nkpts, 'nbands': nbands}
+        results: dict[str, Any] = {'nkpts': nkpts, 'nbands': nbands}
         # We also now get the k-point weights etc.,
         # because we need to know how many k-points we have
         # for parsing that
@@ -338,7 +343,7 @@ class Stress(SimpleVaspChunkParser):
 
     def parse(self, cursor: _CURSOR, lines: _CHUNK) -> _RESULT:
         line = self.get_line(cursor, lines)
-        result = None  # type: Optional[Sequence[float]]
+        result: Sequence[float] | None = None
         try:
             stress = [float(a) for a in line.split()[2:]]
         except ValueError:
@@ -400,7 +405,7 @@ class Magmom(VaspChunkPropertyParser):
         idx = parts.index('magnetization') + 1
         magmom_lst = parts[idx:]
         if len(magmom_lst) != 1:
-            magmom: Union[np.ndarray, float] = np.array(
+            magmom: np.ndarray | float = np.array(
                 list(map(float, magmom_lst))
             )
         else:
@@ -624,7 +629,7 @@ class ChunkParser(TypeParser, ABC):
         return self._header
 
     @header.setter
-    def header(self, value: Optional[_HEADER]) -> None:
+    def header(self, value: _HEADER | None) -> None:
         self._header = value or {}
         self.update_parser_headers()
 
@@ -666,8 +671,8 @@ class OutcarChunkParser(ChunkParser):
     """Class for parsing a chunk of an OUTCAR."""
 
     def __init__(self,
-                 header: _HEADER = None,
-                 parsers: Sequence[VaspChunkPropertyParser] = None):
+                 header: _HEADER | None = None,
+                 parsers: Sequence[VaspChunkPropertyParser] | None = None):
         global default_chunk_parsers
         parsers = parsers or default_chunk_parsers.make_parsers()
         super().__init__(parsers, header=header)
@@ -706,8 +711,8 @@ class OutcarHeaderParser(HeaderParser):
     """Class for parsing a chunk of an OUTCAR."""
 
     def __init__(self,
-                 parsers: Sequence[VaspHeaderPropertyParser] = None,
-                 workdir: Union[str, PurePath] = None):
+                 parsers: Sequence[VaspHeaderPropertyParser] | None = None,
+                 workdir: str | PurePath | None = None):
         global default_header_parsers
         parsers = parsers or default_header_parsers.make_parsers()
         super().__init__(parsers)
@@ -787,7 +792,7 @@ class OUTCARChunk(ImageChunk):
     def __init__(self,
                  lines: _CHUNK,
                  header: _HEADER,
-                 parser: ChunkParser = None):
+                 parser: ChunkParser | None = None):
         super().__init__()
         self.lines = lines
         self.header = header
@@ -825,9 +830,11 @@ def build_chunk(fd: TextIO) -> _CHUNK:
     return lines
 
 
-def outcarchunks(fd: TextIO,
-                 chunk_parser: ChunkParser = None,
-                 header_parser: HeaderParser = None) -> Iterator[OUTCARChunk]:
+def outcarchunks(
+        fd: TextIO,
+        chunk_parser: ChunkParser | None = None,
+        header_parser: HeaderParser | None = None
+    ) -> Iterator[OUTCARChunk]:
     """Function to build chunks of OUTCAR from a file stream"""
     name = Path(fd.name)
     workdir = name.parent

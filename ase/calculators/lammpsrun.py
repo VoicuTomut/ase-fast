@@ -26,12 +26,13 @@ import shlex
 import shutil
 import subprocess
 import warnings
+from contextlib import ExitStack
 from re import IGNORECASE
 from re import compile as re_compile
 from tempfile import NamedTemporaryFile, mkdtemp
 from tempfile import mktemp as uns_mktemp
 from threading import Thread
-from typing import Any, Dict
+from typing import Any
 
 import numpy as np
 
@@ -136,7 +137,7 @@ class LAMMPS(Calculator):
                               "energies"]
 
     # parameters to choose options in LAMMPSRUN
-    ase_parameters: Dict[str, Any] = dict(
+    ase_parameters: dict[str, Any] = dict(
         specorder=None,
         atorder=True,
         always_triclinic=False,
@@ -301,6 +302,11 @@ class LAMMPS(Calculator):
     def run(self, set_atoms=False):
         # !TODO: split this function
         """Method which explicitly runs LAMMPS."""
+
+        with ExitStack() as exitstack:
+            self._run(set_atoms, exitstack)
+
+    def _run(self, set_atoms, exitstack):
         pbc = self.atoms.get_pbc()
         if all(pbc):
             cell = self.atoms.get_cell()
@@ -332,23 +338,23 @@ class LAMMPS(Calculator):
         lammps_log = uns_mktemp(
             prefix="log_" + label, dir=tempdir
         )
-        lammps_trj_fd = NamedTemporaryFile(
+        lammps_trj_fd = exitstack.enter_context(NamedTemporaryFile(
             prefix="trj_" + label,
             suffix=(".bin" if self.parameters['binary_dump'] else ""),
             dir=tempdir,
             delete=(not self.parameters['keep_tmp_files']),
-        )
+        ))
         lammps_trj = lammps_trj_fd.name
         if self.parameters['no_data_file']:
             lammps_data = None
         else:
-            lammps_data_fd = NamedTemporaryFile(
+            lammps_data_fd = exitstack.enter_context(NamedTemporaryFile(
                 prefix="data_" + label,
                 dir=tempdir,
                 delete=(not self.parameters['keep_tmp_files']),
                 mode='w',
                 encoding='ascii'
-            )
+            ))
             write_lammps_data(
                 lammps_data_fd,
                 self.atoms,
@@ -371,14 +377,14 @@ class LAMMPS(Calculator):
                 shlex.split(command, posix=(os.name == "posix")),
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
-                encoding='ascii',
+                text=True,
             )
         lmp_handle = self._lmp_handle
 
         # Create thread reading lammps stdout (for reference, if requested,
         # also create lammps_log, although it is never used)
         if self.parameters['keep_tmp_files']:
-            lammps_log_fd = open(lammps_log, "w")
+            lammps_log_fd = exitstack.enter_context(open(lammps_log, "w"))
             fd = SpecialTee(lmp_handle.stdout, lammps_log_fd)
         else:
             fd = lmp_handle.stdout
@@ -388,7 +394,7 @@ class LAMMPS(Calculator):
         # write LAMMPS input (for reference, also create the file lammps_in,
         # although it is never used)
         if self.parameters['keep_tmp_files']:
-            lammps_in_fd = open(lammps_in, "w")
+            lammps_in_fd = exitstack.enter_context(open(lammps_in, "w"))
             fd = SpecialTee(lmp_handle.stdin, lammps_in_fd)
         else:
             fd = lmp_handle.stdin
@@ -401,14 +407,9 @@ class LAMMPS(Calculator):
             lammps_data=lammps_data,
         )
 
-        if self.parameters['keep_tmp_files']:
-            lammps_in_fd.close()
-
         # Wait for log output to be read (i.e., for LAMMPS to finish)
         # and close the log file if there is one
         thr_read_log.join()
-        if self.parameters['keep_tmp_files']:
-            lammps_log_fd.close()
 
         if not self.parameters['keep_alive']:
             self._lmp_end()
@@ -472,10 +473,6 @@ class LAMMPS(Calculator):
         self.results["stress"] = convert(
             stress, "pressure", self.parameters["units"], "ASE"
         )
-
-        lammps_trj_fd.close()
-        if not self.parameters['no_data_file']:
-            lammps_data_fd.close()
 
     def __enter__(self):
         return self

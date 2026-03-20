@@ -394,9 +394,8 @@ class PreconLBFGS(Optimizer):
                 self.logfile.write(
                     '%s: %3d  %02d:%02d:%02d %15.6f %12.4f\n' %
                     (name, self.nsteps, T[3], T[4], T[5], e, fmax))
-            self.logfile.flush()
 
-    def converged(self, gradient):
+    def gradient_converged(self, gradient):
         """Did the optimization converge?"""
         # XXX ignoring gradient
         forces = self._actual_atoms.get_forces()

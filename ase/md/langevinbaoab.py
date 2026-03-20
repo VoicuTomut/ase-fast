@@ -102,7 +102,7 @@ class LangevinBAOAB(MolecularDynamics):
                 # procedure recommended in
                 # https://blog.scientific-python.org/numpy/numpy-rng/#random-number-generation-with-numpy
                 seed = secrets.randbits(128)
-                rng = np.random.default_rng(seed)
+                self.rng = np.random.default_rng(seed)
                 warnings.warn(
                     f'No rng provided, generated one with seed={seed} from '
                     'secrets.randbits',

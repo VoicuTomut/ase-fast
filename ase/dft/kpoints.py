@@ -1,14 +1,18 @@
 # fmt: off
+from __future__ import annotations
 
 import re
 import warnings
-from typing import Dict
+from typing import TYPE_CHECKING
 
 import numpy as np
 
-import ase  # Annotations
+from ase import Atoms
 from ase.cell import Cell
 from ase.utils import jsonable
+
+if TYPE_CHECKING:
+    from ase.spectrum.band_structure import BandStructure
 
 
 def monkhorst_pack(size):
@@ -76,7 +80,6 @@ def mindistance2monkhorstpack(atoms, *,
 
 
 def _mindistance2monkhorstpack(cell, pbc_c, min_distance, maxperdim, even):
-    from ase import Atoms
     from ase.neighborlist import NeighborList
 
     step = 2 if even else 1
@@ -314,7 +317,7 @@ class BandPath:
         return self._kpts
 
     @property
-    def special_points(self) -> Dict[str, np.ndarray]:
+    def special_points(self) -> dict[str, np.ndarray]:
         """Special points of this BandPath as a dictionary.
 
         The dictionary maps names (such as `'G'`) to kpoint coordinates
@@ -333,7 +336,7 @@ class BandPath:
         Comma marks a discontinuous jump: K is not connected to U."""
         return self._path
 
-    def transform(self, op: np.ndarray) -> 'BandPath':
+    def transform(self, op: np.ndarray) -> BandPath:
         """Apply 3x3 matrix to this BandPath and return new BandPath.
 
         This is useful for converting the band path to another cell.
@@ -360,11 +363,11 @@ class BandPath:
 
     def interpolate(
             self,
-            path: str = None,
-            npoints: int = None,
-            special_points: Dict[str, np.ndarray] = None,
-            density: float = None,
-    ) -> 'BandPath':
+            path: str | None = None,
+            npoints: int | None = None,
+            special_points: dict[str, np.ndarray] | None = None,
+            density: float | None = None,
+    ) -> BandPath:
         """Create new bandpath, (re-)interpolating kpoints from this one."""
         if path is None:
             path = self.path
@@ -403,7 +406,6 @@ class BandPath:
         It will be removed in the future.
 
         """
-        import warnings
         warnings.warn('Please do not use (kpts, x, X) = bandpath(...).  '
                       'Use path = bandpath(...) and then kpts = path.kpts and '
                       '(x, X, labels) = path.get_linear_kpoint_axis().')
@@ -485,16 +487,13 @@ class BandPath:
                           points=self.cartesian_kpts(),
                           **kw)
 
-    def free_electron_band_structure(
-            self, **kwargs
-    ) -> 'ase.spectrum.band_structure.BandStructure':
+    def free_electron_band_structure(self, **kwargs) -> BandStructure:
         """Return band structure of free electrons for this bandpath.
 
         Keyword arguments are passed to
         :class:`~ase.calculators.test.FreeElectrons`.
 
         This is for mostly testing and visualization."""
-        from ase import Atoms
         from ase.calculators.test import FreeElectrons
         from ase.spectrum.band_structure import calculate_band_structure
         atoms = Atoms(cell=self.cell, pbc=True)

@@ -5,6 +5,7 @@ import re
 import numpy as np
 import pytest
 
+from ase import Atoms
 from ase.build import bulk
 from ase.io import write
 from ase.io.elk import parse_elk_eigval, read_elk
@@ -19,6 +20,63 @@ def test_elk_in():
     print(text)
     assert 'avec' in text
     assert re.search(r'mockparameter\s+17\n', text, re.M)
+
+
+elk_in_param_types_out = """tasks
+  0
+  10
+
+ngridk
+  8 8 8
+
+nempty
+  8
+
+bfieldc
+  0.0 0.0 -0.01
+
+spinpol
+  .true.
+
+dft+u
+  2  1
+  1  2  0.183  0.034911967
+
+mommtfix
+  1  1  0.0 0.0 0.0
+  1  2  0.0  0.0  0.0
+
+sppath
+  '/path/to/species/'
+
+avec
+  5.48020576492709 0.00000000000000 0.00000000000000
+  0.00000000000000 5.48020576492709 0.00000000000000
+  0.00000000000000 0.00000000000000 5.48020576492709
+
+atoms
+  2
+  'Fe.in' : spfname
+  1
+  0.00000000000000 0.00000000000000 0.00000000000000 0.0 0.0 0.00000000000000
+  'Al.in' : spfname
+  1
+  0.50000000000000 0.50000000000000 0.50000000000000 0.0 0.0 0.00000000000000
+"""
+
+
+def test_elk_in_param_types():
+    """test the elk-in writer with all valid parameter types"""
+    params = {'tasks': [[0], [10]], 'ngridk': (8, 8, 8), 'nempty': 8,
+              'bfieldc': np.array((0.0, 0.0, -0.01)), 'spinpol': True,
+              'sppath': '/path/to/species',
+              'dft+u': ((2, 1), (1, 2, 0.183, 0.034911967)),
+              'mommtfix': ((1, 1, np.array((0.0, 0.0, 0.0))),
+                           (1, 2, 0.0, 0.0, 0.0))}
+    atoms = Atoms('FeAl', positions=[[0, 0, 0], [1.45] * 3], cell=[2.9] * 3)
+    buf = io.StringIO()
+    write(buf, atoms, format='elk-in', parameters=params)
+    assert buf.getvalue() == elk_in_param_types_out
 
 
 mock_elk_eigval_out = """

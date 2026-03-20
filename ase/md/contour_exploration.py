@@ -1,6 +1,6 @@
 # fmt: off
 
-from typing import IO, Optional, Union
+from typing import IO
 
 import numpy as np
 
@@ -27,9 +27,9 @@ class ContourExploration(Dynamics):
         atoms: Atoms,
         maxstep: float = 0.5,
         parallel_drift: float = 0.1,
-        energy_target: Optional[float] = None,
-        angle_limit: Optional[float] = 20.0,
-        potentiostat_step_scale: Optional[float] = None,
+        energy_target: float | None = None,
+        angle_limit: float | None = 20.0,
+        potentiostat_step_scale: float | None = None,
         remove_translation: bool = False,
         use_frenet_serret: bool = True,
         initialization_step_scale: float = 1e-2,
@@ -37,17 +37,17 @@ class ContourExploration(Dynamics):
         target_shift_previous_steps: int = 10,
         use_tangent_curvature: bool = False,
         rng=np.random,
-        force_consistent: Optional[bool] = None,
-        trajectory: Optional[str] = None,
-        logfile: Optional[Union[IO, str]] = None,
+        force_consistent: bool | None = None,
+        trajectory: str | None = None,
+        logfile: IO | str | None = None,
         append_trajectory: bool = False,
         loginterval: int = 1,
     ):
         """Contour Exploration object.
 
-        Parameters:
-
-        atoms: Atoms object
+        Parameters
+        ----------
+        atoms: :class:`~ase.Atoms`
             The Atoms object to operate on. Atomic velocities are required for
             the method. If the atoms object does not contain velocities,
             random ones will be applied.
@@ -235,8 +235,6 @@ class ContourExploration(Dynamics):
                 dev_per_atom)
             msg = "%6d %15.6f %15.6f %12.6f %12.6f %24.9f\n" % args
             self.logfile.write(msg)
-
-            self.logfile.flush()
 
     def rand_vect(self):
         '''Returns a random (Natoms,3) vector'''

@@ -6,7 +6,7 @@ import types
 from contextlib import ExitStack
 from math import exp, log
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 import numpy as np
 
@@ -18,7 +18,7 @@ from ase.optimize import BFGS, FIRE
 from ase.utils import deprecated
 
 
-def _forbid_optimizer_string(args: List, kwargs: Dict[str, Any]) -> bool:
+def _forbid_optimizer_string(args: list, kwargs: dict[str, Any]) -> bool:
     """Replace optimizer string with Optimizer object."""
     arg_position = 11
     try:
@@ -101,7 +101,7 @@ class AutoNEB:
         The spring constant along the NEB path
     method: str (see neb.py)
         Choice betweeen three method:
-        'aseneb', standard ase NEB implementation
+        'aseneb', legacy ase NEB implementation
         'improvedtangent', published NEB implementation
         'eb', full spring force implementation (default)
     optimizer: object

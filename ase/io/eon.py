@@ -8,7 +8,6 @@
 See http://theory.cm.utexas.edu/eon/index.html for a description of EON.
 """
 from dataclasses import dataclass
-from typing import List, Tuple
 from warnings import warn
 
 import numpy as np
@@ -42,16 +41,16 @@ class EONHeader:
         A list containing the atomic masses for each type.
     """
 
-    header_lines: List[str]
+    header_lines: list[str]
     # Actually these are float float float but.. mypy complains
-    cell_lengths: Tuple[float, ...]
-    cell_angles: Tuple[float, ...]
+    cell_lengths: tuple[float, ...]
+    cell_angles: tuple[float, ...]
     Ncomponent: int
-    component_counts: List[int]
-    masses: List[float]
+    component_counts: list[int]
+    masses: list[float]
 
 
-def process_header(lines: List[str]) -> EONHeader:
+def process_header(lines: list[str]) -> EONHeader:
     """
     Processes the header lines from an EON file and returns an EONHeader object.
 

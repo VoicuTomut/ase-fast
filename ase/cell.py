@@ -1,6 +1,6 @@
 """Cell."""
 
-from typing import Mapping, Sequence, Union
+from collections.abc import Mapping, Sequence
 
 import numpy as np
 
@@ -130,13 +130,13 @@ class Cell:
 
     def bandpath(
         self,
-        path: str = None,
-        npoints: int = None,
+        path: str | None = None,
+        npoints: int | None = None,
         *,
-        density: float = None,
-        special_points: Mapping[str, Sequence[float]] = None,
+        density: float | None = None,
+        special_points: Mapping[str, Sequence[float]] | None = None,
         eps: float = 2e-4,
-        pbc: Union[bool, Sequence[bool]] = True,
+        pbc: bool | Sequence[bool] = True,
     ) -> 'ase.dft.kpoints.BandPath':
         """Build a :class:`~ase.dft.kpoints.BandPath` for this cell.
 

@@ -1,4 +1,3 @@
-# fmt: off
 import os
 import shutil
 import tempfile
@@ -39,6 +38,7 @@ helpful_message = """\
 @pytest.fixture(scope='session')
 def testconfig():
     from ase.test.factories import MachineInformation
+
     return MachineInformation().cfg
 
 
@@ -136,9 +136,11 @@ def calculators_header(config):
     # (Where should we do this check?)
     for name in factories.requested_calculators:
         if not factories.is_adhoc(name) and not factories.installed(name):
-            pytest.exit(f'Calculator "{name}" is not installed.  '
-                        'Please run "ase test --help-calculators" on how '
-                        'to install calculators')
+            pytest.exit(
+                f'Calculator "{name}" is not installed.  '
+                'Please run "ase test --help-calculators" on how '
+                'to install calculators'
+            )
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -189,10 +191,12 @@ def KIM():
         try:
             return _KIM(*args, **kwargs)
         except KIMModelNotFound:
-            pytest.skip('KIM tests require the example KIM models.  '
-                        'These models are available if the KIM API is '
-                        'built from source.  See https://openkim.org/kim-api/'
-                        'for more information.')
+            pytest.skip(
+                'KIM tests require the example KIM models.  '
+                'These models are available if the KIM API is '
+                'built from source.  See https://openkim.org/kim-api/'
+                'for more information.'
+            )
 
     return KIM
 
@@ -200,6 +204,7 @@ def KIM():
 @pytest.fixture(scope='session')
 def tkinter():
     import tkinter
+
     try:
         tkinter.Tk()
     except tkinter.TclError as err:
@@ -209,6 +214,7 @@ def tkinter():
 @pytest.fixture(autouse=True)
 def _plt_close_figures():
     import matplotlib.pyplot as plt
+
     yield
     fignums = plt.get_fignums()
     for fignum in fignums:
@@ -218,12 +224,14 @@ def _plt_close_figures():
 @pytest.fixture(scope='session', autouse=True)
 def _plt_use_agg():
     import matplotlib
+
     matplotlib.use('Agg')
 
 
 @pytest.fixture(scope='session')
 def plt(_plt_use_agg):
     import matplotlib.pyplot as plt
+
     return plt
 
 
@@ -265,6 +273,7 @@ def make_dummy_factory(name):
 
         def calc(self, **kwargs):
             from ase.calculators.calculator import get_calculator_class
+
             cls = get_calculator_class(name)
             return cls(**kwargs)
 
@@ -305,7 +314,8 @@ def check_missing_init(module):
     if not module.__name__.startswith('ase.test.'):
         raise RuntimeError(
             f'Test module {module.__name__} at {module.__file__} does not '
-            'start with "ase.test".  Maybe __init__.py is missing?')
+            'start with "ase.test".  Maybe __init__.py is missing?'
+        )
 
 
 def pytest_generate_tests(metafunc):
@@ -399,9 +409,9 @@ class CLI:
         # on systems without Tkinter.
         environment['MPLBACKEND'] = 'Agg'
 
-        proc = Popen(['ase', '-T'] + list(args),
-                     stdout=PIPE, stdin=PIPE,
-                     env=environment)
+        proc = Popen(
+            ['ase', '-T'] + list(args), stdout=PIPE, stdin=PIPE, env=environment
+        )
         stdout, _ = proc.communicate(b'')
         status = proc.wait()
         assert (status != 0) == expect_fail
@@ -446,9 +456,10 @@ def arbitrarily_seed_rng(request):
     # In order not to generate all the same random numbers in every test,
     # we seed according to a kind of hash:
     ase_path = get_python_package_path_description(ase, default='abort!')
-    if "abort!" in ase_path:
-        raise RuntimeError("Bad ase.__path__: {:}".format(
-            ase_path.replace('abort!', '')))
+    if 'abort!' in ase_path:
+        raise RuntimeError(
+            'Bad ase.__path__: {:}'.format(ase_path.replace('abort!', ''))
+        )
     abspath = Path(request.module.__file__)
     relpath = abspath.relative_to(ase_path)
     module_identifier = relpath.as_posix()  # Same on all platforms
@@ -473,11 +484,60 @@ def povray_executable():
     return exe
 
 
+@pytest.fixture
+def exitstack():
+    from contextlib import ExitStack
+
+    with ExitStack() as stack:
+        yield stack
+
+
+_filterwarnings = [
+    'error',
+    'once::ResourceWarning',
+    'ignore:.*size changed, may indicate binary incompatibility',
+    'ignore::ase.config.ASEEnvDeprecationWarning',
+    "ignore:The default method has changed from 'aseneb' to 'improvedtangent'",
+]
+
+
+_markers = [
+    'calculator: parametrizes calculator tests with calculator factories',
+    'calculator_lite: for calculator tests; include in calculators-lite job',
+    'optimize: tests of optimizers',
+    'slow: test takes longer than a few seconds',
+]
+
+
+def pytest_configure(config):
+    """Add configuration that would otherwise live in pyproject.toml.
+
+    We use this hook instead of pyproject.toml, because pyproject.toml
+    is invisible to the "ase test" command unless the installation is
+    editable.  Then user would then be spammed with warnings and
+    errors.
+    """
+
+    for line in _filterwarnings:
+        config.addinivalue_line('filterwarnings', line)
+
+    for line in _markers:
+        config.addinivalue_line('markers', line)
+
+
 def pytest_addoption(parser):
-    parser.addoption('--calculators', metavar='NAMES', default='',
-                     help='comma-separated list of calculators to test or '
-                     '"auto" for all configured calculators')
-    parser.addoption('--seed', action='append', default=[],
-                     help='add a seed for tests where random number generators'
-                          ' are involved. This option can be applied more'
-                          ' than once.')
+    parser.addoption(
+        '--calculators',
+        metavar='NAMES',
+        default='',
+        help='comma-separated list of calculators to test or '
+        '"auto" for all configured calculators',
+    )
+    parser.addoption(
+        '--seed',
+        action='append',
+        default=[],
+        help='add a seed for tests where random number generators'
+        ' are involved. This option can be applied more'
+        ' than once.',
+    )

@@ -19,7 +19,7 @@ functional theories.
     You should have received a copy of the GNU Lesser General Public License
     along with ASE.  If not, see <https://www.gnu.org/licenses/>.
 """
-from typing import Any, Dict, List
+from typing import Any
 
 from ase.calculators.calculator import Parameters
 from ase.calculators.openmx.default_settings import default_dictionary
@@ -34,7 +34,7 @@ tuple_float_keys = [
     'scf.Electric.Field',
     'scf.fixed.grid'
 ]
-tuple_bool_keys: List[str] = [
+tuple_bool_keys: list[str] = [
 
 ]
 integer_keys = [
@@ -120,8 +120,8 @@ bool_keys = [
     'scf.stress.tensor',
     'Energy.Decomposition'
 ]
-list_int_keys: List[str] = []
-list_bool_keys: List[str] = []
+list_int_keys: list[str] = []
+list_bool_keys: list[str] = []
 list_float_keys = [
     'Dos.Erange',
 ]
@@ -158,7 +158,7 @@ unit_dat_keywords = {
 }
 
 
-omx_parameter_defaults: Dict[str, Any] = dict(
+omx_parameter_defaults: dict[str, Any] = dict(
     scf_ngrid=None,
     scf_kgrid=None,
     dos_kgrid=None,

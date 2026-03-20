@@ -1,7 +1,7 @@
 # fmt: off
 
 import time
-from typing import IO, Optional, Union
+from typing import IO
 
 import numpy as np
 
@@ -60,30 +60,31 @@ class CellAwareBFGS(BFGS):
     def __init__(
         self,
         atoms: Atoms,
-        restart: Optional[str] = None,
-        logfile: Union[IO, str] = '-',
-        trajectory: Optional[str] = None,
+        restart: str | None = None,
+        logfile: IO | str = '-',
+        trajectory: str | None = None,
         append_trajectory: bool = False,
-        maxstep: Optional[float] = None,
-        bulk_modulus: Optional[float] = 145 * GPa,
-        poisson_ratio: Optional[float] = 0.3,
-        alpha: Optional[float] = None,
-        long_output: Optional[bool] = False,
+        maxstep: float | None = None,
+        bulk_modulus: float | None = 145 * GPa,
+        poisson_ratio: float | None = 0.3,
+        alpha: float | None = None,
+        long_output: bool | None = False,
         **kwargs,
     ):
         self.bulk_modulus = bulk_modulus
         self.poisson_ratio = poisson_ratio
         self.long_output = long_output
-        BFGS.__init__(self, atoms=atoms, restart=restart, logfile=logfile,
-                      trajectory=trajectory, maxstep=maxstep,
-                      alpha=alpha, append_trajectory=append_trajectory,
-                      **kwargs)
+        super().__init__(
+            atoms=atoms, restart=restart, logfile=logfile,
+            trajectory=trajectory, maxstep=maxstep,
+            alpha=alpha, append_trajectory=append_trajectory,
+            **kwargs)
         assert not isinstance(atoms, Atoms)
         if hasattr(atoms, 'exp_cell_factor'):
             assert atoms.exp_cell_factor == 1.0
 
     def initialize(self):
-        BFGS.initialize(self)
+        super().initialize()
         C_ijkl = calculate_isotropic_elasticity_tensor(
             self.bulk_modulus,
             self.poisson_ratio,
@@ -93,7 +94,7 @@ class CellAwareBFGS(BFGS):
         cell_H[np.ix_(ind, ind)] = C_ijkl.reshape((9, 9))[
             np.ix_(ind, ind)] * self.atoms.atoms.cell.volume
 
-    def converged(self, gradient):
+    def gradient_converged(self, gradient):
         # XXX currently ignoring gradient
         forces = self.atoms.atoms.get_forces()
         stress = self.atoms.atoms.get_stress(voigt=False) * self.atoms.mask
@@ -139,5 +140,3 @@ class CellAwareBFGS(BFGS):
                         tuple(cell_to_cellpar(self.atoms.atoms.cell)))
             msg += '\n'
             self.logfile.write(msg)
-
-            self.logfile.flush()

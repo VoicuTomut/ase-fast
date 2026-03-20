@@ -1,4 +1,3 @@
-# fmt: off
 import numpy as np
 
 from ase import Atoms
@@ -9,7 +8,7 @@ cell = [[1, 0, 0], [0, 1, 0], [0, 0, 4]]
 positions = [[-0.1, 1.01, -0.5]]
 positions_wrapped = [[0.9, 0.01, -0.5]]
 
-atoms = Atoms("H", positions=positions, cell=cell, pbc=pbc)
+atoms = Atoms('H', positions=positions, cell=cell, pbc=pbc)
 
 
 def test_positions(atoms=atoms):

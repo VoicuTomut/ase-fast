@@ -13,7 +13,9 @@ import json
 import numbers
 import re
 import warnings
+from collections.abc import Iterator
 from io import StringIO, UnsupportedOperation
+from typing import TextIO
 
 import numpy as np
 
@@ -22,7 +24,7 @@ from ase.calculators.calculator import all_properties
 from ase.calculators.singlepoint import SinglePointCalculator
 from ase.constraints import FixAtoms, FixCartesian
 from ase.io.formats import index2range
-from ase.io.utils import ImageIterator
+from ase.io.utils import ImageChunk, ImageIterator, validate_comment_line
 from ase.outputs import ArrayProperty, all_outputs
 from ase.spacegroup.spacegroup import Spacegroup
 from ase.stress import voigt_6_to_full_3x3_stress
@@ -537,29 +539,27 @@ class XYZError(IOError):
     pass
 
 
-class XYZChunk:
-    def __init__(self, lines, natoms):
-        self.lines = lines
-        self.natoms = natoms
+class XYZChunk(ImageChunk):
+    def __init__(self, fd: TextIO, pos: int) -> None:
+        self.fd = fd
+        self.pos = pos
 
-    def build(self):
+    def build(self, **kwargs) -> Atoms:
         """Convert unprocessed chunk into Atoms."""
-        return _read_xyz_frame(iter(self.lines), self.natoms)
+        self.fd.seek(self.pos)
+        natoms = int(self.fd.readline().strip()[0])
+        lines = [self.fd.readline() for _ in range(1 + natoms)]
+        return _read_xyz_frame(iter(lines), natoms, **kwargs)
 
 
-def ixyzchunks(fd):
+def ixyzchunks(fd: TextIO) -> Iterator[XYZChunk]:
     """Yield unprocessed chunks (header, lines) for each xyz image."""
-    while True:
-        line = next(fd).strip()  # Raises StopIteration on empty file
-        try:
-            natoms = int(line)
-        except ValueError:
-            raise XYZError(f'Expected integer, found "{line}"')
-        try:
-            lines = [next(fd) for _ in range(1 + natoms)]
-        except StopIteration:
-            raise XYZError('Incomplete XYZ chunk')
-        yield XYZChunk(lines, natoms)
+    pos = fd.tell()
+    while line := fd.readline():
+        natoms = int(line.strip()[0])
+        _ = [fd.readline() for _ in range(1 + natoms)]
+        yield XYZChunk(fd, pos)
+        pos = fd.tell()
 
 
 iread_xyz = ImageIterator(ixyzchunks)
@@ -802,6 +802,23 @@ def output_column_format(atoms, columns, arrays, write_info=True):
     return comment_str, property_ncols, dtype, fmt
 
 
+def _make_move_mask(atoms: Atoms) -> np.ndarray:
+    natoms = len(atoms)
+    cnstr = atoms.constraints
+    cnstr = [_ for _ in cnstr if isinstance(_, (FixAtoms, FixCartesian))]
+    if any(isinstance(_, FixCartesian) for _ in cnstr):
+        move_mask = np.ones((natoms, 3), dtype=bool)
+    else:
+        move_mask = np.ones((natoms,), dtype=bool)
+    for c0 in cnstr:
+        if isinstance(c0, FixAtoms):
+            move_mask[c0.index] = False
+        elif isinstance(c0, FixCartesian):
+            # The `False` elements of `move_mask` should be kept.
+            move_mask[c0.index] = ~c0.mask & move_mask[c0.index]
+    return move_mask
+
+
 @writer
 def write_xyz(fileobj, images, comment='', columns=None,
               write_info=True,
@@ -826,7 +843,6 @@ def write_xyz(fileobj, images, comment='', columns=None,
     if hasattr(images, 'get_positions'):
         images = [images]
 
-    images_0 = None
     for atoms in images:
         natoms = len(atoms)
 
@@ -896,25 +912,8 @@ def write_xyz(fileobj, images, comment='', columns=None,
 
         # Move mask
         if 'move_mask' in fr_cols:
-            if images_0 is None:
-                images_0 = atoms
-            cnstr = images_0.constraints
-            cnstr = [
-                _ for _ in cnstr if isinstance(_, (FixAtoms, FixCartesian))
-            ]
-            if len(cnstr) > 0:
-                c0 = cnstr[0]
-                if isinstance(c0, FixAtoms):
-                    cnstr = np.ones((natoms,), dtype=bool)
-                    for idx in c0.index:
-                        cnstr[idx] = False  # cnstr: atoms that can be moved
-                elif isinstance(c0, FixCartesian):
-                    masks = np.ones((natoms, 3), dtype=bool)
-                    for i in range(len(cnstr)):
-                        idx = cnstr[i].index
-                        masks[idx] = cnstr[i].mask
-                    cnstr = ~masks  # cnstr: coordinates that can be moved
-            else:
+            move_mask = _make_move_mask(atoms)
+            if np.all(move_mask):
                 fr_cols.remove('move_mask')
 
         # Collect data to be written out
@@ -927,7 +926,7 @@ def write_xyz(fileobj, images, comment='', columns=None,
             elif column == 'symbols':
                 arrays[column] = np.array(symbols)
             elif column == 'move_mask':
-                arrays[column] = cnstr
+                arrays[column] = move_mask
             else:
                 raise ValueError(f'Missing array "{column}"')
 
@@ -938,9 +937,7 @@ def write_xyz(fileobj, images, comment='', columns=None,
 
         if plain or comment != '':
             # override key/value pairs with user-speficied comment string
-            comm = comment.rstrip()
-            if '\n' in comm:
-                raise ValueError('Comment line should not have line breaks.')
+            comm = validate_comment_line(comment)
 
         # Pack fr_cols into record array
         data = np.zeros(natoms, dtype)

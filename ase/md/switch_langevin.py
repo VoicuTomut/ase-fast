@@ -1,6 +1,6 @@
 # fmt: off
 
-from typing import Any, List, Optional
+from typing import Any
 
 import numpy as np
 from scipy.integrate import trapezoid
@@ -51,11 +51,11 @@ class SwitchLangevin(Langevin):
         calc1,
         calc2,
         dt: float,
-        T: Optional[float] = None,
-        friction: Optional[float] = None,
-        n_eq: Optional[int] = None,
-        n_switch: Optional[int] = None,
-        temperature_K: Optional[float] = None,
+        T: float | None = None,
+        friction: float | None = None,
+        n_eq: int | None = None,
+        n_switch: int | None = None,
+        temperature_K: float | None = None,
         **langevin_kwargs,
     ):
         super().__init__(atoms, dt, temperature=T, temperature_K=temperature_K,
@@ -72,7 +72,7 @@ class SwitchLangevin(Langevin):
         calc = MixedCalculator(calc1, calc2, weight1=1.0, weight2=0.0)
         self.atoms.calc = calc
 
-        self.path_data: List[Any] = []
+        self.path_data: list[Any] = []
 
     def run(self):
         """ Run the MD switching simulation """

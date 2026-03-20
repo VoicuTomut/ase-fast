@@ -1,14 +1,14 @@
 # fmt: off
 
 """Read Wannier90 wout format."""
-from typing import IO, Any, Dict
+from typing import IO, Any
 
 import numpy as np
 
 from ase import Atoms
 
 
-def read_wout_all(fileobj: IO[str]) -> Dict[str, Any]:
+def read_wout_all(fileobj: IO[str]) -> dict[str, Any]:
     """Read atoms, wannier function centers and spreads."""
     lines = fileobj.readlines()
 

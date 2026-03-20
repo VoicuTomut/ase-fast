@@ -2,7 +2,7 @@
 
 """Berendsen NPT dynamics class."""
 import warnings
-from typing import IO, Optional, Union
+from typing import IO
 
 import numpy as np
 
@@ -15,18 +15,18 @@ class NPTBerendsen(NVTBerendsen):
         self,
         atoms: Atoms,
         timestep: float,
-        temperature: Optional[float] = None,
+        temperature: float | None = None,
         *,
-        temperature_K: Optional[float] = None,
-        pressure: Optional[float] = None,
-        pressure_au: Optional[float] = None,
+        temperature_K: float | None = None,
+        pressure: float | None = None,
+        pressure_au: float | None = None,
         taut: float = 0.5e3 * units.fs,
         taup: float = 1e3 * units.fs,
-        compressibility: Optional[float] = None,
-        compressibility_au: Optional[float] = None,
+        compressibility: float | None = None,
+        compressibility_au: float | None = None,
         fixcm: bool = True,
-        trajectory: Optional[str] = None,
-        logfile: Optional[Union[IO, str]] = None,
+        trajectory: str | None = None,
+        logfile: IO | str | None = None,
         loginterval: int = 1,
         append_trajectory: bool = False,
     ):
@@ -36,8 +36,8 @@ class NPTBerendsen(NVTBerendsen):
         pressure and temperature.  The shape of the simulation cell is not
         altered, if that is desired use Inhomogenous_NPTBerendsen.
 
-        Parameters:
-
+        Parameters
+        ----------
         atoms: Atoms object
             The list of atoms.
 

@@ -1,5 +1,5 @@
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable
 
 import numpy as np
 
@@ -165,6 +165,7 @@ class AtomsEditor:
 
     def set_value(self, column_no: int, row_no: int, value: object) -> None:
         column = self.columns[column_no]
+        before = column.format_value(column.getvalue(self.atoms, row_no))
         column.setvalue(self.atoms, row_no, value)
         text = column.format_value(column.getvalue(self.atoms, row_no))
 
@@ -174,6 +175,10 @@ class AtomsEditor:
 
         # (Maybe it is not always necessary to redraw everything.)
         self.gui.set_frame()
+
+        # Again, trying to avoid redundant history steps
+        if before != text:
+            self.gui.update_history()
 
     def doubleclick(self, event):
         row_id = self.treeview.identify_row(event.y)

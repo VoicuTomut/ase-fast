@@ -1,6 +1,8 @@
 # fmt: off
 
+import functools
 import pickle
+import platform
 import subprocess
 import sys
 from functools import partial
@@ -41,8 +43,10 @@ class GUI(View):
 
         if not isinstance(images, Images):
             images = Images(images)
-
         self.images = images
+        self.images.history.initialize_history()
+
+        self.system = platform.system()
 
         # Ordinary observers seem unused now, delete?
         self.observers = []
@@ -88,6 +92,31 @@ class GUI(View):
         if expr is not None and expr != '' and len(self.images) > 1:
             self.plot_graphs(expr=expr, ignore_if_nan=True)
 
+    def redo_history(self, key=None):
+        self.images.history.redo_history(self.frame)
+        self.set_frame()
+        self.draw()
+
+    def undo_history(self, key=None):
+        # Let's end any rotate/move mode that may still be active so the
+        # current positions are saved to the history:
+        if self.moving:
+            self.toggle_arrowkey_mode(self.arrowkey_mode)
+        self.images.history.undo_history(self.frame)
+        self.set_frame()
+        self.draw()
+
+    def update_history(self, mask=None):
+        if mask is not None:
+            for i, update in enumerate(mask):
+                if update:
+                    self.images.history.update_history(i)
+        else:
+            self.images.history.update_history(self.frame)
+
+    def clear_history(self):
+        self.images.history.initialize_history()
+
     @property
     def moving(self):
         return self.arrowkey_mode != self.ARROWKEY_SCAN
@@ -109,24 +138,52 @@ class GUI(View):
         if self.arrowkey_mode == mode:
             self.arrowkey_mode = self.ARROWKEY_SCAN
             self.move_atoms_mask = None
-        else:
+            self.update_history()
+        elif np.any(self.images.selected):
             self.arrowkey_mode = mode
             self.move_atoms_mask = self.images.selected.copy()
+        else:
+            from ase.gui.ui import showwarning
+            showwarning(
+                _('No atoms selected!'),
+                _('You need to select one or more atoms to do this')
+            )
 
         self.draw()
 
+    @functools.cached_property
+    def arrowkey_hint(self):
+        hint = ui.tk.Frame(
+            self.window.canvas, bg='#ffffff'
+        )
+        hint.label = ui.tk.Label(hint)
+        hint.qm = ui.tk.Label(
+            hint, text='(?)', padx=3,
+            bg='#ffffff', activeforeground="#ffb617"
+        )
+        hint.qm.grid(row=0, column=0)
+        hint.label.grid(row=0, column=1)
+        hint.tooltip = ui.Tooltip()
+        hint.qm.bind(
+            '<Enter>', hint.tooltip.show
+        )
+        hint.qm.bind(
+            '<Leave>', hint.tooltip.hide
+        )
+        hint.exists = False
+        return hint
+
     def step(self, key):
         d = {'Home': -10000000,
-             'Page-Up': -1,
-             'Page-Down': 1,
+             'PageUp': -1,
+             'PageDown': 1,
              'End': 10000000}[key]
         i = max(0, min(len(self.images) - 1, self.frame + d))
         self.set_frame(i)
-        if self.movie_window is not None:
-            self.movie_window.frame_number.value = i
 
     def copy_image(self, key=None):
         self.images._images.append(self.atoms.copy())
+        self.images.history.append_image(self.images._images[-1])
         self.images.filenames.append(None)
 
         if self.movie_window is not None:
@@ -162,6 +219,8 @@ class GUI(View):
         alt_l = 0x8  # Also Mac Command Key
         mac_option_key = 0x10
 
+        self.remove_bothersome_key_states(event)
+
         use_small_step = bool(event.state & shift)
         rotate_into_plane = bool(event.state & (ctrl | alt_l | mac_option_key))
 
@@ -187,6 +246,11 @@ class GUI(View):
 
         if dxdydz is None:
             return
+
+        if self.arrowkey_mode == self.ARROWKEY_ROTATE:
+            # A little tweak to make rotation more intuitive for users:
+            mod_m = np.array([[0, -1, 0], [1, 0, 0], [0, 0, -1]])
+            dxdydz = np.dot(mod_m, dxdydz)
 
         vec = 0.1 * np.dot(self.axes, dxdydz)
         if use_small_step:
@@ -216,6 +280,25 @@ class GUI(View):
 
             self.draw()
 
+    def remove_bothersome_key_states(self, event):
+        """Modify event.state so that Num Lock doesn't get caught by
+        bitmasks"""
+        # We need to strip away Num Lock (and other bothersome key
+        # events) that interfere with bitmasking or else the scrolling
+        # will behave as if ctrl is always pressed down.
+        nl_windows = 0x0008
+        nl_linux = 0x0010
+
+        if self.system == 'Linux':
+            if event.state & nl_linux:
+                event.state -= nl_linux
+        elif self.system == 'Windows':
+            # Not completely sure what 0x40000 is but it seems to haunt Windows
+            if event.state & 0x40000:
+                event.state -= 0x40000
+            if event.state & nl_windows:
+                event.state -= nl_windows
+
     def delete_selected_atoms(self, widget=None, data=None):
         import ase.gui.ui as ui
         nselected = sum(self.images.selected)
@@ -231,6 +314,7 @@ class GUI(View):
         self.images.selected[:] = False
         self.set_frame()
         self.draw()
+        self.update_history()
 
     def constraints_window(self):
         from ase.gui.constraints import Constraints
@@ -385,6 +469,7 @@ class GUI(View):
 
     def new_atoms(self, atoms):
         "Set a new atoms object."
+        self.images.history.isolate_history(self.frame)
         rpt = getattr(self.images, 'repeat', None)
         self.images.repeat_images(np.ones(3, int))
         self.images.initialize([atoms])
@@ -392,6 +477,7 @@ class GUI(View):
         self.images.repeat_images(rpt)
         self.set_frame(frame=0, focus=True)
         self.obs.new_atoms.notify()
+        self.images.history.update_history(self.frame)
 
     def exit(self, event=None):
         for process in self.subprocesses:
@@ -417,6 +503,7 @@ class GUI(View):
         for atoms in self.images:
             atoms.wrap()
         self.set_frame()
+        self.update_history()
 
     @property
     def clipboard(self):
@@ -489,7 +576,10 @@ class GUI(View):
               M(_('_Quit'), self.exit, 'Ctrl+Q')]),
 
             (_('_Edit'),
-             [M(_('Select _all'), self.select_all),
+             [M(_('Undo'), self.undo_history, 'Ctrl+Z'),
+              M(_('Redo'), self.redo_history, 'Ctrl+Shift+Z'),
+              M('---'),
+              M(_('Select _all'), self.select_all),
               M(_('_Invert selection'), self.invert_selection),
               M(_('Select _constrained atoms'), self.select_constrained_atoms),
               M(_('Select _immobile atoms'), self.select_immobile_atoms),
@@ -509,8 +599,8 @@ class GUI(View):
               M(_('Edit _atoms …'), self.atoms_editor, 'A'),
               M('---'),
               M(_('_First image'), self.step, 'Home'),
-              M(_('_Previous image'), self.step, 'Page-Up'),
-              M(_('_Next image'), self.step, 'Page-Down'),
+              M(_('_Previous image'), self.step, 'PageUp'),
+              M(_('_Next image'), self.step, 'PageDown'),
               M(_('_Last image'), self.step, 'End'),
               M(_('Append image copy'), self.copy_image)]),
 

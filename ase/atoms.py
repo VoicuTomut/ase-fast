@@ -12,8 +12,10 @@ from __future__ import annotations
 
 import copy
 import numbers
+import warnings
+from collections.abc import Sequence
 from math import cos, pi, sin
-from typing import Sequence, Union, overload
+from typing import overload
 
 import numpy as np
 
@@ -831,10 +833,10 @@ class _LimitedAtoms:
             yield self[i]
 
     @overload
-    def __getitem__(self, i: Union[int, np.integer]) -> Atom: ...
+    def __getitem__(self, i: int | np.integer) -> Atom: ...
 
     @overload
-    def __getitem__(self, i: Union[Sequence, slice, np.ndarray]) -> Atoms: ...
+    def __getitem__(self, i: Sequence | slice | np.ndarray) -> Atoms: ...
 
     def __getitem__(self, i):
         """Return a subset of the atoms.
@@ -1101,10 +1103,22 @@ class _LimitedAtoms:
         """Get the moments of inertia along the principal axes.
 
         The three principal moments of inertia are computed from the
-        eigenvalues of the symmetric inertial tensor. Periodic boundary
-        conditions are ignored. Units of the moments of inertia are
-        amu*angstrom**2.
+        eigenvalues of the symmetric inertial tensor. Note that the result
+        can be "wrong" if a molecule is crossing periodic boundaries.
+        Units of the moments of inertia are amu*angstrom**2.
+
+        Parameters
+        ----------
+        vectors : bool
+            If true, also return the principal axes as rows in a 3x3
+            matrix.
         """
+
+        if self.pbc.any():
+            # raise a user warning that PBC are ignored
+            warnings.warn('Periodic boundary conditions are ignored '
+                          'when calculating the inertial tensor.', UserWarning)
+
         com = self.get_center_of_mass()
         positions = self.get_positions()
         positions -= com  # translate center of mass to origin
@@ -2000,6 +2014,9 @@ class Atoms(_LimitedAtoms):
             for constraint in self.constraints:
                 if md and hasattr(constraint, 'redistribute_forces_md'):
                     constraint.redistribute_forces_md(self, forces)
+                # Always adjust forces if no MD.  In the case of MD,
+                # forces only need adjustment if a term is added to the
+                # potential energy by the constraint.
                 if not md or hasattr(constraint, 'adjust_potential_energy'):
                     constraint.adjust_forces(self, forces)
         return forces

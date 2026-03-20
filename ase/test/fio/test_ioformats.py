@@ -1,4 +1,3 @@
-# fmt: off
 import pytest
 
 from ase.io.formats import ioformats
@@ -14,14 +13,8 @@ def test_manually():
     assert outcar.match_name('something.with.OUTCAR.stuff')
 
 
-@pytest.fixture()
-def excitingtools():
-    """If we cannot import excitingtools we skip tests with this fixture."""
-    return pytest.importorskip('excitingtools')
-
-
 @pytest.mark.parametrize('name', ioformats)
-def test_ioformat(name, excitingtools):
+def test_ioformat(name):
     """Test getting the full description of each ioformat."""
     ioformat = ioformats[name]
     print(name)

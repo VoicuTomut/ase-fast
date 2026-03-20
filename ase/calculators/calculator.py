@@ -6,10 +6,11 @@ import shlex
 import subprocess
 import warnings
 from abc import abstractmethod
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from math import pi, sqrt
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence, Set, Union
+from typing import Any
 
 import numpy as np
 
@@ -449,7 +450,7 @@ class Parameters(dict):
 
 
 class BaseCalculator(GetPropertiesMixin):
-    implemented_properties: List[str] = []
+    implemented_properties: list[str] = []
     'Properties calculator can handle (energy, forces, ...)'
 
     # Placeholder object for deprecated arguments.  Let deprecated keywords
@@ -568,10 +569,10 @@ class Calculator(BaseCalculator):
     'magmom' and 'magmoms'.
     """
 
-    default_parameters: Dict[str, Any] = {}
+    default_parameters: dict[str, Any] = {}
     'Default parameters'
 
-    ignored_changes: Set[str] = set()
+    ignored_changes: set[str] = set()
     'Properties of Atoms which we ignore for the purposes of cache '
     'invalidation with check_state().'
 
@@ -688,7 +689,7 @@ class Calculator(BaseCalculator):
         return self._directory
 
     @directory.setter
-    def directory(self, directory: Union[str, os.PathLike]):
+    def directory(self, directory: str | os.PathLike):
         self._directory = str(Path(directory))  # Normalize path.
 
     @property
@@ -764,7 +765,7 @@ class Calculator(BaseCalculator):
         Read result from self.label file.  Raise ReadError if the file
         is not there.  If the file is corrupted or contains an error
         message from the calculation, a ReadError should also be
-        raised.  In case of succes, these attributes must set:
+        raised.  In case of success, these attributes must set:
 
         atoms: Atoms object
             The state of the atoms from last calculation.
@@ -974,10 +975,10 @@ class FileIORules:
     Currently names can contain "{prefix}" which will be substituted by
     calc.prefix.  This will go away if/when we can remove prefix."""
     extend_argv: Sequence[str] = tuple()
-    stdin_name: Optional[str] = None
-    stdout_name: Optional[str] = None
+    stdin_name: str | None = None
+    stdout_name: str | None = None
 
-    configspec: Dict[str, Any] = field(default_factory=dict)
+    configspec: dict[str, Any] = field(default_factory=dict)
 
     def load_config(self, section):
         dct = {}
@@ -1006,7 +1007,7 @@ def _validate_command(command: str) -> str:
 @dataclass
 class StandardProfile:
     command: str
-    configvars: Dict[str, Any] = field(default_factory=dict)
+    configvars: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self):
         self.command = _validate_command(self.command)
@@ -1060,7 +1061,7 @@ class FileIOCalculator(Calculator):
     """Base class for calculators that write/read input/output files."""
 
     # Static specification of rules for this calculator:
-    fileio_rules: Optional[FileIORules] = None
+    fileio_rules: FileIORules | None = None
 
     # command: Optional[str] = None
     # 'Command used to start calculation'
@@ -1068,7 +1069,7 @@ class FileIOCalculator(Calculator):
     # Fallback command when nothing else is specified.
     # There will be no fallback in the future; it must be explicitly
     # configured.
-    _legacy_default_command: Optional[str] = None
+    _legacy_default_command: str | None = None
 
     cfg = _cfg  # Ensure easy access to config for subclasses
 

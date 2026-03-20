@@ -1,65 +1,31 @@
-"""Functions that are important for the genetic algorithm.
-Shorthand for setting and getting
-- the raw_score
-- the neighbor_list
-- the parametrization
-of an atoms object.
+"""The ase.ga project has moved to https://dtu-energy.github.io/ase-ga/ ."""
+
+msg = """\
+The ase.ga code has moved to a separate project, ase_ga:
+https://github.com/dtu-energy/ase-ga .
+Please install it using e.g. pip install ase-ga.
+Please import from ase_ga what would previously be imported from ase.ga.
+ase.ga placeholders will be removed in a future release.
 """
 
 
-def set_raw_score(atoms, raw_score):
-    """Set the raw_score of an atoms object in the
-    atoms.info['key_value_pairs'] dictionary.
+def ase_ga_deprecated(oldmodulename, modulename=None):
+    import importlib
+    import warnings
 
-    Parameters
-    ----------
-    atoms : Atoms object
-        The atoms object that corresponds to this raw_score
-    raw_score : float or int
-        Independent calculation of how fit the candidate is.
-    """
-    if 'key_value_pairs' not in atoms.info:
-        atoms.info['key_value_pairs'] = {}
-    atoms.info['key_value_pairs']['raw_score'] = raw_score
+    if modulename is None:
+        assert oldmodulename.startswith('ase.ga')
+        modulename = oldmodulename.replace('ase.ga', 'ase_ga')
 
+    def __getattr__(attrname):
+        try:
+            module = importlib.import_module(modulename)
+        except ImportError as err:
+            raise ImportError(f'Cannot import {modulename}.\n{msg}') from err
+        warnings.warn(msg, FutureWarning)
+        return getattr(module, attrname)
 
-def get_raw_score(atoms):
-    """Gets the raw_score of the supplied atoms object.
-
-    Parameters
-    ----------
-    atoms : Atoms object
-        The atoms object from which the raw_score will be returned.
-
-    Returns
-    -------
-    raw_score : float or int
-        The raw_score set previously.
-    """
-    return atoms.info['key_value_pairs']['raw_score']
+    return __getattr__
 
 
-def set_parametrization(atoms, parametrization):
-    if 'data' not in atoms.info:
-        atoms.info['data'] = {}
-    atoms.info['data']['parametrization'] = parametrization
-
-
-def get_parametrization(atoms):
-    if 'parametrization' in atoms.info['data']:
-        return atoms.info['data']['parametrization']
-    else:
-        raise ValueError('Trying to get the parametrization before it is set!')
-
-
-def set_neighbor_list(atoms, neighbor_list):
-    if 'data' not in atoms.info:
-        atoms.info['data'] = {}
-    atoms.info['data']['neighborlist'] = neighbor_list
-
-
-def get_neighbor_list(atoms):
-    if 'neighborlist' in atoms.info['data']:
-        return atoms.info['data']['neighborlist']
-    else:
-        return None
+__getattr__ = ase_ga_deprecated(__name__)

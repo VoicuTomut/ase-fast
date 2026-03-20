@@ -16,10 +16,9 @@ import re
 import sys
 from pprint import pprint
 from subprocess import run
-from typing import List, Optional, Set
 
 
-def exec_and_check_modules(expression: str) -> Set[str]:
+def exec_and_check_modules(expression: str) -> set[str]:
     """Return modules loaded by the execution of a Python expression.
 
     Parameters
@@ -54,9 +53,9 @@ def exec_and_check_modules(expression: str) -> Set[str]:
 def check_imports(
     expression: str,
     *,
-    forbidden_modules: List[str] = [],
-    max_module_count: Optional[int] = None,
-    max_nonstdlib_module_count: Optional[int] = None,
+    forbidden_modules: list[str] = [],
+    max_module_count: int | None = None,
+    max_nonstdlib_module_count: int | None = None,
     do_print: bool = False,
 ) -> None:
     """Check modules imported by the execution of a Python expression.

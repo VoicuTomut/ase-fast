@@ -2,7 +2,7 @@
 
 """Logging for molecular dynamics."""
 import weakref
-from typing import IO, Any, Union
+from typing import IO, Any
 
 from ase import Atoms, units
 from ase.parallel import world
@@ -12,25 +12,29 @@ from ase.utils import IOContext
 class MDLogger(IOContext):
     """Class for logging molecular dynamics simulations.
 
-    Parameters:
-    dyn:           The dynamics.  Only a weak reference is kept.
+    Parameters
+    ----------
+    dyn : :class:`~ase.md.md.MolecularDynamics`
+        ASE :class:`~ase.md.md.MolecularDynamics` object.
+        Only a weak reference is kept.
+    atoms : :class:`~ase.Atoms`
+        ASE :class:`~ase.Atoms` object.
+    logfile : IO | str
+        File name or open file, "-" meaning standard output.
+    stress : bool, default: :obj:`False`
+        If :obj:`True`, the logger writes stress.
+    peratom : bool, default: :obj:`False`
+        If :obj:`True`, the logger writes energies per atom.
+    mode : str, default: ``'a'``
+        How the file is opened if logfile is a filename.
 
-    atoms:         The atoms.
-
-    logfile:       File name or open file, "-" meaning standard output.
-
-    stress=False:  Include stress in log.
-
-    peratom=False: Write energies per atom.
-
-    mode="a":      How the file is opened if logfile is a filename.
     """
 
     def __init__(
         self,
         dyn: Any,  # not fully annotated so far to avoid a circular import
         atoms: Atoms,
-        logfile: Union[IO, str],
+        logfile: IO | str,
         header: bool = True,
         stress: bool = False,
         peratom: bool = False,

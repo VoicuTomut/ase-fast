@@ -30,6 +30,335 @@ Git master branch
 
 .. scriv-auto-changelog-start
 
+Version 3.28.0
+==============
+
+I/O
+---
+
+- Accelerate :func:`~ase.io.lammpsrun.read_lammps_dump_text`
+  using a NumPy structured array (:mr:`3939`)
+
+- Accelerate :func:`~ase.io.lammpsrun.read_lammps_dump_text` and
+  :func:`~ase.io.lammpsrun.read_lammps_dump_binary` by parsing the data file
+  only for necessary frames (:mr:`3959`, :mr:`3972`)
+
+- elk-in: add the string parameter type
+- elk-in: parameters: top-level tuple to describe an input block
+- elk-in: nested tuples to describe the multi-key inputs within a line
+- remove partial inconsistent ase->elk units conversion
+
+- Modified :func:`~ase.io.vasp.write_vasp_xdatcar` to print the header,
+  including the cell, for every image (:mr:`2873`)
+
+- Fixed a bug in CASTEP .phonon file reader: q-points beyond the first were not loaded.
+
+  - Added missing unit tests for CASTEP .phonon reader
+
+Calculators
+
+- Add writers for MDL Molfile V2000 based MOL and SDF formats.
+
+- **BREAKING CHANGE:** Changes have been made to
+  :func:`ase.visualize.plot.plot_atoms`. These are intended to "do the
+  right thing" and streamline common usage especially in tutorial
+  material.  (:mr:`3979`)
+
+  - always remove axis decorations to give a cleaner output.
+
+  - If no existing Axes are provided, create a new Figure. (Existing
+    behaviour is to work on the "current" Axes, possibly overwriting
+    an unrelated plot.)
+
+- A lower-level function :func:`ase.visualize.plot.plot_atoms_raw` is
+  provided which simply plots to a provided Matplotlib Axes; other
+  formatting is left to the user. This is recommended for use in
+  composite figures where the default/fixed behaviours of
+  :func:`~ase.visualize.plot.plot_atoms` are unweildy.
+
+Calculators
+-----------
+
+- Added ``with_tags`` parameter to :class:`~ase.calculators.dftb.Dftb` calculator to enable using atom tags to distinguish between chemically identical species. This allows different Slater-Koster parameter sets for atoms with the same element but different tags. (:mr:`3702`)
+
+Optimizers
+----------
+
+- Change the default method for :class:`~ase.mep.neb.NEB` to ``'improvedtangent'`` (previously ``'aseneb'``).
+
+- For compatibility with older code, re-add ``opt.converged()``
+  as a way to check convergence.
+  (Note that ``opt.run()`` returns whether it converged or not,
+  and ``opt.irun()`` yields for each step whether it converged or not.)
+  (:mr:`!3990`)
+
+Molecular dynamics
+------------------
+
+- Add :class:`~ase.md.MaskedMTKNPT` for cell fluctuation along specified axes.
+  This can be used to perform *NPzT* ensemble MD simulations. (:mr:`3807`)
+
+- Bug fix in Bussi dynamics: Would crash with GPAW calculator due to
+  random number not being properly synchronized.  (:mr:`!3976`)
+
+- Deprecate ``fixcm=True`` in :class:`~ase.md.Langevin` because its
+  implementation does not strictly sample the correct NVT distribution.
+  Use :class:`~ase.constraints.FixCom` instead (:mr:`3986`)
+
+GUI
+---
+
+- Users can now specify default values for the movie box in the GUI, through their '~/.ase/gui.py' settings file.
+
+- Move and Rotate modes no longer turn on if no atoms are selected.
+
+- An indicator is added to the bottom right corner that shows that a movement mode is active. This indicator also includes a contextual hint about modifier keys.
+
+- Rotation vectors are transformed to give a more intuitive pitch/yaw/roll experience in rotate mode which is also consistent with mouse movements.
+
+- Number fields in the GUI can now do basic arithmetic using Python syntax.
+
+- Default radii for atoms in ~/.ase/gui.py can now be specified as a
+  dictionary. Both the list and dictionary syntaxes now support using
+  atomic symbols as an alternative to atomic numbers.
+
+Documentation
+-------------
+
+ - The updated :ref:`tutorials` based on sphinx-gallery are now the
+   main tutorials.
+
+- Move Partly occupied Wannier Functions tutorial to sphinx gallery
+
+- Move Surface diffusion energy barriers using the Nudged Elastic Band (NEB) method to sphinx gallery.
+
+- Moved periodic table plot from gallery/ to examples/gallery, using the sphinx_gallery style.
+
+Other changes
+-------------
+
+- Calls to spglib adapted to support the
+  `future change of error handling
+  <https://spglib.readthedocs.io/en/stable/api/autodoc/spglib.error.html>`__
+  in spglib 2.8+.
+
+- Deprecate :meth:`ase.geometry.analysis.Analysis.get_rdf` due to bugs when
+  ``elements`` is not ``None``. This method will be removed soon.
+  Use :func:`ase.geometry.rdf.get_rdf` instead (:mr:`3993`)
+
+- Change :func:`ase.geometry.rdf.get_rdf` so that ``elements`` can accept
+  chemical symbols (:mr:`3993`)
+
+Bugfixes
+--------
+
+- Fixed :meth:`ase.optimize.optimize.Optimizer.todict` to return :py:obj:`None`
+  for ``restart`` when not set (:mr:`3923`)
+
+- Ctrl/Shift key handling is refactored in the GUI to try and combat a bug where Num Lock would continuously register as a modifier. This was causing the arrow keys to behave incorrectly in "Move" and "Rotate" modes.
+
+- Fixed :class:`~ase.spectrum.band_structure.BandStructure` legend plotting for figures with multiple axes (:mr:`3935`)
+- Fixed :class:`~ase.spectrum.band_structure.BandStructure` to save the figure associated with the axes (:mr:`3935`)
+
+- Make MolecularDynamics.run() return a boolean value.
+
+- Fix :func:`~ase.io.lammpsrun.read_lammps_dump_text` and
+  :func:`~ase.io.lammpsrun.read_lammps_dump_binary` to interpret ``index`` with
+  negative ``start`` / ``stop`` / ``step`` correctly (:mr:`3959`, :mr:`3972`)
+
+- Fixed :func:`~ase.io.vasp.read_vasp_xml` to get not the enthalpy but the
+  energy without PV to be consistent with :func:`~ase.io.vasp.read_vasp_out`
+  (:mr:`2685`)
+
+- Fixed a bug where graphs could not be rendered when launching the GUI via IPython/Jupyter
+
+- FHI-aims molecular calculations with spin collinear now have correct eigenvalue reading portions
+
+- Setting the default radii for atoms in ~/.ase/gui.py works once again.
+
+- Introduced checks to ensure no PBCs are used in Thermochemistry
+  when calculating rotational moments of inertia. Also warn user
+  if trying to use :func:`~ase.atoms.get_moments_of_inertia` when
+  PBCs are present. (:mr:`3953`)
+
+- Fix missing @writer decorator for :func:~ase.io.espresso.write_fortran_namelist` so can take str filenames
+
+- Make vasp constraint reader which is called by outcar reader ignore empty
+  CONTCAR/POSCAR files as well as non-existent ones
+
+Version 3.27.0
+==============
+
+
+Thermochemistry
+---------------
+
+- Multiple changes to the :mod:`~ase.thermochemistry` module (:mr:`3358`):
+
+  * **Breaking change**: The ``vib_energies`` property of thermochemistry classes is
+    now deprecated. It will still be around for a while until all classes moved to
+    the new modes-based framework. Adapt your workflows accordingly. See also below
+    for more details on the new modes-based framework.
+
+  * Major parts of the thermochemistry module have been rewritten to include
+    a range of new methods: :class:`MSRRHOThermo` based on the modified
+    rigid-rotor-harmonic-oscillator (msRRHO) approximation by Grimme *et al.*
+    (:doi:`10.1002/chem.201200497` and :doi:`10.1039/D1SC00621E`) and Otlyotov
+    and Minenkov :doi:`10.1002/jcc.27129`.
+  * A new base class for thermochemistry, :class:`ase.thermochemistry.ThermoBase`,
+    has been introduced to facilitate the implementation of new thermochemistry
+    methods.
+  * Multiple classes are now based on a framework of individual modes
+    rather than just a list of vibrational energies. This allows for a
+    flexible mixing of different treatments of vibrational modes
+    (e.g., Grimme's msRRHO for low-frequency modes and harmonic
+    oscillator for high-frequency modes). Each vibrational mode is
+    represented by an instance of the
+    :class:`ase.thermochemistry.AbstractMode` class or one of its
+    subclasses. Multiple modes are then used to build a
+    :class:`ase.thermochemistry.BaseThermoChem` instance or one of its
+    subclasses. The old way of passing a list of vibrational energies is
+    still supported for backwards compatibility, but it is recommended
+    to switch to the new modes-based framework. The ``vib_energies``
+    property is still available for backwards compatibility, but it is
+    recommended to use the ``modes`` property instead, which returns a
+    list of mode instances.
+
+
+I/O
+---
+
+- Add support for reading Mulliken charges in
+  :meth:`~ase.io.gamess_us.read_gamess_us_out` and
+  :meth:`~ase.io.gamess_us.read_gamess_us_punch` (:mr:`3761`)
+
+- Add support to parse general triclinic boxes in
+  :meth:`~ase.io.lammpsdata.read_lammps_data`,
+  :meth:`~ase.io.lammpsrun.read_lammps_dump_text`, and
+  :meth:`~ase.io.lammpsrun.read_lammps_dump_binary` (:mr:`3797`)
+
+- Add support for reading the energy and the dipole moment from "external" in
+  :meth:`ase.io.gaussian.read_gausian_out` (:mr:`3801`)
+
+- ASE now follows the EON convention for handling cell geometries.
+
+- Update :meth:`~ase.io.lammpsdata.write_lammps_data` to parse atom types read
+  by :meth:`~ase.io.lammpsdata.read_lammps_data` (:mr:`3847`)
+
+- **Breaking** Trajectories and logfiles passed as filenames are not kept
+  open during simulations.  Instead, the file is opened, written to
+  (generally by appending), then closed again.  This improves IO safety
+  and prevents resource leaks in many cases.  It is still possible to
+  pass trajectories and logfiles that are already open, and then the
+  caller is responsible for closing them.  Doing so may be beneficial
+  in fast runs on slow file systems. (:mr:`3899`, :mr:`3930`)
+
+- Updated :func:`~ase.io.lammpsdata.read_lammps_data` and
+  :func:`~ase.io.lammpsdata.write_lammps_data` to parse ``Atom Type Labels``
+  (:mr:`3916`)
+
+Calculators
+-----------
+
+- Add LAMMPSlib features to support arbitrary startup flags (e.g.
+  to enable kokkos) and arbitrary initialization callbacks (e.g.
+  calling `lammps.mliap.activate_mliappy`)
+
+- The `Vasp` calculator now has a more generic way of handling pseudopotentials. If the user specifies the `pp_version` keyword argument or equivalent `VASP_PP_VERSION` environment variable, the calculator will look for pseudopotentials in the corresponding VASP-provided pseudopotential directory. Simply download the pseudopotential folders provided by VASP and put them in one parent directory, defined by `VASP_PP_PATH`. If `pp_version` is `None` (default), the `Vasp` calculator will only look for `potpaw` (LDA) and `potpaw_PBE` (PBE) to maintain backwards compatability. If `pp_version="64"` (for instance), the calculator will look for pseudopotentials in the `potpaw.64` and `potpaw_PBE.64`, respectively.
+- The `potpaw_GGA` (PW91) pseudpotential folder has been removed. This means setting `xc="PW91"` will no longer use the deprecated PW91 pseudopotential folder. It is recommended the PBE pseudopotentials are used for the PW91 functional instead.
+
+- Updated :class:`~ase.calculators.lammpsrun.LAMMPS` to recognize the LAMMPS ``velocity`` command (:mr:`3805`)
+
+Optimizers
+----------
+
+- All optimizers (except GPMin) can now work with flat position and gradient arrays.
+
+- Gradients now have the correct sign in the Optimizable API.
+  The Optimizable API is still experimental and may change. (:mr:`3908`)
+
+Molecular dynamics
+------------------
+
+- The "NPT" thermostat has been renamed to "MelchionnaNPT" for clearer
+  comparison with alternatives, and to avoid giving the impression
+  that this is a generally recommended default choice for NPT.
+
+  For backward compatibility an :class:`ase.md.npt.NPT` class remains
+  in place, which aliases the renamed class at its new location
+  :class:`ase.md.melchionna.MelchionnaNPT`.
+
+  The alias is marked as "deprecated" and will be removed in a future
+  ASE version.
+
+- New LangevinBAOAB variable-cell Langevin integrator with Leimkhler's BAOAB method
+
+GUI
+---
+
+- Added a history feature, i.e. undo/redo, to the ASE GUI.
+
+Documentation
+-------------
+
+ - Move database introduction tutorial to sphinx gallery
+
+ - Move Surface adsorption study using the ASE database  tutorial to sphinx gallery
+
+- Move Move "Calculating Delta-values tutorial" to examples/deltacodesdft sphinx gallery
+
+Other changes
+-------------
+
+- Fixed backward-compatibility of
+  :class:`~ase.constraints.FixedLine` and :class:`~ase.constraints.FixedPlane`
+  made before ASE 3.23.0 to be read with
+  :meth:`~ase.constraints.dict2constraint` after ASE 3.23.0 (:mr:`3786`)
+
+* ASE now requires Python 3.10+.
+
+- Fix deprecated SQL syntax :mr:`3815`.
+
+- Added :meth:`ase.lattice.match_to_lattice` which matches an input cell
+  to a specific Bravais lattice and returns a list of matching representations.
+
+- The :mod:`ase.ga` module has been moved to the standalone
+   `ase-ga <https://dtu-energy.github.io/ase-ga/>`__ project.
+
+- Improved efficiency of :func:`~ase.geometry.rdf.get_rdf` using
+  :class:`~ase.neighborlist.NeighborList` (:mr:`3888`)
+
+Bugfixes
+--------
+
+- Remove subscripting of images iterable in extxyz writer so it works
+  with non-subscriptable iterables when "move_mask" key is present in
+  `atoms.arrays` (:mr:`3795`)
+
+- Fix :func:`~ase.io.extxyz.write_extxyz` to ignore constraints other than
+  :class:`~ase.constraints.FixAtoms` and :class:`~ase.constraints.FixCartesian`
+  when ``move_mask`` is present in ``columns`` (default since ASE 3.26.0)
+  (:mr:`3808`)
+
+- Fix :func:`~ase.io.extxyz.write_extxyz` to handle multiple
+  :class:`~ase.constraints.FixAtoms` correctly (:mr:`3812`)
+
+- Fix :func:`~ase.io.extxyz.write_extxyz` to handle unconstrained atoms in
+  :class:`~ase.Atoms` with :class:`~ase.constraints.FixCartesian` correctly
+  (:mr:`3812`)
+
+- Make :class:`~ase.calculators.vasp.Vasp` calculator INCAR reader use first instance of each tag,
+  to be same as VASP code itself (:mr:`3842`)
+
+- Fix constraints from first frame being applied to all frames (leading to errors) in :func:`~ase.io.extxyz.write_extxyz` (:mr:`3920`)
+
+- Fixed partial RDFs in :func:`~ase.geometry.rdf.get_rdf` to be conssitent with
+  the common definition in, e.g., LAMMPS ``compute rdf`` (:mr:`3921`)
+
+- Fixed :class:`~ase.calculators.lammpsrun.LAMMPS` to be robust against LAMMPS log files with non-ASCII characters (:mr:`3925`)
+
+- Fixed :class:`~ase.calculators.lammpsrun.LAMMPS` to not run the default `fix nve` command when users set `fix` explicitly (:mr:`3805`)
+
 Version 3.26.0
 ==============
 

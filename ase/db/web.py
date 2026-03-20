@@ -1,7 +1,6 @@
 # fmt: off
 
 """Helper functions for Flask WSGI-app."""
-from typing import Dict, List, Optional, Tuple
 
 from ase.db.core import Database
 from ase.db.table import Table, all_columns
@@ -18,7 +17,7 @@ class Session:
     where *s* is the session object.
     """
     next_id = 1
-    sessions: Dict[int, 'Session'] = {}
+    sessions: dict[int, 'Session'] = {}
 
     def __init__(self, project_name: str):
         self.id = Session.next_id
@@ -30,9 +29,9 @@ class Session:
             for id in sorted(Session.sessions)[:400]:
                 del Session.sessions[id]
 
-        self.columns: Optional[List[str]] = None
-        self.nrows: Optional[int] = None
-        self.nrows_total: Optional[int] = None
+        self.columns: list[str] | None = None
+        self.nrows: int | None = None
+        self.nrows_total: int | None = None
         self.page = 0
         self.limit = 25
         self.sort = ''
@@ -49,7 +48,7 @@ class Session:
     def update(self,
                what: str,
                x: str,
-               args: Dict[str, str],
+               args: dict[str, str],
                project) -> None:
 
         if self.columns is None:
@@ -98,7 +97,7 @@ class Session:
         assert self.nrows is not None
         return min((self.page + 1) * self.limit, self.nrows)
 
-    def paginate(self) -> List[Tuple[int, str]]:
+    def paginate(self) -> list[tuple[int, str]]:
         """Helper function for pagination stuff."""
         assert self.nrows is not None
         npages = (self.nrows + self.limit - 1) // self.limit
@@ -130,7 +129,7 @@ class Session:
     def create_table(self,
                      db: Database,
                      uid_key: str,
-                     keys: List[str]) -> Table:
+                     keys: list[str]) -> Table:
         query = self.query
 
         if self.nrows_total is None:

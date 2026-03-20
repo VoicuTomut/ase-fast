@@ -3,9 +3,9 @@
 import json
 import sys
 from collections import defaultdict
+from collections.abc import Iterable, Iterator
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Iterable, Iterator
 
 import ase.io
 from ase.db import connect
@@ -322,7 +322,7 @@ def row2str(row) -> str:
 
 @contextmanager
 def no_progressbar(iterable: Iterable,
-                   length: int = None) -> Iterator[Iterable]:
+                   length: int | None = None) -> Iterator[Iterable]:
     """A do-nothing implementation."""
     yield iterable
 
