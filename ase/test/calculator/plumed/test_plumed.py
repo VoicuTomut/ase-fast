@@ -51,8 +51,9 @@ def test_units(factory):
                       timestep=timestep,
                       atoms=atoms,
                       use_charge=True) as calc:
-        ener, forces = atoms.calc.compute_bias(atoms.get_positions(), 1,
-                                               atoms.get_potential_energy())
+        ener, forces, virial = atoms.calc.compute_bias(
+            atoms.get_positions(), 1, atoms.get_potential_energy()
+        )
         files = calc.read_plumed_files()
 
     # the next values are in ase units
