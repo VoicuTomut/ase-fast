@@ -458,6 +458,7 @@ class BaseNEB:
 
         forces = np.empty(((self.nimages - 2), self.natoms, 3))
         energies = np.empty(self.nimages)
+        real_forces = np.zeros((self.nimages, self.natoms, 3))
 
         if self.remove_rotation_and_translation:
             for i in range(1, self.nimages):
@@ -467,14 +468,12 @@ class BaseNEB:
             energies[0] = images[0].get_potential_energy()
             energies[-1] = images[-1].get_potential_energy()
 
-        self.real_forces = np.zeros((self.nimages, self.natoms, 3))
-
         if not self.parallel:
             # Do all images - one at a time:
             for i in range(1, self.nimages - 1):
                 forces[i - 1] = images[i].get_forces()
                 energies[i] = images[i].get_potential_energy()
-                self.real_forces[i] = images[i].get_forces(apply_constraint=False)
+                real_forces[i] = images[i].get_forces(apply_constraint=False)
 
         elif self.world.size == 1:
             def run(image, energies, forces, real_forces):
@@ -486,7 +485,7 @@ class BaseNEB:
                                         args=(images[i],
                                               energies[i:i + 1],
                                               forces[i - 1:i],
-                                              self.real_forces[i:i + 1]))
+                                              real_forces[i:i + 1]))
                        for i in range(1, self.nimages - 1)]
             for thread in threads:
                 thread.start()
@@ -498,7 +497,7 @@ class BaseNEB:
             try:
                 forces[i - 1] = images[i].get_forces()
                 energies[i] = images[i].get_potential_energy()
-                self.real_forces[i] = images[i].get_forces(apply_constraint=False)
+                real_forces[i] = images[i].get_forces(apply_constraint=False)
             except Exception:
                 # Make sure other images also fail:
                 error = self.world.sum(1.0)
@@ -512,7 +511,7 @@ class BaseNEB:
                 root = (i - 1) * self.world.size // (self.nimages - 2)
                 self.world.broadcast(energies[i:i + 1], root)
                 self.world.broadcast(forces[i - 1], root)
-                self.world.broadcast(self.real_forces[i], root)
+                self.world.broadcast(real_forces[i], root)
 
         # if this is the first force call, we need to build the preconditioners
         if self.precon is None or isinstance(self.precon, (str, Precon, list)):
@@ -524,6 +523,7 @@ class BaseNEB:
 
         # Save for later use in iterimages:
         self.energies = energies
+        self.real_forces = real_forces
 
         state = NEBState(self, images, energies)
 
