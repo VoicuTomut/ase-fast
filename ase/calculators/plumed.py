@@ -2,6 +2,7 @@
 
 from os.path import exists
 
+from ase import stress
 import numpy as np
 
 from ase.calculators.calculator import Calculator, all_changes
@@ -167,14 +168,21 @@ class Plumed(Calculator):
                                               self.istep)
         energy, forces, stress = comp
         self.istep += 1
-        self.results['energy'], self.results['forces'], self.results['stress'] = float(energy), forces, stress
+        self.results['energy'] = float(energy)
+        self.results['forces'] = forces
+        self.results['stress'] = stress
 
     def compute_energy_and_forces(self, pos, istep):
         unbiased_energy = self.calc.get_potential_energy(self.atoms)
         unbiased_forces = self.calc.get_forces(self.atoms)
-        unbiased_stress = self.calc.get_stress(self.atoms)
-        volume = self.atoms.get_volume()
-
+        if 'stress' in self.calc.implemented_properties:
+            unbiased_stress = self.calc.get_stress(self.atoms)
+        else:
+            unbiased_stress = np.zeros(6)
+        if self.atoms.pbc.any() and self.atoms.cell.rank == 3:
+            volume = self.atoms.get_volume()
+        else:
+            volume = 1.0
         if world.rank == 0:
             ener_forc_strs = self.compute_bias(pos, istep, unbiased_energy)
         else:
@@ -187,7 +195,7 @@ class Plumed(Calculator):
                                         virial_bias[2, 2],
                                         virial_bias[1, 2],
                                         virial_bias[0, 2],
-                                        virial_bias[0, 1]])/volume
+                                        virial_bias[0, 1]]) / volume
         stress = unbiased_stress + biased_stress_voigt
         return energy, forces, stress
 
