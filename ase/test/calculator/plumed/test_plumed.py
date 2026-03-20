@@ -270,7 +270,7 @@ def test_stress_shape(factory):
     atoms = Atoms('H2', positions=[[0, 0, 0], [0, 0, 0.74]])
 
     set_plumed = ["d: DISTANCE ATOMS=1,2",
-                  "UPPER_WALLS ARG=d AT=0.6 KAPPA=1"]
+                  "UPPER_WALLS ARG=d AT=0.06 KAPPA=1"]
 
     with factory.calc(calc=EMT(),
                       input=set_plumed,
