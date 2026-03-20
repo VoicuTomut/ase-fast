@@ -174,9 +174,9 @@ class Plumed(Calculator):
     def compute_energy_and_forces(self, pos, istep):
         unbiased_energy = self.calc.get_potential_energy(self.atoms)
         unbiased_forces = self.calc.get_forces(self.atoms)
-        if 'stress' in self.calc.implemented_properties:
+        try:
             unbiased_stress = self.calc.get_stress(self.atoms)
-        else:
+        except Exception:
             unbiased_stress = np.zeros(6)
         if self.atoms.pbc.any() and self.atoms.cell.rank == 3:
             volume = self.atoms.get_volume()
