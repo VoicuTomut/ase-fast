@@ -7,6 +7,7 @@ import numpy as np
 from ase.calculators.calculator import Calculator, all_changes
 from ase.io.trajectory import Trajectory
 from ase.parallel import broadcast, world
+from ase.stress import full_3x3_to_voigt_6_stress
 from ase.units import fs, kJ, mol, nm
 
 
@@ -47,7 +48,7 @@ def restart_from_trajectory(prev_traj, *args, prev_steps=None, atoms=None,
 
 
 class Plumed(Calculator):
-    implemented_properties = ['energy', 'forces', 'stress']
+    implemented_properties = ['energy', 'free_energy', 'forces', 'stress']
 
     def __init__(self, calc, input, timestep, atoms=None, kT=1., log='',
                  restart=False, use_charge=False, update_charge=False):
@@ -168,20 +169,14 @@ class Plumed(Calculator):
         energy, forces, stress = comp
         self.istep += 1
         self.results['energy'] = float(energy)
+        self.results['free_energy'] = float(energy)
         self.results['forces'] = forces
-        self.results['stress'] = stress
+        if self.atoms.cell.rank == 3:
+            self.results['stress'] = stress
 
     def compute_energy_and_forces(self, pos, istep):
         unbiased_energy = self.calc.get_potential_energy(self.atoms)
         unbiased_forces = self.calc.get_forces(self.atoms)
-        try:
-            unbiased_stress = self.calc.get_stress(self.atoms)
-        except Exception:
-            unbiased_stress = np.zeros(6)
-        if self.atoms.pbc.any() and self.atoms.cell.rank == 3:
-            volume = self.atoms.get_volume()
-        else:
-            volume = 1.0
         if world.rank == 0:
             ener_forc_strs = self.compute_bias(pos, istep, unbiased_energy)
         else:
@@ -189,13 +184,16 @@ class Plumed(Calculator):
         energy_bias, forces_bias, virial_bias = broadcast(ener_forc_strs)
         energy = unbiased_energy + energy_bias
         forces = unbiased_forces + forces_bias
-        biased_stress_voigt = np.array([virial_bias[0, 0],
-                                        virial_bias[1, 1],
-                                        virial_bias[2, 2],
-                                        virial_bias[1, 2],
-                                        virial_bias[0, 2],
-                                        virial_bias[0, 1]]) / volume
-        stress = unbiased_stress + biased_stress_voigt
+        if self.atoms.cell.rank == 3:
+            try:
+                unbiased_stress = self.calc.get_stress(self.atoms)
+            except Exception:
+                unbiased_stress = np.zeros(6)
+            volume = self.atoms.get_volume()
+            biased_stress_voigt = full_3x3_to_voigt_6_stress(virial_bias) / volume
+            stress = unbiased_stress + biased_stress_voigt
+        else:
+            stress = None
         return energy, forces, stress
 
     def compute_bias(self, pos, istep, unbiased_energy):

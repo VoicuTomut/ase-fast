@@ -10,6 +10,8 @@ from ase.calculators.lj import LennardJones
 from ase.calculators.plumed import restart_from_trajectory
 from ase.io.trajectory import Trajectory
 from ase.md.verlet import VelocityVerlet
+from ase.calculators.calculator import PropertyNotImplementedError
+from ase.calculators.fd import calculate_numerical_forces, calculate_numerical_stress
 
 
 @pytest.mark.calculator_lite()
@@ -265,10 +267,29 @@ def test_stress_unbiased(factory):
 
 @pytest.mark.calculator_lite()
 @pytest.mark.calculator('plumed')
-def test_stress_shape(factory):
-    """Test that stress has the correct shape and is computed."""
+def test_stress_nobox(factory):
+    """Test that stress raises PropertyNotImplementedError when no box exists."""
     atoms = Atoms('H2', positions=[[0, 0, 0], [0, 0, 0.74]])
 
+    set_plumed = ["d: DISTANCE ATOMS=1,2",
+                  "UPPER_WALLS ARG=d AT=0.06 KAPPA=1"]
+
+    with factory.calc(calc=EMT(),
+                      input=set_plumed,
+                      timestep=1,
+                      atoms=atoms) as calc:
+        # Stress should not be implemented without a 3D cell
+        with pytest.raises(PropertyNotImplementedError):
+            atoms.get_stress()
+
+
+@pytest.mark.calculator_lite()
+@pytest.mark.calculator('plumed')
+def test_stress_shape(factory):
+    """Test that stress has the correct shape and is computed."""
+    atoms = Atoms('H2', positions=[[0, 0, 0], [0, 0, 0.74]], 
+                  cell=10.0 * np.eye(3), pbc=True)
+    
     set_plumed = ["d: DISTANCE ATOMS=1,2",
                   "UPPER_WALLS ARG=d AT=0.06 KAPPA=1"]
 
@@ -283,6 +304,33 @@ def test_stress_shape(factory):
     assert stress.shape == (6,)
     # Check it's not all zeros (since bias is added)
     assert not np.allclose(stress, 0)
+
+
+@pytest.mark.calculator_lite()
+@pytest.mark.calculator('plumed')
+def test_forces_and_stress(factory):
+    """Test if analytical forces and stress agree with numerical ones."""
+    # Create atoms with Plumed calculator for numerical derivative tests
+    atoms = Atoms('H2', positions=[[0, 0, 0], [0, 0, 0.74]], 
+                  cell=10.0 * np.eye(3), pbc=True)
+    
+    # Perturb first atom to get substantial forces
+    atoms.positions[0] += [0.03, 0.02, 0.01]
+    
+    set_plumed = ["d: DISTANCE ATOMS=1,2",
+                  "UPPER_WALLS ARG=d AT=0.06 KAPPA=1"]
+    
+    with factory.calc(calc=EMT(),
+                      input=set_plumed,
+                      timestep=1,
+                      atoms=atoms) as calc:
+        forces = atoms.get_forces()
+        numerical_forces = calculate_numerical_forces(atoms, eps=1e-5)
+        np.testing.assert_allclose(forces, numerical_forces, atol=1e-5)
+
+        stress = atoms.get_stress()
+        numerical_stress = calculate_numerical_stress(atoms, eps=1e-5, force_consistent=False)
+        np.testing.assert_allclose(stress, numerical_stress, atol=1e-5)
 
 
 def run(factory, inputs, name='',
