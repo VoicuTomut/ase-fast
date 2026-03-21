@@ -48,7 +48,7 @@ def restart_from_trajectory(prev_traj, *args, prev_steps=None, atoms=None,
 
 
 class Plumed(Calculator):
-    implemented_properties = ['energy', 'free_energy', 'forces', 'stress']
+    implemented_properties = ['energy', 'forces', 'stress']
 
     def __init__(self, calc, input, timestep, atoms=None, kT=1., log='',
                  restart=False, use_charge=False, update_charge=False):
@@ -164,17 +164,16 @@ class Plumed(Calculator):
                   system_changes=all_changes):
         Calculator.calculate(self, atoms, properties, system_changes)
 
-        comp = self.compute_energy_and_forces(self.atoms.get_positions(),
+        comp = self._compute_properties(self.atoms.get_positions(),
                                               self.istep)
         energy, forces, stress = comp
         self.istep += 1
         self.results['energy'] = float(energy)
-        self.results['free_energy'] = float(energy)
         self.results['forces'] = forces
         if self.atoms.cell.rank == 3:
             self.results['stress'] = stress
 
-    def compute_energy_and_forces(self, pos, istep):
+    def _compute_properties(self, pos, istep):
         unbiased_energy = self.calc.get_potential_energy(self.atoms)
         unbiased_forces = self.calc.get_forces(self.atoms)
         if world.rank == 0:
@@ -240,7 +239,7 @@ class Plumed(Calculator):
         plumed such as COLVAR, HILLS """
         for i, image in enumerate(images):
             pos = image.get_positions()
-            self.compute_energy_and_forces(pos, i)
+            self._compute_properties(pos, i)
         return self.read_plumed_files()
 
     def read_plumed_files(self, file_name=None):
