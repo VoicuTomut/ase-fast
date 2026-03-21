@@ -729,7 +729,8 @@ class Calculator(BaseCalculator):
     def set_label(self, label):
         """Set label and convert label to directory and prefix.
 
-        Examples:
+        Examples
+        --------
 
         * label='abc': (directory='.', prefix='abc')
         * label='dir1/abc': (directory='dir1', prefix='abc')

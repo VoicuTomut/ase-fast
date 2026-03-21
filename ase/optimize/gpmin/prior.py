@@ -39,7 +39,8 @@ class ZeroPrior(Prior):
 class ConstantPrior(Prior):
     """Constant prior, with energy = constant and zero forces
 
-    Parameters:
+    Parameters
+    ----------
 
     constant: energy value for the constant.
 
@@ -69,7 +70,8 @@ class CalculatorPrior(Prior):
     use another calculator as prior function instead of the
     default constant.
 
-    Parameters:
+    Parameters
+    ----------
 
     atoms: the Atoms object
     calculator: one of ASE's calculators

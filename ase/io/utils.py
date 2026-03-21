@@ -594,7 +594,8 @@ class ImageIterator:
 def verify_cell_for_export(cell, check_orthorhombric=True):
     """Function to verify if the cell size is defined and if the cell is
 
-    Parameters:
+    Parameters
+    ----------
 
     cell: cell object
         cell to be checked.
@@ -622,7 +623,8 @@ def verify_dictionary(atoms, dictionary, dictionary_name):
     """
     Verify a dictionary have a key for each symbol present in the atoms object.
 
-    Parameters:
+    Parameters
+    ----------
 
     dictionary: dict
         Dictionary to be checked.

@@ -103,7 +103,8 @@ class OpenMX(FileIOCalculator):
         """Convenience method to retrieve a parameter as
         calculator[key] rather than calculator.parameters[key]
 
-            Parameters:
+            Parameters
+        ----------
                 -key       : str, the name of the parameters to get.
         """
         return self.parameters[key]
@@ -365,7 +366,8 @@ class OpenMX(FileIOCalculator):
         """Write input (dat)-file.
         See calculator.py for further details.
 
-        Parameters:
+        Parameters
+        ----------
             - atoms        : The Atoms object to write.
             - properties   : The properties which should be calculated.
             - system_changes : List of properties changed since last run.
@@ -423,7 +425,8 @@ class OpenMX(FileIOCalculator):
     def set(self, **kwargs):
         """Set all parameters.
 
-            Parameters:
+            Parameters
+        ----------
                 -kwargs  : Dictionary containing the keywords defined in
                            OpenMXParameters.
         """

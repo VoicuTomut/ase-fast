@@ -221,7 +221,8 @@ def parse_zmatrix(
 ) -> Atoms:
     """Converts a Z-matrix into an Atoms object.
 
-    Parameters:
+    Parameters
+    ----------
 
     zmat: Iterable or str
         The Z-matrix to be parsed. Iteration over `zmat` should yield the rows
@@ -242,7 +243,8 @@ def parse_zmatrix(
         Z-matrix itself, but this function will not automatically separate
         the symbol definitions from the Z-matrix.
 
-    Returns:
+    Returns
+    -------
 
     atoms: Atoms object
     """

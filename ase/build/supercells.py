@@ -238,7 +238,8 @@ def find_optimal_cell_shape(
     allow transformation matrices with negative determinants, boosting
     performance.
 
-    Parameters:
+    Parameters
+    ----------
 
     cell: 2D array of floats
         Metric given as a (3x3 matrix) of the input structure.
@@ -257,7 +258,8 @@ def find_optimal_cell_shape(
     score_key: str
         key from all_score_funcs to select score function.
 
-    Returns:
+    Returns
+    -------
         2D array of integers: Transformation matrix that produces the
         optimal supercell.
     """
@@ -316,7 +318,8 @@ def make_supercell(prim, P, *, wrap=True, order="cell-major", tol=1e-5):
     configuration `\mathbf{h}_p` by `\mathbf{P h}_p =
     \mathbf{h}`.
 
-    Parameters:
+    Parameters
+    ----------
 
     prim: ASE Atoms object
         Input configuration.

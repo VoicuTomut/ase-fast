@@ -15,7 +15,8 @@ def graphene_nanoribbon(n, m, type='zigzag', saturated=False, C_H=1.09,
     Creates a graphene nanoribbon in the x-z plane, with the nanoribbon
     running along the z axis.
 
-    Parameters:
+    Parameters
+    ----------
 
     n: int
         The width of the nanoribbon.  For armchair nanoribbons, this

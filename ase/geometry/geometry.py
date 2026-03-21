@@ -43,7 +43,8 @@ def wrap_positions(positions, cell, pbc=True, center=(0.5, 0.5, 0.5),
     fit inside the space spanned by these vectors.  See also the
     :meth:`ase.Atoms.wrap` method.
 
-    Parameters:
+    Parameters
+    ----------
 
     positions: float ndarray of shape (n, 3)
         Positions of the atoms
@@ -103,7 +104,8 @@ def get_layers(atoms, miller, tolerance=0.001):
     """Returns two arrays describing which layer each atom belongs
     to and the distance between the layers and origo.
 
-    Parameters:
+    Parameters
+    ----------
 
     miller: 3 integers
         The Miller indices of the planes. Actually, any direction
@@ -114,7 +116,8 @@ def get_layers(atoms, miller, tolerance=0.001):
         The maximum distance in Angstrom along the plane normal for
         counting two atoms as belonging to the same plane.
 
-    Returns:
+    Returns
+    -------
 
     tags: array of integres
         Array of layer indices for each atom.

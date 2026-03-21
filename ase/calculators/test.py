@@ -125,7 +125,8 @@ class TestPotential(Calculator):
 class FreeElectrons(Calculator):
     """Free-electron band calculator.
 
-    Parameters:
+    Parameters
+    ----------
 
     nvalence: int
         Number of electrons

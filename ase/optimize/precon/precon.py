@@ -84,7 +84,8 @@ class Precon(ABC):
                 do not currently have a value (ie, the first time this
                 function is called).
 
-        Returns:
+        Returns
+        -------
             P: A sparse scipy csr_matrix. BE AWARE that using
                 numpy.dot() with sparse matrices will result in
                 errors/incorrect results - use the .dot method directly
@@ -184,7 +185,8 @@ class SparsePrecon(Precon):
                  neighbour_list=neighbor_list):
         """Initialise a preconditioner object based on passed parameters.
 
-        Parameters:
+        Parameters
+        ----------
             r_cut: float. This is a cut-off radius. The preconditioner matrix
                 will be created by considering pairs of atoms that are within a
                 distance r_cut of each other. For a regular lattice, this is
@@ -241,7 +243,8 @@ class SparsePrecon(Precon):
                 ASE neighbour list with an alternative with the same call
                 signature, e.g. `matscipy.neighbours.neighbour_list`.
 
-        Raises:
+        Raises
+        ------
             ValueError for problem with arguments
 
         """
@@ -333,7 +336,8 @@ class SparsePrecon(Precon):
                 Magnitude of deformation to apply.
                 Default is 1e-2*rNN*np.eye(3)
 
-        Returns:
+        Returns
+        -------
             mu   : float
             mu_c : float or None
         """
@@ -527,7 +531,8 @@ class SparseCoeffPrecon(SparsePrecon):
         Args:
             atoms: the Atoms object used to create the preconditioner.
 
-        Returns:
+        Returns
+        -------
             A scipy.sparse.csr_matrix object, representing a d*N by d*N matrix
             (where N is the number of atoms, and d is the value of self.dim).
             BE AWARE that using numpy.dot() with this object will result in
@@ -1112,7 +1117,8 @@ class Exp_FF(Exp, FF):
         Args:
             atoms: the Atoms object used to create the preconditioner.
 
-        Returns:
+        Returns
+        -------
             A scipy.sparse.csr_matrix object, representing a d*N by d*N matrix
             (where N is the number of atoms, and d is the value of self.dim).
             BE AWARE that using numpy.dot() with this object will result in
@@ -1324,7 +1330,8 @@ class PreconImages:
             all_forces (array): forces on images, shape (nimages, natoms, 3)
             index (slice, optional): Which images to include. Defaults to all.
 
-        Returns:
+        Returns
+        -------
             precon_forces: array of preconditioned forces
         """
         if index is None:
@@ -1347,7 +1354,8 @@ class PreconImages:
             j (int): right image
             dx (array): vector
 
-        Returns:
+        Returns
+        -------
             norm: norm of vector wrt average of precons at i and j
         """
         return np.sqrt(0.5 * (self.precon[i].dot(dx, dx) +
@@ -1359,7 +1367,8 @@ class PreconImages:
         Args:
             i (int): image of interest
 
-        Returns:
+        Returns
+        -------
             tangent: tangent vector, normalised with appropriate precon norm
         """
         tangent = self.spline.dx_ds(self.spline.s[i])
@@ -1380,7 +1389,8 @@ class PreconImages:
             k2 (float): spring constant for right spring
             tangent (array): tangent vector, shape (natoms, 3)
 
-        Returns:
+        Returns
+        -------
             eta: NEB spring forces, shape (natoms, 3)
         """
         # Definition following Eq. 9 in Paper IV
@@ -1398,7 +1408,8 @@ class PreconImages:
             positions (list or array, optional) - images positions.
                 Shape either (nimages * natoms, 3) or ((nimages-2)*natoms, 3)
 
-        Returns:
+        Returns
+        -------
             s : array shape (nimages,), reaction coordinates, in range [0, 1]
             x : array shape (nimages, 3 * natoms), flat displacement vectors
         """
@@ -1432,7 +1443,8 @@ class PreconImages:
     def spline_fit(self, positions=None):
         """Fit 3 * natoms cubic splines as a function of reaction coordinate
 
-        Returns:
+        Returns
+        -------
             fit : :class:`ase.optimize.precon.SplineFit` object
         """
         s, x = self.get_coordinates(positions)

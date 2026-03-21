@@ -35,7 +35,8 @@ def parse_output(info_out_file_path):
 
     Args:
         info_out_file_path: path to an INFO.out exciting output file.
-    Returns:
+    Returns
+    -------
         A dictionary containing information about how the calculation was setup
         and results from the calculations SCF cycles.
     """
@@ -100,7 +101,8 @@ def ase_atoms_from_exciting_input_xml(
     Args:
         input_xml_path: Path where input.xml file lives.
 
-    Returns:
+    Returns
+    -------
         ASE atoms object with all the relevant fields filled.
     """
     from excitingtools.exciting_obj_parsers.input_xml import parse_input_xml

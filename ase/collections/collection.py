@@ -33,7 +33,8 @@ class Collection:
         A collection can be iterated over to get the Atoms objects and indexed
         with names to get individual members.
 
-        Attributes:
+        Attributes
+        ----------
 
         name: str
             Name of collection.

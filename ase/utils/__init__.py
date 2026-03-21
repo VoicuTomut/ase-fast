@@ -375,7 +375,8 @@ class OpenLock:
 def search_current_git_hash(arg, world=None):
     """Search for .git directory and current git commit hash.
 
-    Parameters:
+    Parameters
+    ----------
 
     arg: str (directory path) or python module
         .git directory is searched from the parent directory of

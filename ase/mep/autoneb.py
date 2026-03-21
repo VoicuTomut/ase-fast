@@ -73,7 +73,8 @@ class AutoNEB:
 
            Step 4 and 5-6 are optional steps!
 
-    Parameters:
+    Parameters
+    ----------
 
     attach_calculators:
         Function which adds valid calculators to the list of images supplied.

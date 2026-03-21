@@ -101,7 +101,8 @@ def bandgap(calc=None, direct=False, spin=_deprecated,
             eigenvalues=None, efermi=None, output=None, kpts=None):
     """Calculates the band-gap.
 
-    Parameters:
+    Parameters
+    ----------
 
     calc: Calculator object
         Electronic structure calculator object.

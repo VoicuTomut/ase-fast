@@ -24,7 +24,8 @@ def Trajectory(filename, mode='r', atoms=None, properties=None, master=None,
                comm=world):
     """A Trajectory can be created in read, write or append mode.
 
-    Parameters:
+    Parameters
+    ----------
 
     filename: str | Path
         The name/path of the file.  Traditionally ends in .traj.
@@ -65,7 +66,8 @@ class TrajectoryWriter:
                  master=None, comm=world):
         """A Trajectory writer, in write or append mode.
 
-        Parameters:
+        Parameters
+        ----------
 
         filename: str | Path
             The name of the file.  Traditionally ends in .traj.

@@ -37,7 +37,8 @@ class Symbols(collections.abc.Sequence):
     object works like an editable view of ``atoms.numbers``, except
     its elements are manipulated as strings.
 
-    Examples:
+    Examples
+    --------
 
     >>> from ase.build import molecule
     >>> atoms = molecule('CH3CH2OH')

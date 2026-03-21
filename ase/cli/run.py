@@ -223,7 +223,8 @@ class Runner:
 def str2dict(s: str, namespace={}, sep: str = '=') -> dict[str, Any]:
     """Convert comma-separated key=value string to dictionary.
 
-    Examples:
+    Examples
+    --------
 
     >>> str2dict('xc=PBE,nbands=200,parallel={band:4}')
     {'xc': 'PBE', 'nbands': 200, 'parallel': {'band': 4}}

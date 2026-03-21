@@ -170,7 +170,8 @@ def add_adsorbate(slab, adsorbate, height, position=(0, 0), offset=None,
     This function can be called multiple times to add more than one
     adsorbate.
 
-    Parameters:
+    Parameters
+    ----------
 
     slab: The surface onto which the adsorbate should be added.
 
@@ -253,7 +254,8 @@ def add_adsorbate(slab, adsorbate, height, position=(0, 0), offset=None,
 def add_vacuum(atoms, vacuum):
     """Add vacuum layer to the atoms.
 
-    Parameters:
+    Parameters
+    ----------
 
     atoms: Atoms object
         Most likely created by one of the surface functions.

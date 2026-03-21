@@ -510,12 +510,12 @@ def get_compression(filename: str) -> tuple[str, str | None]:
     ('crystal.cif', None)
 
     Parameters
-    ==========
+    ----------
     filename: str
         Full filename including extension.
 
     Returns
-    =======
+    -------
     (root, extension): (str, str or None)
         Filename split into root without extension, and the extension
         indicating compression format. Will not split if compression
@@ -547,7 +547,7 @@ def open_with_compression(filename: str, mode: str = 'r') -> IO:
        * 'rb, 'wb' for binary read and write.
 
     Parameters
-    ==========
+    ----------
     filename: str
         Path to the file to open, including any extensions that indicate
         the compression used.
@@ -555,7 +555,7 @@ def open_with_compression(filename: str, mode: str = 'r') -> IO:
         Mode to open the file, same as for builtin ``open``, e.g 'r', 'w'.
 
     Returns
-    =======
+    -------
     fd: file
         File-like object open with the specified mode.
     """

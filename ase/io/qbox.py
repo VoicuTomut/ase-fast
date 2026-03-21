@@ -21,7 +21,8 @@ def read_qbox(f, index=-1):
         f - str or fileobj, path to file or file object to read from
         index - int or slice, which frames to return
 
-    Returns:
+    Returns
+    -------
         list of Atoms or atoms, requested frame(s)
     """
 
@@ -102,7 +103,8 @@ def _find_blocks(fp, tag, stopwords='[qbox]'):
         stopwords - str, halt parsing if a line containing this string
                     is encountered
 
-    Returns:
+    Returns
+    -------
         list of xml.ElementTree, parsed XML blocks found by this class
     """
 

@@ -122,7 +122,8 @@ def reduction_full(B):
 def is_minkowski_reduced(cell, pbc=True):
     """Tests if a cell is Minkowski-reduced.
 
-    Parameters:
+    Parameters
+    ----------
 
     cell: array
         The lattice basis to test (in row-vector format).
@@ -130,7 +131,8 @@ def is_minkowski_reduced(cell, pbc=True):
         The periodic boundary conditions of the cell (Default `True`).
         If `pbc` is provided, only periodic cell vectors are tested.
 
-    Returns:
+    Returns
+    -------
 
     is_reduced: bool
         True if cell is Minkowski-reduced, False otherwise.
@@ -210,7 +212,8 @@ def minkowski_reduce(cell, pbc=True):
     ACM Trans. Algorithms 5(4) 46:1--46:48, 2009
     :doi:`10.1145/1597036.1597050`
 
-    Parameters:
+    Parameters
+    ----------
 
     cell: array
         The lattice basis to reduce (in row-vector format).
@@ -218,7 +221,8 @@ def minkowski_reduce(cell, pbc=True):
         The periodic boundary conditions of the cell (Default `True`).
         If `pbc` is provided, only periodic cell vectors are reduced.
 
-    Returns:
+    Returns
+    -------
 
     rcell: array
         The reduced lattice basis.

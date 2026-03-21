@@ -53,7 +53,8 @@ class BundleTrajectory:
     inspired from bundles in Mac OS, which are really just directories
     the user is supposed to think of as a single file-like unit).
 
-    Parameters:
+    Parameters
+    ----------
 
     filename:
         The name of the directory.  Preferably ending in .bundle.
@@ -273,7 +274,8 @@ class BundleTrajectory:
     def set_extra_data(self, name, source=None, once=False):
         """Adds extra data to be written.
 
-        Parameters:
+        Parameters
+        ----------
         name:  The name of the data.
 
         source (optional): If specified, a callable object returning
@@ -434,7 +436,8 @@ class BundleTrajectory:
     def _open_write(self, atoms, backup, backend):
         """Open a bundle trajectory for writing.
 
-        Parameters:
+        Parameters
+        ----------
         atoms: Object to be written.
         backup: (bool) Whether a backup is kept if file already exists.
         backend: Which type of backend to use.
@@ -522,7 +525,8 @@ class BundleTrajectory:
         If there is no pre-existing bundle, it is just opened in write mode
         instead.
 
-        Parameters:
+        Parameters
+        ----------
         atoms:  Object to be written.
         backend:  The backend to be used if a new bundle is opened.  Ignored
                   if we append to existing bundle, as the backend cannot be

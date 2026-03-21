@@ -58,12 +58,14 @@ class MOPAC(FileIOCalculator):
                  label='mopac', atoms=None, **kwargs):
         """Construct MOPAC-calculator object.
 
-        Parameters:
+        Parameters
+        ----------
 
         label: str
             Prefix for filenames (label.mop, label.out, ...)
 
-        Examples:
+        Examples
+        --------
 
         Use default values to do a single SCF calculation and print
         the forces (task='1SCF GRADIENTS'):
@@ -170,7 +172,8 @@ class MOPAC(FileIOCalculator):
 
     def read_atoms_from_file(self, lines):
         """Read the Atoms from the output file stored as list of str in lines.
-        Parameters:
+        Parameters
+        ----------
 
             lines: list of str
         """
@@ -195,7 +198,8 @@ class MOPAC(FileIOCalculator):
     def read_parameters_from_file(self, lines):
         """Find and return the line that defines a Mopac calculation
 
-        Parameters:
+        Parameters
+        ----------
 
             lines: list of str
         """

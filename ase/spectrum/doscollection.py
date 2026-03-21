@@ -38,7 +38,8 @@ class DOSCollection(collections.abc.Sequence):
             smearing: selection of broadening kernel (only "Gauss" is currently
                 supported)
 
-        Returns:
+        Returns
+        -------
             Weights sampled from a broadened DOS at values corresponding to x,
             in rows corresponding to DOSData entries contained in this object
         """
@@ -78,7 +79,8 @@ class DOSCollection(collections.abc.Sequence):
             mplargs: additional arguments to pass to matplotlib plot command
                 (e.g. {'linewidth': 2} for a thicker line).
 
-        Returns:
+        Returns
+        -------
             Plotting axes. If "ax" was set, this is the same object.
         """
         return self.sample_grid(npts,
@@ -111,7 +113,8 @@ class DOSCollection(collections.abc.Sequence):
             width: Width of broadening kernel, passed to self.sample_grid()
             smearing: selection of broadening kernel, for self.sample_grid()
 
-        Returns:
+        Returns
+        -------
             (energy values, sampled DOS)
         """
         if len(self) == 0:
@@ -147,7 +150,8 @@ class DOSCollection(collections.abc.Sequence):
                 datasets
             info: sequence of info dicts corresponding to weights rows.
 
-        Returns:
+        Returns
+        -------
             Collection of DOS data (in RawDOSData format)
         """
 
@@ -453,7 +457,8 @@ class GridDOSCollection(DOSCollection):
                 datasets
             info: sequence of info dicts corresponding to weights rows.
 
-        Returns:
+        Returns
+        -------
             Collection of DOS data (in RawDOSData format)
         """
 
@@ -570,7 +575,8 @@ class GridDOSCollection(DOSCollection):
             mplargs: additional arguments to pass to matplotlib plot command
                 (e.g. {'linewidth': 2} for a thicker line).
 
-        Returns:
+        Returns
+        -------
             Plotting axes. If "ax" was set, this is the same object.
         """
 

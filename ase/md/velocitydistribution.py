@@ -211,7 +211,8 @@ def n_BE(temp, omega):
         temp: temperature converted to eV (*units.kB)
         omega: sequence of frequencies converted to eV
 
-    Returns:
+    Returns
+    -------
         Value of Bose-Einstein distribution function for each energy
 
     """

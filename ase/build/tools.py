@@ -19,7 +19,8 @@ def cut(atoms, a=(1, 0, 0), b=(0, 1, 0), c=None, clength=None,
     integer multiples of 1/2 or 1/3 might also make sense for some
     directions (and will be treated correctly).
 
-    Parameters:
+    Parameters
+    ----------
 
     atoms: Atoms instance
         This should correspond to a repeatable unit cell.
@@ -447,7 +448,8 @@ def niggli_reduce(atoms):
     maximally reduced, it will be converted into its unique Niggli unit cell.
     This will also wrap all atoms into the new unit cell.
 
-    References:
+    References
+    ----------
 
     Niggli, P. "Krystallographische und strukturtheoretische Grundbegriffe.
     Handbuch der Experimentalphysik", 1928, Vol. 7, Part 1, 108-176.

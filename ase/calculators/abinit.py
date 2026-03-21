@@ -127,7 +127,7 @@ class Abinit(GenericFileIOCalculator):
         """Construct ABINIT-calculator object.
 
         Examples
-        ========
+        --------
         Use default values:
 
         >>> h = Atoms('H', calculator=Abinit(ecut=200, toldfe=0.001))
