@@ -23,12 +23,13 @@ class RFO(BFGS):
     """
 
     # default parameters
-    defaults = {**BFGS.defaults, 'damping': 1.0}
+    defaults = {**BFGS.defaults, 'damping': 1.0, 'eigsh_maxiter': 50}
 
     def __init__(
         self,
         *args,
         damping: float | None = None,
+        eigsh_maxiter: int | None = None,
         **kwargs,
     ):
         """
@@ -42,6 +43,10 @@ class RFO(BFGS):
             rational function damped steps. The larger the value, the larger
             and stronger the damped regime. (default is 1.0 Å^-1).
 
+        eigsh_maxiter: int
+            Maximum number of eigsh iterations done before falling back to eigh
+            for solving the RFO step.
+
         **kwargs
             Keyword arguments passed to :class:`~ase.optimize.BFGS`.
         """
@@ -49,6 +54,11 @@ class RFO(BFGS):
             self.damping = self.defaults['damping']
         else:
             self.damping = damping
+
+        if eigsh_maxiter is None:
+            self.eigsh_maxiter = self.defaults['eigsh_maxiter']
+        else:
+            self.eigsh_maxiter = eigsh_maxiter
 
         super().__init__(*args, **kwargs)
 
@@ -78,7 +88,11 @@ class RFO(BFGS):
         # issues
         try:
             V = scipy.sparse.linalg.eigsh(
-                self.aug_H, k=1, which='SA', v0=self.v0, maxiter=50
+                self.aug_H,
+                k=1,
+                which='SA',
+                v0=self.v0,
+                maxiter=self.eigsh_maxiter,
             )[1]
         except scipy.sparse.linalg.ArpackNoConvergence:
             V = scipy.linalg.eigh(self.aug_H, subset_by_index=(0, 0))[1]
