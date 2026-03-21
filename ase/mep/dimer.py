@@ -502,6 +502,8 @@ class MinModeAtoms:
     along the eigenmode estimate. This eventually brings the system to
     a saddle point.
 
+    [1]_ [2]_ [3]_ [4]_
+
     Parameters
     ----------
 
@@ -517,8 +519,8 @@ class MinModeAtoms:
         The seed used for the random number generator. Defaults to
         modified version the current time.
 
-    References: [1]_ [2]_ [3]_ [4]_
-
+    References
+    ----------
     .. [1] Henkelman and Jonsson, JCP 111, 7010 (1999)
     .. [2] Olsen, Kroes, Henkelman, Arnaldsson, and Jonsson, JCP 121,
            9776 (2004).

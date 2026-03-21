@@ -75,7 +75,9 @@ def cut(atoms, a=(1, 0, 0), b=(0, 1, 0), c=None, clength=None,
         *nlayers* atomic layers is obtained, when the number of atoms
         exceeds *maxatoms*.
 
-    Example: Create an aluminium (111) slab with three layers.
+    Examples
+    --------
+    Create an aluminium (111) slab with three layers.
 
     >>> import ase
     >>> from ase.spacegroup import crystal

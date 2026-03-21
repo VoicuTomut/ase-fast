@@ -114,6 +114,8 @@ class AutoNEB:
         while one set to 0 will result in only images for energy
         resolution.
 
+    Notes
+    -----
     The AutoNEB method uses a fixed file-naming convention.
     The initial images should have the naming prefix000.traj, prefix001.traj,
     ... up until the final image in prefix00N.traj
@@ -124,9 +126,12 @@ class AutoNEB:
     currently in the NEB.
 
     The most recent NEB path can always be monitored by:
+
+    ..code-block:: bash
+
         $ ase-gui -n -1 neb???.traj
 
-    .. deprecated: 3.22.0
+    .. deprecated:: 3.22.0
         Passing ``optimizer`` as a string is deprecated. Use an ``Optimizer``
         object instead.
     """

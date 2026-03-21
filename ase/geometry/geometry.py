@@ -62,8 +62,8 @@ def wrap_positions(positions, cell, pbc=True, center=(0.5, 0.5, 0.5),
         Small number to prevent slightly negative coordinates from being
         wrapped.
 
-    Example:
-
+    Examples
+    --------
     >>> from ase.geometry import wrap_positions
     >>> wrap_positions([[-0.1, 1.01, -0.5]],
     ...                [[1, 0, 0], [0, 1, 0], [0, 0, 4]],
