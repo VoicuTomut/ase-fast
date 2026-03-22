@@ -200,8 +200,8 @@ def get_calculator_class(name):
         from gpaw import GPAW as Calculator
     elif name == 'hotbit':
         from hotbit import Calculator
-    elif name == 'vasp2':
-        from ase.calculators.vasp import Vasp2 as Calculator
+    elif name == 'vasp':
+        from ase.calculators.vasp import Vasp as Calculator
     elif name == 'ace':
         from ase.calculators.acemolecule import ACE as Calculator
     elif name == 'Psi4':

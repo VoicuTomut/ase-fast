@@ -783,7 +783,7 @@ Calculators:
   :class:`ase.calculators.socketio.SocketIOCalculator`.
 
 * :class:`~ase.calculators.vasp.Vasp` now uses the newer implementation
-  formerly known as ``Vasp2``. ``Vasp2`` is deprecated.
+  formerly known as ``Vasp2``. ``Vasp2`` is deprecated. (:mr:`2236`)
 
 * Added smooth cutoff option to :class:`ase.calculators.lj.LennardJones`.
   This makes the forces continuous as atoms move past the cutoff radius.

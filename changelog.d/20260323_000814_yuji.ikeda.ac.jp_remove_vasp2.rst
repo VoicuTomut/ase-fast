@@ -1,0 +1,5 @@
+Calculators
+-----------
+
+- Removed `Vasp2` deprecated as of ASE 3.21.0 (:mr:`4030`)
+
