@@ -1,17 +1,19 @@
-# fmt: off
 import numpy as np
 import pytest
 from pytest import approx
 
 from ase import Atoms, units
+from ase.calculators.calculator import PropertyNotImplementedError
 from ase.calculators.emt import EMT
+from ase.calculators.fd import (
+    calculate_numerical_forces,
+    calculate_numerical_stress,
+)
 from ase.calculators.idealgas import IdealGas
 from ase.calculators.lj import LennardJones
 from ase.calculators.plumed import restart_from_trajectory
 from ase.io.trajectory import Trajectory
 from ase.md.verlet import VelocityVerlet
-from ase.calculators.calculator import PropertyNotImplementedError
-from ase.calculators.fd import calculate_numerical_forces, calculate_numerical_stress
 
 
 @pytest.mark.calculator_lite()
@@ -34,116 +36,162 @@ def test_units(factory):
     r = 1 Angstrom
     r0 = 1.1 nm
 
-    considering r in nm, V = 1 kJ/mol and the forces F(r) = 2 kJ/(mol*nm) """
+    considering r in nm, V = 1 kJ/mol and the forces F(r) = 2 kJ/(mol*nm)"""
 
-    set_plumed = ["e: ENERGY",                         # check energy units
-                  "d: DISTANCE ATOMS=1,2",             # check distance units
-                  "LOWER_WALLS ARG=d AT=1.1 KAPPA=1",  # check forces recieved
-                  "DUMPMASSCHARGE FILE=mass_charge",   # check mass and charges
-                  "PRINT ARG=e,d FILE=COLVAR",
-                  "FLUSH STRIDE=1"]
+    set_plumed = [
+        'e: ENERGY',  # check energy units
+        'd: DISTANCE ATOMS=1,2',  # check distance units
+        'LOWER_WALLS ARG=d AT=1.1 KAPPA=1',  # check forces recieved
+        'DUMPMASSCHARGE FILE=mass_charge',  # check mass and charges
+        'PRINT ARG=e,d FILE=COLVAR',
+        'FLUSH STRIDE=1',
+    ]
 
     # execution
     atoms = Atoms('CO', positions=[[0, 0, 0], [0, 0, 1]], charges=[0, 1])
 
     timestep = 1
     calc = IdealGas()
-    with factory.calc(calc=calc,
-                      input=set_plumed,
-                      timestep=timestep,
-                      atoms=atoms,
-                      use_charge=True) as calc:
+    with factory.calc(
+        calc=calc,
+        input=set_plumed,
+        timestep=timestep,
+        atoms=atoms,
+        use_charge=True,
+    ) as calc:
         ener, forces, virial = atoms.calc.compute_bias(
             atoms.get_positions(), 1, atoms.get_potential_energy()
         )
         files = calc.read_plumed_files()
 
     # the next values are in ase units
-    ase_values = {'time': 1,
-                  'energy': ener,
-                  'distance': 1,
-                  'masses': atoms.get_masses(),
-                  'charges': atoms.get_initial_charges(),
-                  'forces': forces,
-                  'virial': virial}
+    ase_values = {
+        'time': 1,
+        'energy': ener,
+        'distance': 1,
+        'masses': atoms.get_masses(),
+        'charges': atoms.get_initial_charges(),
+        'forces': forces,
+        'virial': virial,
+    }
 
     # The next values are in plumed units.
-    plumed_values = {'time': files['COLVAR'][0][-1],
-                     'energy': files['COLVAR'][1][-1],
-                     'distance': files['COLVAR'][2][-1],
-                     'masses': files['mass_charge'][1],
-                     'charges': files['mass_charge'][2],
-                     'forces': np.array([[0, 0, -2], [0, 0, 2]]),
-                     'virial': np.array([[0, 0, 0], [0, 0, 0], [0, 0, -0.2]])}
+    plumed_values = {
+        'time': files['COLVAR'][0][-1],
+        'energy': files['COLVAR'][1][-1],
+        'distance': files['COLVAR'][2][-1],
+        'masses': files['mass_charge'][1],
+        'charges': files['mass_charge'][2],
+        'forces': np.array([[0, 0, -2], [0, 0, 2]]),
+        'virial': np.array([[0, 0, 0], [0, 0, 0], [0, 0, -0.2]]),
+    }
 
-    assert ase_values['time'] * 1 / (1000 * units.fs) == \
-        approx(plumed_values['time'], abs=1E-5), \
-        "error in time units"
-    assert ase_values['energy'] * units.mol / units.kJ == \
-        approx(plumed_values['energy'], abs=1E-5), \
-        "error in energy units"
-    assert ase_values['distance'] * 1 / units.nm == \
-        approx(plumed_values['distance'], abs=1E-5), \
-        "error in distance units"
-    assert ase_values['forces'] * units.nm * units.mol / units.kJ == \
-        approx(plumed_values['forces'], abs=1E-5), \
-        "error in forces units"
-    assert ase_values['masses'] == approx(plumed_values['masses'],
-                                          abs=1E-5), \
-        "error in masses units"
-    assert ase_values['charges'] == approx(plumed_values['charges'],
-                                           abs=1E-5), \
-        "error in charges units"
-    assert ase_values['virial'] * units.mol / units.kJ == \
-        approx(plumed_values['virial'], abs=1E-5), \
-        "error in virial units"
+    assert ase_values['time'] * 1 / (1000 * units.fs) == approx(
+        plumed_values['time'], abs=1e-5
+    ), 'error in time units'
+    assert ase_values['energy'] * units.mol / units.kJ == approx(
+        plumed_values['energy'], abs=1e-5
+    ), 'error in energy units'
+    assert ase_values['distance'] * 1 / units.nm == approx(
+        plumed_values['distance'], abs=1e-5
+    ), 'error in distance units'
+    assert ase_values['forces'] * units.nm * units.mol / units.kJ == approx(
+        plumed_values['forces'], abs=1e-5
+    ), 'error in forces units'
+    assert ase_values['masses'] == approx(plumed_values['masses'], abs=1e-5), (
+        'error in masses units'
+    )
+    assert ase_values['charges'] == approx(
+        plumed_values['charges'], abs=1e-5
+    ), 'error in charges units'
+    assert ase_values['virial'] * units.mol / units.kJ == approx(
+        plumed_values['virial'], abs=1e-5
+    ), 'error in virial units'
 
 
 @pytest.mark.calculator_lite()
 @pytest.mark.calculator('plumed')
 def test_CVs(factory):
-    """ This test calls plumed-ASE calculator for computing some CVs.
+    """This test calls plumed-ASE calculator for computing some CVs.
     Moreover, it computes those CVs directly from atoms.positions and
     compares them"""
     # plumed setting
     ps = 1000 * units.fs
-    set_plumed = [f"UNITS LENGTH=A TIME={1 / ps} ENERGY={units.mol / units.kJ}",
-                  "c1: COM ATOMS=1,2",
-                  "c2: CENTER ATOMS=1,2",
-                  "l: DISTANCE ATOMS=c1,c2",
-                  "d: DISTANCE ATOMS=1,2",
-                  "c: COORDINATION GROUPA=1 GROUPB=2 R_0=100 MM=0 NN=10",
-                  "FLUSH STRIDE=1",
-                  "PRINT ARG=d,c,l STRIDE=10 FILE=COLVAR_test1"]
+    set_plumed = [
+        f'UNITS LENGTH=A TIME={1 / ps} ENERGY={units.mol / units.kJ}',
+        'c1: COM ATOMS=1,2',
+        'c2: CENTER ATOMS=1,2',
+        'l: DISTANCE ATOMS=c1,c2',
+        'd: DISTANCE ATOMS=1,2',
+        'c: COORDINATION GROUPA=1 GROUPB=2 R_0=100 MM=0 NN=10',
+        'FLUSH STRIDE=1',
+        'PRINT ARG=d,c,l STRIDE=10 FILE=COLVAR_test1',
+    ]
 
     # execution
     atoms = Atoms('CO', positions=[[0, 0, 0], [0, 0, 5]])  # CO molecule
     _, colvar = run(factory, [set_plumed, atoms, 5], calc=EMT(), steps=101)
 
     # this compares the time calculated by ASE and plumed
-    timeASE = np.arange(0., 501., 50)
+    timeASE = np.arange(0.0, 501.0, 50)
     timePlumed = colvar['COLVAR_test1'][0]
-    assert timeASE == approx(timePlumed), "Error in time registered by plumed"
+    assert timeASE == approx(timePlumed), 'Error in time registered by plumed'
 
     # This compares the distance of atoms calculated by ASE and plumed
-    distASE = np.array([5., 51.338332, 141.252854, 231.167376, 321.081899,
-                        410.996421, 500.910943, 590.825465, 680.739987,
-                        770.654509, 860.569031])
+    distASE = np.array(
+        [
+            5.0,
+            51.338332,
+            141.252854,
+            231.167376,
+            321.081899,
+            410.996421,
+            500.910943,
+            590.825465,
+            680.739987,
+            770.654509,
+            860.569031,
+        ]
+    )
     distPlumed = colvar['COLVAR_test1'][1]
-    assert distPlumed == approx(distASE), "Error in distance"
+    assert distPlumed == approx(distASE), 'Error in distance'
 
     # this compares the coordination number calculated by ASE and plumed
-    CASE = np.array([1.0000e+00, 9.9873e-01, 3.0655e-02, 2.2900e-04,
-                     9.0000e-06, 1.0000e-06, 0.0000e+00, 0.0000e+00,
-                     0.0000e+00, 0.0000e+00, 0.0000e+00])
+    CASE = np.array(
+        [
+            1.0000e00,
+            9.9873e-01,
+            3.0655e-02,
+            2.2900e-04,
+            9.0000e-06,
+            1.0000e-06,
+            0.0000e00,
+            0.0000e00,
+            0.0000e00,
+            0.0000e00,
+            0.0000e00,
+        ]
+    )
     CPlumed = colvar['COLVAR_test1'][2]
-    assert CASE == approx(CPlumed, abs=1E-5), "Error in coordination number"
+    assert CASE == approx(CPlumed, abs=1e-5), 'Error in coordination number'
 
     # this compares the distance between center of mass and geometrical center
     # calculated by ASE and plumed
-    centersASE = np.array([0.355944, 3.654717, 10.05563, 16.456542, 22.857455,
-                           29.258367, 35.65928, 42.060192, 48.461104,
-                           54.862017, 61.262929])
+    centersASE = np.array(
+        [
+            0.355944,
+            3.654717,
+            10.05563,
+            16.456542,
+            22.857455,
+            29.258367,
+            35.65928,
+            42.060192,
+            48.461104,
+            54.862017,
+            61.262929,
+        ]
+    )
 
     centersPlumed = colvar['COLVAR_test1'][3]
     assert centersASE == approx(centersPlumed)
@@ -161,11 +209,14 @@ def test_metadyn(factory):
     position2 = 6.73693
     forceWithBias = 0.28807
 
-    assert (atoms.get_positions()[0][0] == approx(position1, abs=0.01) and
-            atoms.get_positions()[1][0] == approx(position2, abs=0.01)), \
-        "Error in the metadynamics simulation"
-    assert atoms.get_forces()[0][0] == approx(forceWithBias, abs=0.01), \
-        "Error in the computation of Bias-forces"
+    assert atoms.get_positions()[0][0] == approx(
+        position1, abs=0.01
+    ) and atoms.get_positions()[1][0] == approx(position2, abs=0.01), (
+        'Error in the metadynamics simulation'
+    )
+    assert atoms.get_forces()[0][0] == approx(forceWithBias, abs=0.01), (
+        'Error in the computation of Bias-forces'
+    )
 
 
 @pytest.mark.calculator_lite()
@@ -177,11 +228,13 @@ def test_restart(factory):
 
     # rest of steps with restart
     input, atoms1, timestep = setups()
-    with restart_from_trajectory('test-restart.traj',
-                                 calc=LennardJones(epsilon=10, sigma=6),
-                                 input=input,
-                                 timestep=timestep,
-                                 atoms=atoms1) as atoms1.calc:
+    with restart_from_trajectory(
+        'test-restart.traj',
+        calc=LennardJones(epsilon=10, sigma=6),
+        input=input,
+        timestep=timestep,
+        atoms=atoms1,
+    ) as atoms1.calc:
         with VelocityVerlet(atoms1, timestep) as dyn:
             dyn.run(30)
 
@@ -190,12 +243,15 @@ def test_restart(factory):
     position2 = 6.73693
     forceWithBias = 0.28807
 
-    assert atoms1.get_forces()[0][0] == approx(forceWithBias, abs=0.01), \
-        "Error in restart for the computation of Bias-forces"
+    assert atoms1.get_forces()[0][0] == approx(forceWithBias, abs=0.01), (
+        'Error in restart for the computation of Bias-forces'
+    )
 
-    assert (atoms1.get_positions()[0][0] == approx(position1, abs=0.01) and
-            atoms1.get_positions()[1][0] == approx(position2, abs=0.01)), \
-        "Error in the restart of metadynamics simulation"
+    assert atoms1.get_positions()[0][0] == approx(
+        position1, abs=0.01
+    ) and atoms1.get_positions()[1][0] == approx(position2, abs=0.01), (
+        'Error in the restart of metadynamics simulation'
+    )
 
 
 @pytest.mark.calculator_lite()
@@ -207,10 +263,9 @@ def test_postpro(factory):
 
     params = setups('postpro')
     # Postpro resconstruction
-    with factory.calc(calc=IdealGas(),
-                      input=params[0],
-                      atoms=params[1],
-                      timestep=params[2]) as calc:
+    with factory.calc(
+        calc=IdealGas(), input=params[0], atoms=params[1], timestep=params[2]
+    ) as calc:
         with Trajectory('test-direct.traj') as traj:
             postpr = calc.write_plumed_files(traj)['HILLS_postpro']
 
@@ -227,17 +282,18 @@ def test_pbc(factory):
     traj = [atoms]
 
     ps = 1000 * units.fs
-    setup = [f"UNITS LENGTH=A TIME={1 / ps} ENERGY={units.mol / units.kJ}",
-             "d: DISTANCE ATOMS=1,2",
-             "PRINT ARG=d STRIDE=100 FILE=COLVAR_pbc"]
+    setup = [
+        f'UNITS LENGTH=A TIME={1 / ps} ENERGY={units.mol / units.kJ}',
+        'd: DISTANCE ATOMS=1,2',
+        'PRINT ARG=d STRIDE=100 FILE=COLVAR_pbc',
+    ]
 
-    with factory.calc(calc=IdealGas(),
-                      input=setup,
-                      atoms=atoms,
-                      timestep=1) as calc:
+    with factory.calc(
+        calc=IdealGas(), input=setup, atoms=atoms, timestep=1
+    ) as calc:
         dist = calc.write_plumed_files(traj)['COLVAR_pbc']
 
-    assert dist[1] == 2., "Error in PBC"
+    assert dist[1] == 2.0, 'Error in PBC'
 
 
 @pytest.mark.calculator_lite()
@@ -249,14 +305,15 @@ def test_stress_unbiased(factory):
     atoms.set_pbc(True)
 
     ps = 1000 * units.fs
-    set_plumed = [f"UNITS LENGTH=A TIME={1 / ps} ENERGY={units.mol / units.kJ}",
-                  "d: DISTANCE ATOMS=1,2",
-                  "PRINT ARG=d STRIDE=1 FILE=COLVAR"]
+    set_plumed = [
+        f'UNITS LENGTH=A TIME={1 / ps} ENERGY={units.mol / units.kJ}',
+        'd: DISTANCE ATOMS=1,2',
+        'PRINT ARG=d STRIDE=1 FILE=COLVAR',
+    ]
 
-    with factory.calc(calc=EMT(),
-                      input=set_plumed,
-                      timestep=1,
-                      atoms=atoms) as calc:
+    with factory.calc(
+        calc=EMT(), input=set_plumed, timestep=1, atoms=atoms
+    ) as calc:
         calc.calculate()
         stress_total = calc.results['stress']
         stress_unbiased = calc.calc.get_stress(atoms)
@@ -271,13 +328,11 @@ def test_stress_nobox(factory):
     """Test that stress raises PropertyNotImplementedError when no box exists."""
     atoms = Atoms('H2', positions=[[0, 0, 0], [0, 0, 0.74]])
 
-    set_plumed = ["d: DISTANCE ATOMS=1,2",
-                  "UPPER_WALLS ARG=d AT=0.06 KAPPA=1"]
+    set_plumed = ['d: DISTANCE ATOMS=1,2', 'UPPER_WALLS ARG=d AT=0.06 KAPPA=1']
 
-    with factory.calc(calc=EMT(),
-                      input=set_plumed,
-                      timestep=1,
-                      atoms=atoms) as calc:
+    with factory.calc(
+        calc=EMT(), input=set_plumed, timestep=1, atoms=atoms
+    ) as calc:
         # Stress should not be implemented without a 3D cell
         with pytest.raises(PropertyNotImplementedError):
             atoms.get_stress()
@@ -287,16 +342,18 @@ def test_stress_nobox(factory):
 @pytest.mark.calculator('plumed')
 def test_stress_shape(factory):
     """Test that stress has the correct shape and is computed."""
-    atoms = Atoms('H2', positions=[[0, 0, 0], [0, 0, 0.74]], 
-                  cell=10.0 * np.eye(3), pbc=True)
-    
-    set_plumed = ["d: DISTANCE ATOMS=1,2",
-                  "UPPER_WALLS ARG=d AT=0.06 KAPPA=1"]
+    atoms = Atoms(
+        'H2',
+        positions=[[0, 0, 0], [0, 0, 0.74]],
+        cell=10.0 * np.eye(3),
+        pbc=True,
+    )
 
-    with factory.calc(calc=EMT(),
-                      input=set_plumed,
-                      timestep=1,
-                      atoms=atoms) as calc:
+    set_plumed = ['d: DISTANCE ATOMS=1,2', 'UPPER_WALLS ARG=d AT=0.06 KAPPA=1']
+
+    with factory.calc(
+        calc=EMT(), input=set_plumed, timestep=1, atoms=atoms
+    ) as calc:
         calc.calculate()
         stress = calc.results['stress']
 
@@ -311,38 +368,47 @@ def test_stress_shape(factory):
 def test_forces_and_stress(factory):
     """Test if analytical forces and stress agree with numerical ones."""
     # Create atoms with Plumed calculator for numerical derivative tests
-    atoms = Atoms('H2', positions=[[0, 0, 0], [0, 0, 0.74]], 
-                  cell=10.0 * np.eye(3), pbc=True)
-    
+    atoms = Atoms(
+        'H2',
+        positions=[[0, 0, 0], [0, 0, 0.74]],
+        cell=10.0 * np.eye(3),
+        pbc=True,
+    )
+
     # Perturb first atom to get substantial forces
     atoms.positions[0] += [0.03, 0.02, 0.01]
-    
-    set_plumed = ["d: DISTANCE ATOMS=1,2",
-                  "UPPER_WALLS ARG=d AT=0.06 KAPPA=1"]
-    
-    with factory.calc(calc=EMT(),
-                      input=set_plumed,
-                      timestep=1,
-                      atoms=atoms) as calc:
+
+    set_plumed = ['d: DISTANCE ATOMS=1,2', 'UPPER_WALLS ARG=d AT=0.06 KAPPA=1']
+
+    with factory.calc(
+        calc=EMT(), input=set_plumed, timestep=1, atoms=atoms
+    ) as calc:
         forces = atoms.get_forces()
         numerical_forces = calculate_numerical_forces(atoms, eps=1e-5)
         np.testing.assert_allclose(forces, numerical_forces, atol=1e-5)
 
         stress = atoms.get_stress()
-        numerical_stress = calculate_numerical_stress(atoms, eps=1e-5, force_consistent=False)
+        numerical_stress = calculate_numerical_stress(
+            atoms, eps=1e-5, force_consistent=False
+        )
         np.testing.assert_allclose(stress, numerical_stress, atol=1e-5)
 
 
-def run(factory, inputs, name='',
-        calc=LennardJones(epsilon=10, sigma=6),
-        traj=None, steps=29):
+def run(
+    factory,
+    inputs,
+    name='',
+    calc=LennardJones(epsilon=10, sigma=6),
+    traj=None,
+    steps=29,
+):
     input, atoms, timestep = inputs
-    with factory.calc(calc=calc,
-                      input=input,
-                      timestep=timestep,
-                      atoms=atoms) as atoms.calc:
-        with VelocityVerlet(atoms, timestep,
-                            trajectory=f'test-{name}.traj') as dyn:
+    with factory.calc(
+        calc=calc, input=input, timestep=timestep, atoms=atoms
+    ) as atoms.calc:
+        with VelocityVerlet(
+            atoms, timestep, trajectory=f'test-{name}.traj'
+        ) as dyn:
             dyn.run(steps)
         res = atoms.calc.read_plumed_files()
     return atoms, res
@@ -350,10 +416,12 @@ def run(factory, inputs, name='',
 
 def setups(name=''):
     ps = 1000 * units.fs
-    set_plumed = [f"UNITS LENGTH=A TIME={1 / ps} ENERGY={units.mol / units.kJ}",
-                  "d: DISTANCE ATOMS=1,2",
-                  "FLUSH STRIDE=1",
-                  f"METAD ARG=d SIGMA=0.5 HEIGHT=2 PACE=20 FILE=HILLS_{name}"]
+    set_plumed = [
+        f'UNITS LENGTH=A TIME={1 / ps} ENERGY={units.mol / units.kJ}',
+        'd: DISTANCE ATOMS=1,2',
+        'FLUSH STRIDE=1',
+        f'METAD ARG=d SIGMA=0.5 HEIGHT=2 PACE=20 FILE=HILLS_{name}',
+    ]
     atoms = Atoms('CO', positions=[[0, 0, 0], [6.7, 0, 0]])
     timestep = 0.05
     return set_plumed, atoms, timestep
