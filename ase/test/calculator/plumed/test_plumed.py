@@ -325,14 +325,12 @@ def test_stress_unbiased(factory):
 @pytest.mark.calculator_lite()
 @pytest.mark.calculator('plumed')
 def test_stress_nobox(factory):
-    """Test that stress raises PropertyNotImplementedError when no box exists."""
+    """Test if stress raises PropertyNotImplementedError when no box exists."""
     atoms = Atoms('H2', positions=[[0, 0, 0], [0, 0, 0.74]])
 
     set_plumed = ['d: DISTANCE ATOMS=1,2', 'UPPER_WALLS ARG=d AT=0.06 KAPPA=1']
 
-    with factory.calc(
-        calc=EMT(), input=set_plumed, timestep=1, atoms=atoms
-    ) as calc:
+    with factory.calc(calc=EMT(), input=set_plumed, timestep=1, atoms=atoms):
         # Stress should not be implemented without a 3D cell
         with pytest.raises(PropertyNotImplementedError):
             atoms.get_stress()
@@ -380,9 +378,7 @@ def test_forces_and_stress(factory):
 
     set_plumed = ['d: DISTANCE ATOMS=1,2', 'UPPER_WALLS ARG=d AT=0.06 KAPPA=1']
 
-    with factory.calc(
-        calc=EMT(), input=set_plumed, timestep=1, atoms=atoms
-    ) as calc:
+    with factory.calc(calc=EMT(), input=set_plumed, timestep=1, atoms=atoms):
         forces = atoms.get_forces()
         numerical_forces = calculate_numerical_forces(atoms, eps=1e-5)
         np.testing.assert_allclose(forces, numerical_forces, atol=1e-5)
