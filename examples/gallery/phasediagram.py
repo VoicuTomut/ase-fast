@@ -1,4 +1,4 @@
-""""
+"""
 
 Phase diagrams
 ==============
@@ -24,5 +24,4 @@ references = [
 ]
 pd = PhaseDiagram(references)
 for d in [2, 3]:
-    pd.plot(dims=d, show=False)
-    plt.savefig(f'ktao-{d}d.png')
+    pd.plot(dims=d, show=False, fontsize = 20)
