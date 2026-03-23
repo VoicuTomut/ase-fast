@@ -1,3 +1,13 @@
+"""
+
+Brillouin zones
+==============
+
+
+"""
+
+
+
 # creates: bztable.rst
 # creates: 00.CUB.svg 01.FCC.svg 02.BCC.svg 03.TET.svg 04.BCT1.svg
 # creates: 05.BCT2.svg 06.ORC.svg 07.ORCF1.svg 08.ORCF2.svg 09.ORCF3.svg
@@ -29,6 +39,7 @@ with open('../../doc/ase/dft/bztable.rst', 'w') as fd:
     print(header, file=fd)
 
     for i, lat in enumerate(all_variants()):
+        print(i, lat, lat.bandpath())
         id = f'{i:02d}.{lat.variant}'
         imagefname = f'{id}.svg'
         txt = entry.format(
@@ -41,4 +52,5 @@ with open('../../doc/ase/dft/bztable.rst', 'w') as fd:
         ax = lat.plot_bz()
         fig = ax.get_figure()
         #fig.savefig(imagefname, bbox_inches='tight')
-        #fig.clear()
+        # #fig.clear()
+        break
