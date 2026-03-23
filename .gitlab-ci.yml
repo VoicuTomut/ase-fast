@@ -197,7 +197,7 @@ doc:
     - python -m ase.utils.sphinx run # test scripts
     - sphinx-build -W doc doc/build
     - mv doc/build web-html
-    - grep -n "^ \* " releasenotes.rst
+    - grep -n "^ \* " doc/releasenotes.rst
   cache:
     paths:
       - $PIP_CACHE_DIR
