@@ -510,3 +510,4 @@ Individual Mode Classes
 
 .. autoclass:: RRHOMode
    :members:
+
