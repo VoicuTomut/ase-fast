@@ -4,7 +4,6 @@ Phase diagrams
 ==============
 
 """
-import matplotlib.pyplot as plt
 
 from ase.phasediagram import PhaseDiagram
 
@@ -24,4 +23,4 @@ references = [
 ]
 pd = PhaseDiagram(references)
 for d in [2, 3]:
-    pd.plot(dims=d, show=False, fontsize = 20)
+    pd.plot(dims=d, show=False, fontsize=20)
