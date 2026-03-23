@@ -6,7 +6,6 @@ Nanoparticle
 """
 
 from ase.cluster.cubic import FaceCenteredCubic
-from ase.io import write
 from ase.visualize.plot import plot_atoms
 
 surfaces = [(1, 0, 0), (1, 1, 0), (1, 1, 1)]
