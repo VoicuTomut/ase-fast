@@ -12,18 +12,6 @@ Dissociation of oxygen on Pt(100)
 :download:`o2pt100.py`
 
 
-Phase diagrams
-==============
-
-.. |p2| image:: ../ase/phasediagram/ktao-2d.png
-   :width: 5cm
-.. |p3| image:: ../ase/phasediagram/ktao-3d.png
-   :width: 5cm
-
-|p2| |p3|
-
-:mod:`ase.phasediagram`
-:download:`ktao.py <../ase/phasediagram/ktao.py>`
 
 
 Brillouin zones
