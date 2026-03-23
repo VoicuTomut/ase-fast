@@ -197,7 +197,7 @@ doc:
     - python -m ase.utils.sphinx run # test scripts
     - sphinx-build -W doc doc/build
     - mv doc/build web-html
-    - '! grep -n "^ \* " doc/releasenotes.rst' || echo "Wrong indent in front of \*. Use either zero or two spaces"
+    - '! grep -n "^ \* " doc/releasenotes.rst' || echo "Wrong indent in front of *. Use either zero or two spaces"
   cache:
     paths:
       - $PIP_CACHE_DIR
