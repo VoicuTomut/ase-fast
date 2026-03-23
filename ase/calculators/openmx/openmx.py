@@ -103,9 +103,10 @@ class OpenMX(FileIOCalculator):
         """Convenience method to retrieve a parameter as
         calculator[key] rather than calculator.parameters[key]
 
-            Parameters
+        Parameters
         ----------
-                -key       : str, the name of the parameters to get.
+        key : str
+            Name of the parameters to get.
         """
         return self.parameters[key]
 
@@ -368,9 +369,12 @@ class OpenMX(FileIOCalculator):
 
         Parameters
         ----------
-            - atoms        : The Atoms object to write.
-            - properties   : The properties which should be calculated.
-            - system_changes : List of properties changed since last run.
+        atoms : :class:`~ase.Atoms`
+            ASE :class:`~ase.Atoms` object to write.
+        properties : list[str]
+            Properties which should be calculated.
+        system_changes : list[str]
+            Properties changed since last run.
         """
         # Call base calculator.
         if atoms is None:
@@ -425,10 +429,10 @@ class OpenMX(FileIOCalculator):
     def set(self, **kwargs):
         """Set all parameters.
 
-            Parameters
+        Parameters
         ----------
-                -kwargs  : Dictionary containing the keywords defined in
-                           OpenMXParameters.
+        kwargs : dict
+            Dictionary containing the keywords in :class:`OpenMXParameters`.
         """
 
         for key, value in kwargs.items():
