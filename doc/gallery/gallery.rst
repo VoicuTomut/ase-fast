@@ -38,12 +38,6 @@ Band-structure
 :download:`bs.py <../ase/dft/bs.py>`
 
 
-Nudged elastic band calculations
-================================
-
-
-:mod:`ase.mep.neb`
-
 
 
 Pretty pictures
