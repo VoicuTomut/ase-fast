@@ -101,7 +101,7 @@ Band structure
 .. autoclass:: ase.spectrum.band_structure.BandStructure
    :members:
 
-For the example see the follwoing free electron calculations 
+For an example how to generate band structure figures, see this free electron calculation 
 :ref:`galleryband`
 
 
