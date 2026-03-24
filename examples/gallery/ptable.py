@@ -15,7 +15,8 @@ atoms = ptable()
 atoms.write('ptable.png')
 
 fig, ax = plt.subplots()
-ax = plot_atoms(atoms)
+
+plot_atoms(atoms, ax=ax)
 ax.set_axis_off()
 fig.tight_layout()
 
