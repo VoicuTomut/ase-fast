@@ -69,7 +69,8 @@ class NetCDFTrajectory:
         """
         A NetCDFTrajectory can be created in read, write or append mode.
 
-        Parameters:
+        Parameters
+        ----------
 
         filename:
             The name of the parameter file.  Should end in .nc.

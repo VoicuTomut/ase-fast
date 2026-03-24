@@ -37,7 +37,8 @@ def natural_cutoffs(atoms, mult=1, **kwargs):
 def build_neighbor_list(atoms, cutoffs=None, **kwargs):
     """Automatically build and update a NeighborList.
 
-    Parameters:
+    Parameters
+    ----------
 
     atoms : :class:`~ase.Atoms` object
         Atoms to build Neighborlist for.
@@ -48,7 +49,8 @@ def build_neighbor_list(atoms, cutoffs=None, **kwargs):
         Will be passed to the constructor of
         :class:`~ase.neighborlist.NeighborList`
 
-    Returns:
+    Returns
+    -------
 
     return: :class:`~ase.neighborlist.NeighborList`
         A :class:`~ase.neighborlist.NeighborList` instance (updated).
@@ -65,7 +67,8 @@ def build_neighbor_list(atoms, cutoffs=None, **kwargs):
 def get_distance_matrix(graph, limit=3):
     """Get Distance Matrix from a Graph.
 
-    Parameters:
+    Parameters
+    ----------
 
     graph: array, matrix or sparse matrix, 2 dimensions (N, N)
         Graph representation of the connectivity.
@@ -76,7 +79,8 @@ def get_distance_matrix(graph, limit=3):
         Maximum number of steps to analyze. For most molecular information,
         three should be enough.
 
-    Returns:
+    Returns
+    -------
 
     return: scipy.sparse.csr_matrix, shape (N, N)
         A scipy.sparse.csr_matrix. All elements that are not connected within
@@ -96,7 +100,8 @@ def get_distance_matrix(graph, limit=3):
 def get_distance_indices(distanceMatrix, distance):
     """Get indices for each node that are distance or less away.
 
-    Parameters:
+    Parameters
+    ----------
 
     distanceMatrix: any one of scipy.sparse matrices (NxN)
         Matrix containing distance information of atoms. Get it e.g. with
@@ -104,7 +109,8 @@ def get_distance_indices(distanceMatrix, distance):
     distance: integer
         Number of steps to allow.
 
-    Returns:
+    Returns
+    -------
 
     return: list of length N
         List of length N. return[i] has all indices connected to item i.
@@ -131,7 +137,8 @@ def mic(dr, cell, pbc=True):
     """
     Apply minimum image convention to an array of distance vectors.
 
-    Parameters:
+    Parameters
+    ----------
 
     dr : array_like
         Array of distance vectors.
@@ -141,7 +148,8 @@ def mic(dr, cell, pbc=True):
         Periodic boundary conditions in x-, y- and z-direction. Default is to
         assume periodic boundaries in all directions.
 
-    Returns:
+    Returns
+    -------
 
     dr : array
         Array of distance vectors, wrapped according to the minimum image
@@ -163,7 +171,8 @@ def primitive_neighbor_list(quantities, pbc, cell, positions, cutoff,
     The neighbor list is sorted by first atom index 'i', but not by second
     atom index 'j'.
 
-    Parameters:
+    Parameters
+    ----------
 
     quantities: str
         Quantities to compute by the neighbor list algorithm. Each character
@@ -208,7 +217,8 @@ def primitive_neighbor_list(quantities, pbc, cell, positions, cutoff,
         Maximum number of bins used in neighbor search. This is used to limit
         the maximum amount of memory required by the neighbor list.
 
-    Returns:
+    Returns
+    -------
 
     i, j, ... : array
         Tuple with arrays for each quantity specified above. Indices in `i`
@@ -654,7 +664,8 @@ def first_neighbors(natoms, first_atom):
     Compute an index array pointing to the ranges within the neighbor list that
     contain the neighbors for a certain atom.
 
-    Parameters:
+    Parameters
+    ----------
 
     natoms : int
         Total number of atom.
@@ -662,7 +673,8 @@ def first_neighbors(natoms, first_atom):
         Array containing the first atom 'i' of the neighbor tuple returned
         by the neighbor list.
 
-    Returns:
+    Returns
+    -------
 
     seed : array
         Array containing pointers to the start and end location of the

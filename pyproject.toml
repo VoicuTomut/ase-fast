@@ -104,6 +104,8 @@ select = [
     'E',      # pycodestyle
     'W',      # pycodestyle
     'I',      # isort
+    'D406',   # missing-new-line-after-section-name
+    'D407',   # missing-dashed-underline-after-section
     'UP',     # pyupgrade
     'RUF013', # implicit-optional
 ]

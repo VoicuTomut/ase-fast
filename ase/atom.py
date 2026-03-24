@@ -64,7 +64,8 @@ def xyzproperty(index):
 class Atom:
     """Class for representing a single atom.
 
-    Parameters:
+    Parameters
+    ----------
 
     symbol: str or int
         Can be a chemical symbol (str) or an atomic number (int).

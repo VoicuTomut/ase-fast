@@ -239,7 +239,8 @@ def isolate_components(atoms, kcutoff=None):
 
         3D: The original cell is used. pbc=[1, 1, 1].
 
-    Parameters:
+    Parameters
+    ----------
 
     atoms: ASE atoms object
         The system to analyze.
@@ -247,7 +248,8 @@ def isolate_components(atoms, kcutoff=None):
         The k-value cutoff to use.  Default=None, in which case the
         dimensionality scoring parameter is used to select the cutoff.
 
-    Returns:
+    Returns
+    -------
 
     components: dict
         key: the component dimenionalities.

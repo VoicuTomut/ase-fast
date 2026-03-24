@@ -24,7 +24,8 @@ class TransportCalculator:
     def __init__(self, **kwargs):
         """Create the transport calculator.
 
-        Parameters:
+        Parameters
+        ----------
 
         h : (N, N) ndarray
             Hamiltonian matrix for the central region.
@@ -80,7 +81,8 @@ class TransportCalculator:
         the coupling matrix elements between nearest neighbor
         principal layers in lead1/lead2.
 
-        Examples:
+        Examples
+        --------
 
         >>> import numpy as np
         >>> h = np.array((0,)).reshape((1,1))
@@ -337,7 +339,8 @@ class TransportCalculator:
         I : {float, (M,) ndarray}, units: 2e/h*eV
           Contains the electric current.
 
-        Examples:
+        Examples
+        --------
 
         >> import numpy as np
         >> import pylab as plt

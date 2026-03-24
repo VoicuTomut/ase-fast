@@ -15,7 +15,8 @@ class FixLinearTriatomic(FixConstraint):
 
         n--o--m
 
-        Parameters:
+        Parameters
+        ----------
 
         triples: list
             Indices of the atoms forming the linear molecules to constrain
@@ -28,7 +29,8 @@ class FixLinearTriatomic(FixConstraint):
         the function redistribute_forces_md implements the redistribution
         for molecular dynamics.
 
-        References:
+        References
+        ----------
 
         Ciccotti et al. Molecular Physics 47 (1982)
         :doi:`10.1080/00268978200100942`

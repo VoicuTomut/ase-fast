@@ -179,7 +179,8 @@ class MelchionnaNPT(MolecularDynamics):
     def set_temperature(self, temperature=None, *, temperature_K=None):
         """Set the temperature.
 
-        Parameters:
+        Parameters
+        ----------
 
         temperature: float (deprecated)
             The new temperature in eV.  Deprecated, use ``temperature_K``.

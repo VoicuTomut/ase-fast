@@ -149,7 +149,8 @@ class FixParametricRelations(FixConstraint):
                 to generate the constraint expressions
             use_cell (bool): if True then act on the cell object
 
-        Returns:
+        Returns
+        -------
             cls(
                 indices,
                 Jacobian generated from expressions,

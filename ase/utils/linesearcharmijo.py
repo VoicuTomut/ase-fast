@@ -141,7 +141,8 @@ class RumPath:
         Args:
           alpha : step-length
 
-        Returns:
+        Returns
+        -------
           s : update for positions
         """
         # translation and stretch
@@ -248,7 +249,8 @@ class LineSearchArmijo:
                 is unclear what these parameters are, then leave them at None
             maxstep: maximum allowed displacement in Angstrom. Default is 0.2.
 
-        Returns:
+        Returns
+        -------
             A tuple: (step, func_val, no_update)
 
             step: the final chosen step length, representing the number of
@@ -257,7 +259,8 @@ class LineSearchArmijo:
             no_update: true if the linesearch has not performed any updates of
                 phi or alpha, due to errors or immediate convergence
 
-        Raises:
+        Raises
+        ------
             ValueError for problems with arguments
             RuntimeError for problems encountered during iteration
         """
@@ -381,10 +384,12 @@ class LineSearchArmijo:
         Args:
             The args should be identical to those of self.run().
 
-        Returns:
+        Returns
+        -------
             The suitable initial step-length guess a_start
 
-        Raises:
+        Raises
+        ------
             ValueError for problems with arguments
 
         """

@@ -46,7 +46,7 @@ class Amber(FileIOCalculator):
         """Construct Amber-calculator object.
 
         Parameters
-        ==========
+        ----------
         label: str
             Name used for all files.  May contain a directory.
         atoms: Atoms object

@@ -83,7 +83,8 @@ class Demon(FileIOCalculator):
         executable, in bash it would be set along the lines of
         export DEMON_COMMAND="deMon.4.3.6.std > deMon_ase.out 2>&1"
 
-        Parameters:
+        Parameters
+        ----------
 
         label : str
             relative path to the run directory
@@ -155,7 +156,8 @@ class Demon(FileIOCalculator):
         """Convenience method to retrieve a parameter as
         calculator[key] rather than calculator.parameters[key]
 
-            Parameters:
+            Parameters
+        ----------
                 key       : str, the name of the parameters to get.
         """
         return self.parameters[key]
@@ -163,7 +165,8 @@ class Demon(FileIOCalculator):
     def set(self, **kwargs):
         """Set all parameters.
 
-        Parameters:
+        Parameters
+        ----------
             kwargs  : Dictionary containing the keywords for deMon
         """
         # Put in the default arguments.
@@ -276,7 +279,8 @@ class Demon(FileIOCalculator):
         """Write input (in)-file.
         See calculator.py for further details.
 
-        Parameters:
+        Parameters
+        ----------
              atoms        : The Atoms object to write.
              properties   : The properties which should be calculated.
              system_changes : List of properties changed since last run.
@@ -431,7 +435,8 @@ class Demon(FileIOCalculator):
     def _write_atomic_coordinates(self, fd, atoms):
         """Write atomic coordinates.
 
-        Parameters:
+        Parameters
+        ----------
         - f:     An open file object.
         - atoms: An atoms object.
         """
@@ -469,7 +474,8 @@ class Demon(FileIOCalculator):
     def _write_basis(self, fd, atoms, basis={}, string='BASIS'):
         """Write basis set, ECPs, AUXIS, or AUGMENT basis
 
-        Parameters:
+        Parameters
+        ----------
         - f:     An open file object.
         - atoms: An atoms object.
         - basis: A dictionary specifying the basis set

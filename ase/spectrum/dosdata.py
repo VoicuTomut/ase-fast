@@ -61,7 +61,8 @@ class DOSData(metaclass=ABCMeta):
             smearing: selection of broadening kernel (only "Gauss" is currently
                 supported)
 
-        Returns:
+        Returns
+        -------
             Weights sampled from a broadened DOS at values corresponding to x
         """
 
@@ -130,7 +131,8 @@ class DOSData(metaclass=ABCMeta):
             smearing: selection of broadening kernel (only 'Gauss' is
                 implemented)
 
-        Returns:
+        Returns
+        -------
             (energy values, sampled DOS)
         """
 
@@ -173,7 +175,8 @@ class DOSData(metaclass=ABCMeta):
                 (e.g. {'linewidth': 2} for a thicker line).
 
 
-        Returns:
+        Returns
+        -------
             Plotting axes. If "ax" was set, this is the same object.
         """
 
@@ -304,7 +307,8 @@ class RawDOSData(GeneralDOSData):
             mplargs: additional arguments to pass to matplotlib Axes.vlines
                 command (e.g. {'linewidth': 2} for a thicker line).
 
-        Returns:
+        Returns
+        -------
             Plotting axes. If "ax" was set, this is the same object.
         """
 
@@ -465,7 +469,8 @@ class GridDOSData(GeneralDOSData):
             mplargs: additional arguments to pass to matplotlib plot command
                 (e.g. {'linewidth': 2} for a thicker line).
 
-        Returns:
+        Returns
+        -------
             Plotting axes. If "ax" was set, this is the same object.
         """
 

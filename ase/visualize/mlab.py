@@ -13,7 +13,8 @@ from ase.io.cube import read_cube_data
 def plot(atoms, data, contours):
     """Plot atoms, unit-cell and iso-surfaces using Mayavi.
 
-    Parameters:
+    Parameters
+    ----------
 
     atoms: Atoms object
         Positions, atomiz numbers and unit-cell.

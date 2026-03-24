@@ -31,7 +31,8 @@ class PickleTrajectory:
                  backup=True, _warn=True):
         """A PickleTrajectory can be created in read, write or append mode.
 
-        Parameters:
+        Parameters
+        ----------
 
         filename:
             The name of the parameter file.  Should end in .traj.

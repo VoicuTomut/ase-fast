@@ -61,7 +61,8 @@ def estimate_nearest_neighbour_distance(atoms,
             ASE neighbour list with an alternative with the same call
             signature, e.g. `matscipy.neighbours.neighbour_list`.
 
-    Returns:
+    Returns
+    -------
         rNN: float
             Nearest neighbour distance
     """

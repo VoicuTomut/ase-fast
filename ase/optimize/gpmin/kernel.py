@@ -28,7 +28,8 @@ class SE_kernel(Kernel):
     def set_params(self, params):
         """Set the parameters of the squared exponential kernel.
 
-        Parameters:
+        Parameters
+        ----------
 
         params: [weight, l] Parameters of the kernel:
             weight: prefactor of the exponential
@@ -66,13 +67,14 @@ class SquaredExponential(SE_kernel):
     list whose first entry is the weight (prefactor of the exponential) and
     the second is the scale (l).
 
-    Parameters:
+    Parameters
+    ----------
 
     dimensionality: The dimensionality of the problem to optimize, typically
                     3*N where N is the number of atoms. If dimensionality is
                     None, it is computed when the kernel method is called.
 
-    Attributes:
+    Attributes
     ----------------
     D:          int. Dimensionality of the problem to optimize
     weight:     float. Multiplicative constant to the exponenetial kernel

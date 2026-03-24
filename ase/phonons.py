@@ -381,7 +381,8 @@ class Phonons(Displacement):
                    /__  ij
                     a
 
-        Parameters:
+        Parameters
+        ----------
 
         neutrality: bool
             Restore charge neutrality condition on calculated Born effective

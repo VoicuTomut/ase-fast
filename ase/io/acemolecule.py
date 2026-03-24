@@ -12,11 +12,11 @@ from ase.io import read
 def parse_geometry(filename):
     '''Read atoms geometry from ACE-Molecule log file and put it to self.data.
     Parameters
-    ==========
+    ----------
     filename: ACE-Molecule log file.
 
     Returns
-    =======
+    -------
     Dictionary of parsed geometry data.
     retval["Atomic_numbers"]: list of atomic numbers
     retval["Positions"]: list of [x, y, z] coordinates for each atoms.
@@ -47,12 +47,12 @@ def read_acemolecule_out(filename):
     '''Interface to ACEMoleculeReader, return values for corresponding quantity
 
     Parameters
-    ==========
+    ----------
     filename: ACE-Molecule log file.
     quantity: One of atoms, energy, forces, excitation-energy.
 
     Returns
-    =======
+    -------
      - quantity = 'excitation-energy':
        returns None. This is placeholder function to run TDDFT calculations
        without IndexError.
@@ -113,11 +113,11 @@ def read_acemolecule_out(filename):
 def read_acemolecule_input(filename):
     '''Reads a ACE-Molecule input file
     Parameters
-    ==========
+    ----------
     filename: ACE-Molecule input file name
 
     Returns
-    =======
+    -------
     ASE atoms object containing geometry only.
     '''
     with open(filename) as fd:

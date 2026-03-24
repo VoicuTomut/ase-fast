@@ -32,7 +32,8 @@ def search_pubchem_raw(search, field, silent=False):
     """
     A helper function for searching pubchem.
 
-    Parameters:
+    Parameters
+    ----------
         search (str or int):
             the compound you are searching for. This can be either
             a common name, CID, or smiles string depending of the
@@ -45,7 +46,8 @@ def search_pubchem_raw(search, field, silent=False):
             'Numberswhich can be found on their website and smiles'
             ' searches for compounds with the entered smiles string.
 
-    returns:
+    returns
+    -------
         data (str):
             a string containing the raw response from pubchem.
     """
@@ -85,11 +87,13 @@ def parse_pubchem_raw(data):
     """
     a helper function for parsing the returned pubchem entries
 
-    Parameters:
+    Parameters
+    ----------
         data (str):
             the raw output from pubchem in string form
 
-    returns:
+    returns
+    -------
         atoms (ASE Atoms Object):
             An ASE atoms obejct containing the information from
             pubchem
@@ -142,7 +146,8 @@ def analyze_input(
     helper function to translate keyword arguments from intialization
     and searching into the search and field that is being asked for
 
-    Parameters:
+    Parameters
+    ----------
         see `ase.data.pubchem.pubchem_search`
     returns:
         search:
@@ -186,7 +191,8 @@ def available_conformer_search(search, field) -> list:
     the conformers of a given structure and returns all the confomer ids
     of a structure.
 
-    Parameters:
+    Parameters
+    ----------
         search (str or int):
             the compound you are searching for. This can be either
             a common name, CID, or smiles string depending of the
@@ -229,7 +235,8 @@ def pubchem_search(*args, **kwargs) -> PubchemData:
     returning a PubchemData object. Note that only one argument may be passed
     in at a time.
 
-    Parameters:
+    Parameters
+    ----------
         name (str):
             the common name of the compound you're searching for
         cid (str or int):
@@ -239,7 +246,8 @@ def pubchem_search(*args, **kwargs) -> PubchemData:
         conformer (str or int):
             the conformer id of the compound you're searching for
 
-    returns:
+    returns
+    -------
         result (PubchemData):
             a pubchem data object containing the information on the
             requested entry
@@ -255,10 +263,12 @@ def pubchem_conformer_search(*args, **kwargs) -> list:
     Search PubChem for all the conformers of a given compound.
     Note that only one argument may be passed in at a time.
 
-    Parameters:
+    Parameters
+    ----------
         see `ase.data.pubchem.pubchem_search`
 
-    returns:
+    returns
+    -------
         conformers (list):
             a list containing the PubchemData objects of all the conformers
             for your search
@@ -274,10 +284,12 @@ def pubchem_atoms_search(*args, **kwargs):
     returning an atoms object.Note that only one argument may be passed
     in at a time.
 
-    Parameters:
+    Parameters
+    ----------
         see `ase.data.pubchem.pubchem_search`
 
-    returns:
+    returns
+    -------
         atoms (ASE Atoms Object):
             an ASE Atoms object containing the information on the
             requested entry
@@ -290,10 +302,12 @@ def pubchem_atoms_conformer_search(*args, **kwargs):
     Search PubChem for all the conformers of a given compound.
     Note that only one argument may be passed in at a time.
 
-    Parameters:
+    Parameters
+    ----------
         see `ase.data.pubchem.pubchem_search`
 
-    returns:
+    returns
+    -------
         conformers (list):
             a list containing the atoms objects of all the conformers
             for your search

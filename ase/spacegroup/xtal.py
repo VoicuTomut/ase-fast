@@ -30,7 +30,8 @@ def crystal(symbols=None, basis=None, occupancies=None, spacegroup=1, setting=1,
     """Create an Atoms instance for a conventional unit cell of a
     space group.
 
-    Parameters:
+    Parameters
+    ----------
 
     symbols : str | sequence of str | sequence of Atom | Atoms
         Element symbols of the unique sites.  Can either be a string
@@ -92,7 +93,8 @@ def crystal(symbols=None, basis=None, occupancies=None, spacegroup=1, setting=1,
     constructor.  Currently, probably the most useful additional
     keyword arguments are `info`, `constraint` and `calculator`.
 
-    Examples:
+    Examples
+    --------
 
     Two diamond unit cells (space group number 227)
 

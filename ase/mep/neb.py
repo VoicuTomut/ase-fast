@@ -633,7 +633,8 @@ class BaseNEB:
         Args:
             norm (str, optional): Norm to use: 'precon' (default) or 'euclidean'
 
-        Returns:
+        Returns
+        -------
             fit: ase.precon.precon.SplineFit instance
         """
         if norm == 'precon':
@@ -655,7 +656,8 @@ class BaseNEB:
             spline_points (int, optional): Number of points. Defaults to 1000.
             bc_type (str, optional): Boundary conditions, default 'not-a-knot'.
 
-        Returns:
+        Returns
+        -------
             s: reaction coordinate in range [0, 1], with `spline_points` entries
             E: result of integrating forces, on the same grid as `s`.
             F: projected forces along MEP

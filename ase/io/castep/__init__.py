@@ -953,7 +953,8 @@ def write_param(filename, param, check_checkfile=False,
                 interface_options=None):
     """Writes a CastepParam object to a CASTEP .param file
 
-    Parameters:
+    Parameters
+    ----------
         filename: the location of the file to write to. If it
         exists it will be overwritten without warning. If it
         doesn't it will be created.

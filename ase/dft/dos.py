@@ -121,7 +121,8 @@ def linear_tetrahedron_integration(cell, eigs, energies,
     comm: communicator object
             MPI communicator for lti_dos
 
-    Returns:
+    Returns
+    -------
 
         DOS as an ndarray of same length as energies or as an
         ndarray of shape (nw, len(energies)).

@@ -410,12 +410,14 @@ def format_unicode(s: str) -> str:
     contained in the string are removed.  HTML numeric character references
     are unescaped (i.e. converted to unicode).
 
-    Parameters:
+    Parameters
+    ----------
 
     s: string
         The CIF text string to convert
 
-    Returns:
+    Returns
+    -------
 
     u: string
         A unicode formatted string.

@@ -447,7 +447,8 @@ def read_vasp_xml(filename='vasprun.xml', index=-1):
     Reads unit cell, atom positions, energies, forces, and constraints
     from vasprun.xml file
 
-    Examples:
+    Examples
+    --------
         >>> import ase.io
         >>> ase.io.write("out.traj", ase.io.read("vasprun.xml", index=":"))
     """
@@ -774,7 +775,8 @@ def _symbol_count_from_symbols(symbols: Symbols) -> list[tuple[str, int]]:
     Args:
         symbols (iterable of str)
 
-    Returns:
+    Returns
+    -------
         list of pairs [(el1, c1), (el2, c2), ...]
 
     Example:
@@ -832,7 +834,8 @@ def write_vasp(
         potential_mapping (dict, optional): Map of symbols to potential file
             (and hash). Only works if `vasp6=True`. See `_symbol_string_count`
 
-    Raises:
+    Raises
+    ------
         RuntimeError: raised if any of these are true:
 
             1. `atoms` is not a single `ase.Atoms` object.
@@ -930,10 +933,12 @@ def _handle_ase_constraints(atoms: Atoms) -> np.ndarray:
     Args:
         atoms (Atoms)
 
-    Returns:
+    Returns
+    -------
         boolean numpy array with dimensions Nx3
 
-    Raises:
+    Raises
+    ------
         RuntimeError: If there is a FixedPlane or FixedLine constraint, that
                       is not parallel to a cell vector.
     """

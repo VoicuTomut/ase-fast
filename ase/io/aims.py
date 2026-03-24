@@ -706,7 +706,8 @@ def parse_species_path(species_array, tier_array, species_dir):
             set size to use for each species/element in the calcualtion.
         species_dir: Directory containing FHI-aims species files.
 
-    Returns:
+    Returns
+    -------
         Dictionary containing species as keys and the basis set specification
             for each species as text as the value for the key.
     """
@@ -741,7 +742,8 @@ def manipulate_tiers(species_string: str, tier: None | int = 1):
         tier: The basis set size. This will dictate which basis set functions
             are included in the returned string.
 
-    Returns:
+    Returns
+    -------
         Basis set functions defined by the tier as a string.
     """
     if tier is None:  # Then we use the default species file untouched.

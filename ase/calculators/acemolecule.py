@@ -57,7 +57,7 @@ class ACE(FileIOCalculator):
         3. Update parameters from arguments.
 
         Returns
-        =======
+        -------
         Updated parameter
         '''
         new_parameters = deepcopy(self.parameters)
@@ -117,7 +117,7 @@ class ACE(FileIOCalculator):
         requested, add Force section to parameters if not exists.
 
         Parameters
-        ==========
+        ----------
         atoms: ASE atoms object.
         properties: List of properties to be calculated. Should be element
             of self.implemented_properties.
@@ -137,12 +137,12 @@ class ACE(FileIOCalculator):
         calculated properties.
 
         Parameters
-        ==========
+        ----------
         geometry_filename: Geometry (XYZ format) file path.
         properties: Properties to be calculated.
 
         Returns
-        =======
+        -------
         Updated version of self.parameters; geometry file and
         optionally Force section are updated.
 
@@ -176,7 +176,7 @@ class ACE(FileIOCalculator):
         '''Write parameters in each section of input
 
         Parameters
-        ==========
+        ----------
         fpt: ACE-Moleucle input file object. Should be write mode.
         section: Dictionary of a parameter section.
         depth: Nested input depth.
@@ -257,14 +257,14 @@ class ACE(FileIOCalculator):
         %% End
 
         Parameters
-        ==========
+        ----------
         fpt: File object, should be write mode.
         param: Dictionary of parameters. Also should contain
                special 'order' section_name for parameter section ordering.
         depth: Nested input depth.
 
         Notes
-        =====
+        -----
          - Order of parameter section
            (denoted using %% -- %% BasicInformation, %% Guess, etc.)
            is important, because it determines calculation order.
@@ -299,7 +299,7 @@ def update_parameter(oldpar, newpar):
     otherwise, add the parameter section and section_name from newpar.
 
     Parameters
-    ==========
+    ----------
     oldpar: dictionary of original parameters to be updated.
     newpar: dictionary containing parameter section and values to update.
 

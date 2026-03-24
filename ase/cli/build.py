@@ -26,7 +26,8 @@ class CLICommand:
 
         ase build -x <crystal structure> <formula> ...
 
-    Examples:
+    Examples
+    --------
 
         ase build Li  # lithium atom
         ase build Li -M 1  # ... with a magnetic moment of 1

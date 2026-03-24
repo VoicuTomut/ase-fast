@@ -15,7 +15,8 @@ from ase.units import GPa
 def calculate_isotropic_elasticity_tensor(bulk_modulus, poisson_ratio,
                                           suppress_rotation=0):
     """
-    Parameters:
+    Parameters
+    ----------
         bulk_modulus Bulk Modulus of the isotropic system used to set up the
                      Hessian (in ASE units (eV/Å^3)).
 

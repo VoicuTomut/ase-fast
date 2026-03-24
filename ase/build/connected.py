@@ -49,7 +49,8 @@ def connected_indices(atoms, index, dmax=None, scale=1.5):
 def separate(atoms, **kwargs):
     """Split atoms into separated entities
 
-    Returns:
+    Returns
+    -------
       List of Atoms object that connected_indices calls connected.
     """
     indices = list(range(len(atoms)))
