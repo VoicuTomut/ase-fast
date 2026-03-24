@@ -92,6 +92,16 @@ def test_neighborlist_vs_distance_matrix():
     assert all(abs(dists_dm_e - dists_nl_e) < eps)
 
 
+def test_multiple_images() -> None:
+    """Test if multiple images can be handled."""
+    atoms = L1_2(['Au', 'Cu'], size=(3, 3, 3), latticeconstant=2 * np.sqrt(2))
+    rmax = 4.2
+    nbins = 100
+    rdf0 = get_rdf(atoms, rmax, nbins)[0]
+    rdf1 = get_rdf([atoms], rmax, nbins)[0]
+    np.testing.assert_array_equal(rdf0, rdf1)
+
+
 def test_partial_rdfs() -> None:
     """Test if partial RDFs satisfy the required conditions."""
     rng = np.random.default_rng(42)

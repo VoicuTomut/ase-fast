@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import math
 from collections.abc import Iterable
+from math import pi
 
 import numpy as np
 
@@ -22,7 +22,7 @@ class VolumeNotDefined(Exception):
 
 
 def get_rdf(
-    atoms: Atoms,
+    atoms: Atoms | Iterable[Atoms],
     rmax: float,
     nbins: int,
     distance_matrix: np.ndarray | None = None,
@@ -40,8 +40,13 @@ def get_rdf(
 
     Parameters
     ----------
-    atoms : Atoms
-        ASE ``Atoms`` object for which the RDF is computed.
+    atoms : Atoms | Iterable[Atoms]
+        :class:`~ase.Atoms` or their iterable for which the RDF is computed.
+
+        .. versionadded:: 3.28.0
+            This can accept an iterable of :class:`~ase.Atoms`
+            to compute the average RDF over the images.
+
     rmax : float
         The maximum distance that will contribute to the RDF.
         The unit cell should be large enough so that it encloses a
@@ -80,11 +85,38 @@ def get_rdf(
     non-periodic.
 
     """
+    images = [atoms] if isinstance(atoms, Atoms) else atoms
+    rdfs = []
+    bin_edges = np.linspace(0.0, rmax, nbins + 1)
+    for atoms in images:
+        rdf = _get_rdf_per_frame(
+            atoms,
+            bin_edges,
+            distance_matrix=distance_matrix,
+            elements=elements,
+            volume=volume,
+        )
+        rdfs.append(rdf)
+    rdf = np.mean(rdfs, axis=0)
+    rr = 0.5 * (bin_edges[:-1] + bin_edges[1:])  # mid point of each bin
+    return rdf if no_dists else (rdf, rr)
 
+
+def _get_rdf_per_frame(
+    atoms: Atoms,
+    bin_edges: np.ndarray,
+    *,
+    elements: Iterable[int | str] | None = None,
+    distance_matrix: np.ndarray | None = None,
+    volume: float | None = None,
+) -> np.ndarray:
     # First check whether the cell is sufficiently large
     vol = atoms.cell.volume if volume is None else volume
     if vol < 1.0e-10:
         raise VolumeNotDefined
+
+    rmax = bin_edges.max()
+    nbins = bin_edges.size - 1
 
     check_cell_and_r_max(atoms, rmax)
 
@@ -132,14 +164,10 @@ def get_rdf(
             x = indices[i_indices][:, j_indices].ravel()
         rdf = np.bincount(x, minlength=nbins + 1)[: nbins + 1].astype(float)
 
-    rr = np.arange(dr / 2, rmax, dr)
-    shell_volumes = 4.0 * math.pi * dr * (rr * rr + (dr * dr / 12))
-    rdf[1:] /= n * rho * shell_volumes
+    shell_vols = 4.0 * pi * dr * (bin_edges**2 + bin_edges * dr + dr**2 / 3.0)
+    rdf[1:] /= n * rho * shell_vols[:-1]
 
-    if no_dists:
-        return rdf[1:]
-
-    return rdf[1:], rr
+    return rdf[1:]
 
 
 def check_cell_and_r_max(atoms: Atoms, rmax: float) -> None:
