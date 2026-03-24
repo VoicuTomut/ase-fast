@@ -206,7 +206,7 @@ an instance and automatically removing a single imaginary frequency.
 However, often imaginary frequencies are artifacts of the numerical
 calculation and cannot be avoided. In the literature, several approaches
 have been proposed to deal with these frequencies. One approach is to invert
-the imaginary frequencies by multiplying them with `-i`, this is
+the imaginary frequencies by multiplying them with :math:`-i`, this is
 the approach taken in the :class:`MSRRHOThermo` class. Below you find a
 variety of one-liner code snippets showing how this could be achieved manually:
 
@@ -340,7 +340,7 @@ and the Helmholtz free energy is calculated as
 In this case, the number of harmonic energies (:math:`\epsilon_i`) used in the
 summation is generally :math:`3N`, where :math:`N` is the number of atoms in the adsorbate.
 If the user assumes that the :math:`pV` term in :math:`H = U + pV` is negligible, then the
-Helmholtz free energy can be used to approximate the Gibbs free energy, as `G =
+Helmholtz free energy can be used to approximate the Gibbs free energy, as :math:`G =
 F + pV`.
 
 Hindered translator / hindered rotor
@@ -447,7 +447,7 @@ The Helmholtz free energy is calculated as:
    F(T) = U(T) - T\, S(T)
 
 If the user assumes that the :math:`pV` term in :math:`H = U + pV` is negligible, then the
-Helmholtz free energy can be used to approximate the Gibbs free energy, as `G =
+Helmholtz free energy can be used to approximate the Gibbs free energy, as :math:`G =
 F + pV`.
 
 Crystalline solid
@@ -510,3 +510,4 @@ Individual Mode Classes
 
 .. autoclass:: RRHOMode
    :members:
+

@@ -855,7 +855,7 @@ class MSRRHOThermo(QuasiHarmonicThermo):
         Defaults to 1.0, check the `Truhlar group database
         <https://comp.chem.umn.edu/freqscale/index.html>`_
         for values corresponding to your level of theory.
-        Note that for `\\nu_{scal}=1.0` this method is equivalent to
+        Note that for :math:`\\nu_{scal}=1.0` this method is equivalent to
         the quasi-RRHO method in :doi:`10.1002/chem.201200497`.
     treat_int_energy : bool
         Extend the msRRHO treatement to the internal energy. If False, only
