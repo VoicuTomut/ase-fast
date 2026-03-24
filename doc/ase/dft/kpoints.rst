@@ -101,11 +101,8 @@ Band structure
 .. autoclass:: ase.spectrum.band_structure.BandStructure
    :members:
 
-Free electron example:
-
-.. literalinclude:: bs.py
-
-.. image:: cu.png
+For an example how to generate band structure figures, see this free electron calculation 
+:ref:`galleryband`
 
 
 Interpolation
