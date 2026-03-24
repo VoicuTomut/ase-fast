@@ -45,15 +45,6 @@ Nudged elastic band calculations
 :mod:`ase.mep.neb`
 
 
-Nanoparticle
-============
-
-.. image:: ../ase/cluster/culayer.png
-   :width: 10cm
-
-:mod:`ase.cluster`
-:download:`cluster.py <../ase/cluster/cluster.py>`
-
 
 Pretty pictures
 ===============
