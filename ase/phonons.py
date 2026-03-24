@@ -607,15 +607,15 @@ class Phonons(Displacement):
         born: bool = False,
         verbose: bool = True,
     ):
-        """Calculate and return the phonon band structure.
+        r"""Calculate and return the phonon band structure.
 
         This method computes the phonon band structure for a given path
         in reciprocal space. It is a wrapper around the internal
         :meth:`~Phonons.band_structure` method of the :class:`Phonons` class.
         The method can optionally calculate and return phonon modes.
 
-        Frequencies and modes are in units of eV and :math:`1/\sqrt{\mathrm{amu}}`,
-        respectively.
+        Frequencies and modes are in units of eV and
+        :math:`1/\sqrt{\mathrm{amu}}`, respectively.
 
         Parameters
         ----------
