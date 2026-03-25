@@ -12,6 +12,27 @@ from docutils import nodes
 from docutils.parsers.rst.roles import set_classes
 
 
+def png_scraper(block, block_vars, gallery_conf):
+    import shutil
+
+    from sphinx_gallery.scrapers import figure_rst
+
+    src_file = Path(block_vars['src_file'])
+    src_dir = src_file.parent
+
+    pngs = sorted(src_dir.glob('*.png'))
+
+    image_names = []
+    image_path_iterator = block_vars['image_path_iterator']
+
+    for png in pngs:
+        this_image_path = image_path_iterator.next()
+        image_names.append(this_image_path)
+        shutil.move(png, this_image_path)
+
+    return figure_rst(image_names, gallery_conf['src_dir'])
+
+
 def mol_role(role, rawtext, text, lineno, inliner, options={}, content=[]):
     n = []
     t = ''
