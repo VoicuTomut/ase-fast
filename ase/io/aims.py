@@ -7,7 +7,7 @@ import time
 import warnings
 from functools import cached_property
 from pathlib import Path
-from typing import Any, Dict, List, Union
+from typing import Any
 
 import numpy as np
 
@@ -224,7 +224,7 @@ def get_aims_header():
     return lines
 
 
-def _write_velocities_alias(args: List, kwargs: Dict[str, Any]) -> bool:
+def _write_velocities_alias(args: list, kwargs: dict[str, Any]) -> bool:
     arg_position = 5
     if len(args) > arg_position and args[arg_position]:
         args[arg_position - 1] = True
@@ -706,7 +706,8 @@ def parse_species_path(species_array, tier_array, species_dir):
             set size to use for each species/element in the calcualtion.
         species_dir: Directory containing FHI-aims species files.
 
-    Returns:
+    Returns
+    -------
         Dictionary containing species as keys and the basis set specification
             for each species as text as the value for the key.
     """
@@ -728,7 +729,7 @@ def parse_species_path(species_array, tier_array, species_dir):
     return species_basis_dict
 
 
-def manipulate_tiers(species_string: str, tier: Union[None, int] = 1):
+def manipulate_tiers(species_string: str, tier: None | int = 1):
     """Adds basis set functions based on the tier value.
 
     This function takes in the species file as a string, it then searches
@@ -741,7 +742,8 @@ def manipulate_tiers(species_string: str, tier: Union[None, int] = 1):
         tier: The basis set size. This will dictate which basis set functions
             are included in the returned string.
 
-    Returns:
+    Returns
+    -------
         Basis set functions defined by the tier as a string.
     """
     if tier is None:  # Then we use the default species file untouched.
@@ -1387,7 +1389,7 @@ class AimsOutCalcChunk(AimsOutChunk):
         if len(kpt_def) > 0:
             kpt_inds = [int(self.lines[ll].split()[1]) - 1 for ll in kpt_def]
         elif (self.n_k_points is None) or (self.n_k_points == 1):
-            kpt_inds = [0]
+            kpt_inds = [0] * self.n_spins
         else:
             raise ParseError("Cannot find k-point definitions")
 

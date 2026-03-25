@@ -8,11 +8,11 @@ import string
 import sys
 import time
 import warnings
+from collections.abc import Callable
 from contextlib import ExitStack, contextmanager
 from importlib import import_module
 from math import atan2, cos, degrees, gcd, radians, sin
 from pathlib import Path, PurePath
-from typing import Callable, Dict, List, Type, Union
 
 import numpy as np
 
@@ -70,9 +70,9 @@ pickleload = functools.partial(pickle.load, encoding='bytes')
 
 
 def deprecated(
-    message: Union[str, Warning],
-    category: Type[Warning] = FutureWarning,
-    callback: Callable[[List, Dict], bool] = lambda args, kwargs: True,
+    message: str | Warning,
+    category: type[Warning] = FutureWarning,
+    callback: Callable[[list, dict], bool] = lambda args, kwargs: True,
 ):
     """Return a decorator deprecating a function.
 
@@ -81,11 +81,11 @@ def deprecated(
     message : str or Warning
         The message to be emitted. If ``message`` is a Warning, then
         ``category`` is ignored and ``message.__class__`` will be used.
-    category : Type[Warning], default=FutureWarning
+    category : type[Warning], default=FutureWarning
         The type of warning to be emitted. If ``message`` is a ``Warning``
         instance, then ``category`` will be ignored and ``message.__class__``
         will be used.
-    callback : Callable[[List, Dict], bool], default=lambda args, kwargs: True
+    callback : Callable[[list, dict], bool], default=lambda args, kwargs: True
         A callable that determines if the warning should be emitted and handles
         any processing prior to calling the deprecated function. The callable
         will receive two arguments, a list and a dictionary. The list will
@@ -106,12 +106,12 @@ def deprecated(
     Example
     -------
     >>> # Inspect & replace a keyword parameter passed to a deprecated function
-    >>> from typing import Any, Callable, Dict, List
+    >>> from typing import Any, Callable
     >>> import warnings
     >>> from ase.utils import deprecated
 
     >>> def alias_callback_factory(kwarg: str, alias: str) -> Callable:
-    ...     def _replace_arg(_: List, kwargs: Dict[str, Any]) -> bool:
+    ...     def _replace_arg(_: list, kwargs: dict[str, Any]) -> bool:
     ...         kwargs[kwarg] = kwargs[alias]
     ...         del kwargs[alias]
     ...         return True
@@ -375,7 +375,8 @@ class OpenLock:
 def search_current_git_hash(arg, world=None):
     """Search for .git directory and current git commit hash.
 
-    Parameters:
+    Parameters
+    ----------
 
     arg: str (directory path) or python module
         .git directory is searched from the parent directory of
@@ -495,7 +496,7 @@ def pbc2pbc(pbc):
     return newpbc
 
 
-def string2index(stridx: str) -> Union[int, slice, str]:
+def string2index(stridx: str) -> int | slice | str:
     """Convert index string to either int or slice"""
     if ':' not in stridx:
         # may contain database accessor

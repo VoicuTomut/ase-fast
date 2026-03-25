@@ -14,7 +14,8 @@ class PAOBasisBlock(Parameters):
 
     def __init__(self, block):
         """
-        Parameters:
+        Parameters
+        ----------
             -block : String. A block defining the basis set of a single
                      species using the format of a PAO.Basis block.
                      The initial label should be left out since it is
@@ -37,7 +38,8 @@ class PAOBasisBlock(Parameters):
         """
         Write the fdf script for the block.
 
-        Parameters:
+        Parameters
+        ----------
             -label : The label to insert in front of the block.
         """
         return label + ' ' + self['block']
@@ -70,7 +72,8 @@ def format_fdf(key, value):
     """
     Write an fdf key-word value pair.
 
-    Parameters:
+    Parameters
+    ----------
         - key   : The fdf-key
         - value : The fdf value.
     """
@@ -94,7 +97,8 @@ def format_value(value):
     """
     Format python values to fdf-format.
 
-    Parameters:
+    Parameters
+    ----------
         - value : The value to format.
     """
     if isinstance(value, tuple):

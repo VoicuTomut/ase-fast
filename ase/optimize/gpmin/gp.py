@@ -13,7 +13,8 @@ class GaussianProcess():
     It is recommended to be used with other Priors and Kernels from
     ase.optimize.gpmin
 
-    Parameters:
+    Parameters
+    ----------
 
     prior: Prior class, as in ase.optimize.gpmin.prior
            Defaults to ZeroPrior
@@ -51,7 +52,8 @@ class GaussianProcess():
         of the Kernel given the data (and its cholesky factorization)
         This method should be executed whenever more data is added.
 
-        Parameters:
+        Parameters
+        ----------
 
         X: observations (i.e. positions). numpy array with shape: nsamples x D
         Y: targets (i.e. energy and forces). numpy array with
@@ -83,7 +85,8 @@ class GaussianProcess():
         V : Covariance matrix. Its diagonal is the variance of each component
             of f.
 
-        Parameters:
+        Parameters
+        ----------
 
         x (1D np.array):      The position at which the prediction is computed
         get_variance (bool):  if False, only the prediction f is returned
@@ -108,7 +111,8 @@ class GaussianProcess():
         It has been built in the form that suits the best its optimization,
         with the scipy minimize module, to find the optimal hyperparameters.
 
-        Parameters:
+        Parameters
+        ----------
 
         l: The scale for which we compute the marginal likelihood
         *args: Should be a tuple containing the inputs and targets
@@ -144,7 +148,8 @@ class GaussianProcess():
         again. The method also sets the parameters of the Kernel to their
         optimal value at the end of execution
 
-        Parameters:
+        Parameters
+        ----------
 
         X:   observations(i.e. positions). numpy array with shape: nsamples x D
         Y:   targets (i.e. energy and forces).
@@ -156,7 +161,8 @@ class GaussianProcess():
         eps: include bounds to the hyperparameters as a +- a percentage
              if eps is None there are no bounds in the optimization
 
-        Returns:
+        Returns
+        -------
 
         result (dict) :
               result = {'hyperparameters': (numpy.array) New hyperparameters,

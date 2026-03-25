@@ -3,7 +3,8 @@
 """ Read/Write DL_POLY_4 CONFIG files """
 import itertools
 import re
-from typing import IO, Generator, Iterable, List, Optional, Tuple, Union
+from collections.abc import Generator, Iterable
+from typing import IO
 
 import numpy as np
 
@@ -24,7 +25,7 @@ DLP_V_SI = 1.0e-10 / 1.0e-12  # Å/ps
 DLP_V_ASE = DLP_V_SI / _auv
 
 
-def _get_frame_positions(fd: IO) -> Tuple[int, int, int, List[int]]:
+def _get_frame_positions(fd: IO) -> tuple[int, int, int, list[int]]:
     """Get positions of frames in HISTORY file."""
     init_pos = fd.tell()
 
@@ -53,8 +54,8 @@ def _get_frame_positions(fd: IO) -> Tuple[int, int, int, List[int]]:
 
 @reader
 def read_dlp_history(fd: IO,
-                     index: Optional[Union[int, slice]] = None,
-                     symbols: Optional[List[str]] = None) -> List[Atoms]:
+                     index: int | slice | None = None,
+                     symbols: list[str] | None = None) -> list[Atoms]:
     """Read a HISTORY file.
 
     Compatible with DLP4 and DLP_CLASSIC.
@@ -69,8 +70,8 @@ def read_dlp_history(fd: IO,
 
 @reader
 def iread_dlp_history(fd: IO,
-                      index: Optional[Union[int, slice]] = None,
-                      symbols: Optional[List[str]] = None
+                      index: int | slice | None = None,
+                      symbols: list[str] | None = None
                       ) -> Generator[Atoms, None, None]:
     """Generator version of read_dlp_history
 
@@ -99,7 +100,7 @@ def iread_dlp_history(fd: IO,
 
 @reader
 def read_dlp4(fd: IO,
-              symbols: Optional[List[str]] = None) -> Atoms:
+              symbols: list[str] | None = None) -> Atoms:
     """Read a DL_POLY_4 config/revcon file.
 
     Typically used indirectly through read("filename", atoms, format="dlp4").
@@ -124,8 +125,8 @@ def read_dlp4(fd: IO,
 
 
 def read_single_image(fd: IO, levcfg: int, imcon: int,
-                      natoms: Optional[int], is_trajectory: bool,
-                      symbols: Optional[List[str]] = None) -> Atoms:
+                      natoms: int | None, is_trajectory: bool,
+                      symbols: list[str] | None = None) -> Atoms:
     """ Read a DLP frame """
     sym = symbols if symbols else []
     positions = []

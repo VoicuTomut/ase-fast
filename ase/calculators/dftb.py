@@ -36,6 +36,7 @@ class Dftb(FileIOCalculator):
                  slako_dir=None,
                  command=None,
                  profile=None,
+                 with_tags=False,
                  **kwargs):
         """
         All keywords for the dftb_in.hsd input file (see the DFTB+ manual)
@@ -89,6 +90,14 @@ class Dftb(FileIOCalculator):
             * ``[(k11,k12,k13),(k21,k22,k23),...]``: Explicit (Nkpts x 3)
               array of k-points in units of the reciprocal lattice vectors
               (each with equal weight)
+        with_tags: bool (default False)
+            Whether to use atom tags to distinguish between different chemical
+            species. When enabled, atoms with different tags are treated as
+            distinct species, even if they have the same chemical symbol.
+            For example, hydrogen atoms in a nanoparticle (tag 1) and hydrogen
+            atoms in a solvent (tag 2) would be represented as "H1" and "H2",
+            requiring separate Slater-Koster files: "H1-H1.skf", "H1-H2.skf",
+            and "H2-H2.skf".
 
         Additional attribute to be set by the embed() method:
 
@@ -145,6 +154,8 @@ class Dftb(FileIOCalculator):
         self.atoms = None
         self.atoms_input = None
         self.do_forces = False
+        # Whether to use tags of the atoms for the calculation
+        self.with_tags = with_tags
 
         super().__init__(restart, ignore_bad_restart_file,
                          label, atoms, command=command,
@@ -235,9 +246,14 @@ class Dftb(FileIOCalculator):
                 break
         else:
             if params.get('Hamiltonian_', 'DFTB') == 'DFTB':
-                # User didn't specify max angular mometa.  Get them from
+                # User didn't specify max angular momenta.  Get them from
                 # the .skf files:
-                symbols = set(self.atoms.get_chemical_symbols())
+                symbols = self.atoms.get_chemical_symbols()
+                if self.with_tags:
+                    tags = set(self.atoms.get_tags())
+                    symbols = [_s + str(tag) for _s, tag in
+                               zip(self.atoms.get_chemical_symbols(), tags)]
+                symbols = set(symbols)
                 for symbol in symbols:
                     path = os.path.join(self.slako_dir,
                                         '{0}-{0}.skf'.format(symbol))
@@ -308,7 +324,7 @@ class Dftb(FileIOCalculator):
         return system_changes
 
     def write_input(self, atoms, properties=None, system_changes=None):
-        from ase.io import write
+        from ase.io.gen import write_gen
         if properties is not None:
             if 'forces' in properties or 'stress' in properties:
                 self.do_forces = True
@@ -316,8 +332,8 @@ class Dftb(FileIOCalculator):
             self, atoms, properties, system_changes)
         with open(os.path.join(self.directory, 'dftb_in.hsd'), 'w') as fd:
             self.write_dftb_in(fd)
-        write(os.path.join(self.directory, 'geo_end.gen'), atoms,
-              parallel=False)
+        write_gen(os.path.join(self.directory, 'geo_end.gen'), atoms,
+                  with_tags=self.with_tags)
         # self.atoms is none until results are read out,
         # then it is set to the ones at writing input
         self.atoms_input = atoms

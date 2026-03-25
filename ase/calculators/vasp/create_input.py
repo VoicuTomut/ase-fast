@@ -28,8 +28,9 @@ import os
 import re
 import shutil
 import warnings
+from collections.abc import Sequence
 from os.path import join
-from typing import Any, List, Sequence, TextIO, Tuple, Union
+from typing import Any, TextIO
 
 import numpy as np
 
@@ -126,10 +127,10 @@ def set_ldau(ldau_param, luj_params, symbol_count):
 
 
 def _calc_nelect_from_charge(
-    nelect: Union[float, None],
-    charge: Union[float, None],
+    nelect: float | None,
+    charge: float | None,
     nelect_from_ppp: float,
-) -> Union[float, None]:
+) -> float | None:
     """Determine nelect resulting from a given charge if charge != 0.0.
 
     If nelect is additionally given explicitly, then we need to determine it
@@ -148,7 +149,7 @@ def _calc_nelect_from_charge(
     return nelect  # NELECT explicitly given in INCAR (`None` if not given)
 
 
-def get_pp_setup(setup) -> Tuple[dict, Sequence[int]]:
+def get_pp_setup(setup) -> tuple[dict, Sequence[int]]:
     """
     Get the pseudopotential mapping based on the "setpus" input.
 
@@ -986,7 +987,7 @@ dict_keys = [
     # 'U':4.0, 'J':0.9}, ...}
 ]
 
-keys: List[str] = [
+keys: list[str] = [
     # 'NBLOCK' and KBLOCK       inner block; outer block
     # 'NPACO' and APACO         distance and nr. of slots for P.C.
     # 'WEIMIN, EBREAK, DEPER    special control tags
@@ -1430,11 +1431,11 @@ class GenerateVaspInput:
 
     def _make_sort(
         self, atoms: ase.Atoms, special_setups: Sequence[int] = ()
-    ) -> Tuple[List[int], List[int]]:
+    ) -> tuple[list[int], list[int]]:
         symbols, _ = count_symbols(atoms, exclude=special_setups)
 
         # Create sorting list
-        srt = []  # type: List[int]
+        srt = []  # type: list[int]
         srt.extend(special_setups)
 
         for symbol in symbols:
@@ -2150,11 +2151,13 @@ def read_potcar_numbers_of_electrons(fd: TextIO, /) -> list[tuple[str, float]]:
 def count_symbols(atoms: Atoms, exclude=()) -> tuple[list[str], dict[str, int]]:
     """Count symbols in atoms object, excluding a set of indices
 
-    Parameters:
+    Parameters
+    ----------
         atoms: Atoms object to be grouped
         exclude: List of indices to be excluded from the counting
 
-    Returns:
+    Returns
+    -------
         Tuple of (symbols, symbolcount)
         symbols: The unique symbols in the included list
         symbolscount: Count of symbols in the included list

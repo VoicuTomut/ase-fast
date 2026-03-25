@@ -6,7 +6,8 @@ outputs."""
 import os
 import sys
 from abc import ABC, abstractmethod
-from typing import Dict, Literal, Optional, Sequence, Tuple, Union
+from collections.abc import Sequence
+from typing import Literal
 from warnings import catch_warnings, simplefilter, warn
 
 import numpy as np
@@ -16,11 +17,11 @@ from ase import Atoms, units
 
 _GEOMETRY_OPTIONS = Literal['linear', 'nonlinear', 'monatomic']
 _VIB_SELECTION_OPTIONS = Literal['exact', 'all', 'highest', 'abs_highest']
-_FLOAT_OR_FLOATWITHDICT = Union[float, Tuple[float, Dict[str, float]]]
-_FLOATWITHDICT = Tuple[float, Dict[str, float]]
+_FLOAT_OR_FLOATWITHDICT = float | tuple[float, dict[str, float]]
+_FLOATWITHDICT = tuple[float, dict[str, float]]
 
 
-def _sum_contributions(contrib_dicts: Dict[str, float]) -> float:
+def _sum_contributions(contrib_dicts: dict[str, float]) -> float:
     """Combine a Dict of floats to their sum.
 
     Ommits keys starting with an underscore.
@@ -293,10 +294,10 @@ class BaseThermoChem(ABC):
     calculations."""
 
     def __init__(self,
-                 vib_energies: Optional[Sequence[float]] = None,
-                 atoms: Optional[Atoms] = None,
-                 modes: Optional[Sequence[AbstractMode]] = None,
-                 spin: Optional[float] = None) -> None:
+                 vib_energies: Sequence[float] | None = None,
+                 atoms: Atoms | None = None,
+                 modes: Sequence[AbstractMode] | None = None,
+                 spin: float | None = None) -> None:
         if vib_energies is None and modes is None:
             raise ValueError("Either vib_energies or modes must be provided.")
         elif modes:
@@ -344,7 +345,7 @@ class BaseThermoChem(ABC):
 
     @staticmethod
     def combine_contributions(
-            contrib_dicts: Sequence[Dict[str, float]]) -> Dict[str, float]:
+            contrib_dicts: Sequence[dict[str, float]]) -> dict[str, float]:
         """Combine the contributions from multiple modes."""
         ret: dict[str, float] = {}
         for contrib_dict in contrib_dicts:
@@ -356,7 +357,7 @@ class BaseThermoChem(ABC):
         return ret
 
     def print_contributions(
-            self, contributions: Dict[str, float], verbose: bool) -> None:
+            self, contributions: dict[str, float], verbose: bool) -> None:
         """Print the contributions."""
         if verbose:
             fmt = "{:<15s}{:13.3f} eV"
@@ -490,7 +491,7 @@ class BaseThermoChem(ABC):
     def get_vib_entropy_contribution(self,
                                      temperature: float,
                                      return_list: bool = False
-                                     ) -> Union[float, Sequence[float]]:
+                                     ) -> float | Sequence[float]:
         """Calculates the entropy due to vibrations for a set of vibrations
         given in eV and a temperature given in Kelvin.  Returns the entropy
         in eV/K."""
@@ -517,10 +518,10 @@ class BaseThermoChem(ABC):
             translation: bool = False,
             vibration: bool = False,
             rotation: bool = False,
-            geometry: Optional[_GEOMETRY_OPTIONS] = None,
+            geometry: _GEOMETRY_OPTIONS | None = None,
             electronic: bool = False,
-            pressure: Optional[float] = None,
-            symmetrynumber: Optional[int] = None) -> _FLOATWITHDICT:
+            pressure: float | None = None,
+            symmetrynumber: int | None = None) -> _FLOATWITHDICT:
         """Returns the entropy, in eV/K and a dict of the contributions.
 
         Parameters
@@ -654,7 +655,7 @@ class HarmonicThermo(BaseThermoChem):
     def __init__(self, vib_energies: Sequence[complex],
                  potentialenergy: float = 0.,
                  ignore_imag_modes: bool = False,
-                 modes: Optional[Sequence[AbstractMode]] = None) -> None:
+                 modes: Sequence[AbstractMode] | None = None) -> None:
 
         # Check for imaginary frequencies.
         vib_energies, n_imag = _clean_vib_energies(
@@ -801,7 +802,7 @@ class QuasiHarmonicThermo(HarmonicThermo):
     def __init__(self, vib_energies: Sequence[complex],
                  potentialenergy: float = 0.,
                  ignore_imag_modes: bool = False,
-                 modes: Optional[Sequence[AbstractMode]] = None,
+                 modes: Sequence[AbstractMode] | None = None,
                  raise_to: float = 100 * units.invcm) -> None:
 
         # Check for imaginary frequencies.
@@ -854,7 +855,7 @@ class MSRRHOThermo(QuasiHarmonicThermo):
         Defaults to 1.0, check the `Truhlar group database
         <https://comp.chem.umn.edu/freqscale/index.html>`_
         for values corresponding to your level of theory.
-        Note that for `\\nu_{scal}=1.0` this method is equivalent to
+        Note that for :math:`\\nu_{scal}=1.0` this method is equivalent to
         the quasi-RRHO method in :doi:`10.1002/chem.201200497`.
     treat_int_energy : bool
         Extend the msRRHO treatement to the internal energy. If False, only
@@ -872,7 +873,7 @@ class MSRRHOThermo(QuasiHarmonicThermo):
                  potentialenergy: float = 0.,
                  tau: float = 35., nu_scal: float = 1.0,
                  treat_int_energy: bool = False,
-                 modes: Optional[Sequence[AbstractMode]] = None) -> None:
+                 modes: Sequence[AbstractMode] | None = None) -> None:
 
         # check that atoms has no periodic boundary conditions
         # moments of inertia are wrong otherwise.
@@ -1239,13 +1240,13 @@ class IdealGasThermo(BaseThermoChem):
     def __init__(self, vib_energies: Sequence[complex],
                  geometry: _GEOMETRY_OPTIONS,
                  potentialenergy: float = 0.,
-                 atoms: Optional[Atoms] = None,
-                 symmetrynumber: Optional[int] = None,
-                 spin: Optional[float] = None,
-                 natoms: Optional[int] = None,
-                 vib_selection: Optional[_VIB_SELECTION_OPTIONS] = 'highest',
+                 atoms: Atoms | None = None,
+                 symmetrynumber: int | None = None,
+                 spin: float | None = None,
+                 natoms: int | None = None,
+                 vib_selection: _VIB_SELECTION_OPTIONS | None = 'highest',
                  ignore_imag_modes: bool = False,
-                 modes: Optional[Sequence[AbstractMode]] = None) -> None:
+                 modes: Sequence[AbstractMode] | None = None) -> None:
         self.potentialenergy = potentialenergy
         self.geometry = geometry
         self.sigma = symmetrynumber
@@ -1613,7 +1614,7 @@ class CrystalThermo(BaseThermoChem):
 
 def _clean_vib_energies(vib_energies: Sequence[complex],
                         ignore_imag_modes: bool = False
-                        ) -> Tuple[Sequence[float], int]:
+                        ) -> tuple[Sequence[float], int]:
     """Checks and deal with the presence of imaginary vibrational modes
 
     Also removes +0.j from real vibrational energies.

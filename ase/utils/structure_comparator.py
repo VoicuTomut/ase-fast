@@ -28,7 +28,8 @@ class SymmetryEquivalenceCheck:
 
     Based on the recipe from Comput. Phys. Commun. 183, 690-697 (2012).
 
-    Parameters:
+    Parameters
+    ----------
 
     angle_tol: float
         angle tolerance for the lattice vectors in degrees
@@ -51,7 +52,8 @@ class SymmetryEquivalenceCheck:
         if True the structures are reduced to their primitive cells
         note that this feature requires spglib to installed
 
-    Examples:
+    Examples
+    --------
 
     >>> from ase.build import bulk
     >>> from ase.utils.structure_comparator import SymmetryEquivalenceCheck
@@ -240,7 +242,8 @@ class SymmetryEquivalenceCheck:
 
         Return *True* if the two structures are equivalent, *False* otherwise.
 
-        Parameters:
+        Parameters
+        ----------
 
         s1: Atoms object.
             Transformation matrices are calculated based on this structure.

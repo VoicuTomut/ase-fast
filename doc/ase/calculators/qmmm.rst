@@ -33,7 +33,7 @@ Other ASE-calculators that currently support EIQMMM:
 
 .. seealso::
 
-    The :ref:`qmmm` tutorial, on how to use the Explicit Interaction QMMM
+    The :ref:`example_qmmm` tutorial, on how to use the Explicit Interaction QMMM
     calculator
 
 .. autoclass:: EIQMMM

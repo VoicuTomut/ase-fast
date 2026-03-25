@@ -59,9 +59,8 @@ class GapInfo:
         """Return human-friendly description of direct/indirect gap.
 
         If ibz_k_points are given, coordinates are printed as well."""
-        from typing import List
 
-        lines: List[str] = []
+        lines: list[str] = []
         add = lines.append
 
         def skn(skn):
@@ -102,7 +101,8 @@ def bandgap(calc=None, direct=False, spin=_deprecated,
             eigenvalues=None, efermi=None, output=None, kpts=None):
     """Calculates the band-gap.
 
-    Parameters:
+    Parameters
+    ----------
 
     calc: Calculator object
         Electronic structure calculator object.

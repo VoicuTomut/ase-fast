@@ -13,9 +13,10 @@ Note: excitingtools must be installed using `pip install excitingtools` to
 use this calculator.
 """
 
+from collections.abc import Mapping
 from os import PathLike
 from pathlib import Path
-from typing import Any, Dict, Mapping, Optional
+from typing import Any
 
 import ase.io.exciting
 from ase.calculators.calculator import PropertyNotImplementedError
@@ -267,7 +268,7 @@ class ExcitingGroundStateCalculator(GenericFileIOCalculator):
         directory='./',
         species_path='./',
         title='ASE-generated input',
-        parameters: Optional[Dict[str, Any]] = None,
+        parameters: dict[str, Any] | None = None,
     ):
         self.runner = runner
         # Package data to be passed to

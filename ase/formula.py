@@ -1,14 +1,15 @@
 # fmt: off
 
 import re
+from collections.abc import Sequence
 from functools import lru_cache
 from math import gcd
-from typing import Dict, List, Sequence, Tuple, Union
+from typing import Union
 
 from ase.data import atomic_numbers, chemical_symbols
 
 # For type hints (A, A2, A+B):
-Tree = Union[str, Tuple['Tree', int], List['Tree']]
+Tree = str | tuple['Tree', int] | list['Tree']
 
 
 class Formula:
@@ -17,8 +18,8 @@ class Formula:
                  *,
                  strict: bool = False,
                  format: str = '',
-                 _tree: Tree = None,
-                 _count: Dict[str, int] = None):
+                 _tree: Tree | None = None,
+                 _count: dict[str, int] | None = None):
         """Chemical formula object.
 
         Parameters
@@ -82,7 +83,7 @@ class Formula:
         """
         return Formula(self._formula, format=fmt)
 
-    def count(self) -> Dict[str, int]:
+    def count(self) -> dict[str, int]:
         """Return dictionary mapping chemical symbol to number of atoms.
 
         Example
@@ -92,7 +93,7 @@ class Formula:
         """
         return self._count.copy()
 
-    def reduce(self) -> Tuple['Formula', int]:
+    def reduce(self) -> tuple['Formula', int]:
         """Reduce formula.
 
         Returns
@@ -110,7 +111,7 @@ class Formula:
         dct, N = self._reduce()
         return self.from_dict(dct), N
 
-    def stoichiometry(self) -> Tuple['Formula', 'Formula', int]:
+    def stoichiometry(self) -> tuple['Formula', 'Formula', int]:
         """Reduce to unique stoichiometry using "chemical symbols" A, B, C, ...
 
         Examples
@@ -229,7 +230,7 @@ class Formula:
         raise ValueError('Invalid format specifier')
 
     @staticmethod
-    def from_dict(dct: Dict[str, int]) -> 'Formula':
+    def from_dict(dct: dict[str, int]) -> 'Formula':
         """Convert dict to Formula.
 
         >>> Formula.from_dict({'H': 2})
@@ -314,7 +315,7 @@ class Formula:
         return self * N
 
     def __divmod__(self,
-                   other: Union['Formula', str]) -> Tuple[int, 'Formula']:
+                   other: Union['Formula', str]) -> tuple[int, 'Formula']:
         """Return the tuple (self // other, self % other).
 
         Invariant::
@@ -397,7 +398,7 @@ class Formula:
         return '+'.join(parts)
 
 
-def dict2str(dct: Dict[str, int]) -> str:
+def dict2str(dct: dict[str, int]) -> str:
     """Convert symbol-to-number dict to str.
 
     >>> dict2str({'A': 1, 'B': 2})
@@ -431,7 +432,7 @@ def parse2(f: str) -> Tree:
     """
     units = []
     while f:
-        unit: Union[str, Tuple[str, int], Tree]
+        unit: str | tuple[str, int] | Tree
         if f[0] == '(':
             level = 0
             for i, c in enumerate(f[1:], 1):
@@ -463,7 +464,7 @@ def parse2(f: str) -> Tree:
     return units
 
 
-def strip_number(s: str) -> Tuple[int, str]:
+def strip_number(s: str) -> tuple[int, str]:
     """Strip leading nuimber.
 
     >>> strip_number('10AB2')
@@ -492,13 +493,13 @@ def tree2str(tree: Tree,
     return '(' + ''.join(tree2str(tree, sub1, sub2) for tree in tree) + ')'
 
 
-def count_tree(tree: Tree) -> Dict[str, int]:
+def count_tree(tree: Tree) -> dict[str, int]:
     if isinstance(tree, str):
         return {tree: 1}
     if isinstance(tree, tuple):
         tree, N = tree
         return {symb: n * N for symb, n in count_tree(tree).items()}
-    dct = {}  # type: Dict[str, int]
+    dct = {}  # type: dict[str, int]
     for tree in tree:
         for symb, n in count_tree(tree).items():
             m = dct.get(symb, 0)
@@ -515,7 +516,7 @@ non_metals = ['H', 'He', 'B', 'C', 'N', 'O', 'F', 'Ne',
 
 
 @lru_cache
-def periodic_table_order() -> Dict[str, int]:
+def periodic_table_order() -> dict[str, int]:
     """Create dict for sorting after period first then row."""
     return {symbol: n for n, symbol in enumerate(chemical_symbols[87:] +
                                                  chemical_symbols[55:87] +

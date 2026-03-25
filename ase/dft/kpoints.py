@@ -133,7 +133,8 @@ def parse_path_string(s):
     commas. The return value is a list of sections where each section is a
     list of labels.
 
-    Examples:
+    Examples
+    --------
 
     >>> parse_path_string('GX')
     [['G', 'X']]
@@ -363,10 +364,10 @@ class BandPath:
 
     def interpolate(
             self,
-            path: str = None,
-            npoints: int = None,
-            special_points: dict[str, np.ndarray] = None,
-            density: float = None,
+            path: str | None = None,
+            npoints: int | None = None,
+            special_points: dict[str, np.ndarray] | None = None,
+            density: float | None = None,
     ) -> BandPath:
         """Create new bandpath, (re-)interpolating kpoints from this one."""
         if path is None:
@@ -614,7 +615,8 @@ def labels_from_kpts(kpts, cell, eps=1e-5, special_points=None):
     the band structure. The second list can be used as xticks, and the third
     as xticklabels.
 
-    Parameters:
+    Parameters
+    ----------
 
     kpts: list
         List of scaled k-points.
@@ -622,7 +624,8 @@ def labels_from_kpts(kpts, cell, eps=1e-5, special_points=None):
     cell: list
         Unit cell of the atomic structure.
 
-    Returns:
+    Returns
+    -------
 
     Three arrays; the first is a list of cumulative distances between k-points,
     the second is x coordinates of the special points,

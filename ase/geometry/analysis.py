@@ -4,7 +4,7 @@
 """Tools for analyzing instances of :class:`~ase.Atoms`
 """
 
-from typing import List, Optional
+from typing import List
 
 import numpy as np
 
@@ -12,6 +12,7 @@ from ase import Atoms
 from ase.geometry.rdf import get_containing_cell_length, get_rdf
 from ase.neighborlist import (build_neighbor_list, get_distance_indices,
                               get_distance_matrix)
+from ase.utils import deprecated
 
 __all__ = ['Analysis']
 
@@ -571,11 +572,16 @@ class Analysis:
     def get_max_volume_estimate(self):
         return get_max_volume_estimate(self.images)
 
+    @deprecated("Use `ase.geometry.rdf.get_rdf` instead.")
     def get_rdf(self, rmax, nbins, imageIdx=None, elements=None, return_dists=False,
-                volume: Optional[float] = None):
+                volume: float | None = None):
         """Get RDF.
 
-        Wrapper for :meth:`ase.ga.utilities.get_rdf` with more selection possibilities.
+        Wrapper for :func:`ase.geometry.rdf.get_rdf` with more selection possibilities.
+
+        .. deprecated:: 3.28.0
+            This method has bugs when ``elements`` is not ``None`` and will be
+            removed soon. Use :func:`ase.geometry.rdf.get_rdf` instead.
 
         Parameters:
 
@@ -598,6 +604,12 @@ class Analysis:
             If return_dists is True, the returned tuples contain (rdf, distances). Otherwise
             only rdfs for each image are returned.
         """
+
+        if elements is not None:
+            raise RuntimeError(
+                'There are bugs for `elements` is not `None`. '
+                'Use `ase.geometry.rdf.get_rdf` instead.'
+            )
 
         sl = self._get_slice(imageIdx)
 

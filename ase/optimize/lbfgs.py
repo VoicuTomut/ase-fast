@@ -1,6 +1,6 @@
 # fmt: off
 
-from typing import IO, Optional, Union
+from typing import IO
 
 import numpy as np
 
@@ -21,10 +21,10 @@ class LBFGS(Optimizer):
     def __init__(
         self,
         atoms: Atoms,
-        restart: Optional[str] = None,
-        logfile: Union[IO, str] = '-',
-        trajectory: Optional[str] = None,
-        maxstep: Optional[float] = None,
+        restart: str | None = None,
+        logfile: IO | str = '-',
+        trajectory: str | None = None,
+        maxstep: float | None = None,
         memory: int = 100,
         damping: float = 1.0,
         alpha: float = 70.0,

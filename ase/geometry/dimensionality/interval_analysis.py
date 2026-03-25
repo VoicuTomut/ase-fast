@@ -134,7 +134,8 @@ def analyze_kintervals(atoms, method='RDA', merge=True):
     The intervals are sorted according to the scoring parameter, from high
     to low.
 
-    Parameters:
+    Parameters
+    ----------
 
     atoms: ASE atoms object
         The system to analyze. The periodic boundary conditions determine
@@ -148,7 +149,8 @@ def analyze_kintervals(atoms, method='RDA', merge=True):
         Decides if k-intervals of the same type (e.g. 01D or 3D) should be
         merged.  Default: true
 
-    Returns:
+    Returns
+    -------
 
     intervals: list
         List of KIntervals for each interval identified.  A KInterval is a

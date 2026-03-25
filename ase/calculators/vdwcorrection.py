@@ -153,7 +153,7 @@ class vdWTkatchenko09prl(Calculator, IOContext):
         """Constructor
 
         Parameters
-        ==========
+        ----------
         hirshfeld: the Hirshfeld partitioning object
         calculator: the calculator to get the PBE energy
         """

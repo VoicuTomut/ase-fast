@@ -4,7 +4,6 @@ import re
 from collections import namedtuple
 from numbers import Real
 from string import digits
-from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
 
@@ -22,7 +21,7 @@ _ZMatrixRow = namedtuple(
 )
 
 
-ThreeFloats = Union[Tuple[float, float, float], np.ndarray]
+ThreeFloats = tuple[float, float, float] | np.ndarray
 
 
 def require(condition):
@@ -37,21 +36,24 @@ class _ZMatrixToAtoms:
         angle={'radians': 1., 'degrees': np.pi / 180},
     )
 
-    def __init__(self, dconv: Union[str, Real], aconv: Union[str, Real],
-                 defs: Optional[Union[Dict[str, float],
-                                str, List[str]]] = None) -> None:
+    def __init__(
+        self,
+        dconv: str | Real,
+        aconv: str | Real,
+        defs: dict[str, float] | str | list[str] | None = None
+    ) -> None:
         self.dconv = self.get_units('distance', dconv)  # type: float
         self.aconv = self.get_units('angle', aconv)  # type: float
         self.set_defs(defs)
-        self.name_to_index: Optional[Dict[str, int]] = {}
-        self.symbols: List[str] = []
-        self.positions: List[ThreeFloats] = []
+        self.name_to_index: dict[str, int] | None = {}
+        self.symbols: list[str] = []
+        self.positions: list[ThreeFloats] = []
 
     @property
     def nrows(self):
         return len(self.symbols)
 
-    def get_units(self, kind: str, value: Union[str, Real]) -> float:
+    def get_units(self, kind: str, value: str | Real) -> float:
         if isinstance(value, Real):
             return float(value)
         out = self.known_units[kind].get(value.lower())
@@ -60,9 +62,8 @@ class _ZMatrixToAtoms:
                              .format(kind, value))
         return out
 
-    def set_defs(self, defs: Union[Dict[str, float], str,
-                                   List[str], None]) -> None:
-        self.defs = {}  # type: Dict[str, float]
+    def set_defs(self, defs: dict[str, float] | str | list[str] | None) -> None:
+        self.defs = {}  # type: dict[str, float]
         if defs is None:
             return
 
@@ -125,8 +126,8 @@ class _ZMatrixToAtoms:
                              'referred indices: {}'
                              .format(self.nrows, indices))
 
-    def parse_row(self, row: str) -> Tuple[
-            str, Union[_ZMatrixRow, ThreeFloats],
+    def parse_row(self, row: str) -> tuple[
+            str, _ZMatrixRow | ThreeFloats,
     ]:
         tokens = row.split()
         name = tokens[0]
@@ -212,14 +213,16 @@ class _ZMatrixToAtoms:
         return Atoms(self.symbols, self.positions)
 
 
-def parse_zmatrix(zmat: Union[str, List[str]],
-                  distance_units: Union[str, Real] = 'angstrom',
-                  angle_units: Union[str, Real] = 'degrees',
-                  defs: Optional[Union[Dict[str, float], str,
-                                       List[str]]] = None) -> Atoms:
+def parse_zmatrix(
+    zmat: str | list[str],
+    distance_units: str | Real = 'angstrom',
+    angle_units: str | Real = 'degrees',
+    defs: dict[str, float] | str | list[str] | None = None
+) -> Atoms:
     """Converts a Z-matrix into an Atoms object.
 
-    Parameters:
+    Parameters
+    ----------
 
     zmat: Iterable or str
         The Z-matrix to be parsed. Iteration over `zmat` should yield the rows
@@ -240,7 +243,8 @@ def parse_zmatrix(zmat: Union[str, List[str]],
         Z-matrix itself, but this function will not automatically separate
         the symbol definitions from the Z-matrix.
 
-    Returns:
+    Returns
+    -------
 
     atoms: Atoms object
     """

@@ -1,7 +1,7 @@
 # fmt: off
 
 import time
-from typing import IO, Optional, Union
+from typing import IO
 
 import numpy as np
 
@@ -15,7 +15,8 @@ from ase.units import GPa
 def calculate_isotropic_elasticity_tensor(bulk_modulus, poisson_ratio,
                                           suppress_rotation=0):
     """
-    Parameters:
+    Parameters
+    ----------
         bulk_modulus Bulk Modulus of the isotropic system used to set up the
                      Hessian (in ASE units (eV/Å^3)).
 
@@ -60,15 +61,15 @@ class CellAwareBFGS(BFGS):
     def __init__(
         self,
         atoms: Atoms,
-        restart: Optional[str] = None,
-        logfile: Union[IO, str] = '-',
-        trajectory: Optional[str] = None,
+        restart: str | None = None,
+        logfile: IO | str = '-',
+        trajectory: str | None = None,
         append_trajectory: bool = False,
-        maxstep: Optional[float] = None,
-        bulk_modulus: Optional[float] = 145 * GPa,
-        poisson_ratio: Optional[float] = 0.3,
-        alpha: Optional[float] = None,
-        long_output: Optional[bool] = False,
+        maxstep: float | None = None,
+        bulk_modulus: float | None = 145 * GPa,
+        poisson_ratio: float | None = 0.3,
+        alpha: float | None = None,
+        long_output: bool | None = False,
         **kwargs,
     ):
         self.bulk_modulus = bulk_modulus
@@ -94,7 +95,7 @@ class CellAwareBFGS(BFGS):
         cell_H[np.ix_(ind, ind)] = C_ijkl.reshape((9, 9))[
             np.ix_(ind, ind)] * self.atoms.atoms.cell.volume
 
-    def converged(self, gradient):
+    def gradient_converged(self, gradient):
         # XXX currently ignoring gradient
         forces = self.atoms.atoms.get_forces()
         stress = self.atoms.atoms.get_stress(voigt=False) * self.atoms.mask

@@ -106,7 +106,7 @@ class Gromacs(FileIOCalculator):
         """Construct GROMACS-calculator object.
 
         Parameters
-        ==========
+        ----------
         label: str
             Prefix to use for filenames (label.in, label.txt, ...).
             Default is 'gromacs'.

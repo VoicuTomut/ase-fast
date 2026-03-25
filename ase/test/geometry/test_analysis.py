@@ -35,20 +35,6 @@ def test_analysis_max_volume_estimate(images_without_cell):
     assert volume_max == volume_max_ref
 
 
-def test_analysis_rdf(images_without_cell):
-
-    analysis = Analysis(images_without_cell)
-    ls_rdf = analysis.get_rdf(
-        5.0, 5, volume=analysis.get_max_volume_estimate())
-
-    ls_rdf_ref = np.array(((0.65202591, 1.1177587, 0.54907445,
-                            0.10573393, 0.01068895),
-                           (0.0, 1.1177587, 0.5833916,
-                            0.10573393, 0.01068895)))
-
-    assert np.array(ls_rdf) == pytest.approx(ls_rdf_ref)
-
-
 @pytest.mark.filterwarnings('ignore:the matrix subclass')
 def test_analysis():
     # test the geometry.analysis module

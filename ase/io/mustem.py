@@ -232,7 +232,8 @@ class XtlmuSTEMWriter:
 def write_mustem(fd, *args, **kwargs):
     r"""Write muSTEM input file.
 
-    Parameters:
+    Parameters
+    ----------
 
     atoms: Atoms object
 

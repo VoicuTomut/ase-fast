@@ -4,7 +4,7 @@ import io
 import re
 import warnings
 from collections import defaultdict
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import numpy as np
 
@@ -285,7 +285,7 @@ def _read_header(out: io.TextIOBase):
         return {'on': True, 'off': False}[_]
 
     read_title = False
-    parameters: Dict[str, Any] = {}
+    parameters: dict[str, Any] = {}
     for line in out:
         if len(line) == 0:  # end of file
             break
@@ -429,7 +429,7 @@ def _read_unit_cell(out: io.TextIOBase):
 
 def _read_forces(out: io.TextIOBase, n_atoms: int):
     """Read a block for atomic forces from a .castep file."""
-    constraints: List[FixConstraint] = []
+    constraints: list[FixConstraint] = []
     forces = []
     for line in out:
         fields = line.split()
@@ -455,9 +455,9 @@ def _read_forces(out: io.TextIOBase, n_atoms: int):
 
 def _read_fractional_coordinates(out: io.TextIOBase, n_atoms: int):
     """Read fractional coordinates from a .castep file."""
-    species: List[str] = []
-    custom_species: Optional[List[str]] = None  # A CASTEP special thing
-    positions_frac: List[List[float]] = []
+    species: list[str] = []
+    custom_species: list[str] | None = None  # A CASTEP special thing
+    positions_frac: list[list[float]] = []
     for line in out:
         fields = line.split()
         if len(fields) == 7:
@@ -600,7 +600,7 @@ def _read_hirshfeld_charges(out: io.TextIOBase):
     return {k: np.array(v) for k, v in results.items()}
 
 
-def _set_energy_and_free_energy(results: Dict[str, Any]):
+def _set_energy_and_free_energy(results: dict[str, Any]):
     """Set values referred to as `energy` and `free_energy`."""
     if 'energy_with_dispersion_correction' in results:
         suffix = '_with_dispersion_correction'

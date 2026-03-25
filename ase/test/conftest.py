@@ -492,6 +492,39 @@ def exitstack():
         yield stack
 
 
+_filterwarnings = [
+    'error',
+    'once::ResourceWarning',
+    'ignore:.*size changed, may indicate binary incompatibility',
+    'ignore::ase.config.ASEEnvDeprecationWarning',
+    "ignore:The default method has changed from 'aseneb' to 'improvedtangent'",
+]
+
+
+_markers = [
+    'calculator: parametrizes calculator tests with calculator factories',
+    'calculator_lite: for calculator tests; include in calculators-lite job',
+    'optimize: tests of optimizers',
+    'slow: test takes longer than a few seconds',
+]
+
+
+def pytest_configure(config):
+    """Add configuration that would otherwise live in pyproject.toml.
+
+    We use this hook instead of pyproject.toml, because pyproject.toml
+    is invisible to the "ase test" command unless the installation is
+    editable.  Then user would then be spammed with warnings and
+    errors.
+    """
+
+    for line in _filterwarnings:
+        config.addinivalue_line('filterwarnings', line)
+
+    for line in _markers:
+        config.addinivalue_line('markers', line)
+
+
 def pytest_addoption(parser):
     parser.addoption(
         '--calculators',

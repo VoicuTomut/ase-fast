@@ -1,6 +1,6 @@
 # fmt: off
 
-from typing import IO, Type, Union
+from typing import IO
 
 import numpy as np
 
@@ -25,10 +25,10 @@ class BasinHopping(Dynamics):
         self,
         atoms: Atoms,
         temperature: float = 100 * units.kB,
-        optimizer: Type[Optimizer] = FIRE,
+        optimizer: type[Optimizer] = FIRE,
         fmax: float = 0.1,
         dr: float = 0.1,
-        logfile: Union[IO, str] = '-',
+        logfile: IO | str = '-',
         trajectory: str = 'lowest.traj',
         optimizer_logfile: str = '-',
         local_minima_trajectory: str = 'local_minima.traj',

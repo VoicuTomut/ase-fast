@@ -24,7 +24,8 @@ def next_bond(atoms):
     Here, k = d_ij / (r_i + r_j), where d_ij is the bond length and r_i and r_j
     are the covalent radii of atoms i and j.
 
-    Parameters:
+    Parameters
+    ----------
 
     atoms: ASE atoms object
 

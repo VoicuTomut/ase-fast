@@ -5,7 +5,6 @@ import os
 import subprocess
 import time
 from pathlib import Path
-from typing import List, Optional, Union
 
 
 class SubprocessRunResults:
@@ -13,7 +12,7 @@ class SubprocessRunResults:
 
     def __init__(
             self, stdout, stderr, return_code: int,
-            process_time: Optional[float] = None):
+            process_time: float | None = None):
         self.stdout = stdout
         self.stderr = stderr
         self.return_code = return_code
@@ -23,11 +22,11 @@ class SubprocessRunResults:
 
 class SimpleBinaryRunner:
     """Class to execute a subprocess."""
-    path_type = Union[str, Path]
+    path_type = str | Path
 
     def __init__(self,
                  binary,
-                 run_argv: List[str],
+                 run_argv: list[str],
                  omp_num_threads: int,
                  directory: path_type = './',
                  args=None) -> None:

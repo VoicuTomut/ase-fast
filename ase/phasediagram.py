@@ -4,7 +4,6 @@ import fractions
 import functools
 import re
 from collections import OrderedDict
-from typing import Dict, List, Tuple
 
 import numpy as np
 from scipy.spatial import ConvexHull
@@ -13,7 +12,7 @@ import ase.units as units
 from ase.formula import Formula
 from ase.utils import deprecated
 
-_solvated: List[Tuple[str, Dict[str, int], float, bool, float]] = []
+_solvated: list[tuple[str, dict[str, int], float, bool, float]] = []
 
 
 def parse_formula(formula):

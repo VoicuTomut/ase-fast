@@ -12,12 +12,13 @@
 .. -----------
 ..
 .. - A bullet item for the Calculators category.
-..
-.. Optimizers
-.. ----------
-..
-.. - A bullet item for the Optimizers category.
-..
+
+Optimizers
+----------
+
+- Add :class:`ase.optimizers.rfo.RFO` class for minimizing geometries with
+  RFO (Rational Function Optimizer) combined with BFGS-based Hessian updates.
+
 .. Molecular dynamics
 .. ------------------
 ..
@@ -33,11 +34,11 @@
 ..
 .. - A bullet item for the Development category.
 ..
-Documentation
--------------
-
-- Move Surface diffusion energy barriers using the Nudged Elastic Band (NEB) method to sphinx gallery.
-
+.. Documentation
+.. -------------
+..
+.. - A bullet item for the Documentation category.
+..
 .. Other changes
 .. -------------
 ..

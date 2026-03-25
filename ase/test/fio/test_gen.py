@@ -5,7 +5,7 @@ import pytest
 
 from ase import Atoms
 from ase.io import write
-from ase.io.gen import read_gen
+from ase.io.gen import read_gen, write_gen
 
 
 @pytest.mark.parametrize("fractional", [False, True])
@@ -33,6 +33,48 @@ def test_gen(write_format: str, cell: list, pbc: bool, fractional: bool):
     else:
         assert np.all(~atoms_new.pbc)
         assert np.allclose(atoms_new.cell, 0.0)
+
+
+def test_gen_tags():
+    """Test GEN format with tags for atomic species"""
+    atoms = Atoms("H2", positions=[[0, 0, 0], [1, 0, 0]], tags=[1, 2])
+    fname = "test_tags.gen"
+    write_gen(fname, atoms, with_tags=True)
+
+    atoms_new = read_gen(fname)
+    np.testing.assert_equal(atoms_new.get_chemical_symbols(), ["H", "H"])
+    np.testing.assert_equal(atoms_new.get_tags(), [1, 2])
+    np.testing.assert_allclose(atoms_new.positions, atoms.positions)
+
+
+def test_gen_tags_repeated():
+    """Test GEN format with repeated tags (same element, same tag)"""
+    atoms = Atoms("H4",
+                  positions=[[0, 0, 0], [1, 0, 0], [2, 0, 0], [3, 0, 0]],
+                  tags=[1, 1, 2, 2])
+    fname = "test_tags_repeated.gen"
+    write_gen(fname, atoms, with_tags=True)
+
+    atoms_new = read_gen(fname)
+    np.testing.assert_equal(atoms_new.get_chemical_symbols(),
+                            ["H", "H", "H", "H"])
+    np.testing.assert_equal(atoms_new.get_tags(), [1, 1, 2, 2])
+    np.testing.assert_allclose(atoms_new.positions, atoms.positions)
+
+
+def test_gen_tags_multiple_elements():
+    """Test GEN format with tags for multiple different elements"""
+    atoms = Atoms("H2O2",
+                  positions=[[0, 0, 0], [1, 0, 0], [2, 0, 0], [3, 0, 0]],
+                  tags=[1, 2, 1, 2])
+    fname = "test_tags_multi_elem.gen"
+    write_gen(fname, atoms, with_tags=True)
+
+    atoms_new = read_gen(fname)
+    np.testing.assert_equal(atoms_new.get_chemical_symbols(),
+                            ["H", "H", "O", "O"])
+    np.testing.assert_equal(atoms_new.get_tags(), [1, 2, 1, 2])
+    np.testing.assert_allclose(atoms_new.positions, atoms.positions)
 
 
 def test_gen_multiple():

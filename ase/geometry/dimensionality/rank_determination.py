@@ -145,7 +145,8 @@ class RDA:
 
         A disjoint set is used to maintain the component graph.
 
-        Parameters:
+        Parameters
+        ----------
 
         num_atoms: int    The number of atoms in the unit cell.
         """
@@ -165,7 +166,8 @@ class RDA:
         components which are not connected in the infinite crystal.  This is
         tested during graph traversal.
 
-        Parameters:
+        Parameters
+        ----------
 
         i: int           The index of the first atom.
         n: int           The index of the second atom.
@@ -186,7 +188,8 @@ class RDA:
         The component graph is traversed (using BFS) until the matrix rank
         of the subspace spanned by the visited components no longer increases.
 
-        Returns:
+        Returns
+        -------
         hist : tuple         Dimensionality histogram.
         """
         adjacency = build_adjacency_list(self.graph.find_all(),
@@ -208,7 +211,8 @@ class RDA:
         """
         Determines the dimensionality and constituent atoms of each component.
 
-        Returns:
+        Returns
+        -------
         components: array    The component ID of every atom
         """
         component_dim = {e: self.ranks[e] for e in self.roots}

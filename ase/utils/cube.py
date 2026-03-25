@@ -16,7 +16,8 @@ def grid_2d_slice(
 
     Works for non-orthogonal cells.
 
-    Parameters:
+    Parameters
+    ----------
 
     cube: dict
         The cube dict as returned by ase.io.cube.read_cube
@@ -39,7 +40,8 @@ def grid_2d_slice(
     size_v: tuple
         The size of the interpolation grid in the v direction from the origin
 
-    Returns:
+    Returns
+    -------
 
     X: np.ndarray
         The x coordinates of the interpolation grid
@@ -50,7 +52,8 @@ def grid_2d_slice(
     D: np.ndarray
         The interpolated data on the grid
 
-    Examples:
+    Examples
+    --------
 
     From a cube file, we can extract a 2D slice of the density along the
     the direction of the first three atoms in the file:

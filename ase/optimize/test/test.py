@@ -4,7 +4,6 @@ import argparse
 import traceback
 from math import pi
 from time import time
-from typing import Union
 
 import numpy as np
 
@@ -45,7 +44,7 @@ class Wrapper:
         self.nsteps = 0
         self.atoms = atoms
         self.ready = False
-        self.pos: Union[np.ndarray, None] = None
+        self.pos: np.ndarray | None = None
         self.eggbox = eggbox
 
         self.x = None

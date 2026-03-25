@@ -43,7 +43,7 @@ is performed:
                                      # subsequent runs, reads from checkpoint
 """
 
-from typing import Any, Dict
+from typing import Any
 
 import numpy as np
 
@@ -247,7 +247,7 @@ class CheckpointCalculator(Calculator):
         # subsequent runs, reads from checkpoint file
     """
     implemented_properties = ase.calculators.calculator.all_properties
-    default_parameters: Dict[str, Any] = {}
+    default_parameters: dict[str, Any] = {}
     name = 'CheckpointCalculator'
 
     property_to_method_name = {

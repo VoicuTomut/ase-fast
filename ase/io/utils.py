@@ -594,7 +594,8 @@ class ImageIterator:
 def verify_cell_for_export(cell, check_orthorhombric=True):
     """Function to verify if the cell size is defined and if the cell is
 
-    Parameters:
+    Parameters
+    ----------
 
     cell: cell object
         cell to be checked.
@@ -622,7 +623,8 @@ def verify_dictionary(atoms, dictionary, dictionary_name):
     """
     Verify a dictionary have a key for each symbol present in the atoms object.
 
-    Parameters:
+    Parameters
+    ----------
 
     dictionary: dict
         Dictionary to be checked.
@@ -648,3 +650,19 @@ def verify_dictionary(atoms, dictionary, dictionary_name):
 def segment_list(data, segment_size):
     """Segments a list into sublists of a specified size."""
     return [data[i:i + segment_size] for i in range(0, len(data), segment_size)]
+
+
+def validate_comment_line(comment: str, name: str = 'Comment line') -> str:
+    """Strip trailing whitespace and check for illegal characters."""
+    comment = comment.rstrip()
+
+    if '\n' in comment:
+        raise ValueError(f'{name} should not have line breaks.')
+
+    return comment
+
+
+def connectivity2bonds(connectivity: np.ndarray) -> list[tuple[int, int]]:
+    """Convert adjacency matrix to list of bonds (as tuple of atom indices)"""
+    idcs0, idcs1 = np.nonzero(np.triu(connectivity, k=1))
+    return list(zip(idcs0, idcs1))

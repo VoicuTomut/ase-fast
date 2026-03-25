@@ -1,7 +1,7 @@
 # fmt: off
 
 import os
-from typing import Any, Union
+from typing import Any
 
 import numpy as np
 
@@ -25,10 +25,10 @@ class BEEFEnsemble:
     """BEEF type ensemble error estimation."""
 
     def __init__(self,
-                 atoms: Union[Atoms, DFTCalculator] = None,
-                 e: float = None,
-                 contribs: np.ndarray = None,
-                 xc: str = None,
+                 atoms: Atoms | DFTCalculator | None = None,
+                 e: float | None = None,
+                 contribs: np.ndarray | None = None,
+                 xc: str | None = None,
                  verbose: bool = True):
         if (atoms is not None or contribs is not None or xc is not None):
             if atoms is None:

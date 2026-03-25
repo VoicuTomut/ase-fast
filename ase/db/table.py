@@ -1,6 +1,5 @@
 # fmt: off
 
-from typing import List, Optional
 
 import numpy as np
 
@@ -76,7 +75,7 @@ class Table:
         self.right = None
         self.keys = None
         self.unique_key = unique_key
-        self.addcolumns: Optional[List[str]] = None
+        self.addcolumns: list[str] | None = None
 
     def select(self, query, columns, sort, limit, offset,
                show_empty_columns=False):

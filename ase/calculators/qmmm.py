@@ -1,6 +1,6 @@
 # fmt: off
 
-from typing import Sequence
+from collections.abc import Sequence
 
 import numpy as np
 
@@ -26,7 +26,8 @@ class SimpleQMMM(Calculator):
             E = E  (R  ) - E  (R  ) + E  (R   )
                  QM  QM     MM  QM     MM  all
 
-        parameters:
+        parameters
+        ----------
 
         selection: list of int, slice object or list of bool
             Selection out of all the atoms that belong to the QM part.
@@ -106,7 +107,8 @@ class EIQMMM(Calculator, IOContext):
             E = E  (R  ) + E  (R  ) + E (R  , R  )
                  QM  QM     MM  MM     I  QM   MM
 
-        parameters:
+        parameters
+        ----------
 
         selection: list of int, slice object or list of bool
             Selection out of all the atoms that belong to the QM part.
@@ -590,7 +592,8 @@ class ForceConstantCalculator(Calculator):
 
     def __init__(self, D, ref, f0):
         """
-        Parameters:
+        Parameters
+        ----------
 
         D: matrix or sparse matrix, shape `(3*len(ref), 3*len(ref))`
             Force constant matrix.
@@ -648,7 +651,8 @@ class ForceQMMM(Calculator):
         """
         ForceQMMM calculator
 
-        Parameters:
+        Parameters
+        ----------
 
         qm_selection_mask: list of ints, slice object or bool list/array
             Selection out of atoms that belong to the QM region.

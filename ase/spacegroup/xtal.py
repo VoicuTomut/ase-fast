@@ -9,7 +9,7 @@ knowledge of the space group.
 
 """
 
-from typing import Any, Dict
+from typing import Any
 
 import numpy as np
 from scipy import spatial
@@ -30,7 +30,8 @@ def crystal(symbols=None, basis=None, occupancies=None, spacegroup=1, setting=1,
     """Create an Atoms instance for a conventional unit cell of a
     space group.
 
-    Parameters:
+    Parameters
+    ----------
 
     symbols : str | sequence of str | sequence of Atom | Atoms
         Element symbols of the unique sites.  Can either be a string
@@ -92,7 +93,8 @@ def crystal(symbols=None, basis=None, occupancies=None, spacegroup=1, setting=1,
     constructor.  Currently, probably the most useful additional
     keyword arguments are `info`, `constraint` and `calculator`.
 
-    Examples:
+    Examples
+    --------
 
     Two diamond unit cells (space group number 227)
 
@@ -168,7 +170,7 @@ def crystal(symbols=None, basis=None, occupancies=None, spacegroup=1, setting=1,
     if cell is None:
         cell = cellpar_to_cell(cellpar, ab_normal, a_direction)
 
-    info: Dict[str, Any] = {}
+    info: dict[str, Any] = {}
     info['spacegroup'] = sg
     if primitive_cell:
         info['unit_cell'] = 'primitive'

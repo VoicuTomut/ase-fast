@@ -145,7 +145,8 @@ class Spacegroup:
     def __init__(self, spacegroup: _SPACEGROUP, setting=1, datafile=None):
         """Returns a new Spacegroup instance.
 
-        Parameters:
+        Parameters
+        ----------
 
         spacegroup : int | string | Spacegroup instance
             The space group number in International Tables of
@@ -395,7 +396,8 @@ class Spacegroup:
                          occupancies=None):
         """Returns the scaled positions and all their equivalent sites.
 
-        Parameters:
+        Parameters
+        ----------
 
         scaled_positions: list | array
             List of non-equivalent sites given in unit cell coordinates.
@@ -420,7 +422,8 @@ class Spacegroup:
             Minimum "distance" betweed two sites in scaled coordinates
             before they are counted as the same site.
 
-        Returns:
+        Returns
+        -------
 
         sites: array
             A NumPy array of equivalent sites.
@@ -755,7 +758,8 @@ def parse_sitesym_element(element):
     """Parses one element from a single site symmetry in the form used
     by the International Tables.
 
-    Examples:
+    Examples
+    --------
 
     >>> parse_sitesym_element("x")
     ([(0, 1)], 0.0)
@@ -986,7 +990,8 @@ def get_spacegroup(atoms, symprec=1e-5):
         Please use ``ase.spacegroup.symmetrize.check_symmetry`` or ``spglib``
         directly to get the symmetry operations for the given ``Atoms`` object.
 
-    Parameters:
+    Parameters
+    ----------
 
     atoms: Atoms object
         Types, positions and unit-cell.

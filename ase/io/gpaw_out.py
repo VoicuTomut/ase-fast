@@ -1,7 +1,6 @@
 # fmt: off
 
 import re
-from typing import List, Tuple, Union
 
 import numpy as np
 
@@ -12,14 +11,14 @@ from ase.calculators.singlepoint import (
 )
 
 
-def index_startswith(lines: List[str], string: str) -> int:
+def index_startswith(lines: list[str], string: str) -> int:
     for i, line in enumerate(lines):
         if line.strip().startswith(string):
             return i
     raise ValueError
 
 
-def index_pattern(lines: List[str], pattern: str) -> int:
+def index_pattern(lines: list[str], pattern: str) -> int:
     repat = re.compile(pattern)
     for i, line in enumerate(lines):
         if repat.match(line):
@@ -27,9 +26,9 @@ def index_pattern(lines: List[str], pattern: str) -> int:
     raise ValueError
 
 
-def read_forces(lines: List[str],
+def read_forces(lines: list[str],
                 ii: int,
-                atoms: Atoms) -> Tuple[List[Tuple[float, float, float]], int]:
+                atoms: Atoms) -> tuple[list[tuple[float, float, float]], int]:
     f = []
     for i in range(ii + 1, ii + 1 + len(atoms)):
         try:
@@ -40,8 +39,8 @@ def read_forces(lines: List[str],
     return f, i
 
 
-def read_stresses(lines: List[str],
-                  ii: int,) -> Tuple[List[Tuple[float, float, float]], int]:
+def read_stresses(lines: list[str],
+                  ii: int,) -> tuple[list[tuple[float, float, float]], int]:
     s = []
     for i in range(ii + 1, ii + 4):
         try:
@@ -73,7 +72,7 @@ def read_gpaw_out(fileobj, index):  # -> Union[Atoms, List[Atoms]]:
             i1 = i2
     blocks.append(lines[i1:])
 
-    images: List[Atoms] = []
+    images: list[Atoms] = []
     for lines in blocks:
         try:
             i = lines.index('unit cell:\n')
@@ -82,7 +81,7 @@ def read_gpaw_out(fileobj, index):  # -> Union[Atoms, List[Atoms]]:
         else:
             if lines[i + 2].startswith('  -'):
                 del lines[i + 2]  # old format
-            cell: List[Union[float, List[float]]] = []
+            cell: list[float | list[float]] = []
             pbc = []
             for line in lines[i + 2:i + 5]:
                 words = line.split()

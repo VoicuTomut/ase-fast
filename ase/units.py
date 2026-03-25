@@ -145,7 +145,8 @@ def create_units(codata_version):
     returned dict has attribute access it can be used in place of the module
     or to update your local or global namespace.
 
-    Parameters:
+    Parameters
+    ----------
 
     codata_version: str
         The CODATA version to be used. Implemented are
@@ -159,13 +160,15 @@ def create_units(codata_version):
         * '2018'
         * '2022'
 
-    Returns:
+    Returns
+    -------
 
     units: dict
         Dictionary that contains all formerly hard coded variables from
         ase.units as key-value pairs. The dict supports attribute access.
 
-    Raises:
+    Raises
+    ------
 
     NotImplementedError
         If the required CODATA version is not known.

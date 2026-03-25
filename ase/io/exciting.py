@@ -20,7 +20,6 @@ Note: excitingtools must be installed using `pip install excitingtools` for
 the exciting io to work.
 """
 from pathlib import Path
-from typing import Dict, Optional, Union
 
 import ase
 
@@ -36,7 +35,8 @@ def parse_output(info_out_file_path):
 
     Args:
         info_out_file_path: path to an INFO.out exciting output file.
-    Returns:
+    Returns
+    -------
         A dictionary containing information about how the calculation was setup
         and results from the calculations SCF cycles.
     """
@@ -51,9 +51,9 @@ def parse_output(info_out_file_path):
 
 
 def write_input_xml_file(
-        file_name, atoms: ase.Atoms, ground_state_input: Dict,
+        file_name, atoms: ase.Atoms, ground_state_input: dict,
         species_path, title=None,
-        properties_input: Optional[Dict] = None):
+        properties_input: dict | None = None):
     """Write input xml file for exciting calculation.
 
     Args:
@@ -88,7 +88,7 @@ def write_input_xml_file(
 
 
 def ase_atoms_from_exciting_input_xml(
-        input_xml_path: Union[Path, str]) -> ase.Atoms:
+        input_xml_path: Path | str) -> ase.Atoms:
     """Helper function to read structure from input.xml file.
 
     Note, this function operates on the input.xml file that is the input
@@ -101,7 +101,8 @@ def ase_atoms_from_exciting_input_xml(
     Args:
         input_xml_path: Path where input.xml file lives.
 
-    Returns:
+    Returns
+    -------
         ASE atoms object with all the relevant fields filled.
     """
     from excitingtools.exciting_obj_parsers.input_xml import parse_input_xml

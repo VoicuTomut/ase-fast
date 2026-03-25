@@ -31,7 +31,8 @@ class SiestaInput:
     def generate_kpts(cls, kpts):
         """Write kpts.
 
-        Parameters:
+        Parameters
+        ----------
             - f : Open filename.
         """
         yield '\n'

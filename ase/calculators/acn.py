@@ -61,7 +61,8 @@ class ACN(Calculator):
         width: float
             Width for cutoff function for Coulomb interactions.
 
-        References:
+        References
+        ----------
 
         https://doi.org/10.1080/08927020108024509
         """

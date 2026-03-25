@@ -32,7 +32,8 @@ class TSA:
         the dimensionality classification is dependent on the size of the
         initial cell.
 
-        Parameters:
+        Parameters
+        ----------
 
         num_atoms: int    The number of atoms in the unit cell.
         n: int            The number size of the (n, n, n) periodic supercell.
@@ -50,7 +51,8 @@ class TSA:
         """Inserts a bond into the component graph, both in the single cell and
         each of the n^3 subcells of the supercell.
 
-        Parameters:
+        Parameters
+        ----------
 
         i: int           The index of the first atom.
         n: int           The index of the second atom.
@@ -82,7 +84,8 @@ class TSA:
     def check(self):
         """Determines the dimensionality histogram.
 
-        Returns:
+        Returns
+        -------
         hist : tuple         Dimensionality histogram.
         """
         cdim = self._get_component_dimensionalities()
@@ -95,7 +98,8 @@ class TSA:
         """Determines the dimensionality and constituent atoms of each
         component.
 
-        Returns:
+        Returns
+        -------
         components: array    The component ID every atom
         """
         relabelled_dim = {}

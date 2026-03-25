@@ -19,7 +19,8 @@ class CombineMM(Calculator):
         """A calculator that combines two MM calculators
         (TIPnP, Counterions, ...)
 
-        parameters:
+        parameters
+        ----------
 
         idx: List of indices of atoms belonging to calculator 1
         apm1,2: atoms pr molecule of each subsystem (NB: apm for TIP4P is 3!)

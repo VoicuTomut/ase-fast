@@ -6,7 +6,8 @@ boilerplace method definitions (i.e. duplication) in calculators.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Mapping
+from collections.abc import Mapping
+from typing import Any
 
 
 class GetPropertiesMixin(ABC):

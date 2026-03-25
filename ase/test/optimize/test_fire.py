@@ -2,31 +2,21 @@
 import numpy as np
 import pytest
 
-from ase.build import bulk
 from ase.calculators.emt import EMT
 from ase.optimize import FIRE
 
 
 @pytest.mark.optimize()
 @pytest.mark.slow()
-def test_fire():
-    a = bulk('Au')
-    a *= (2, 2, 2)
-
-    a[0].x += 0.5
-
+def test_fire(distorted_bulk_gold):
+    a = distorted_bulk_gold.copy()
     a.calc = EMT()
-
     opt = FIRE(a, dtmax=1.0, dt=1.0, maxstep=100.0, downhill_check=False)
     opt.run(fmax=0.001)
     e1 = a.get_potential_energy()
     n1 = opt.nsteps
 
-    a = bulk('Au')
-    a *= (2, 2, 2)
-
-    a[0].x += 0.5
-
+    a = distorted_bulk_gold.copy()
     a.calc = EMT()
 
     reset_history = []

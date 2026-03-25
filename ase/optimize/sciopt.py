@@ -1,6 +1,6 @@
 # fmt: off
 
-from typing import IO, Optional, Union
+from typing import IO
 
 import numpy as np
 import scipy.optimize as opt
@@ -26,8 +26,8 @@ class SciPyOptimizer(Optimizer):
     def __init__(
         self,
         atoms: Atoms,
-        logfile: Union[IO, str] = '-',
-        trajectory: Optional[str] = None,
+        logfile: IO | str = '-',
+        trajectory: str | None = None,
         callback_always: bool = False,
         alpha: float = 70.0,
         **kwargs,
@@ -109,7 +109,7 @@ class SciPyOptimizer(Optimizer):
         gradient = self.optimizable.get_gradient()
         self.log(gradient)
         self.call_observers()
-        if self.converged(gradient):
+        if self.gradient_converged(gradient):
             raise Converged
 
     def run(self, fmax=0.05, steps=100000000):
@@ -129,7 +129,7 @@ class SciPyOptimizer(Optimizer):
         except Converged:
             pass
         gradient = self.optimizable.get_gradient()
-        return self.converged(gradient)
+        return self.gradient_converged(gradient)
 
     def dump(self, data):
         pass
@@ -202,8 +202,8 @@ class SciPyGradientlessOptimizer(Optimizer):
     def __init__(
         self,
         atoms: Atoms,
-        logfile: Union[IO, str] = '-',
-        trajectory: Optional[str] = None,
+        logfile: IO | str = '-',
+        trajectory: str | None = None,
         callback_always: bool = False,
         **kwargs,
     ):

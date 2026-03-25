@@ -71,7 +71,7 @@ class ORCA(GenericFileIOCalculator):
         """Construct ORCA-calculator object.
 
         Parameters
-        ==========
+        ----------
         charge: int
 
         mult: int
@@ -82,7 +82,7 @@ class ORCA(GenericFileIOCalculator):
 
 
         Examples
-        ========
+        --------
         Use default values:
 
         >>> from ase.calculators.orca import ORCA

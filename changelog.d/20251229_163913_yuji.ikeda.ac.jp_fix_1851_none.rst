@@ -1,5 +1,0 @@
-Bugfixes
---------
-
-- Fixed :meth:`ase.optimize.optimize.Optimizer.todict` to return :py:obj:`None`
-  for ``restart`` when not set (:mr:`3923`)

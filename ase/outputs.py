@@ -3,8 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import Mapping
-from typing import Sequence, Union
+from collections.abc import Mapping, Sequence
 
 import numpy as np
 
@@ -102,13 +101,13 @@ class ArrayProperty(Property):
         return np.asarray(value, dtype=self.dtype)
 
 
-ShapeSpec = Union[str, int]
+ShapeSpec = str | int
 
 
 def _defineprop(
     name: str,
     dtype: type = float,
-    shape: Union[ShapeSpec, Sequence[ShapeSpec]] = (),
+    shape: ShapeSpec | Sequence[ShapeSpec] = (),
 ) -> Property:
     """Create, register, and return a property."""
 

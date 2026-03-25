@@ -14,7 +14,7 @@ def surfaces_with_termination(lattice, indices, layers, vacuum=None, tol=1e-10,
         termination
 
         Parameters
-        ==========
+        ----------
         lattice: Atoms object or str
             Bulk lattice structure of alloy or pure metal.  Note that the
             unit-cell must be the conventional cell - not the primitive cell.
@@ -89,8 +89,8 @@ def translate_lattice(lattice, indices, tol=10**-3):
     """translates a bulk unit cell along a normal vector given by the a set of
     miller indices to the next symetric position. This is used to control the
     termination of the surface in the smart_surface command
-    Parameters:
-    ==========
+    Parameters
+    ----------
         lattice: Atoms object
             atoms object of the bulk unit cell
         indices: 1x3 list,tuple, or numpy array

@@ -18,7 +18,6 @@ python -m ase.io.bundlemanipulate inbundle outbundle [start [end [step]]]
 
 import json
 import os
-from typing import Optional
 
 import numpy as np
 
@@ -187,7 +186,7 @@ if __name__ == '__main__':
     else:
         start = 0
     if len(sys.argv) > 4:
-        end: Optional[int] = int(sys.argv[4])
+        end: int | None = int(sys.argv[4])
     else:
         end = None
     if len(sys.argv) > 5:

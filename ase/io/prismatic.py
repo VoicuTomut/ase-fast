@@ -148,7 +148,8 @@ def write_prismatic(fd, *args, **kwargs):
     these array will be written to the file.
     If the occupancies is not specified, the default value will be set to 0.
 
-    Parameters:
+    Parameters
+    ----------
 
     atoms: Atoms object
 

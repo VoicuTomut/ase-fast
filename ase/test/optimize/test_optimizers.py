@@ -9,6 +9,7 @@ from ase.optimize import (
     BFGS,
     FIRE,
     LBFGS,
+    RFO,
     BFGSLineSearch,
     GoodOldQuasiNewton,
     GPMin,
@@ -27,6 +28,7 @@ optclasses = [
     BFGSLineSearch,
     BFGS,
     GoodOldQuasiNewton,
+    RFO,
     GPMin,
     SciPyFminCG,
     SciPyFminBFGS,
@@ -90,8 +92,13 @@ def test_optimize(optcls, atoms, ref_atoms, kwargs):
     print(f"{optcls.__name__:>20}:", end=" ")
     print(f"fmax={final_fmax:.05f} eopt={e_opt:.06f} err={e_err:06e}")
 
-    assert final_fmax < fmax
     assert e_err < 1.75e-5  # (This tolerance is arbitrary)
+
+    assert final_fmax < fmax
+    assert opt.converged()
+    assert opt.converged(forces=forces)
+    with pytest.warns(FutureWarning):
+        assert opt.converged(gradient=-forces.ravel())
 
 
 @pytest.mark.optimize()
@@ -101,7 +108,9 @@ def test_unconverged(optcls, atoms, kwargs):
     with optcls(atoms, **kwargs) as opt:
         opt.run(fmax=fmax, steps=1)  # only one step to not get converged
     gradient = opt.optimizable.get_gradient()
-    assert not opt.converged(gradient)
+    assert not opt.gradient_converged(gradient)
+    assert not opt.converged()
+    assert not opt.converged(forces=-gradient.reshape(-1, 3))
     assert opt.todict()["fmax"] == 1e-9
 
 

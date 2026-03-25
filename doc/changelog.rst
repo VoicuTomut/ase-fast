@@ -30,6 +30,162 @@ Git master branch
 
 .. scriv-auto-changelog-start
 
+Version 3.28.0
+==============
+
+I/O
+---
+
+- Accelerate :func:`~ase.io.lammpsrun.read_lammps_dump_text`
+  using a NumPy structured array (:mr:`3939`)
+
+- Accelerate :func:`~ase.io.lammpsrun.read_lammps_dump_text` and
+  :func:`~ase.io.lammpsrun.read_lammps_dump_binary` by parsing the data file
+  only for necessary frames (:mr:`3959`, :mr:`3972`)
+
+- elk-in: add the string parameter type
+- elk-in: parameters: top-level tuple to describe an input block
+- elk-in: nested tuples to describe the multi-key inputs within a line
+- remove partial inconsistent ase->elk units conversion
+
+- Modified :func:`~ase.io.vasp.write_vasp_xdatcar` to print the header,
+  including the cell, for every image (:mr:`2873`)
+
+- Fixed a bug in CASTEP .phonon file reader: q-points beyond the first were not loaded.
+
+  - Added missing unit tests for CASTEP .phonon reader
+
+Calculators
+
+- Add writers for MDL Molfile V2000 based MOL and SDF formats.
+
+- **BREAKING CHANGE:** Changes have been made to
+  :func:`ase.visualize.plot.plot_atoms`. These are intended to "do the
+  right thing" and streamline common usage especially in tutorial
+  material.  (:mr:`3979`)
+
+  - always remove axis decorations to give a cleaner output.
+
+  - If no existing Axes are provided, create a new Figure. (Existing
+    behaviour is to work on the "current" Axes, possibly overwriting
+    an unrelated plot.)
+
+- A lower-level function :func:`ase.visualize.plot.plot_atoms_raw` is
+  provided which simply plots to a provided Matplotlib Axes; other
+  formatting is left to the user. This is recommended for use in
+  composite figures where the default/fixed behaviours of
+  :func:`~ase.visualize.plot.plot_atoms` are unweildy.
+
+Calculators
+-----------
+
+- Added ``with_tags`` parameter to :class:`~ase.calculators.dftb.Dftb` calculator to enable using atom tags to distinguish between chemically identical species. This allows different Slater-Koster parameter sets for atoms with the same element but different tags. (:mr:`3702`)
+
+Optimizers
+----------
+
+- Change the default method for :class:`~ase.mep.neb.NEB` to ``'improvedtangent'`` (previously ``'aseneb'``).
+
+- For compatibility with older code, re-add ``opt.converged()``
+  as a way to check convergence.
+  (Note that ``opt.run()`` returns whether it converged or not,
+  and ``opt.irun()`` yields for each step whether it converged or not.)
+  (:mr:`!3990`)
+
+Molecular dynamics
+------------------
+
+- Add :class:`~ase.md.MaskedMTKNPT` for cell fluctuation along specified axes.
+  This can be used to perform *NPzT* ensemble MD simulations. (:mr:`3807`)
+
+- Bug fix in Bussi dynamics: Would crash with GPAW calculator due to
+  random number not being properly synchronized.  (:mr:`!3976`)
+
+- Deprecate ``fixcm=True`` in :class:`~ase.md.Langevin` because its
+  implementation does not strictly sample the correct NVT distribution.
+  Use :class:`~ase.constraints.FixCom` instead (:mr:`3986`)
+
+GUI
+---
+
+- Users can now specify default values for the movie box in the GUI, through their '~/.ase/gui.py' settings file.
+
+- Move and Rotate modes no longer turn on if no atoms are selected.
+
+- An indicator is added to the bottom right corner that shows that a movement mode is active. This indicator also includes a contextual hint about modifier keys.
+
+- Rotation vectors are transformed to give a more intuitive pitch/yaw/roll experience in rotate mode which is also consistent with mouse movements.
+
+- Number fields in the GUI can now do basic arithmetic using Python syntax.
+
+- Default radii for atoms in ~/.ase/gui.py can now be specified as a
+  dictionary. Both the list and dictionary syntaxes now support using
+  atomic symbols as an alternative to atomic numbers.
+
+Documentation
+-------------
+
+ - The updated :ref:`tutorials` based on sphinx-gallery are now the
+   main tutorials.
+
+- Move Partly occupied Wannier Functions tutorial to sphinx gallery
+
+- Move Surface diffusion energy barriers using the Nudged Elastic Band (NEB) method to sphinx gallery.
+
+- Moved periodic table plot from gallery/ to examples/gallery, using the sphinx_gallery style.
+
+Other changes
+-------------
+
+- Calls to spglib adapted to support the
+  `future change of error handling
+  <https://spglib.readthedocs.io/en/stable/api/autodoc/spglib.error.html>`__
+  in spglib 2.8+.
+
+- Deprecate :meth:`ase.geometry.analysis.Analysis.get_rdf` due to bugs when
+  ``elements`` is not ``None``. This method will be removed soon.
+  Use :func:`ase.geometry.rdf.get_rdf` instead (:mr:`3993`)
+
+- Change :func:`ase.geometry.rdf.get_rdf` so that ``elements`` can accept
+  chemical symbols (:mr:`3993`)
+
+Bugfixes
+--------
+
+- Fixed :meth:`ase.optimize.optimize.Optimizer.todict` to return :py:obj:`None`
+  for ``restart`` when not set (:mr:`3923`)
+
+- Ctrl/Shift key handling is refactored in the GUI to try and combat a bug where Num Lock would continuously register as a modifier. This was causing the arrow keys to behave incorrectly in "Move" and "Rotate" modes.
+
+- Fixed :class:`~ase.spectrum.band_structure.BandStructure` legend plotting for figures with multiple axes (:mr:`3935`)
+- Fixed :class:`~ase.spectrum.band_structure.BandStructure` to save the figure associated with the axes (:mr:`3935`)
+
+- Make MolecularDynamics.run() return a boolean value.
+
+- Fix :func:`~ase.io.lammpsrun.read_lammps_dump_text` and
+  :func:`~ase.io.lammpsrun.read_lammps_dump_binary` to interpret ``index`` with
+  negative ``start`` / ``stop`` / ``step`` correctly (:mr:`3959`, :mr:`3972`)
+
+- Fixed :func:`~ase.io.vasp.read_vasp_xml` to get not the enthalpy but the
+  energy without PV to be consistent with :func:`~ase.io.vasp.read_vasp_out`
+  (:mr:`2685`)
+
+- Fixed a bug where graphs could not be rendered when launching the GUI via IPython/Jupyter
+
+- FHI-aims molecular calculations with spin collinear now have correct eigenvalue reading portions
+
+- Setting the default radii for atoms in ~/.ase/gui.py works once again.
+
+- Introduced checks to ensure no PBCs are used in Thermochemistry
+  when calculating rotational moments of inertia. Also warn user
+  if trying to use :func:`~ase.atoms.get_moments_of_inertia` when
+  PBCs are present. (:mr:`3953`)
+
+- Fix missing @writer decorator for :func:~ase.io.espresso.write_fortran_namelist` so can take str filenames
+
+- Make vasp constraint reader which is called by outcar reader ignore empty
+  CONTCAR/POSCAR files as well as non-existent ones
+
 Version 3.27.0
 ==============
 

@@ -26,7 +26,7 @@ import subprocess
 import sys
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any
 from warnings import warn
 from xml.etree import ElementTree
 
@@ -43,7 +43,7 @@ from ase.utils import PurePath, deprecated
 from ase.vibrations.data import VibrationsData
 
 
-def _prohibit_directory_in_label(args: List, kwargs: Dict[str, Any]) -> bool:
+def _prohibit_directory_in_label(args: list, kwargs: dict[str, Any]) -> bool:
     if len(args) >= 5 and "/" in args[4]:
         return True
     return "/" in kwargs.get("label", "")
@@ -53,7 +53,8 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore[misc]
     """ASE interface for the Vienna Ab initio Simulation Package (VASP),
     with the Calculator interface.
 
-    Parameters:
+    Parameters
+    ----------
 
     atoms:  object
         Attach an atoms object to the calculator.
@@ -106,7 +107,7 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore[misc]
     ]
 
     # Can be used later to set some ASE defaults
-    default_parameters: Dict[str, Any] = {}
+    default_parameters: dict[str, Any] = {}
 
     @deprecated(
         'Specifying directory in "label" is deprecated, '
@@ -263,7 +264,8 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore[misc]
         If a string is used, a new stream is opened, and automatically closes
         the new stream again when exiting.
 
-        Examples:
+        Examples
+        --------
         # Pass a string
         calc.txt = 'vasp.out'
         with calc.txt_outstream() as out:
@@ -448,7 +450,8 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore[misc]
         """Restore calculator from a :func:`~ase.calculators.vasp.Vasp.asdict`
         dictionary.
 
-        Parameters:
+        Parameters
+        ----------
 
         dct: Dictionary
             The dictionary which is used to restore the calculator state.
@@ -468,7 +471,8 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore[misc]
     def write_json(self, filename):
         """Dump calculator state to JSON file.
 
-        Parameters:
+        Parameters
+        ----------
 
         filename: string
             The filename which the JSON file will be stored to.
@@ -1176,10 +1180,11 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore[misc]
     def get_bz_k_points(self):
         raise NotImplementedError
 
-    def read_vib_freq(self, lines=None) -> Tuple[List[float], List[float]]:
+    def read_vib_freq(self, lines=None) -> tuple[list[float], list[float]]:
         """Read vibrational frequencies.
 
-        Returns:
+        Returns
+        -------
             List of real and list of imaginary frequencies
             (imaginary number as real number).
         """
@@ -1201,7 +1206,8 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore[misc]
     def _read_massweighted_hessian_xml(self):
         """Read the Mass Weighted Hessian from vasprun.xml.
 
-        Returns:
+        Returns
+        -------
             The Mass Weighted Hessian as np.ndarray from the xml file.
 
             Raises a ReadError if the reader is not able to read the Hessian.
@@ -1266,7 +1272,8 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore[misc]
     def get_vibrations(self) -> VibrationsData:
         """Get a VibrationsData Object from a VASP Calculation.
 
-        Returns:
+        Returns
+        -------
             VibrationsData object.
 
             Note that the atoms in the VibrationsData object can be resorted.

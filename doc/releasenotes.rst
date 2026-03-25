@@ -7,6 +7,18 @@ Release notes
 A comprehensive list of changes can be found in the :ref:`changelog`.
 
 
+.. auto-newrelease-insert-version-header-here
+
+Version 3.28.0
+==============
+
+17 March 2026: :git:`3.28.0 <../3.28.0>`
+
+Release notes still to be written.
+
+
+
+
 Version 3.27.0
 ==============
 
@@ -17,11 +29,11 @@ This is an ordinary feature release.  Highlights:
 * ASE now requires Python 3.10 or newer.
 
 * As part of the overall decentralisation efforts,
-  the `ase.ga` module has moved to a standalone project,
+  the :mod:`ase.ga` module has moved to a standalone project,
   `ase-ga <https://dtu-energy.github.io/ase-ga/>`__.
 
 * Many :ref:`tutorials` have been ported to
-  `sphinx-gallery <https://sphinx-gallery.github.io/>__`
+  `sphinx-gallery <https://sphinx-gallery.github.io/>`__
   and are now tested automatically, resulting in various fixes.
 
 * Multiple improvements across the :mod:`ase.thermochemistry` module.
@@ -835,19 +847,19 @@ Development:
 Version 3.20.1
 ==============
 
-11 August 2020: :git:`3.20.1 <../3.20.1>`
+11 August 2020: :git:`3.20.1 <../3.20.1>`:
 
- * Minor fix related to package version requirements on pypi.
+* Minor fix related to package version requirements on pypi.
 
 Version 3.19.3
 ==============
 
-11 August 2020: :git:`3.19.3 <../3.19.3>`
+11 August 2020: :git:`3.19.3 <../3.19.3>`:
 
- * Minor fix related to package version requirements on pypi.
+* Minor fix related to package version requirements on pypi.
 
- * Deprecated calling the :class:`ase.optimize.fire.FIRE` constructor
-   with ``maxmove``; please use ``maxstep`` (:mr:`1725`).
+* Deprecated calling the :class:`ase.optimize.fire.FIRE` constructor 
+  with ``maxmove``; please use ``maxstep`` (:mr:`1725`).
 
 Version 3.20.0
 ==============
@@ -987,7 +999,7 @@ GUI:
   If you miss them, please find them in git history and rehabilitate
   them.
 
- * Added Russian translation.
+* Added Russian translation.
 
 Calculators:
 
@@ -1347,12 +1359,12 @@ I/O:
 
 GUI:
 
- * Quickinfo dialog automatically updates when switching image.
+* Quickinfo dialog automatically updates when switching image.
 
- * Display information about custom arrays on Atoms objects; allow colouring
-   by custom arrays.
+* Display information about custom arrays on Atoms objects; allow colouring 
+  by custom arrays.
 
- * Improved color scales.
+* Improved color scales.
 
 
 Version 3.17.0

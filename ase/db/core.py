@@ -6,7 +6,7 @@ import os
 import re
 import warnings
 from time import time
-from typing import Any, Dict, List
+from typing import Any
 
 import numpy as np
 
@@ -389,7 +389,7 @@ class Database:
 
     def __init__(
         self,
-        filename: str = None,
+        filename: str | None = None,
         create_indices: bool = True,
         use_lock_file: bool = False,
         serial: bool = False,
@@ -414,7 +414,7 @@ class Database:
         self._metadata = None
 
     @property
-    def metadata(self) -> Dict[str, Any]:
+    def metadata(self) -> dict[str, Any]:
         raise NotImplementedError
 
     @parallel_function
@@ -743,7 +743,7 @@ def bytes_to_object(b: bytes) -> Any:
     return b2o(obj, b)
 
 
-def o2b(obj: Any, parts: List[bytes]):
+def o2b(obj: Any, parts: list[bytes]):
     if isinstance(obj, (int, float, bool, str, type(None))):
         return obj
     if isinstance(obj, dict):

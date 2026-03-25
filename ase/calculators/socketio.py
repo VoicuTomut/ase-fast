@@ -283,7 +283,8 @@ class SocketServer(IOContext):
                  log=None):
         """Create server and listen for connections.
 
-        Parameters:
+        Parameters
+        ----------
 
         client_command: Shell command to launch client process, or None
             The process will be launched immediately, if given.
@@ -423,7 +424,8 @@ class SocketClient:
                  unixsocket=None, timeout=None, log=None, comm=world):
         """Create client and connect to server.
 
-        Parameters:
+        Parameters
+        ----------
 
         host: string
             Hostname of server.  Defaults to localhost
@@ -588,7 +590,8 @@ class SocketIOCalculator(Calculator, IOContext):
         Siesta calculators.  This works with any external code that
         supports running as a client over the i-PI protocol.
 
-        Parameters:
+        Parameters
+        ----------
 
         calc: calculator or None
 

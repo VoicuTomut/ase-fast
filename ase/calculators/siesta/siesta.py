@@ -18,7 +18,7 @@ import shutil
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 import numpy as np
 
@@ -114,7 +114,7 @@ class SiestaParameters(Parameters):
         Parameters.__init__(self, **kwargs)
 
 
-def _nonpolarized_alias(_: List, kwargs: Dict[str, Any]) -> bool:
+def _nonpolarized_alias(_: list, kwargs: dict[str, Any]) -> bool:
     if kwargs.get("spin", None) == "UNPOLARIZED":
         kwargs["spin"] = "non-polarized"
         return True
@@ -159,7 +159,8 @@ class Siesta(FileIOCalculator):
     def __init__(self, command=None, profile=None, directory='.', **kwargs):
         """ASE interface to the SIESTA code.
 
-        Parameters:
+        Parameters
+        ----------
            - label        : The basename of all files created during
                             calculation.
            - mesh_cutoff  : Energy in eV.
@@ -228,7 +229,8 @@ class Siesta(FileIOCalculator):
         """Convenience method to retrieve a parameter as
         calculator[key] rather than calculator.parameters[key]
 
-            Parameters:
+            Parameters
+        ----------
                 -key       : str, the name of the parameters to get.
         """
         return self.parameters[key]
@@ -252,7 +254,8 @@ class Siesta(FileIOCalculator):
     def set(self, **kwargs):
         """Set all parameters.
 
-            Parameters:
+            Parameters
+        ----------
                 -kwargs  : Dictionary containing the keywords defined in
                            SiestaParameters.
 
@@ -351,7 +354,8 @@ class Siesta(FileIOCalculator):
         """Write input (fdf)-file.
         See calculator.py for further details.
 
-        Parameters:
+        Parameters
+        ----------
             - atoms        : The Atoms object to write.
             - properties   : The properties which should be calculated.
             - system_changes : List of properties changed since last run.

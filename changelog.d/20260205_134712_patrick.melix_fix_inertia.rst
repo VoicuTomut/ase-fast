@@ -1,7 +1,0 @@
-Bugfixes
---------
-
-- Introduced checks to ensure no PBCs are used in Thermochemistry
-  when calculating rotational moments of inertia. Also warn user
-  if trying to use :func:`~ase.atoms.get_moments_of_inertia` when
-  PBCs are present. (:mr:`3953`)

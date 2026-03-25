@@ -4,7 +4,8 @@
 # towards replacing ase.dft.dos and ase.dft.pdos
 import warnings
 from abc import ABCMeta, abstractmethod
-from typing import Any, Dict, Sequence, Tuple, TypeVar, Union
+from collections.abc import Sequence
+from typing import Any, TypeVar
 
 import numpy as np
 from matplotlib.axes import Axes
@@ -13,10 +14,10 @@ from ase.utils.plotting import SimplePlottingAxes
 
 # For now we will be strict about Info and say it has to be str->str. Perhaps
 # later we will allow other types that have reliable comparison operations.
-Info = Dict[str, str]
+Info = dict[str, str]
 
 # Still no good solution to type checking with arrays.
-Floats = Union[Sequence[float], np.ndarray]
+Floats = Sequence[float] | np.ndarray
 
 
 class DOSData(metaclass=ABCMeta):
@@ -25,7 +26,7 @@ class DOSData(metaclass=ABCMeta):
     Only the 'info' is a mutable attribute; DOS data is set at init"""
 
     def __init__(self,
-                 info: Info = None) -> None:
+                 info: Info | None = None) -> None:
         if info is None:
             self.info = {}
         elif isinstance(info, dict):
@@ -60,7 +61,8 @@ class DOSData(metaclass=ABCMeta):
             smearing: selection of broadening kernel (only "Gauss" is currently
                 supported)
 
-        Returns:
+        Returns
+        -------
             Weights sampled from a broadened DOS at values corresponding to x
         """
 
@@ -111,8 +113,8 @@ class DOSData(metaclass=ABCMeta):
 
     def sample_grid(self,
                     npts: int,
-                    xmin: float = None,
-                    xmax: float = None,
+                    xmin: float | None = None,
+                    xmax: float | None = None,
                     padding: float = 3,
                     width: float = 0.1,
                     smearing: str = 'Gauss',
@@ -129,7 +131,8 @@ class DOSData(metaclass=ABCMeta):
             smearing: selection of broadening kernel (only 'Gauss' is
                 implemented)
 
-        Returns:
+        Returns
+        -------
             (energy values, sampled DOS)
         """
 
@@ -145,14 +148,14 @@ class DOSData(metaclass=ABCMeta):
 
     def plot(self,
              npts: int = 1000,
-             xmin: float = None,
-             xmax: float = None,
+             xmin: float | None = None,
+             xmax: float | None = None,
              width: float = 0.1,
              smearing: str = 'Gauss',
-             ax: Axes = None,
+             ax: Axes | None = None,
              show: bool = False,
-             filename: str = None,
-             mplargs: dict = None) -> Axes:
+             filename: str | None = None,
+             mplargs: dict | None = None) -> Axes:
         """Simple 1-D plot of DOS data, resampled onto a grid
 
         If the special key 'label' is present in self.info, this will be set
@@ -172,7 +175,8 @@ class DOSData(metaclass=ABCMeta):
                 (e.g. {'linewidth': 2} for a thicker line).
 
 
-        Returns:
+        Returns
+        -------
             Plotting axes. If "ax" was set, this is the same object.
         """
 
@@ -189,7 +193,7 @@ class DOSData(metaclass=ABCMeta):
                                        mplargs=mplargs)
 
     @staticmethod
-    def label_from_info(info: Dict[str, str]):
+    def label_from_info(info: dict[str, str]):
         """Generate an automatic legend label from info dict"""
         if 'label' in info:
             return info['label']
@@ -211,7 +215,7 @@ class GeneralDOSData(DOSData):
     def __init__(self,
                  energies: Floats,
                  weights: Floats,
-                 info: Info = None) -> None:
+                 info: Info | None = None) -> None:
         super().__init__(info=info)
 
         n_entries = len(energies)
@@ -287,10 +291,10 @@ class RawDOSData(GeneralDOSData):
         return new_object
 
     def plot_deltas(self,
-                    ax: Axes = None,
+                    ax: Axes | None = None,
                     show: bool = False,
-                    filename: str = None,
-                    mplargs: dict = None) -> Axes:
+                    filename: str | None = None,
+                    mplargs: dict | None = None) -> Axes:
         """Simple plot of sparse DOS data as a set of delta functions
 
         Items at the same x-value can overlap and will not be summed together
@@ -303,7 +307,8 @@ class RawDOSData(GeneralDOSData):
             mplargs: additional arguments to pass to matplotlib Axes.vlines
                 command (e.g. {'linewidth': 2} for a thicker line).
 
-        Returns:
+        Returns
+        -------
             Plotting axes. If "ax" was set, this is the same object.
         """
 
@@ -353,7 +358,7 @@ class GridDOSData(GeneralDOSData):
     def __init__(self,
                  energies: Floats,
                  weights: Floats,
-                 info: Info = None) -> None:
+                 info: Info | None = None) -> None:
         n_entries = len(energies)
         if not np.allclose(energies,
                            np.linspace(energies[0], energies[-1], n_entries)):
@@ -411,10 +416,10 @@ class GridDOSData(GeneralDOSData):
 
     @staticmethod
     def _interpret_smearing_args(npts: int,
-                                 width: float = None,
+                                 width: float | None = None,
                                  default_npts: int = 1000,
                                  default_width: float = 0.1
-                                 ) -> Tuple[int, Union[float, None]]:
+                                 ) -> tuple[int, float | None]:
         """Figure out what the user intended: resample if width provided"""
         if width is not None:
             if npts:
@@ -429,14 +434,14 @@ class GridDOSData(GeneralDOSData):
 
     def plot(self,
              npts: int = 0,
-             xmin: float = None,
-             xmax: float = None,
-             width: float = None,
+             xmin: float | None = None,
+             xmax: float | None = None,
+             width: float | None = None,
              smearing: str = 'Gauss',
-             ax: Axes = None,
+             ax: Axes | None = None,
              show: bool = False,
-             filename: str = None,
-             mplargs: dict = None) -> Axes:
+             filename: str | None = None,
+             mplargs: dict | None = None) -> Axes:
         """Simple 1-D plot of DOS data
 
         Data will be resampled onto a grid with `npts` points unless `npts` is
@@ -464,7 +469,8 @@ class GridDOSData(GeneralDOSData):
             mplargs: additional arguments to pass to matplotlib plot command
                 (e.g. {'linewidth': 2} for a thicker line).
 
-        Returns:
+        Returns
+        -------
             Plotting axes. If "ax" was set, this is the same object.
         """
 

@@ -7,6 +7,7 @@ See https://en.wikipedia.org/wiki/XYZ_file_format
 Note that the .xyz files are handled by the extxyz module by default.
 """
 from ase.atoms import Atoms
+from ase.io.utils import validate_comment_line
 
 
 def read_xyz(fileobj, index):
@@ -33,9 +34,8 @@ def read_xyz(fileobj, index):
 
 
 def write_xyz(fileobj, images, comment='', fmt='%22.15f'):
-    comment = comment.rstrip()
-    if '\n' in comment:
-        raise ValueError('Comment line should not have line breaks.')
+    comment = validate_comment_line(comment)
+
     for atoms in images:
         natoms = len(atoms)
         fileobj.write('%d\n%s\n' % (natoms, comment))

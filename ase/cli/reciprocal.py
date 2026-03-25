@@ -62,7 +62,8 @@ class CLICommand:
     the file contains information about k-points, then those can be plotted
     too.
 
-    Examples:
+    Examples
+    --------
 
         $ ase build -x fcc Al al.traj
         $ ase reciprocal al.traj

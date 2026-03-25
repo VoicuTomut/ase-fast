@@ -47,7 +47,8 @@ def write_openmx(label=None, atoms=None, parameters=None, properties=None,
     Write input (dat)-file.
     See calculator.py for further details.
 
-    Parameters:
+    Parameters
+    ----------
         - atoms        : The Atoms object to write.
         - properties   : The properties which should be calculated.
         - system_changes : List of properties changed since last run.

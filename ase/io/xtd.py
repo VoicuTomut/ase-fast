@@ -6,6 +6,7 @@ from xml.dom import minidom
 import numpy as np
 
 from ase import Atoms
+from ase.io.utils import connectivity2bonds
 from ase.io.xsd import SetChild, _write_xsd_html
 
 _image_header = ' ' * 74 + '0.0000\n!DATE     Jan 01 00:00:00 2000\n'
@@ -40,12 +41,10 @@ def write_xtd(filename, images, connectivity=None, moviespeed=10):
     ATR.attrib['NumChildren'] = '2'
     natoms = len(images[0])
 
-    bonds = []
     if connectivity is not None:
-        for i in range(connectivity.shape[0]):
-            for j in range(i + 1, connectivity.shape[0]):
-                if connectivity[i, j]:
-                    bonds.append([i, j])
+        bonds = connectivity2bonds(connectivity)
+    else:
+        bonds = []
 
     # non-periodic system
     s = '!BIOSYM archive 3\n'

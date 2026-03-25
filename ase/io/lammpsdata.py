@@ -35,12 +35,12 @@ def _make_cell(box):
 @reader
 def read_lammps_data(
     fileobj,
-    Z_of_type: dict = None,
+    Z_of_type: dict | None = None,
     sort_by_id: bool = True,
     read_image_flags: bool = True,
     units: str = 'metal',
-    atom_style: str = None,
-    style: str = None,
+    atom_style: str | None = None,
+    style: str | None = None,
 ):
     """Method which reads a LAMMPS data file.
 
@@ -342,7 +342,7 @@ class _AtomsSection:
         self.cell_ids = self.cell_ids[args]
 
 
-def _read_atoms_section(fileobj, natoms: int, style: str = None):
+def _read_atoms_section(fileobj, natoms: int, style: str | None = None):
     data = _AtomsSection(natoms)
     next(fileobj)  # skip blank line just after `Atoms`
     for i in range(natoms):
@@ -454,7 +454,7 @@ def write_lammps_data(
     fd,
     atoms: Atoms,
     *,
-    specorder: list = None,
+    specorder: list | None = None,
     reduce_cell: bool = False,
     force_skew: bool = False,
     prismobj: Prism = None,

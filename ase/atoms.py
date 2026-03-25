@@ -13,8 +13,9 @@ from __future__ import annotations
 import copy
 import numbers
 import warnings
+from collections.abc import Sequence
 from math import cos, pi, sin
-from typing import Sequence, Union, overload
+from typing import overload
 
 import numpy as np
 
@@ -234,7 +235,8 @@ class _LimitedAtoms:
     def get_positions(self, wrap=False, **wrap_kw):
         """Get array of positions.
 
-        Parameters:
+        Parameters
+        ----------
 
         wrap: bool
             wrap atoms back to the cell before returning positions
@@ -297,7 +299,8 @@ class _LimitedAtoms:
     def set_cell(self, cell, scale_atoms=False, apply_constraint=True):
         """Set unit cell vectors.
 
-        Parameters:
+        Parameters
+        ----------
 
         cell: 3x3 matrix or length 3 or 6 vector
             Unit cell.  A 3x3 matrix (the three unit cell vectors) or
@@ -313,7 +316,8 @@ class _LimitedAtoms:
         apply_constraint: bool
             Whether to apply constraints to the given cell.
 
-        Examples:
+        Examples
+        --------
 
         Two equivalent ways to define an orthorhombic cell:
 
@@ -490,7 +494,8 @@ class _LimitedAtoms:
     def get_chemical_formula(self, mode='hill', empirical=False):
         """Get the chemical formula as a string based on the chemical symbols.
 
-        Parameters:
+        Parameters
+        ----------
 
         mode: str
             There are four different modes available:
@@ -832,10 +837,10 @@ class _LimitedAtoms:
             yield self[i]
 
     @overload
-    def __getitem__(self, i: Union[int, np.integer]) -> Atom: ...
+    def __getitem__(self, i: int | np.integer) -> Atom: ...
 
     @overload
-    def __getitem__(self, i: Union[Sequence, slice, np.ndarray]) -> Atoms: ...
+    def __getitem__(self, i: Sequence | slice | np.ndarray) -> Atoms: ...
 
     def __getitem__(self, i):
         """Return a subset of the atoms.
@@ -1156,7 +1161,8 @@ class _LimitedAtoms:
     def rotate(self, a, v, center=(0, 0, 0), rotate_cell=False):
         """Rotate atoms based on a vector and an angle, or two vectors.
 
-        Parameters:
+        Parameters
+        ----------
 
         a = None:
             Angle that the atoms is rotated around the vector 'v'. 'a'
@@ -1175,7 +1181,8 @@ class _LimitedAtoms:
         rotate_cell = False:
             If true the cell is also rotated.
 
-        Examples:
+        Examples
+        --------
 
         Rotate 90 degrees around the z-axis, so that the x-axis is
         rotated into the y-axis:
@@ -1654,7 +1661,8 @@ class _LimitedAtoms:
     def wrap(self, **wrap_kw):
         """Wrap positions to unit cell.
 
-        Parameters:
+        Parameters
+        ----------
 
         wrap_kw: (keyword=value) pairs
             optional keywords `pbc`, `center`, `pretty_translation`, `eps`,

@@ -89,7 +89,8 @@ class Res:
         Args:
             filename (str): File name containing Res data.
 
-        Returns:
+        Returns
+        -------
             Res object.
         """
         with open(filename) as fd:
@@ -139,7 +140,8 @@ class Res:
         Args:
             data (str): string containing Res data.
 
-        Returns:
+        Returns
+        -------
             Res object.
         """
         abc = []
@@ -201,7 +203,8 @@ class Res:
             write_info (bool): if True, format TITL line using key-value pairs
                from atoms.info in addition to attributes stored in Res object
 
-        Returns:
+        Returns
+        -------
             String representation of Res.
         """
 

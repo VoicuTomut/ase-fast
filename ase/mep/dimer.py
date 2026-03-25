@@ -9,7 +9,7 @@ import sys
 import time
 import warnings
 from math import atan, cos, degrees, pi, sin, sqrt, tan
-from typing import Any, Dict
+from typing import Any
 
 import numpy as np
 
@@ -63,7 +63,8 @@ class DimerEigenmodeSearch:
     This class implements the rotational part of the dimer saddle point
     searching method.
 
-    Parameters:
+    Parameters
+    ----------
 
     atoms: MinModeAtoms object
         MinModeAtoms is an extension to the Atoms object, which includes
@@ -77,12 +78,14 @@ class DimerEigenmodeSearch:
         It is possible to constrain the eigenmodes to be orthogonal
         to this given eigenmode.
 
-    Notes:
+    Notes
+    -----
 
     The code is inspired, with permission, by code written by the Henkelman
     group, which can be found at http://theory.cm.utexas.edu/vtsttools/code/
 
-    References:
+    References
+    ----------
 
     * Henkelman and Jonsson, JCP 111, 7010 (1999)
     * Olsen, Kroes, Henkelman, Arnaldsson, and Jonsson, JCP 121,
@@ -320,7 +323,7 @@ class MinModeControl(IOContext):
     be overwritten.
 
     """
-    parameters: Dict[str, Any] = {}
+    parameters: dict[str, Any] = {}
 
     def __init__(self, logfile='-', eigenmode_logfile=None, comm=world,
                  **kwargs):
@@ -391,7 +394,8 @@ class MinModeControl(IOContext):
 class DimerControl(MinModeControl):
     """A class that takes care of the parameters needed for a Dimer search.
 
-    Parameters:
+    Parameters
+    ----------
 
     eigenmode_method: str
         The name of the eigenmode search method.
@@ -498,7 +502,10 @@ class MinModeAtoms:
     along the eigenmode estimate. This eventually brings the system to
     a saddle point.
 
-    Parameters:
+    [1]_ [2]_ [3]_ [4]_
+
+    Parameters
+    ----------
 
     atoms : Atoms object
         A regular Atoms object
@@ -512,8 +519,8 @@ class MinModeAtoms:
         The seed used for the random number generator. Defaults to
         modified version the current time.
 
-    References: [1]_ [2]_ [3]_ [4]_
-
+    References
+    ----------
     .. [1] Henkelman and Jonsson, JCP 111, 7010 (1999)
     .. [2] Olsen, Kroes, Henkelman, Arnaldsson, and Jonsson, JCP 121,
            9776 (2004).
