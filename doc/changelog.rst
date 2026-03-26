@@ -43,21 +43,20 @@ I/O
   :func:`~ase.io.lammpsrun.read_lammps_dump_binary` by parsing the data file
   only for necessary frames (:mr:`3959`, :mr:`3972`)
 
-- elk-in: add the string parameter type
-- elk-in: parameters: top-level tuple to describe an input block
-- elk-in: nested tuples to describe the multi-key inputs within a line
-- remove partial inconsistent ase->elk units conversion
+- Improvements to elk-in writer: (:mr:`3950`)
+  - add the string parameter type
+  - parameters: top-level tuple to describe an input block
+  - nested tuples to describe the multi-key inputs within a line
+  - remove partial inconsistent ase->elk units conversion
 
 - Modified :func:`~ase.io.vasp.write_vasp_xdatcar` to print the header,
   including the cell, for every image (:mr:`2873`)
 
-- Fixed a bug in CASTEP .phonon file reader: q-points beyond the first were not loaded.
+- Fixed a bug in CASTEP .phonon file reader: q-points beyond the first were not loaded. (:mr:`3977`)
 
   - Added missing unit tests for CASTEP .phonon reader
 
-Calculators
-
-- Add writers for MDL Molfile V2000 based MOL and SDF formats.
+- Add writers for MDL Molfile V2000 based MOL and SDF formats. (:mr:`4008`)
 
 - **BREAKING CHANGE:** Changes have been made to
   :func:`ase.visualize.plot.plot_atoms`. These are intended to "do the
@@ -90,7 +89,7 @@ Optimizers
   as a way to check convergence.
   (Note that ``opt.run()`` returns whether it converged or not,
   and ``opt.irun()`` yields for each step whether it converged or not.)
-  (:mr:`!3990`)
+  (:mr:`3990`)
 
 Molecular dynamics
 ------------------
@@ -99,7 +98,7 @@ Molecular dynamics
   This can be used to perform *NPzT* ensemble MD simulations. (:mr:`3807`)
 
 - Bug fix in Bussi dynamics: Would crash with GPAW calculator due to
-  random number not being properly synchronized.  (:mr:`!3976`)
+  random number not being properly synchronized.  (:mr:`3976`)
 
 - Deprecate ``fixcm=True`` in :class:`~ase.md.Langevin` because its
   implementation does not strictly sample the correct NVT distribution.
@@ -140,7 +139,7 @@ Other changes
 - Calls to spglib adapted to support the
   `future change of error handling
   <https://spglib.readthedocs.io/en/stable/api/autodoc/spglib.error.html>`__
-  in spglib 2.8+.
+  in spglib 2.8+. (:mr:`3948`)
 
 - Deprecate :meth:`ase.geometry.analysis.Analysis.get_rdf` due to bugs when
   ``elements`` is not ``None``. This method will be removed soon.
@@ -160,7 +159,7 @@ Bugfixes
 - Fixed :class:`~ase.spectrum.band_structure.BandStructure` legend plotting for figures with multiple axes (:mr:`3935`)
 - Fixed :class:`~ase.spectrum.band_structure.BandStructure` to save the figure associated with the axes (:mr:`3935`)
 
-- Make MolecularDynamics.run() return a boolean value.
+- Make MolecularDynamics.run() return a boolean value. (:mr:`3938`)
 
 - Fix :func:`~ase.io.lammpsrun.read_lammps_dump_text` and
   :func:`~ase.io.lammpsrun.read_lammps_dump_binary` to interpret ``index`` with
@@ -170,9 +169,9 @@ Bugfixes
   energy without PV to be consistent with :func:`~ase.io.vasp.read_vasp_out`
   (:mr:`2685`)
 
-- Fixed a bug where graphs could not be rendered when launching the GUI via IPython/Jupyter
+- Fixed a bug where graphs could not be rendered when launching the GUI via IPython/Jupyter (:mr:`3945`)
 
-- FHI-aims molecular calculations with spin collinear now have correct eigenvalue reading portions
+- FHI-aims molecular calculations with spin collinear now have correct eigenvalue reading portions (:mr:`3951`)
 
 - Setting the default radii for atoms in ~/.ase/gui.py works once again.
 
@@ -181,10 +180,10 @@ Bugfixes
   if trying to use :func:`~ase.atoms.get_moments_of_inertia` when
   PBCs are present. (:mr:`3953`)
 
-- Fix missing @writer decorator for :func:~ase.io.espresso.write_fortran_namelist` so can take str filenames
+- Fix missing @writer decorator for :func:~ase.io.espresso.write_fortran_namelist` so can take str filenames (:mr:`4007`)
 
 - Make vasp constraint reader which is called by outcar reader ignore empty
-  CONTCAR/POSCAR files as well as non-existent ones
+  CONTCAR/POSCAR files as well as non-existent ones (:mr:`4014`)
 
 Version 3.27.0
 ==============
