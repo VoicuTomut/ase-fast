@@ -35,8 +35,7 @@ class NoseHooverChainNVT(MolecularDynamics):
 
     While the algorithm and notation for the thermostat are largely adapted
     from Ref. [4], the core equations are detailed in the implementation
-    note available at
-    https://github.com/lan496/lan496.github.io/blob/main/notes/nose_hoover_chain/main.pdf.
+    note available at https://arxiv.org/abs/2603.24061.
 
     - [4] M. E. Tuckerman, Statistical Mechanics: Theory and Molecular
           Simulation, 2nd ed. (Oxford University Press, 2009).
@@ -704,6 +703,9 @@ class MTKNPT(MolecularDynamics):
 class MaskedMTKNPT(MTKNPT):
     """Isothermal-isobaric molecular dynamics with cell fluctuations along
     specified crystallographic axes by Martyna-Tobias-Klein (MTK) method [1].
+
+    The core equations are detailed in the implementation note available at
+    https://arxiv.org/abs/2603.24061.
 
     See also :class:`NoseHooverChainNVT` for the references.
 
