@@ -10,6 +10,6 @@ from ase.atom import Atom
 from ase.atoms import Atoms
 
 __all__ = ['Atoms', 'Atom']
-__version__ = '3.29.7'
+__version__ = '3.29.8'
 
 ase.parallel  # silence pyflakes
