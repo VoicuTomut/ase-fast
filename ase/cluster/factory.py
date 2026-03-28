@@ -84,7 +84,8 @@ class ClusterFactory(ClusterBase):
             n = self.miller_to_direction(s)
             rmax = self.get_layer_distance(s, l + 0.1)
 
-            r = np.dot(positions - self.center, n)
+            with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
+                r = np.dot(positions - self.center, n)
             mask = np.less(r, rmax)
 
             if self.debug > 1:

@@ -1,4 +1,5 @@
 # fmt: off
+from __future__ import annotations
 
 """
 Extended XYZ support
@@ -29,6 +30,15 @@ from ase.outputs import ArrayProperty, all_outputs
 from ase.spacegroup.spacegroup import Spacegroup
 from ase.stress import voigt_6_to_full_3x3_stress
 from ase.utils import reader, writer
+
+try:
+    from ase._extxyz_rs import (
+        write_atoms_rs as _write_atoms_rs,
+        read_atom_lines_rs as _read_atom_lines_rs,
+    )
+    _HAVE_RUST_EXTXYZ = True
+except ImportError:
+    _HAVE_RUST_EXTXYZ = False
 
 __all__ = ['read_xyz', 'write_xyz', 'iread_xyz']
 
@@ -64,7 +74,7 @@ for key, val in all_outputs.items():
         per_config_properties.append(key)
 
 
-def key_val_str_to_dict(string, sep=None):
+def key_val_str_to_dict(string: str, sep: str | None = None) -> dict:
     """
     Parse an xyz properties string in a key=value and return a dict with
     various values parsed to native types.
@@ -187,7 +197,7 @@ def key_val_str_to_dict(string, sep=None):
     return kv_dict
 
 
-def key_val_str_to_dict_regex(s):
+def key_val_str_to_dict_regex(s: str) -> dict:
     """
     Parse strings in the form 'key1=value1 key2="quoted value"'
     """
@@ -254,7 +264,7 @@ def key_val_str_to_dict_regex(s):
     return d
 
 
-def escape(string):
+def escape(string: str) -> str:
     if (' ' in string or
             '"' in string or "'" in string or
             '{' in string or '}' in string or
@@ -264,12 +274,12 @@ def escape(string):
     return string
 
 
-def key_val_dict_to_str(dct, sep=' '):
+def key_val_dict_to_str(dct: dict, sep: str = ' ') -> str:
     """
     Convert atoms.info dictionary to extended XYZ string representation
     """
 
-    def array_to_string(key, val):
+    def array_to_string(key: str, val: np.ndarray) -> str | np.ndarray:
         # some ndarrays are special (special 3x3 keys, and scalars/vectors of
         # numbers or bools), handle them here
         if key in SPECIAL_3_3_KEYS:
@@ -286,7 +296,7 @@ def key_val_dict_to_str(dct, sep=' '):
                 val = ' '.join(str(known_types_to_str(v)) for v in val)
         return val
 
-    def known_types_to_str(val):
+    def known_types_to_str(val: Any) -> str | Any:
         if isinstance(val, (bool, np.bool_)):
             return 'T' if val else 'F'
         elif isinstance(val, numbers.Real):
@@ -335,7 +345,7 @@ def key_val_dict_to_str(dct, sep=' '):
     return string.strip()
 
 
-def parse_properties(prop_str):
+def parse_properties(prop_str: str) -> tuple[dict, list, np.dtype, list]:
     """
     Parse extended XYZ properties format string
 
@@ -352,7 +362,7 @@ def parse_properties(prop_str):
 
     fields = prop_str.split(':')
 
-    def parse_bool(x):
+    def parse_bool(x: str) -> bool | None:
         """
         Parse bool to string
         """
@@ -368,7 +378,11 @@ def parse_properties(prop_str):
                                  fields[1::3],
                                  [int(x) for x in fields[2::3]]):
         if ptype not in ('R', 'I', 'S', 'L'):
-            raise ValueError('Unknown property type: ' + ptype)
+            raise ValueError(
+                f"Unknown property type code '{ptype}' in Properties string. "
+                "Valid codes are: 'R' (real/float), 'I' (integer), "
+                "'S' (string/species), 'L' (logical/bool)."
+            )
         ase_name = REV_PROPERTY_NAME_MAP.get(name, name)
 
         dtype, converter = fmt_map[ptype]
@@ -387,8 +401,8 @@ def parse_properties(prop_str):
     return properties, properties_list, dtype, converters
 
 
-def _read_xyz_frame(lines, natoms, properties_parser=key_val_str_to_dict,
-                    nvec=0):
+def _read_xyz_frame(lines: Iterator, natoms: int, properties_parser=key_val_str_to_dict,
+                    nvec: int = 0) -> Atoms:
     # comment line
     line = next(lines).strip()
     if nvec > 0:
@@ -422,22 +436,61 @@ def _read_xyz_frame(lines, natoms, properties_parser=key_val_str_to_dict,
     properties, names, dtype, convs = parse_properties(info['Properties'])
     del info['Properties']
 
-    data = []
-    for _ in range(natoms):
-        try:
-            line = next(lines)
-        except StopIteration:
-            raise XYZError('ase.io.extxyz: Frame has {} atoms, expected {}'
-                           .format(len(data), natoms))
-        vals = line.split()
-        row = tuple(conv(val) for conv, val in zip(convs, vals))
-        data.append(row)
+    # ── Atom data reader ──────────────────────────────────────────────────────
+    # Map dtype field kinds to Rust col_type codes (b'f', b'i', b's', b'b').
+    # If any field has an unsupported kind, fall back to Python.
+    _KIND_TO_RTYPE = {'f': ord('f'), 'd': ord('f'), 'i': ord('i'), 'u': ord('i'),
+                      'b': ord('b'), 'O': ord('s'), 'U': ord('s'), 'S': ord('s')}
+    _rtype_list = [_KIND_TO_RTYPE.get(dtype[n].kind) for n in dtype.names]
+    _use_rust_read = _HAVE_RUST_EXTXYZ and all(r is not None for r in _rtype_list)
 
-    try:
-        data = np.array(data, dtype)
-    except TypeError:
-        raise XYZError('Badly formatted data '
-                       'or end of file reached before end of frame')
+    if _use_rust_read:
+        # Collect all natoms lines up-front so Rust can work without the generator.
+        _atom_lines = []
+        for _ in range(natoms):
+            try:
+                _atom_lines.append(next(lines))
+            except StopIteration:
+                raise XYZError('ase.io.extxyz: Frame has {} atoms, expected {}'
+                               .format(len(_atom_lines), natoms))
+        try:
+            _parsed = _read_atom_lines_rs(_atom_lines, _rtype_list)
+        except (ValueError, Exception):
+            # Rust parse error — fall back to Python row-by-row
+            _use_rust_read = False
+            lines = iter(_atom_lines)  # replay lines for Python fallback
+
+    if _use_rust_read:
+        # Build structured array from per-type Rust arrays.
+        data = np.zeros(natoms, dtype)
+        _fi, _ii, _bi, _si = 0, 0, 0, 0
+        for _n in dtype.names:
+            _k = dtype[_n].kind
+            if _k in ('f', 'd'):
+                data[_n] = _parsed['floats'][:, _fi]; _fi += 1
+            elif _k in ('i', 'u'):
+                data[_n] = _parsed['ints'][:, _ii]; _ii += 1
+            elif _k == 'b':
+                data[_n] = _parsed['bools'][:, _bi].astype(bool); _bi += 1
+            else:  # 'O', 'U', 'S'
+                data[_n] = _parsed['strs'][_si]; _si += 1
+    else:
+        data = []
+        for _ in range(natoms):
+            try:
+                line = next(lines)
+            except StopIteration:
+                raise XYZError('ase.io.extxyz: Frame has {} atoms, expected {}'
+                               .format(len(data), natoms))
+            vals = line.split()
+            row = tuple(conv(val) for conv, val in zip(convs, vals))
+            data.append(row)
+
+        try:
+            data = np.array(data, dtype)
+        except TypeError:
+            raise XYZError('Badly formatted data '
+                           'or end of file reached before end of frame')
 
     # Read VEC entries if present
     if nvec > 0:
@@ -445,8 +498,10 @@ def _read_xyz_frame(lines, natoms, properties_parser=key_val_str_to_dict,
             try:
                 line = next(lines)
             except StopIteration:
-                raise XYZError('ase.io.adfxyz: Frame has {} cell vectors, '
-                               'expected {}'.format(len(cell), nvec))
+                raise XYZError(
+                    'ase.io.extxyz: Frame has {} VEC entries but the header '
+                    'declared {}. File may be truncated.'.format(len(cell), nvec)
+                )
             entry = line.split()
 
             if not entry[0].startswith('VEC'):
@@ -507,7 +562,7 @@ def _read_xyz_frame(lines, natoms, properties_parser=key_val_str_to_dict,
     return atoms
 
 
-def set_calc_and_arrays(atoms, arrays):
+def set_calc_and_arrays(atoms: Atoms, arrays: dict) -> None:
     results = {}
 
     for name, array in arrays.items():
@@ -566,7 +621,7 @@ iread_xyz = ImageIterator(ixyzchunks)
 
 
 @reader
-def read_xyz(fileobj, index=-1, properties_parser=key_val_str_to_dict):
+def read_xyz(fileobj: TextIO, index: int | slice = -1, properties_parser=key_val_str_to_dict) -> Atoms | list[Atoms]:
     r"""
     Read from a file in Extended XYZ format
 
@@ -734,7 +789,7 @@ def read_xyz(fileobj, index=-1, properties_parser=key_val_str_to_dict):
         yield _read_xyz_frame(fileobj, natoms, properties_parser, nvec)
 
 
-def output_column_format(atoms, columns, arrays, write_info=True):
+def output_column_format(atoms: Atoms, columns: list[str], arrays: dict, write_info: bool = True) -> tuple[str, list[int], np.dtype, str]:
     """
     Helper function to build extended XYZ comment line
     """
@@ -820,9 +875,9 @@ def _make_move_mask(atoms: Atoms) -> np.ndarray:
 
 
 @writer
-def write_xyz(fileobj, images, comment='', columns=None,
-              write_info=True,
-              write_results=True, plain=False, vec_cell=False):
+def write_xyz(fileobj: TextIO, images: Atoms | list[Atoms], comment: str = '', columns: list[str] | None = None,
+              write_info: bool = True,
+              write_results: bool = True, plain: bool = False, vec_cell: bool = False) -> None:
     """
     Write output in extended XYZ format
 
@@ -888,12 +943,21 @@ def write_xyz(fileobj, images, comment='', columns=None,
             symbols = [*atoms.symbols]
 
         if natoms > 0 and not isinstance(symbols[0], str):
-            raise ValueError('First column must be symbols-like')
+            raise ValueError(
+                f"First column ('{fr_cols[0]}') must contain chemical symbol "
+                "strings (e.g. 'C', 'Fe'), "
+                f"but got {type(symbols[0]).__name__!r} values. "
+                "Check the columns= argument or the atoms.arrays keys."
+            )
 
         # Check second column "looks like" atomic positions
         pos = atoms.arrays[fr_cols[1]]
         if pos.shape != (natoms, 3) or pos.dtype.kind != 'f':
-            raise ValueError('Second column must be position-like')
+            raise ValueError(
+                f"Second column ('{fr_cols[1]}') must be a float array of shape "
+                f"({natoms}, 3) for atomic positions, "
+                f"but got shape {pos.shape} with dtype '{pos.dtype}'."
+            )
 
         # if vec_cell add cell information as pseudo-atoms
         if vec_cell:
@@ -939,28 +1003,99 @@ def write_xyz(fileobj, images, comment='', columns=None,
             # override key/value pairs with user-speficied comment string
             comm = validate_comment_line(comment)
 
-        # Pack fr_cols into record array
-        data = np.zeros(natoms, dtype)
-        for column, ncol in zip(fr_cols, ncols):
-            value = arrays[column]
-            if ncol == 1:
-                data[column] = np.squeeze(value)
-            else:
-                for c in range(ncol):
-                    data[column + str(c)] = value[:, c]
-
         nat = natoms
         if vec_cell:
             nat -= nPBC
         # Write the output
         fileobj.write('%d\n' % nat)
         fileobj.write(f'{comm}\n')
-        for i in range(natoms):
-            fileobj.write(fmt % tuple(data[i]))
+
+        # ── Rust fast path ────────────────────────────────────────────────────
+        # Work directly from the per-column `arrays` dict, bypassing the
+        # structured array entirely.  Eliminates O(N) Python overhead per frame.
+        _wrote_rust = False
+        if _HAVE_RUST_EXTXYZ and not vec_cell:
+            _sym_width = 2
+            _m = re.search(r'%-?(\d+)s', fmt)
+            if _m:
+                _sym_width = int(_m.group(1))
+
+            _sym_cp = None      # (natoms, max_chars) uint32 codepoint array
+            _float_cols: list = []
+            _int_cols: list = []
+            _bool_cols: list = []
+            _col_types: list = []
+            _ok = True
+
+            for _col, _ncol in zip(fr_cols, ncols):
+                _arr = arrays[_col]
+                _k = _arr.dtype.kind
+                if _k in ('U', 'S') and _sym_cp is None and _ncol == 1:
+                    # View unicode array as uint32 codepoints — zero-copy, avoids
+                    # creating N Python string objects in the Rust call.
+                    _max_chars = _arr.itemsize // 4  # bytes per char in numpy unicode = 4
+                    _sym_cp = np.ascontiguousarray(
+                        _arr.view(np.uint32).reshape(natoms, _max_chars)
+                    )
+                    _col_types.append(ord('s'))
+                elif _k in ('f', 'd'):
+                    _arr_f = np.ascontiguousarray(
+                        _arr.reshape(natoms, _ncol) if _arr.ndim == 1 else _arr,
+                        dtype=np.float64,
+                    )
+                    _float_cols.append(_arr_f)
+                    for _ in range(_ncol):
+                        _col_types.append(ord('f'))
+                elif _k in ('i', 'u'):
+                    _arr_i = np.ascontiguousarray(
+                        _arr.reshape(natoms, _ncol) if _arr.ndim == 1 else _arr,
+                        dtype=np.int64,
+                    )
+                    _int_cols.append(_arr_i)
+                    for _ in range(_ncol):
+                        _col_types.append(ord('i'))
+                elif _k == 'b':
+                    _arr_b = _arr.reshape(natoms, _ncol) if _arr.ndim == 1 else _arr
+                    _bool_cols.append(_arr_b.view(np.uint8).reshape(natoms, _ncol))
+                    for _ in range(_ncol):
+                        _col_types.append(ord('b'))
+                else:
+                    _ok = False
+                    break
+
+            if _ok and _sym_cp is not None:
+                def _mat(_cols, _dtype):
+                    if not _cols:
+                        return np.empty((natoms, 0), dtype=_dtype)
+                    if len(_cols) == 1:
+                        return np.ascontiguousarray(_cols[0], dtype=_dtype)
+                    return np.ascontiguousarray(np.concatenate(_cols, axis=1), dtype=_dtype)
+
+                fileobj.write(_write_atoms_rs(
+                    _sym_cp, _sym_width,
+                    _mat(_float_cols, np.float64),
+                    _mat(_int_cols, np.int64),
+                    _mat(_bool_cols, np.uint8),
+                    _col_types,
+                ))
+                _wrote_rust = True
+
+        if not _wrote_rust:
+            # Python fallback: build structured array then format loop
+            data = np.zeros(natoms, dtype)
+            for column, ncol in zip(fr_cols, ncols):
+                value = arrays[column]
+                if ncol == 1:
+                    data[column] = np.squeeze(value)
+                else:
+                    for c in range(ncol):
+                        data[column + str(c)] = value[:, c]
+            for i in range(natoms):
+                fileobj.write(fmt % tuple(data[i]))
 
 
-def save_calc_results(atoms, calc=None, calc_prefix=None,
-                      remove_atoms_calc=False, force=False):
+def save_calc_results(atoms: Atoms, calc=None, calc_prefix: str | None = None,
+                      remove_atoms_calc: bool = False, force: bool = False) -> None:
     """Update information in atoms from results in a calculator
 
     Args:
@@ -996,10 +1131,18 @@ def save_calc_results(atoms, calc=None, calc_prefix=None,
             per_atom_results[calc_prefix + prop] = value
 
     if not force:
-        if any(key in atoms.info for key in per_config_results):
-            raise KeyError("key from calculator already exists in atoms.info")
-        if any(key in atoms.arrays for key in per_atom_results):
-            raise KeyError("key from calculator already exists in atoms.arrays")
+        info_conflicts = [k for k in per_config_results if k in atoms.info]
+        if info_conflicts:
+            raise KeyError(
+                f"Calculator result key(s) {info_conflicts} already exist in "
+                "atoms.info. Pass force=True to overwrite."
+            )
+        array_conflicts = [k for k in per_atom_results if k in atoms.arrays]
+        if array_conflicts:
+            raise KeyError(
+                f"Calculator result key(s) {array_conflicts} already exist in "
+                "atoms.arrays. Pass force=True to overwrite."
+            )
 
     atoms.info.update(per_config_results)
     atoms.arrays.update(per_atom_results)

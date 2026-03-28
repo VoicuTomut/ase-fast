@@ -196,7 +196,8 @@ def get_morse_potential_hessian(atoms, morse, spectral=False):
         eigvals, eigvecs = linalg.eigh(Hx)
         D = np.diag(np.abs(eigvals))
         U = eigvecs
-        Hx = np.dot(U, np.dot(D, np.transpose(U)))
+        with np.errstate(divide="ignore", invalid="ignore", over="ignore"):
+            Hx = np.dot(U, np.dot(D, np.transpose(U)))
 
     morse.r = dij
 
@@ -286,7 +287,8 @@ def get_bond_potential_hessian(atoms, bond, morses=None, spectral=False):
         eigvals, eigvecs = linalg.eigh(Hx)
         D = np.diag(np.abs(eigvals))
         U = eigvecs
-        Hx = np.dot(U, np.dot(D, np.transpose(U)))
+        with np.errstate(divide="ignore", invalid="ignore", over="ignore"):
+            Hx = np.dot(U, np.dot(D, np.transpose(U)))
 
     bond.b = dij
 
@@ -498,7 +500,8 @@ def get_angle_potential_hessian(atoms, angle, morses=None, spectral=False):
         eigvals, eigvecs = linalg.eigh(Hx)
         D = np.diag(np.abs(eigvals))
         U = eigvecs
-        Hx = np.dot(U, np.dot(D, np.transpose(U)))
+        with np.errstate(divide="ignore", invalid="ignore", over="ignore"):
+            Hx = np.dot(U, np.dot(D, np.transpose(U)))
 
     angle.a = a
 
@@ -724,7 +727,8 @@ def get_dihedral_potential_hessian(atoms, dihedral, morses=None,
         eigvals, eigvecs = linalg.eigh(Hx)
         D = np.diag(np.abs(eigvals))
         U = eigvecs
-        Hx = np.dot(U, np.dot(D, np.transpose(U)))
+        with np.errstate(divide="ignore", invalid="ignore", over="ignore"):
+            Hx = np.dot(U, np.dot(D, np.transpose(U)))
 
     return i, j, k, l, Hx
 
@@ -871,7 +875,8 @@ def get_vdw_potential_hessian(atoms, vdw, spectral=False):
         eigvals, eigvecs = linalg.eigh(Hx)
         D = np.diag(np.abs(eigvals))
         U = eigvecs
-        Hx = np.dot(U, np.dot(D, np.transpose(U)))
+        with np.errstate(divide="ignore", invalid="ignore", over="ignore"):
+            Hx = np.dot(U, np.dot(D, np.transpose(U)))
 
     vdw.r = dij
 
@@ -929,7 +934,8 @@ def get_coulomb_potential_hessian(atoms, coulomb, spectral=False):
         eigvals, eigvecs = linalg.eigh(Hx)
         D = np.diag(np.abs(eigvals))
         U = eigvecs
-        Hx = np.dot(U, np.dot(D, np.transpose(U)))
+        with np.errstate(divide="ignore", invalid="ignore", over="ignore"):
+            Hx = np.dot(U, np.dot(D, np.transpose(U)))
 
     coulomb.r = dij
 

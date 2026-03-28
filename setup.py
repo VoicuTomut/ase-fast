@@ -10,6 +10,20 @@ from os.path import join
 from setuptools import setup
 from setuptools.command.build_py import build_py as _build_py
 
+try:
+    from setuptools_rust import Binding, RustExtension
+    _HAVE_SETUPTOOLS_RUST = True
+except ImportError:
+    _HAVE_SETUPTOOLS_RUST = False
+
+# Four optional Rust extensions — silently skipped if Rust toolchain is absent.
+_RUST_EXTENSIONS = [
+    ('ase._neighborlist_rs', 'ase-neighborlist-rs/Cargo.toml'),
+    ('ase._extxyz_rs',       'ase-extxyz-rs/Cargo.toml'),
+    ('ase._geometry_rs',     'ase-geometry-rs/Cargo.toml'),
+    ('ase._io_rs',           'ase-io-rs/Cargo.toml'),
+]
+
 
 class build_py(_build_py):
     """Custom command to build translations."""
@@ -43,4 +57,21 @@ class build_py(_build_py):
         return _build_py.get_outputs(self, *args, **kwargs) + self.mofiles
 
 
-setup(cmdclass={'build_py': build_py})
+_rust_exts = []
+if _HAVE_SETUPTOOLS_RUST:
+    for module, manifest in _RUST_EXTENSIONS:
+        _rust_exts.append(
+            RustExtension(
+                module,
+                manifest,
+                binding=Binding.PyO3,
+                optional=True,    # graceful degradation: no Rust = Python fallback
+                debug=False,      # always compile with --release (LTO, opt-level=3)
+                features=['pyo3/extension-module'],
+            )
+        )
+
+setup(
+    cmdclass={'build_py': build_py},
+    rust_extensions=_rust_exts,
+)

@@ -95,7 +95,8 @@ class GaussianProcess():
         """
         n = self.X.shape[0]
         k = self.kernel.kernel_vector(x, self.X, n)
-        f = self.prior.prior(x) + np.dot(k, self.a)
+        with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
+            f = self.prior.prior(x) + np.dot(k, self.a)
         if get_variance:
             v = solve_triangular(self.L, k.T.copy(), lower=True,
                                  check_finite=False)

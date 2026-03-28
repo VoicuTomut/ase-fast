@@ -220,8 +220,9 @@ class HarmonicForceField:
         and reconstruct Hessian matrix."""
         hessian_x = self.parameters['hessian_x']
         hessian_x = 0.5 * (hessian_x + hessian_x.T)  # guarantee symmetry
-        hessian_q = ijac0.T @ hessian_x @ ijac0  # forward transformation
-        hessian_x = jac0.T @ hessian_q @ jac0  # backward transformation
+        with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
+            hessian_q = ijac0.T @ hessian_x @ ijac0  # forward transformation
+            hessian_x = jac0.T @ hessian_q @ jac0  # backward transformation
         hessian_x = 0.5 * (hessian_x + hessian_x.T)  # guarantee symmetry
         w, v = eigh(hessian_x)  # rot. and trans. degrees of freedom are removed
         w[np.abs(w) < self.parameters['zero_thresh']] = 0.0  # noise-cancelling
@@ -229,9 +230,10 @@ class HarmonicForceField:
             'hessian_limit'
         ]
         # reconstruct Hessian from new eigenvalues and preserved eigenvectors
-        hessian_x = v @ np.diagflat(w) @ v.T  # v.T == inv(v) due to symmetry
-        self._hessian_x = 0.5 * (hessian_x + hessian_x.T)  # guarantee symmetry
-        self._hessian_q = ijac0.T @ self._hessian_x @ ijac0
+        with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
+            hessian_x = v @ np.diagflat(w) @ v.T  # v.T == inv(v) due to symmetry
+            self._hessian_x = 0.5 * (hessian_x + hessian_x.T)  # guarantee symmetry
+            self._hessian_q = ijac0.T @ self._hessian_x @ ijac0
 
     @staticmethod
     def get_ijac(jac, rcond):  # jac is the Wilson B-matrix

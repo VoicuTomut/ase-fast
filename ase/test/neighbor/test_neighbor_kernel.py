@@ -38,7 +38,8 @@ def test_neighbor_kernel():
 
         r = a.get_positions()
         dr_direct = mic(r[j] - r[i], a.cell)
-        assert np.abs(r[j] - r[i] + shift.dot(a.cell) - dr_direct).max() < tol
+        with np.errstate(divide="ignore", invalid="ignore", over="ignore"):
+            assert np.abs(r[j] - r[i] + shift.dot(a.cell) - dr_direct).max() < tol
 
         abs_dr_from_dr = np.sqrt(np.sum(dr * dr, axis=1))
         abs_dr_direct = np.sqrt(np.sum(dr_direct * dr_direct, axis=1))
@@ -62,7 +63,8 @@ def test_neighbor_kernel():
 
         r = a.get_positions()
         dr_direct = mic(r[j] - r[i], a.cell)
-        assert np.abs(r[j] - r[i] + shift.dot(a.cell) - dr_direct).max() < tol
+        with np.errstate(divide="ignore", invalid="ignore", over="ignore"):
+            assert np.abs(r[j] - r[i] + shift.dot(a.cell) - dr_direct).max() < tol
 
         abs_dr_from_dr = np.sqrt(np.sum(dr * dr, axis=1))
         abs_dr_direct = np.sqrt(np.sum(dr_direct * dr_direct, axis=1))

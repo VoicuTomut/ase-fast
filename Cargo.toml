@@ -1,0 +1,13 @@
+[workspace]
+members = [
+    "ase-neighborlist-rs",
+    "ase-extxyz-rs",
+    "ase-geometry-rs",
+    "ase-io-rs",
+]
+resolver = "2"
+
+[profile.release]
+lto = true
+codegen-units = 1
+opt-level = 3

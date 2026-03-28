@@ -10,8 +10,9 @@ def test_dos():
 
     cell = np.eye(3)
     shape = (11, 13, 9)
-    kpts = np.dot(monkhorst_pack(shape),
-                  np.linalg.inv(cell).T).reshape(shape + (3,))
+    with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
+        kpts = np.dot(monkhorst_pack(shape),
+                      np.linalg.inv(cell).T).reshape(shape + (3,))
 
     # Free electron eigenvalues:
     eigs = 0.5 * (kpts**2).sum(3)[..., np.newaxis]  # new axis for 1 band

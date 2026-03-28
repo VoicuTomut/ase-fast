@@ -192,14 +192,14 @@ class FranckCondonRecursive:
             sum -= 2 * m * S
         if m > 1:
             sum += m * (m - 1)
-        with np.errstate(divide='ignore', invalid='ignore'):
+        with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
             return np.where(S == 0, 0,
                             (np.exp(-S) * S**(m - 1) / delta
                              * (S - m) * sum * self.factorial.inv(m)))
 
     def direct0mm3(self, m, delta):
         S = delta**2 / 2.
-        with np.errstate(divide='ignore', invalid='ignore'):
+        with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
             return np.where(
                 S == 0, 0,
                 (np.exp(-S) * S**(m - 1) / delta * np.sqrt(12.) *

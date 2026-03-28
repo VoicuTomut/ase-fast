@@ -8,3 +8,7 @@ include ase/db/templates/*
 include ase/gui/po/Makefile
 include ase/gui/po/??_??/LC_MESSAGES/ag.po
 include ase/gui/po/??/LC_MESSAGES/ag.po
+recursive-include ase-neighborlist-rs *.rs *.toml
+recursive-include ase-extxyz-rs *.rs *.toml
+recursive-include ase-geometry-rs *.rs *.toml
+recursive-include ase-io-rs *.rs *.toml

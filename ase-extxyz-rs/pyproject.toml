@@ -1,0 +1,14 @@
+[build-system]
+requires = ["maturin>=1.0,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "ase-extxyz-rs"
+version = "0.1.0"
+description = "Rust-accelerated extxyz IO for ASE"
+requires-python = ">=3.9"
+
+[tool.maturin]
+# Install the .so directly inside the local ase/ Python package.
+module-name = "ase._extxyz_rs"
+features = ["pyo3/extension-module"]

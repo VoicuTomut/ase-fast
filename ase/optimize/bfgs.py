@@ -126,7 +126,8 @@ class BFGS(Optimizer):
         #         self.logfile.write(msg)
         #         self.logfile.flush()
 
-        dpos = np.dot(V, -np.dot(gradient, V) / np.fabs(omega))
+        with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
+            dpos = np.dot(V, -np.dot(gradient, V) / np.fabs(omega))
         # XXX Here we are calling gradient_norm() on some positions.
         # Should there be a general norm concept
         steplengths = self.optimizable.gradient_norm(dpos)
@@ -163,10 +164,11 @@ class BFGS(Optimizer):
             return
 
         dforces = forces - forces0
-        a = np.dot(dpos, dforces)
-        dg = np.dot(self.H, dpos)
-        b = np.dot(dpos, dg)
-        self.H -= np.outer(dforces, dforces) / a + np.outer(dg, dg) / b
+        with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
+            a = np.dot(dpos, dforces)
+            dg = np.dot(self.H, dpos)
+            b = np.dot(dpos, dg)
+            self.H -= np.outer(dforces, dforces) / a + np.outer(dg, dg) / b
 
     def replay_trajectory(self, traj):
         """Initialize hessian from old trajectory."""

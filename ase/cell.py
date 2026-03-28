@@ -1,6 +1,8 @@
 """Cell."""
+from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
+from typing import Any
 
 import numpy as np
 
@@ -23,7 +25,7 @@ class Cell:
 
     ase_objtype = 'cell'  # For JSON'ing
 
-    def __init__(self, array):
+    def __init__(self, array: np.ndarray) -> None:
         """Create cell.
 
         Parameters
@@ -35,7 +37,7 @@ class Cell:
         assert array.shape == (3, 3)
         self.array = array
 
-    def cellpar(self, radians=False):
+    def cellpar(self, radians: bool = False) -> np.ndarray:
         """Get unit cell parameters. Sequence of 6 numbers.
 
         First three are unit cell vector lengths and second three
@@ -50,11 +52,11 @@ class Cell:
 
         return cell_to_cellpar(self.array, radians)
 
-    def todict(self):
+    def todict(self) -> dict[str, np.ndarray]:
         return dict(array=self.array)
 
     @classmethod
-    def ascell(cls, cell):
+    def ascell(cls, cell: Cell | np.ndarray | Sequence | None) -> Cell:
         """Return argument as a Cell object.  See :meth:`ase.cell.Cell.new`.
 
         A new Cell object is created if necessary."""
@@ -63,7 +65,7 @@ class Cell:
         return cls.new(cell)
 
     @classmethod
-    def new(cls, cell=None):
+    def new(cls, cell: np.ndarray | Sequence | None = None) -> Cell:
         """Create new cell from any parameters.
 
         If cell is three numbers, assume three lengths with right angles.
@@ -93,7 +95,7 @@ class Cell:
         return cellobj
 
     @classmethod
-    def fromcellpar(cls, cellpar, ab_normal=(0, 0, 1), a_direction=None):
+    def fromcellpar(cls, cellpar: Sequence[float], ab_normal: Sequence[float] = (0, 0, 1), a_direction: Sequence[float] | None = None) -> Cell:
         """Return new Cell from cell lengths and angles.
 
         See also :func:`~ase.geometry.cell.cellpar_to_cell()`."""
@@ -102,7 +104,7 @@ class Cell:
         cell = cellpar_to_cell(cellpar, ab_normal, a_direction)
         return cls(cell)
 
-    def get_bravais_lattice(self, eps=2e-4, *, pbc=True):
+    def get_bravais_lattice(self, eps: float = 2e-4, *, pbc: bool | Sequence[bool] = True) -> Any:
         """Return :class:`~ase.lattice.BravaisLattice` for this cell:
 
         >>> from ase.cell import Cell
@@ -195,7 +197,7 @@ class Cell:
             bandpath = BandPath(cell, path=path, special_points=special_points)
             return bandpath.interpolate(npoints=npoints, density=density)
 
-    def uncomplete(self, pbc):
+    def uncomplete(self, pbc: bool | Sequence[bool]) -> Cell:
         """Return new cell, zeroing cell vectors where not periodic."""
         _pbc = np.empty(3, bool)
         _pbc[:] = pbc
@@ -203,17 +205,17 @@ class Cell:
         cell[~_pbc] = 0
         return cell
 
-    def complete(self):
+    def complete(self) -> Cell:
         """Convert missing cell vectors into orthogonal unit vectors."""
         from ase.geometry.cell import complete_cell
 
         return Cell(complete_cell(self.array))
 
-    def copy(self):
+    def copy(self) -> Cell:
         """Return a copy of this cell."""
         return Cell(self.array.copy())
 
-    def mask(self):
+    def mask(self) -> np.ndarray:
         """Boolean mask of which cell vectors are nonzero."""
         return self.any(1)
 
@@ -232,18 +234,18 @@ class Cell:
 
         return is_orthorhombic(self)
 
-    def lengths(self):
+    def lengths(self) -> np.ndarray:
         """Return the length of each lattice vector as an array."""
         return np.linalg.norm(self, axis=1)
 
-    def angles(self):
+    def angles(self) -> np.ndarray:
         """Return an array with the three angles alpha, beta, and gamma."""
         return self.cellpar()[3:].copy()
 
-    def __array__(self, dtype=None, copy=False):
+    def __array__(self, dtype: Any = None, copy: bool = False) -> np.ndarray:
         return np.array(self.array, dtype=dtype, copy=copy)
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return bool(self.any())  # need to convert from np.bool_
 
     @property
@@ -275,7 +277,8 @@ class Cell:
 
     def cartesian_positions(self, scaled_positions) -> np.ndarray:
         """Calculate Cartesian positions from scaled positions."""
-        return scaled_positions @ self.complete()
+        with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
+            return scaled_positions @ self.complete()
 
     def reciprocal(self) -> 'Cell':
         """Get reciprocal lattice as a Cell object.
@@ -291,25 +294,25 @@ class Cell:
         icell[~self.mask()] = 0.0  # type: ignore[index]
         return icell
 
-    def normal(self, i):
+    def normal(self, i: int) -> np.ndarray:
         """Normal vector of the two vectors with index different from i.
 
         This is the cross product of those vectors in cyclic order from i."""
         return np.cross(self[i - 2], self[i - 1])
 
-    def normals(self):
+    def normals(self) -> np.ndarray:
         """Normal vectors of each axis as a 3x3 matrix."""
         return np.array([self.normal(i) for i in range(3)])
 
-    def area(self, i):
+    def area(self, i: int) -> float:
         """Area spanned by the two vectors with index different from i."""
         return np.linalg.norm(self.normal(i))
 
-    def areas(self):
+    def areas(self) -> np.ndarray:
         """Areas spanned by cell vector pairs (1, 2), (2, 0), and (0, 1)."""
         return np.linalg.norm(self.normals(), axis=1)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         if self.orthorhombic:
             numbers = self.lengths().tolist()
         else:
@@ -317,7 +320,7 @@ class Cell:
 
         return f'Cell({numbers})'
 
-    def niggli_reduce(self, eps=1e-5):
+    def niggli_reduce(self, eps: float = 1e-5) -> tuple[Cell, np.ndarray]:
         """Niggli reduce this cell, returning a new cell and mapping.
 
         See also :func:`ase.build.tools.niggli_reduce_cell`."""
@@ -327,7 +330,7 @@ class Cell:
         result = Cell(cell)
         return result, op
 
-    def minkowski_reduce(self):
+    def minkowski_reduce(self) -> tuple[Cell, np.ndarray]:
         """Minkowski-reduce this cell, returning new cell and mapping.
 
         See also :func:`ase.geometry.minkowski_reduction.minkowski_reduce`."""
@@ -337,13 +340,13 @@ class Cell:
         result = Cell(cell)
         return result, op
 
-    def permute_axes(self, permutation):
+    def permute_axes(self, permutation: Sequence[int]) -> Cell:
         """Permute axes of cell."""
         assert (np.sort(permutation) == np.arange(3)).all()
         permuted = Cell(self[permutation][:, permutation])
         return permuted
 
-    def standard_form(self, form='lower'):
+    def standard_form(self, form: str = 'lower') -> tuple[Cell, np.ndarray]:
         """Rotate axes such that unit cell is lower/upper triangular. The cell
         handedness is preserved.
 

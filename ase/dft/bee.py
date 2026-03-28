@@ -79,7 +79,8 @@ class BEEFEnsemble:
         elif self.beef_type == 'mbeefvdw':
             assert len(self.contribs) == 28
             coefs = self.get_mbeefvdw_ensemble_coefs(size, seed)
-        self.de = np.dot(coefs, self.contribs)
+        with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
+            self.de = np.dot(coefs, self.contribs)
         self.done = True
 
         if self.verbose:
@@ -95,13 +96,14 @@ class BEEFEnsemble:
         W, V, generator = self.eigendecomposition(omega, seed)
         RandV = generator.randn(31, size)
 
-        for j in range(size):
-            v = RandV[:, j]
-            coefs_i = (np.dot(np.dot(V, np.diag(np.sqrt(W))), v)[:])
-            if j == 0:
-                ensemble_coefs = coefs_i
-            else:
-                ensemble_coefs = np.vstack((ensemble_coefs, coefs_i))
+        with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
+            for j in range(size):
+                v = RandV[:, j]
+                coefs_i = (np.dot(np.dot(V, np.diag(np.sqrt(W))), v)[:])
+                if j == 0:
+                    ensemble_coefs = coefs_i
+                else:
+                    ensemble_coefs = np.vstack((ensemble_coefs, coefs_i))
         PBEc_ens = -ensemble_coefs[:, 30]
         return (np.vstack((ensemble_coefs.T, PBEc_ens))).T
 
@@ -113,8 +115,9 @@ class BEEFEnsemble:
         W, V, generator = self.eigendecomposition(omega, seed)
         mu, sigma = 0.0, 1.0
         rand = np.array(generator.normal(mu, sigma, (len(W), size)))
-        return (np.sqrt(2) * np.dot(np.dot(V, np.diag(np.sqrt(W))),
-                                    rand)[:]).T
+        with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
+            return (np.sqrt(2) * np.dot(np.dot(V, np.diag(np.sqrt(W))),
+                                        rand)[:]).T
 
     def get_mbeefvdw_ensemble_coefs(self, size=2000, seed=0):
         """Perturbation coefficients of the mBEEF-vdW ensemble"""
@@ -124,7 +127,8 @@ class BEEFEnsemble:
         W, V, generator = self.eigendecomposition(omega, seed)
         mu, sigma = 0.0, 1.0
         rand = np.array(generator.normal(mu, sigma, (len(W), size)))
-        return (np.sqrt(2) * np.dot(np.dot(V, np.diag(np.sqrt(W))), rand)[:]).T
+        with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
+            return (np.sqrt(2) * np.dot(np.dot(V, np.diag(np.sqrt(W))), rand)[:]).T
 
     def eigendecomposition(self, omega, seed=0):
         _u, s, v = np.linalg.svd(omega)  # unsafe: W, V = np.linalg.eig(omega)

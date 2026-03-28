@@ -1,0 +1,328 @@
+{
+  "timestamp": "2026-03-28_09h33",
+  "rust_available": true,
+  "results": [
+    {
+      "label": "neighborlist/500_atoms",
+      "python_median_ms": 3.81,
+      "python_peak_kb": 5074.8,
+      "rust_median_ms": 0.325,
+      "rust_peak_kb": 2.4,
+      "speedup_x": 11.7
+    },
+    {
+      "label": "neighborlist/864_atoms",
+      "python_median_ms": 6.616,
+      "python_peak_kb": 9607.5,
+      "rust_median_ms": 0.552,
+      "rust_peak_kb": 2.4,
+      "speedup_x": 12.0
+    },
+    {
+      "label": "neighborlist/4000_atoms",
+      "python_median_ms": 32.421,
+      "python_peak_kb": 40440.2,
+      "rust_median_ms": 2.632,
+      "rust_peak_kb": 2.4,
+      "speedup_x": 12.3
+    },
+    {
+      "label": "write_xyz/50fr_3at",
+      "python_median_ms": 1.033,
+      "python_peak_kb": 50.3,
+      "rust_median_ms": 0.93,
+      "rust_peak_kb": 48.0,
+      "speedup_x": 1.1
+    },
+    {
+      "label": "read_xyz/50fr_3at",
+      "python_median_ms": 0.046,
+      "python_peak_kb": 5.7,
+      "rust_median_ms": 0.044,
+      "rust_peak_kb": 6.2,
+      "speedup_x": 1.0
+    },
+    {
+      "label": "write_xyz/200fr_3at",
+      "python_median_ms": 4.197,
+      "python_peak_kb": 171.0,
+      "rust_median_ms": 3.652,
+      "rust_peak_kb": 186.5,
+      "speedup_x": 1.1
+    },
+    {
+      "label": "read_xyz/200fr_3at",
+      "python_median_ms": 0.098,
+      "python_peak_kb": 10.9,
+      "rust_median_ms": 0.096,
+      "rust_peak_kb": 11.5,
+      "speedup_x": 1.0
+    },
+    {
+      "label": "write_xyz/1000fr_3at",
+      "python_median_ms": 21.107,
+      "python_peak_kb": 871.0,
+      "rust_median_ms": 18.228,
+      "rust_peak_kb": 853.8,
+      "speedup_x": 1.2
+    },
+    {
+      "label": "read_xyz/1000fr_3at",
+      "python_median_ms": 0.361,
+      "python_peak_kb": 39.8,
+      "rust_median_ms": 0.36,
+      "rust_peak_kb": 40.4,
+      "speedup_x": 1.0
+    },
+    {
+      "label": "write_xyz/10fr_108at",
+      "python_median_ms": 1.572,
+      "python_peak_kb": 259.3,
+      "rust_median_ms": 0.423,
+      "rust_peak_kb": 249.8,
+      "speedup_x": 3.7
+    },
+    {
+      "label": "read_xyz/10fr_108at",
+      "python_median_ms": 0.146,
+      "python_peak_kb": 33.8,
+      "rust_median_ms": 0.111,
+      "rust_peak_kb": 36.0,
+      "speedup_x": 1.3
+    },
+    {
+      "label": "write_xyz/50fr_108at",
+      "python_median_ms": 7.998,
+      "python_peak_kb": 1302.2,
+      "rust_median_ms": 2.347,
+      "rust_peak_kb": 1318.3,
+      "speedup_x": 3.4
+    },
+    {
+      "label": "read_xyz/50fr_108at",
+      "python_median_ms": 0.34,
+      "python_peak_kb": 35.2,
+      "rust_median_ms": 0.297,
+      "rust_peak_kb": 37.4,
+      "speedup_x": 1.1
+    },
+    {
+      "label": "write_xyz/200fr_108at",
+      "python_median_ms": 31.642,
+      "python_peak_kb": 4734.0,
+      "rust_median_ms": 8.828,
+      "rust_peak_kb": 5151.8,
+      "speedup_x": 3.6
+    },
+    {
+      "label": "read_xyz/200fr_108at",
+      "python_median_ms": 1.052,
+      "python_peak_kb": 33.0,
+      "rust_median_ms": 1.015,
+      "rust_peak_kb": 42.6,
+      "speedup_x": 1.0
+    },
+    {
+      "label": "wrap_positions/500_atoms",
+      "python_median_ms": 0.029,
+      "python_peak_kb": 36.8
+    },
+    {
+      "label": "get_distances/500_atoms",
+      "python_median_ms": 28.283,
+      "python_peak_kb": 115726.7
+    },
+    {
+      "label": "neighborlist_radii/500_atoms",
+      "python_median_ms": 4.131,
+      "python_peak_kb": 5079.1,
+      "rust_median_ms": 0.327,
+      "rust_peak_kb": 5.9,
+      "speedup_x": 12.6
+    },
+    {
+      "label": "neighborlist_dict/500_atoms",
+      "python_median_ms": 3.921,
+      "python_peak_kb": 5075.0,
+      "rust_median_ms": 0.521,
+      "rust_peak_kb": 2.6,
+      "speedup_x": 7.5
+    },
+    {
+      "label": "neighborlist_radii/864_atoms",
+      "python_median_ms": 6.954,
+      "python_peak_kb": 9614.5,
+      "rust_median_ms": 0.636,
+      "rust_peak_kb": 8.8,
+      "speedup_x": 10.9
+    },
+    {
+      "label": "neighborlist_dict/864_atoms",
+      "python_median_ms": 7.135,
+      "python_peak_kb": 9607.6,
+      "rust_median_ms": 0.797,
+      "rust_peak_kb": 2.6,
+      "speedup_x": 8.9
+    },
+    {
+      "label": "minkowski_reduce/triclinic",
+      "python_median_ms": 0.066,
+      "python_peak_kb": 287.6,
+      "rust_median_ms": 0.026,
+      "rust_peak_kb": 5.7,
+      "speedup_x": 2.6
+    },
+    {
+      "label": "minkowski_reduce/fcc_primitive",
+      "python_median_ms": 0.01,
+      "python_peak_kb": 5.7,
+      "rust_median_ms": 0.01,
+      "rust_peak_kb": 5.7,
+      "speedup_x": 1.0
+    },
+    {
+      "label": "make_supercell/125_atoms",
+      "python_median_ms": 0.082,
+      "python_peak_kb": 26.4,
+      "rust_median_ms": 0.077,
+      "rust_peak_kb": 23.4,
+      "speedup_x": 1.1
+    },
+    {
+      "label": "make_supercell/1000_atoms",
+      "python_median_ms": 0.216,
+      "python_peak_kb": 183.6,
+      "rust_median_ms": 0.196,
+      "rust_peak_kb": 160.1,
+      "speedup_x": 1.1
+    },
+    {
+      "label": "vasp_read/500_atoms",
+      "python_median_ms": 0.336,
+      "python_peak_kb": 50.0,
+      "rust_median_ms": 0.101,
+      "rust_peak_kb": 91.8,
+      "speedup_x": 3.3
+    },
+    {
+      "label": "vasp_write/500_atoms",
+      "python_median_ms": 0.545,
+      "python_peak_kb": 35.8,
+      "rust_median_ms": 0.096,
+      "rust_peak_kb": 68.2,
+      "speedup_x": 5.7
+    },
+    {
+      "label": "vasp_read/2048_atoms",
+      "python_median_ms": 1.347,
+      "python_peak_kb": 196.7,
+      "rust_median_ms": 0.383,
+      "rust_peak_kb": 370.2,
+      "speedup_x": 3.5
+    },
+    {
+      "label": "vasp_write/2048_atoms",
+      "python_median_ms": 2.423,
+      "python_peak_kb": 132.8,
+      "rust_median_ms": 0.363,
+      "rust_peak_kb": 275.7,
+      "speedup_x": 6.7
+    },
+    {
+      "label": "vasp_read/5324_atoms",
+      "python_median_ms": 3.523,
+      "python_peak_kb": 506.5,
+      "rust_median_ms": 0.957,
+      "rust_peak_kb": 957.7,
+      "speedup_x": 3.7
+    },
+    {
+      "label": "vasp_write/5324_atoms",
+      "python_median_ms": 6.052,
+      "python_peak_kb": 322.4,
+      "rust_median_ms": 0.912,
+      "rust_peak_kb": 714.8,
+      "speedup_x": 6.6
+    },
+    {
+      "label": "xyz_simple_write/50fr_3at",
+      "python_median_ms": 0.151,
+      "python_peak_kb": 14.2,
+      "rust_median_ms": 0.087,
+      "rust_peak_kb": 14.1,
+      "speedup_x": 1.7
+    },
+    {
+      "label": "xyz_simple_read/50fr_3at",
+      "python_median_ms": 0.298,
+      "python_peak_kb": 58.7,
+      "rust_median_ms": 0.264,
+      "rust_peak_kb": 58.7,
+      "speedup_x": 1.1
+    },
+    {
+      "label": "xyz_simple_write/200fr_3at",
+      "python_median_ms": 0.608,
+      "python_peak_kb": 50.3,
+      "rust_median_ms": 0.251,
+      "rust_peak_kb": 51.3,
+      "speedup_x": 2.4
+    },
+    {
+      "label": "xyz_simple_read/200fr_3at",
+      "python_median_ms": 1.186,
+      "python_peak_kb": 253.6,
+      "rust_median_ms": 1.043,
+      "rust_peak_kb": 253.5,
+      "speedup_x": 1.1
+    },
+    {
+      "label": "xyz_simple_write/1000fr_3at",
+      "python_median_ms": 3.101,
+      "python_peak_kb": 234.5,
+      "rust_median_ms": 1.359,
+      "rust_peak_kb": 241.3,
+      "speedup_x": 2.3
+    },
+    {
+      "label": "xyz_simple_read/1000fr_3at",
+      "python_median_ms": 6.719,
+      "python_peak_kb": 1301.3,
+      "rust_median_ms": 5.796,
+      "rust_peak_kb": 1301.1,
+      "speedup_x": 1.2
+    },
+    {
+      "label": "xyz_simple_write/10fr_108at",
+      "python_median_ms": 0.972,
+      "python_peak_kb": 79.2,
+      "rust_median_ms": 0.22,
+      "rust_peak_kb": 94.7,
+      "speedup_x": 4.4
+    },
+    {
+      "label": "xyz_simple_read/10fr_108at",
+      "python_median_ms": 0.672,
+      "python_peak_kb": 141.8,
+      "rust_median_ms": 0.323,
+      "rust_peak_kb": 140.7,
+      "speedup_x": 2.1
+    },
+    {
+      "label": "xyz_simple_write/50fr_108at",
+      "python_median_ms": 4.839,
+      "python_peak_kb": 465.2,
+      "rust_median_ms": 1.115,
+      "rust_peak_kb": 465.1,
+      "speedup_x": 4.3
+    },
+    {
+      "label": "xyz_simple_read/50fr_108at",
+      "python_median_ms": 4.079,
+      "python_peak_kb": 657.6,
+      "rust_median_ms": 1.628,
+      "rust_peak_kb": 656.6,
+      "speedup_x": 2.5
+    }
+  ]
+}

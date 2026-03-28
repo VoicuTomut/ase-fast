@@ -24,6 +24,20 @@ from ase.utils import reader, writer
 
 from .vasp_parsers import vasp_outcar_parsers as vop
 
+# ---------------------------------------------------------------------------
+# Optional Rust fast path for VASP IO hot loops (Phase 10).
+# ---------------------------------------------------------------------------
+try:
+    from ase._io_rs import (  # type: ignore[import]
+        parse_poscar_positions_rs as _parse_poscar_positions_rs,
+        format_poscar_positions_rs as _format_poscar_positions_rs,
+        parse_xdatcar_coords_rs as _parse_xdatcar_coords_rs,
+        format_xdatcar_config_rs as _format_xdatcar_config_rs,
+    )
+    _HAVE_RUST_IO = True
+except ImportError:
+    _HAVE_RUST_IO = False
+
 __all__ = [
     'read_vasp', 'read_vasp_out', 'iread_vasp_out', 'read_vasp_xdatcar',
     'read_vasp_xml', 'write_vasp', 'write_vasp_xdatcar'
@@ -258,14 +272,21 @@ def read_vasp_configuration(fd):
         ac_type = sdyn
     cartesian = ac_type[0].lower() in ['c', 'k']
     tot_natoms = sum(numofatoms)
-    atoms_pos = np.empty((tot_natoms, 3))
-    if selective_dynamics:
-        selective_flags = np.empty((tot_natoms, 3), dtype=bool)
-    for atom in range(tot_natoms):
-        ac = fd.readline().split()
-        atoms_pos[atom] = [float(_) for _ in ac[0:3]]
+    if _HAVE_RUST_IO:
+        _lines = [fd.readline() for _ in range(tot_natoms)]
+        _pos_result = _parse_poscar_positions_rs(_lines, selective_dynamics)
+        atoms_pos = _pos_result[0]
         if selective_dynamics:
-            selective_flags[atom] = [_ == 'F' for _ in ac[3:6]]
+            selective_flags = _pos_result[1]
+    else:
+        atoms_pos = np.empty((tot_natoms, 3))
+        if selective_dynamics:
+            selective_flags = np.empty((tot_natoms, 3), dtype=bool)
+        for atom in range(tot_natoms):
+            ac = fd.readline().split()
+            atoms_pos[atom] = [float(_) for _ in ac[0:3]]
+            if selective_dynamics:
+                selective_flags[atom] = [_ == 'F' for _ in ac[3:6]]
 
     atoms = Atoms(symbols=atom_symbols, cell=cell, pbc=True)
     if cartesian:
@@ -395,10 +416,14 @@ def read_vasp_xdatcar(filename='XDATCAR', index=-1):
 
             fd.readline()
 
-        coords = [np.array(fd.readline().split(), float) for _ in range(total)]
+        if _HAVE_RUST_IO:
+            _xdat_lines = [fd.readline() for _ in range(total)]
+            coords = _parse_xdatcar_coords_rs(_xdat_lines)
+        else:
+            coords = [np.array(fd.readline().split(), float) for _ in range(total)]
 
         image = Atoms(atomic_formula, cell=cell, pbc=True)
-        image.set_scaled_positions(np.array(coords))
+        image.set_scaled_positions(coords if _HAVE_RUST_IO else np.array(coords))
         images.append(image)
 
     if index is None:
@@ -760,13 +785,19 @@ def _write_xdatcar_config(fd, atoms, index):
         index (int): configuration number written to block header
 
     """
-    fd.write(f"Direct configuration={index:6d}\n")
-    float_string = '{:11.8f}'
-    scaled_positions = atoms.get_scaled_positions()
-    for row in scaled_positions:
-        fd.write('  ')
-        fd.write(' '.join([float_string.format(x) for x in row]))
-        fd.write('\n')
+    if _HAVE_RUST_IO:
+        fd.write(_format_xdatcar_config_rs(
+            np.ascontiguousarray(atoms.get_scaled_positions(), dtype=np.float64),
+            index,
+        ))
+    else:
+        fd.write(f"Direct configuration={index:6d}\n")
+        float_string = '{:11.8f}'
+        scaled_positions = atoms.get_scaled_positions()
+        for row in scaled_positions:
+            fd.write('  ')
+            fd.write(' '.join([float_string.format(x) for x in row]))
+            fd.write('\n')
 
 
 def _symbol_count_from_symbols(symbols: Symbols) -> list[tuple[str, int]]:
@@ -905,13 +936,20 @@ def write_vasp(
     fd.write('Direct\n' if direct else 'Cartesian\n')
 
     # Write atomic positions and, if any, the cartesian constraints
-    for iatom, atom in enumerate(coord):
-        for dcoord in atom:
-            fd.write(f' {dcoord:19.16f}')
-        if constraints_present:
-            flags = ['F' if flag else 'T' for flag in sflags[iatom]]
-            fd.write(''.join([f'{f:>4s}' for f in flags]))
-        fd.write('\n')
+    if _HAVE_RUST_IO:
+        _flags_arg = np.ascontiguousarray(sflags, dtype=bool) if constraints_present else None
+        fd.write(_format_poscar_positions_rs(
+            np.ascontiguousarray(coord, dtype=np.float64),
+            _flags_arg,
+        ))
+    else:
+        for iatom, atom in enumerate(coord):
+            for dcoord in atom:
+                fd.write(f' {dcoord:19.16f}')
+            if constraints_present:
+                flags = ['F' if flag else 'T' for flag in sflags[iatom]]
+                fd.write(''.join([f'{f:>4s}' for f in flags]))
+            fd.write('\n')
 
     # if velocities in atoms object write velocities
     if atoms.has('momenta'):

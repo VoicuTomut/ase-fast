@@ -148,5 +148,6 @@ class MorsePotential(Calculator):
         self.results['forces'] = forces
 
         if self.atoms.cell.rank == 3:
-            stress = 0.5 * (D.T @ de_vec) / self.atoms.get_volume()
+            with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
+                stress = 0.5 * (D.T @ de_vec) / self.atoms.get_volume()
             self.results['stress'] = full_3x3_to_voigt_6_stress(stress)

@@ -694,7 +694,8 @@ class Phonons(Displacement):
         """
         # Evaluate fourier sum
         R_cN = self._lattice_vectors_array
-        phase_N = np.exp(-2.0j * pi * np.dot(q_scaled, R_cN))
+        with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
+            phase_N = np.exp(-2.0j * pi * np.dot(q_scaled, R_cN))
         D_q = np.sum(phase_N[:, np.newaxis, np.newaxis] * D_N, axis=0)
         return D_q
 

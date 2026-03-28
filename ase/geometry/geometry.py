@@ -1,4 +1,5 @@
 # fmt: off
+from __future__ import annotations
 
 # Copyright (C) 2010, Jesper Friis
 # (see accompanying license files for details).
@@ -10,6 +11,7 @@ different orientations.
 """
 
 import itertools
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -18,8 +20,11 @@ from ase.geometry import complete_cell
 from ase.geometry.minkowski_reduction import minkowski_reduce
 from ase.utils import pbc2pbc
 
+if TYPE_CHECKING:
+    from ase.atoms import Atoms
 
-def translate_pretty(fractional, pbc):
+
+def translate_pretty(fractional: np.ndarray, pbc: np.ndarray) -> np.ndarray:
     """Translates atoms such that fractional positions are minimized."""
 
     for i in range(3):
@@ -35,8 +40,8 @@ def translate_pretty(fractional, pbc):
     return fractional
 
 
-def wrap_positions(positions, cell, pbc=True, center=(0.5, 0.5, 0.5),
-                   pretty_translation=False, eps=1e-7):
+def wrap_positions(positions: np.ndarray, cell: np.ndarray, pbc: bool | np.ndarray = True, center: tuple = (0.5, 0.5, 0.5),
+                   pretty_translation: bool = False, eps: float = 1e-7) -> np.ndarray:
     """Wrap positions to unit cell.
 
     Returns positions changed by a multiple of the unit cell vectors to
@@ -97,10 +102,11 @@ def wrap_positions(positions, cell, pbc=True, center=(0.5, 0.5, 0.5),
                 fractional[:, i] %= 1.0
                 fractional[:, i] += shift[i]
 
-    return np.dot(fractional, cell)
+    with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
+        return np.dot(fractional, cell)
 
 
-def get_layers(atoms, miller, tolerance=0.001):
+def get_layers(atoms: Atoms, miller: tuple | np.ndarray, tolerance: float = 0.001) -> tuple[np.ndarray, np.ndarray]:
     """Returns two arrays describing which layer each atom belongs
     to and the distance between the layers and origo.
 
@@ -158,7 +164,7 @@ def get_layers(atoms, miller, tolerance=0.001):
     return tags, levels
 
 
-def naive_find_mic(v, cell):
+def naive_find_mic(v: np.ndarray, cell: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Finds the minimum-image representation of vector(s) v.
     Safe to use for (pbc.all() and (norm(v_mic) < 0.5 * min(cell.lengths()))).
     Can otherwise fail for non-orthorhombic cells.
@@ -167,12 +173,13 @@ def naive_find_mic(v, cell):
     http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.57.1696."""
     f = Cell(cell).scaled_positions(v)
     f -= np.floor(f + 0.5)
-    vmin = f @ cell
+    with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
+        vmin = f @ cell
     vlen = np.linalg.norm(vmin, axis=1)
     return vmin, vlen
 
 
-def general_find_mic(v, cell, pbc=True):
+def general_find_mic(v: np.ndarray, cell: np.ndarray, pbc: bool | np.ndarray = True) -> tuple[np.ndarray, np.ndarray]:
     """Finds the minimum-image representation of vector(s) v. Using the
     Minkowski reduction the algorithm is relatively slow but safe for any cell.
     """
@@ -205,7 +212,7 @@ def general_find_mic(v, cell, pbc=True):
     return vmin, vlen
 
 
-def find_mic(v, cell, pbc=True):
+def find_mic(v: np.ndarray, cell: np.ndarray, pbc: bool | np.ndarray = True) -> tuple[np.ndarray, np.ndarray]:
     """Finds the minimum-image representation of vector(s) v using either one
     of two find mic algorithms depending on the given cell, v and pbc."""
 
@@ -236,7 +243,7 @@ def find_mic(v, cell, pbc=True):
         return vmin, vlen
 
 
-def conditional_find_mic(vectors, cell, pbc):
+def conditional_find_mic(vectors: list | np.ndarray, cell: np.ndarray | None, pbc: np.ndarray | None) -> tuple:
     """Return vectors and their lengths considering cell and pbc.
 
     The minimum image convention is applied if cell and pbc are set.
@@ -244,7 +251,11 @@ def conditional_find_mic(vectors, cell, pbc):
     """
     vectors = np.array(vectors)
     if (cell is None) != (pbc is None):
-        raise ValueError("cell or pbc must be both set or both be None")
+        raise ValueError(
+            "cell and pbc must both be provided or both be None, but got "
+            f"cell={'None' if cell is None else f'array{np.shape(cell)}'} and "
+            f"pbc={'None' if pbc is None else str(pbc)}."
+        )
     if cell is not None:
         mics = [find_mic(v, cell, pbc) for v in vectors]
         vectors, vector_lengths = zip(*mics)
@@ -253,7 +264,7 @@ def conditional_find_mic(vectors, cell, pbc):
     return vectors, vector_lengths
 
 
-def get_angles(v0, v1, cell=None, pbc=None):
+def get_angles(v0: np.ndarray, v1: np.ndarray, cell: np.ndarray | None = None, pbc: np.ndarray | None = None) -> np.ndarray:
     """Get angles formed by two lists of vectors.
 
     Calculate angle in degrees between vectors v0 and v1
@@ -264,7 +275,10 @@ def get_angles(v0, v1, cell=None, pbc=None):
     (v0, v1), (nv0, nv1) = conditional_find_mic([v0, v1], cell, pbc)
 
     if (nv0 <= 0).any() or (nv1 <= 0).any():
-        raise ZeroDivisionError('Undefined angle')
+        raise ZeroDivisionError(
+            "Cannot compute angle: one or both bond vectors have zero length. "
+            "Check that atom positions are not coincident."
+        )
     v0n = v0 / nv0[:, np.newaxis]
     v1n = v1 / nv1[:, np.newaxis]
     # We just normalized the vectors, but in some cases we can get
@@ -273,7 +287,7 @@ def get_angles(v0, v1, cell=None, pbc=None):
     return np.degrees(angles)
 
 
-def get_angles_derivatives(v0, v1, cell=None, pbc=None):
+def get_angles_derivatives(v0: np.ndarray, v1: np.ndarray, cell: np.ndarray | None = None, pbc: np.ndarray | None = None) -> np.ndarray:
     """Get derivatives of angles formed by two lists of vectors (v0, v1) w.r.t.
     Cartesian coordinates in degrees.
 
@@ -305,7 +319,7 @@ def get_angles_derivatives(v0, v1, cell=None, pbc=None):
     return np.degrees(derivs)
 
 
-def get_dihedrals(v0, v1, v2, cell=None, pbc=None):
+def get_dihedrals(v0: np.ndarray, v1: np.ndarray, v2: np.ndarray, cell: np.ndarray | None = None, pbc: np.ndarray | None = None) -> np.ndarray:
     """Get dihedral angles formed by three lists of vectors.
 
     Calculate dihedral angle (in degrees) between the vectors a0->a1,
@@ -334,7 +348,7 @@ def get_dihedrals(v0, v1, v2, cell=None, pbc=None):
     return np.degrees(dihedrals)
 
 
-def get_dihedrals_derivatives(v0, v1, v2, cell=None, pbc=None):
+def get_dihedrals_derivatives(v0: np.ndarray, v1: np.ndarray, v2: np.ndarray, cell: np.ndarray | None = None, pbc: np.ndarray | None = None) -> np.ndarray:
     """Get derivatives of dihedrals formed by three lists of vectors
     (v0, v1, v2) w.r.t Cartesian coordinates in degrees.
 
@@ -370,7 +384,7 @@ def get_dihedrals_derivatives(v0, v1, v2, cell=None, pbc=None):
     return np.degrees(derivs)
 
 
-def get_distances(p1, p2=None, cell=None, pbc=None):
+def get_distances(p1: np.ndarray, p2: np.ndarray | None = None, cell: np.ndarray | None = None, pbc: np.ndarray | None = None) -> tuple[np.ndarray, np.ndarray]:
     """Return distance matrix of every position in p1 with every position in p2
 
     If p2 is not set, it is assumed that distances between all positions in p1
@@ -406,7 +420,7 @@ def get_distances(p1, p2=None, cell=None, pbc=None):
     return D, D_len
 
 
-def get_distances_derivatives(v0, cell=None, pbc=None):
+def get_distances_derivatives(v0: np.ndarray, cell: np.ndarray | None = None, pbc: np.ndarray | None = None) -> np.ndarray:
     """Get derivatives of distances for all vectors in v0 w.r.t. Cartesian
     coordinates in Angstrom.
 
@@ -427,7 +441,7 @@ def get_distances_derivatives(v0, cell=None, pbc=None):
     return derivs
 
 
-def get_duplicate_atoms(atoms, cutoff=0.1, delete=False):
+def get_duplicate_atoms(atoms: Atoms, cutoff: float = 0.1, delete: bool = False) -> np.ndarray:
     """Get list of duplicate atoms and delete them if requested.
 
     Identify all atoms which lie within the cutoff radius of each other.
@@ -441,7 +455,7 @@ def get_duplicate_atoms(atoms, cutoff=0.1, delete=False):
     return dup
 
 
-def permute_axes(atoms, permutation):
+def permute_axes(atoms: Atoms, permutation: np.ndarray) -> Atoms:
     """Permute axes of unit cell and atom positions. Considers only cell and
     atomic positions. Other vector quantities such as momenta are not
     modified."""

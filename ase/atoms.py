@@ -13,9 +13,9 @@ from __future__ import annotations
 import copy
 import numbers
 import warnings
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
 from math import cos, pi, sin
-from typing import overload
+from typing import Any, overload
 
 import numpy as np
 
@@ -36,15 +36,22 @@ class _LimitedAtoms:
     """
     ase_objtype = 'atoms'  # For JSONability
 
-    def __init__(self, symbols=None,
-                 positions=None, numbers=None,
-                 tags=None, momenta=None, masses=None,
-                 magmoms=None, charges=None,
-                 scaled_positions=None,
-                 cell=None, pbc=None, celldisp=None,
-                 constraint=None,
-                 info=None,
-                 velocities=None):
+    def __init__(self,
+                 symbols: str | Sequence[str | Atom] | _LimitedAtoms | None = None,
+                 positions: np.ndarray | Sequence[Sequence[float]] | None = None,
+                 numbers: np.ndarray | Sequence[int] | None = None,
+                 tags: np.ndarray | Sequence[int] | None = None,
+                 momenta: np.ndarray | Sequence[Sequence[float]] | None = None,
+                 masses: np.ndarray | Sequence[float] | str | None = None,
+                 magmoms: np.ndarray | Sequence[float] | Sequence[Sequence[float]] | None = None,
+                 charges: np.ndarray | Sequence[float] | None = None,
+                 scaled_positions: np.ndarray | Sequence[Sequence[float]] | None = None,
+                 cell: Cell | np.ndarray | Sequence | None = None,
+                 pbc: bool | Sequence[bool] | None = None,
+                 celldisp: np.ndarray | None = None,
+                 constraint: list | None = None,
+                 info: dict[str, Any] | None = None,
+                 velocities: np.ndarray | Sequence[Sequence[float]] | None = None) -> None:
 
         self._cellobj = Cell.new()
         self._pbc = np.zeros(3, bool)
@@ -156,7 +163,7 @@ class _LimitedAtoms:
             self.info = dict(info)
 
     @property
-    def symbols(self):
+    def symbols(self) -> Symbols:
         """Get chemical symbols as a :class:`~ase.symbols.Symbols` object.
 
         The object works like ``atoms.numbers`` except its values are strings.
@@ -182,47 +189,47 @@ class _LimitedAtoms:
         return Symbols(self.numbers)
 
     @symbols.setter
-    def symbols(self, obj):
+    def symbols(self, obj: str | Sequence[str] | Symbols) -> None:
         new_symbols = Symbols.fromsymbols(obj)
         self.numbers[:] = new_symbols.numbers
 
-    def get_chemical_symbols(self):
+    def get_chemical_symbols(self) -> list[str]:
         """Get list of chemical symbol strings.
 
         Equivalent to ``list(atoms.symbols)``."""
         return list(self.symbols)
 
-    def set_chemical_symbols(self, symbols):
+    def set_chemical_symbols(self, symbols: str | Sequence[str]) -> None:
         """Set chemical symbols."""
         self.set_array('numbers', symbols2numbers(symbols), int, ())
 
     @property
-    def numbers(self):
+    def numbers(self) -> np.ndarray:
         """Attribute for direct manipulation of the atomic numbers."""
         return self.arrays['numbers']
 
     @numbers.setter
-    def numbers(self, numbers):
+    def numbers(self, numbers: np.ndarray | Sequence[int]) -> None:
         self.set_atomic_numbers(numbers)
 
-    def set_atomic_numbers(self, numbers):
+    def set_atomic_numbers(self, numbers: np.ndarray | Sequence[int]) -> None:
         """Set atomic numbers."""
         self.set_array('numbers', numbers, int, ())
 
-    def get_atomic_numbers(self):
+    def get_atomic_numbers(self) -> np.ndarray:
         """Get integer array of atomic numbers."""
         return self.arrays['numbers'].copy()
 
     @property
-    def positions(self):
+    def positions(self) -> np.ndarray:
         """Attribute for direct manipulation of the positions."""
         return self.arrays['positions']
 
     @positions.setter
-    def positions(self, pos):
+    def positions(self, pos: np.ndarray | Sequence) -> None:
         self.arrays['positions'][:] = pos
 
-    def set_positions(self, newpositions, apply_constraint=True):
+    def set_positions(self, newpositions: np.ndarray | Sequence, apply_constraint: bool = True) -> None:
         """Set positions, honoring any constraints. To ignore constraints,
         use *apply_constraint=False*."""
         if self.constraints and apply_constraint:
@@ -232,7 +239,7 @@ class _LimitedAtoms:
 
         self.set_array('positions', newpositions, shape=(3,))
 
-    def get_positions(self, wrap=False, **wrap_kw):
+    def get_positions(self, wrap: bool = False, **wrap_kw: Any) -> np.ndarray:
         """Get array of positions.
 
         Parameters
@@ -254,7 +261,7 @@ class _LimitedAtoms:
 
     @property
     @deprecated('Please use atoms.cell.rank instead', DeprecationWarning)
-    def number_of_lattice_vectors(self):
+    def number_of_lattice_vectors(self) -> int:
         """Number of (non-zero) lattice vectors.
 
         .. deprecated:: 3.21.0
@@ -263,19 +270,19 @@ class _LimitedAtoms:
         return self.cell.rank
 
     @property
-    def constraints(self):
+    def constraints(self) -> list:
         """Constraints."""
         return self._constraints
 
     @constraints.setter
-    def constraints(self, constraint):
+    def constraints(self, constraint) -> None:
         self.set_constraint(constraint)
 
     @constraints.deleter
-    def constraints(self):
+    def constraints(self) -> None:
         self._constraints = []
 
-    def set_constraint(self, constraint=None):
+    def set_constraint(self, constraint: list | Any | None = None) -> None:
         """Apply one or more constrains.
 
         The *constraint* argument must be one constraint object or a
@@ -290,13 +297,13 @@ class _LimitedAtoms:
             else:
                 self._constraints = [constraint]
 
-    def get_number_of_degrees_of_freedom(self):
+    def get_number_of_degrees_of_freedom(self) -> int:
         """Calculate the number of degrees of freedom in the system."""
         return len(self) * 3 - sum(
             c.get_removed_dof(self) for c in self._constraints
         )
 
-    def set_cell(self, cell, scale_atoms=False, apply_constraint=True):
+    def set_cell(self, cell: Cell | np.ndarray | Sequence, scale_atoms: bool = False, apply_constraint: bool = True) -> None:
         """Set unit cell vectors.
 
         Parameters
@@ -355,16 +362,16 @@ class _LimitedAtoms:
 
         self.cell[:] = cell
 
-    def set_celldisp(self, celldisp):
+    def set_celldisp(self, celldisp: np.ndarray | Sequence) -> None:
         """Set the unit cell displacement vectors."""
         celldisp = np.array(celldisp, float)
         self._celldisp = celldisp
 
-    def get_celldisp(self):
+    def get_celldisp(self) -> np.ndarray:
         """Get the unit cell displacement vectors."""
         return self._celldisp.copy()
 
-    def get_cell(self, complete=False):
+    def get_cell(self, complete: bool = False) -> Cell:
         """Get the three unit cell vectors as a `class`:ase.cell.Cell` object.
 
         The Cell object resembles a 3x3 ndarray, and cell[i, j]
@@ -377,7 +384,7 @@ class _LimitedAtoms:
         return cell
 
     @deprecated('Please use atoms.cell.cellpar() instead', DeprecationWarning)
-    def get_cell_lengths_and_angles(self):
+    def get_cell_lengths_and_angles(self) -> np.ndarray:
         """Get unit cell parameters. Sequence of 6 numbers.
 
         First three are unit cell vector lengths and second three
@@ -393,7 +400,7 @@ class _LimitedAtoms:
         return self.cell.cellpar()
 
     @deprecated('Please use atoms.cell.reciprocal()', DeprecationWarning)
-    def get_reciprocal_cell(self):
+    def get_reciprocal_cell(self) -> Cell:
         """Get the three reciprocal lattice vectors as a 3x3 ndarray.
 
         Note that the commonly used factor of 2 pi for Fourier
@@ -405,23 +412,23 @@ class _LimitedAtoms:
         return self.cell.reciprocal()
 
     @property
-    def pbc(self):
+    def pbc(self) -> np.ndarray:
         """Reference to pbc-flags for in-place manipulations."""
         return self._pbc
 
     @pbc.setter
-    def pbc(self, pbc):
+    def pbc(self, pbc: bool | Sequence[bool]) -> None:
         self._pbc[:] = pbc
 
-    def set_pbc(self, pbc):
+    def set_pbc(self, pbc: bool | Sequence[bool]) -> None:
         """Set periodic boundary condition flags."""
         self.pbc = pbc
 
-    def get_pbc(self):
+    def get_pbc(self) -> np.ndarray:
         """Get periodic boundary condition flags."""
         return self.pbc.copy()
 
-    def new_array(self, name, a, dtype=None, shape=None):
+    def new_array(self, name: str, a: np.ndarray | Sequence, dtype: Any = None, shape: tuple | None = None) -> None:
         """Add new array.
 
         If *shape* is not *None*, the shape of *a* will be checked."""
@@ -452,7 +459,7 @@ class _LimitedAtoms:
 
         self.arrays[name] = a
 
-    def get_array(self, name, copy=True):
+    def get_array(self, name: str, copy: bool = True) -> np.ndarray:
         """Get an array.
 
         Returns a copy unless the optional argument copy is false.
@@ -462,7 +469,7 @@ class _LimitedAtoms:
         else:
             return self.arrays[name]
 
-    def set_array(self, name, a, dtype=None, shape=None):
+    def set_array(self, name: str, a: np.ndarray | Sequence | None, dtype: Any = None, shape: tuple | None = None) -> None:
         """Update array.
 
         If *shape* is not *None*, the shape of *a* will be checked.
@@ -483,7 +490,7 @@ class _LimitedAtoms:
                         f'{a.shape} != {b.shape}.')
                 b[:] = a
 
-    def has(self, name):
+    def has(self, name: str) -> bool:
         """Check for existence of array.
 
         name must be one of: 'tags', 'momenta', 'masses', 'initial_magmoms',
@@ -491,7 +498,7 @@ class _LimitedAtoms:
         # XXX extend has to calculator properties
         return name in self.arrays
 
-    def get_chemical_formula(self, mode='hill', empirical=False):
+    def get_chemical_formula(self, mode: str = 'hill', empirical: bool = False) -> str:
         """Get the chemical formula as a string based on the chemical symbols.
 
         Parameters
@@ -521,21 +528,21 @@ class _LimitedAtoms:
         """
         return self.symbols.get_chemical_formula(mode, empirical)
 
-    def set_tags(self, tags):
+    def set_tags(self, tags: np.ndarray | Sequence[int] | int) -> None:
         """Set tags for all atoms. If only one tag is supplied, it is
         applied to all atoms."""
         if isinstance(tags, int):
             tags = [tags] * len(self)
         self.set_array('tags', tags, int, ())
 
-    def get_tags(self):
+    def get_tags(self) -> np.ndarray:
         """Get integer array of tags."""
         if 'tags' in self.arrays:
             return self.arrays['tags'].copy()
         else:
             return np.zeros(len(self), int)
 
-    def set_momenta(self, momenta, apply_constraint=True):
+    def set_momenta(self, momenta: np.ndarray | Sequence | None, apply_constraint: bool = True) -> None:
         """Set momenta."""
         if (apply_constraint and len(self.constraints) > 0 and
            momenta is not None):
@@ -545,24 +552,24 @@ class _LimitedAtoms:
                     constraint.adjust_momenta(self, momenta)
         self.set_array('momenta', momenta, float, (3,))
 
-    def get_momenta(self):
+    def get_momenta(self) -> np.ndarray:
         """Get array of momenta."""
         if 'momenta' in self.arrays:
             return self.arrays['momenta'].copy()
         else:
             return np.zeros((len(self), 3))
 
-    def get_velocities(self):
+    def get_velocities(self) -> np.ndarray:
         """Get array of velocities."""
         momenta = self.get_momenta()
         masses = self.get_masses()
         return momenta / masses[:, np.newaxis]
 
-    def set_velocities(self, velocities):
+    def set_velocities(self, velocities: np.ndarray | Sequence) -> None:
         """Set the momenta by specifying the velocities."""
         self.set_momenta(self.get_masses()[:, np.newaxis] * velocities)
 
-    def set_masses(self, masses='defaults'):
+    def set_masses(self, masses: np.ndarray | Sequence[float] | str | None = 'defaults') -> None:
         """Set atomic masses in atomic mass units.
 
         The array masses should contain a list of masses.  In case
@@ -605,7 +612,7 @@ class _LimitedAtoms:
             return self.arrays['masses'].copy()
         return atomic_masses[self.arrays['numbers']]
 
-    def set_initial_magnetic_moments(self, magmoms=None):
+    def set_initial_magnetic_moments(self, magmoms: np.ndarray | Sequence[float] | Sequence[Sequence[float]] | float | None = None) -> None:
         """Set the initial magnetic moments.
 
         Use either one or three numbers for every atom (collinear
@@ -618,14 +625,14 @@ class _LimitedAtoms:
             self.set_array('initial_magmoms', magmoms, float,
                            magmoms.shape[1:])
 
-    def get_initial_magnetic_moments(self):
+    def get_initial_magnetic_moments(self) -> np.ndarray:
         """Get array of initial magnetic moments."""
         if 'initial_magmoms' in self.arrays:
             return self.arrays['initial_magmoms'].copy()
         else:
             return np.zeros(len(self))
 
-    def set_initial_charges(self, charges=None):
+    def set_initial_charges(self, charges: np.ndarray | Sequence[float] | None = None) -> None:
         """Set the initial charges."""
 
         if charges is None:
@@ -633,21 +640,21 @@ class _LimitedAtoms:
         else:
             self.set_array('initial_charges', charges, float, ())
 
-    def get_initial_charges(self):
+    def get_initial_charges(self) -> np.ndarray:
         """Get array of initial charges."""
         if 'initial_charges' in self.arrays:
             return self.arrays['initial_charges'].copy()
         else:
             return np.zeros(len(self))
 
-    def get_kinetic_energy(self):
+    def get_kinetic_energy(self) -> float:
         """Get the kinetic energy."""
         momenta = self.arrays.get('momenta')
         if momenta is None:
             return 0.0
         return 0.5 * np.vdot(momenta, self.get_velocities())
 
-    def get_kinetic_stress(self, voigt=True):
+    def get_kinetic_stress(self, voigt: bool = True) -> np.ndarray:
         """Calculate the kinetic part of the Virial stress tensor."""
         stress = np.zeros(6)  # Voigt notation
         stresscomp = np.array([[0, 5, 4], [5, 1, 3], [4, 3, 2]])
@@ -665,7 +672,7 @@ class _LimitedAtoms:
         else:
             return voigt_6_to_full_3x3_stress(stress)
 
-    def copy(self):
+    def copy(self) -> _LimitedAtoms:
         """Return a copy."""
         atoms = self.__class__(cell=self.cell, pbc=self.pbc, info=self.info,
                                celldisp=self._celldisp.copy())
@@ -676,7 +683,7 @@ class _LimitedAtoms:
         atoms.constraints = copy.deepcopy(self.constraints)
         return atoms
 
-    def todict(self):
+    def todict(self) -> dict[str, Any]:
         """For basic JSON (non-database) support."""
         d = dict(self.arrays)
         d['cell'] = np.asarray(self.cell)
@@ -691,7 +698,7 @@ class _LimitedAtoms:
         return d
 
     @classmethod
-    def fromdict(cls, dct):
+    def fromdict(cls, dct: dict) -> '_LimitedAtoms':
         """Rebuild atoms object from dictionary representation (todict)."""
         dct = dct.copy()
         kw = {name: dct.pop(name)
@@ -716,7 +723,7 @@ class _LimitedAtoms:
             atoms.arrays[name] = arr
         return atoms
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.arrays['positions'])
 
     @deprecated(
@@ -724,7 +731,7 @@ class _LimitedAtoms:
         "self.get_global_number_of_atoms.",
         category=FutureWarning,
     )
-    def get_number_of_atoms(self):
+    def get_number_of_atoms(self) -> int:
         """
         .. deprecated:: 3.18.1
             You probably want ``len(atoms)``.  Or if your atoms are distributed,
@@ -732,7 +739,7 @@ class _LimitedAtoms:
         """
         return len(self)
 
-    def get_global_number_of_atoms(self):
+    def get_global_number_of_atoms(self) -> int:
         """Returns the global number of atoms in a distributed-atoms parallel
         simulation.
 
@@ -788,12 +795,12 @@ class _LimitedAtoms:
         tokens = self._get_tokens_for_repr()
         return '{}({})'.format(self.__class__.__name__, ', '.join(tokens))
 
-    def __add__(self, other):
+    def __add__(self, other: '_LimitedAtoms') -> 'Atoms':
         atoms = self.copy()
         atoms += other
         return atoms
 
-    def extend(self, other):
+    def extend(self, other: '_LimitedAtoms | Atom') -> None:
         """Extend atoms object by appending atoms from *other*."""
         if isinstance(other, Atom):
             other = self.__class__([other])
@@ -824,15 +831,15 @@ class _LimitedAtoms:
 
             self.set_array(name, a)
 
-    def __iadd__(self, other):
+    def __iadd__(self, other: '_LimitedAtoms | Atom') -> '_LimitedAtoms':
         self.extend(other)
         return self
 
-    def append(self, atom):
+    def append(self, atom: Atom) -> None:
         """Append atom to end."""
         self.extend(self.__class__([atom]))
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Atom]:
         for i in range(len(self)):
             yield self[i]
 
@@ -898,7 +905,7 @@ class _LimitedAtoms:
         atoms.constraints = conadd
         return atoms
 
-    def __delitem__(self, i):
+    def __delitem__(self, i: int | list | np.ndarray) -> None:
         from ase.constraints import FixAtoms
         for c in self._constraints:
             if not isinstance(c, FixAtoms):
@@ -927,14 +934,14 @@ class _LimitedAtoms:
         for name, a in self.arrays.items():
             self.arrays[name] = a[mask]
 
-    def pop(self, i=-1):
+    def pop(self, i: int = -1) -> Atom:
         """Remove and return atom at index *i* (default last)."""
         atom = self[i]
         atom.cut_reference_to_atoms()
         del self[i]
         return atom
 
-    def __imul__(self, m):
+    def __imul__(self, m: int | tuple[int, int, int]) -> '_LimitedAtoms':
         """In-place repeat of atoms."""
         if isinstance(m, int):
             m = (m, m, m)
@@ -966,7 +973,7 @@ class _LimitedAtoms:
 
         return self
 
-    def repeat(self, rep):
+    def repeat(self, rep: int | Sequence[int]) -> 'Atoms':
         """Create new repeated atoms object.
 
         The *rep* argument should be a sequence of three positive
@@ -977,10 +984,10 @@ class _LimitedAtoms:
         atoms *= rep
         return atoms
 
-    def __mul__(self, rep):
+    def __mul__(self, rep: int | Sequence[int]) -> 'Atoms':
         return self.repeat(rep)
 
-    def translate(self, displacement):
+    def translate(self, displacement: np.ndarray | Sequence[float]) -> None:
         """Translate atomic positions.
 
         The displacement argument can be a float an xyz vector or an
@@ -988,7 +995,7 @@ class _LimitedAtoms:
 
         self.arrays['positions'] += np.array(displacement)
 
-    def center(self, vacuum=None, axis=(0, 1, 2), about=None):
+    def center(self, vacuum: float | None = None, axis: int | Sequence[int] = (0, 1, 2), about=None) -> None:
         """Center atoms in unit cell.
 
         Centers the atoms in the unit cell, so there is the same
@@ -1011,11 +1018,12 @@ class _LimitedAtoms:
         dirs = np.zeros_like(cell)
 
         lengths = cell.lengths()
-        for i in range(3):
-            dirs[i] = np.cross(cell[i - 1], cell[i - 2])
-            dirs[i] /= np.linalg.norm(dirs[i])
-            if dirs[i] @ cell[i] < 0.0:
-                dirs[i] *= -1
+        with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
+            for i in range(3):
+                dirs[i] = np.cross(cell[i - 1], cell[i - 2])
+                dirs[i] /= np.linalg.norm(dirs[i])
+                if dirs[i] @ cell[i] < 0.0:
+                    dirs[i] *= -1
 
         if isinstance(axis, int):
             axes = (axis,)
@@ -1028,7 +1036,8 @@ class _LimitedAtoms:
         shift = np.zeros(3)
         for i in axes:
             if len(pos):
-                scalarprod = pos @ dirs[i]
+                with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
+                    scalarprod = pos @ dirs[i]
                 p0 = scalarprod.min()
                 p1 = scalarprod.max()
             else:
@@ -1069,7 +1078,7 @@ class _LimitedAtoms:
 
         self.positions += translation
 
-    def get_center_of_mass(self, scaled=False, indices=None):
+    def get_center_of_mass(self, scaled: bool = False, indices=None) -> np.ndarray:
         """Get the center of mass.
 
         Parameters
@@ -1090,7 +1099,7 @@ class _LimitedAtoms:
             return self.cell.scaled_positions(com)
         return com  # Cartesian coordinates
 
-    def set_center_of_mass(self, com, scaled=False):
+    def set_center_of_mass(self, com: np.ndarray | Sequence[float], scaled: bool = False) -> None:
         """Set the center of mass.
 
         If scaled=True the center of mass is expected in scaled coordinates.
@@ -1103,7 +1112,7 @@ class _LimitedAtoms:
         else:
             self.set_positions(self.get_positions() + difference)
 
-    def get_moments_of_inertia(self, vectors=False):
+    def get_moments_of_inertia(self, vectors: bool = False) -> np.ndarray | tuple[np.ndarray, np.ndarray]:
         """Get the moments of inertia along the principal axes.
 
         The three principal moments of inertia are computed from the
@@ -1151,14 +1160,14 @@ class _LimitedAtoms:
         else:
             return evals
 
-    def get_angular_momentum(self):
+    def get_angular_momentum(self) -> np.ndarray:
         """Get total angular momentum with respect to the center of mass."""
         com = self.get_center_of_mass()
         positions = self.get_positions()
         positions -= com  # translate center of mass to origin
         return np.cross(positions, self.get_momenta()).sum(0)
 
-    def rotate(self, a, v, center=(0, 0, 0), rotate_cell=False):
+    def rotate(self, a, v, center: str | Sequence[float] = (0, 0, 0), rotate_cell: bool = False) -> None:
         """Rotate atoms based on a vector and an angle, or two vectors.
 
         Parameters
@@ -1247,7 +1256,7 @@ class _LimitedAtoms:
                           np.outer(np.dot(rotcell, v), (1.0 - c) * v))
             self.set_cell(rotcell)
 
-    def _centering_as_array(self, center):
+    def _centering_as_array(self, center: str | Sequence[float] | np.ndarray) -> np.ndarray:
         if isinstance(center, str):
             if center.lower() == 'com':
                 center = self.get_center_of_mass()
@@ -1298,7 +1307,7 @@ class _LimitedAtoms:
 
         self.positions = rotation.apply(self.positions - center) + center
 
-    def get_dihedral(self, a0, a1, a2, a3, mic=False):
+    def get_dihedral(self, a0: int, a1: int, a2: int, a3: int, mic: bool = False) -> float:
         """Calculate dihedral angle.
 
         Calculate dihedral angle (in degrees) between the vectors a0->a1
@@ -1309,7 +1318,7 @@ class _LimitedAtoms:
         """
         return self.get_dihedrals([[a0, a1, a2, a3]], mic=mic)[0]
 
-    def get_dihedrals(self, indices, mic=False):
+    def get_dihedrals(self, indices: Sequence | np.ndarray, mic: bool = False) -> np.ndarray:
         """Calculate dihedral angles.
 
         Calculate dihedral angles (in degrees) between the list of vectors
@@ -1342,7 +1351,7 @@ class _LimitedAtoms:
 
         return get_dihedrals(v0, v1, v2, cell=cell, pbc=pbc)
 
-    def _masked_rotate(self, center, axis, diff, mask):
+    def _masked_rotate(self, center: np.ndarray, axis: np.ndarray, diff: float, mask) -> None:
         # do rotation of subgroup by copying it to temporary atoms object
         # and then rotating that
         #
@@ -1362,8 +1371,8 @@ class _LimitedAtoms:
                 self.positions[i] = group[j].position
                 j += 1
 
-    def set_dihedral(self, a1, a2, a3, a4, angle,
-                     mask=None, indices=None):
+    def set_dihedral(self, a1: int, a2: int, a3: int, a4: int, angle: float,
+                     mask=None, indices=None) -> None:
         """Set the dihedral angle (degrees) between vectors a1->a2 and
         a3->a4 by changing the atom indexed by a4.
 
@@ -1401,7 +1410,7 @@ class _LimitedAtoms:
         center = self.positions[a3]
         self._masked_rotate(center, axis, diff, mask)
 
-    def rotate_dihedral(self, a1, a2, a3, a4, angle, mask=None, indices=None):
+    def rotate_dihedral(self, a1: int, a2: int, a3: int, a4: int, angle: float, mask=None, indices=None) -> None:
         """Rotate dihedral angle.
 
         Same usage as in :meth:`ase.Atoms.set_dihedral`: Rotate a group by a
@@ -1410,7 +1419,7 @@ class _LimitedAtoms:
         start = self.get_dihedral(a1, a2, a3, a4)
         self.set_dihedral(a1, a2, a3, a4, angle + start, mask, indices)
 
-    def get_angle(self, a1, a2, a3, mic=False):
+    def get_angle(self, a1: int, a2: int, a3: int, mic: bool = False) -> float:
         """Get angle formed by three atoms.
 
         Calculate angle in degrees between the vectors a2->a1 and
@@ -1421,7 +1430,7 @@ class _LimitedAtoms:
         """
         return self.get_angles([[a1, a2, a3]], mic=mic)[0]
 
-    def get_angles(self, indices, mic=False):
+    def get_angles(self, indices: Sequence | np.ndarray, mic: bool = False) -> np.ndarray:
         """Get angle formed by three atoms for multiple groupings.
 
         Calculate angle in degrees between vectors between atoms a2->a1
@@ -1451,8 +1460,8 @@ class _LimitedAtoms:
 
         return get_angles(v12, v32, cell=cell, pbc=pbc)
 
-    def set_angle(self, a1, a2=None, a3=None, angle=None, mask=None,
-                  indices=None, add=False):
+    def set_angle(self, a1: int, a2: int | None = None, a3: int | None = None, angle: float | None = None, mask=None,
+                  indices=None, add: bool = False) -> None:
         """Set angle (in degrees) formed by three atoms.
 
         Sets the angle between vectors *a2*->*a1* and *a2*->*a3*.
@@ -1491,7 +1500,7 @@ class _LimitedAtoms:
         center = self.positions[a2]
         self._masked_rotate(center, axis, diff, mask)
 
-    def rattle(self, stdev=0.001, seed=None, rng=None):
+    def rattle(self, stdev: float = 0.001, seed: int | None = None, rng=None) -> None:
         """Randomly displace atoms.
 
         This method adds random displacements to the atomic positions,
@@ -1515,7 +1524,7 @@ class _LimitedAtoms:
         self.set_positions(positions +
                            rng.normal(scale=stdev, size=positions.shape))
 
-    def get_distance(self, a0, a1, mic=False, vector=False):
+    def get_distance(self, a0: int, a1: int, mic: bool = False, vector: bool = False) -> float | np.ndarray:
         """Return distance between two atoms.
 
         Use mic=True to use the Minimum Image Convention.
@@ -1523,7 +1532,7 @@ class _LimitedAtoms:
         """
         return self.get_distances(a0, [a1], mic=mic, vector=vector)[0]
 
-    def get_distances(self, a, indices, mic=False, vector=False):
+    def get_distances(self, a: int, indices: Sequence[int] | np.ndarray, mic: bool = False, vector: bool = False) -> np.ndarray:
         """Return distances of atom No.i with a list of atoms.
 
         Use mic=True to use the Minimum Image Convention.
@@ -1551,7 +1560,7 @@ class _LimitedAtoms:
             D_len.shape = (-1,)
             return D_len
 
-    def get_all_distances(self, mic=False, vector=False):
+    def get_all_distances(self, mic: bool = False, vector: bool = False) -> np.ndarray:
         """Return distances of all of the atoms with all of the atoms.
 
         Use mic=True to use the Minimum Image Convention.
@@ -1574,8 +1583,8 @@ class _LimitedAtoms:
         else:
             return D_len
 
-    def set_distance(self, a0, a1, distance, fix=0.5, mic=False,
-                     mask=None, indices=None, add=False, factor=False):
+    def set_distance(self, a0: int, a1: int, distance: float, fix: float = 0.5, mic: bool = False,
+                     mask=None, indices=None, add: bool = False, factor: bool = False) -> None:
         """Set the distance between two atoms.
 
         Set the distance between atoms *a0* and *a1* to *distance*.
@@ -1629,7 +1638,7 @@ class _LimitedAtoms:
             else:
                 R[i] -= (x * (1.0 - fix)) * D[0]
 
-    def get_scaled_positions(self, wrap=True):
+    def get_scaled_positions(self, wrap: bool = True) -> np.ndarray:
         """Get positions relative to unit cell.
 
         If wrap is True, atoms outside the unit cell will be wrapped into
@@ -1654,11 +1663,11 @@ class _LimitedAtoms:
 
         return fractional
 
-    def set_scaled_positions(self, scaled):
+    def set_scaled_positions(self, scaled: np.ndarray | Sequence) -> None:
         """Set positions relative to unit cell."""
         self.positions[:] = self.cell.cartesian_positions(scaled)
 
-    def wrap(self, **wrap_kw):
+    def wrap(self, **wrap_kw: Any) -> None:
         """Wrap positions to unit cell.
 
         Parameters
@@ -1674,12 +1683,12 @@ class _LimitedAtoms:
 
         self.positions[:] = self.get_positions(wrap=True, **wrap_kw)
 
-    def get_temperature(self):
+    def get_temperature(self) -> float:
         """Get the temperature in Kelvin."""
         ekin = self.get_kinetic_energy()
         return 2 * ekin / (self.get_number_of_degrees_of_freedom() * units.kB)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         """Check for identity of two atoms objects.
 
         Identity means: same positions, atomic numbers, unit cell and
@@ -1694,7 +1703,7 @@ class _LimitedAtoms:
                 (self.cell == other.cell).all() and
                 (self.pbc == other.pbc).all())
 
-    def __ne__(self, other):
+    def __ne__(self, other: object) -> bool:
         """Check if two atoms objects are not equal.
 
         Any differences in positions, atomic numbers, unit cell or
@@ -1709,7 +1718,7 @@ class _LimitedAtoms:
     # @deprecated('Please use atoms.cell.volume')
     # We kind of want to deprecate this, but the ValueError behaviour
     # might be desirable.  Should we do this?
-    def get_volume(self):
+    def get_volume(self) -> float:
         """Get volume of unit cell."""
         if self.cell.rank != 3:
             raise ValueError(
@@ -1718,16 +1727,16 @@ class _LimitedAtoms:
         return self.cell.volume
 
     @property
-    def cell(self):
+    def cell(self) -> Cell:
         """The :class:`ase.cell.Cell` for direct manipulation."""
         return self._cellobj
 
     @cell.setter
-    def cell(self, cell):
+    def cell(self, cell: Cell | np.ndarray | Sequence) -> None:
         cell = Cell.ascell(cell)
         self._cellobj[:] = cell
 
-    def write(self, filename, format=None, **kwargs):
+    def write(self, filename: str, format: str | None = None, **kwargs: Any) -> None:
         """Write atoms object to a file.
 
         see ase.io.write for formats.
@@ -1736,14 +1745,14 @@ class _LimitedAtoms:
         from ase.io import write
         write(filename, self, format, **kwargs)
 
-    def iterimages(self):
+    def iterimages(self) -> Iterator['_LimitedAtoms']:
         yield self
 
-    def __ase_optimizable__(self):
+    def __ase_optimizable__(self) -> Any:
         from ase.optimize.optimize import OptimizableAtoms
         return OptimizableAtoms(self)
 
-    def edit(self):
+    def edit(self) -> None:
         """Modify atoms interactively through ASE's GUI viewer.
 
         Conflicts leading to undesirable behaviour might arise
@@ -1876,7 +1885,7 @@ class Atoms(_LimitedAtoms):
     ...           cell=(d, 0, 0),
     ...           pbc=(1, 0, 0))
     """
-    def __init__(self, symbols=None, *args, calculator=None, **kwargs) -> None:
+    def __init__(self, symbols=None, *args, calculator: Any = None, **kwargs: Any) -> None:
         super().__init__(symbols, *args, **kwargs)
         if hasattr(symbols, 'get_positions'):
             atoms = symbols
@@ -1886,7 +1895,7 @@ class Atoms(_LimitedAtoms):
         self.calc = calculator
 
     @deprecated("Please use atoms.calc = calc", FutureWarning)
-    def set_calculator(self, calc=None):
+    def set_calculator(self, calc: Any = None) -> None:
         """Attach calculator object.
 
         .. deprecated:: 3.20.0
@@ -1897,7 +1906,7 @@ class Atoms(_LimitedAtoms):
         self.calc = calc
 
     @deprecated("Please use atoms.calc", FutureWarning)
-    def get_calculator(self):
+    def get_calculator(self) -> Any:
         """Get currently attached calculator object.
 
         .. deprecated:: 3.20.0
@@ -1908,19 +1917,19 @@ class Atoms(_LimitedAtoms):
         return self.calc
 
     @property
-    def calc(self):
+    def calc(self) -> Any:
         """Calculator object."""
         return self._calc
 
     @calc.setter
-    def calc(self, calc):
+    def calc(self, calc: Any) -> None:
         self._calc = calc
         if hasattr(calc, 'set_atoms'):
             calc.set_atoms(self)
 
     @calc.deleter
     @deprecated('Please use atoms.calc = None', FutureWarning)
-    def calc(self):
+    def calc(self) -> None:
         """Delete calculator
 
         .. deprecated:: 3.20.0
@@ -1928,19 +1937,19 @@ class Atoms(_LimitedAtoms):
         """
         self._calc = None
 
-    def get_magnetic_moments(self):
+    def get_magnetic_moments(self) -> np.ndarray:
         """Get calculated local magnetic moments."""
         if self._calc is None:
             raise RuntimeError('Atoms object has no calculator.')
         return self._calc.get_magnetic_moments(self)
 
-    def get_magnetic_moment(self):
+    def get_magnetic_moment(self) -> float:
         """Get calculated total magnetic moment."""
         if self._calc is None:
             raise RuntimeError('Atoms object has no calculator.')
         return self._calc.get_magnetic_moment(self)
 
-    def get_charges(self):
+    def get_charges(self) -> np.ndarray:
         """Get calculated charges."""
         if self._calc is None:
             raise RuntimeError('Atoms object has no calculator.')
@@ -1950,8 +1959,8 @@ class Atoms(_LimitedAtoms):
             from ase.calculators.calculator import PropertyNotImplementedError
             raise PropertyNotImplementedError
 
-    def get_potential_energy(self, force_consistent=False,
-                             apply_constraint=True):
+    def get_potential_energy(self, force_consistent: bool = False,
+                             apply_constraint: bool = True) -> float:
         """Calculate potential energy.
 
         Ask the attached calculator to calculate the potential energy and
@@ -1975,14 +1984,14 @@ class Atoms(_LimitedAtoms):
                     energy += constraint.adjust_potential_energy(self)
         return energy
 
-    def get_properties(self, properties):
+    def get_properties(self, properties: list[str]) -> dict[str, Any]:
         """This method is experimental; currently for internal use."""
         # XXX Something about constraints.
         if self._calc is None:
             raise RuntimeError('Atoms object has no calculator.')
         return self._calc.calculate_properties(self, properties)
 
-    def get_potential_energies(self):
+    def get_potential_energies(self) -> np.ndarray:
         """Calculate the potential energies of all the atoms.
 
         Only available with calculators supporting per-atom energies
@@ -1992,11 +2001,11 @@ class Atoms(_LimitedAtoms):
             raise RuntimeError('Atoms object has no calculator.')
         return self._calc.get_potential_energies(self)
 
-    def get_total_energy(self):
+    def get_total_energy(self) -> float:
         """Get the total energy - potential plus kinetic energy."""
         return self.get_potential_energy() + self.get_kinetic_energy()
 
-    def get_forces(self, apply_constraint=True, md=False):
+    def get_forces(self, apply_constraint: bool = True, md: bool = False) -> np.ndarray:
         """Calculate atomic forces.
 
         Ask the attached calculator to calculate the forces and apply
@@ -2031,8 +2040,8 @@ class Atoms(_LimitedAtoms):
     # Informs calculators (e.g. Asap) that ideal gas contribution is added here.
     _ase_handles_dynamic_stress = True
 
-    def get_stress(self, voigt=True, apply_constraint=True,
-                   include_ideal_gas=False):
+    def get_stress(self, voigt: bool = True, apply_constraint: bool = True,
+                   include_ideal_gas: bool = False) -> np.ndarray:
         """Calculate stress tensor.
 
         Returns an array of the six independent components of the
@@ -2072,7 +2081,7 @@ class Atoms(_LimitedAtoms):
         else:
             return voigt_6_to_full_3x3_stress(stress)
 
-    def get_stresses(self, include_ideal_gas=False, voigt=True):
+    def get_stresses(self, include_ideal_gas: bool = False, voigt: bool = True) -> np.ndarray:
         """Calculate the stress-tensor of all the atoms.
 
         Only available with calculators supporting per-atom energies and
@@ -2105,7 +2114,7 @@ class Atoms(_LimitedAtoms):
             stresses_3x3 = [voigt_6_to_full_3x3_stress(s) for s in stresses]
             return np.array(stresses_3x3)
 
-    def get_kinetic_stresses(self, voigt=True):
+    def get_kinetic_stresses(self, voigt: bool = True) -> np.ndarray:
         """Calculate the kinetic part of the Virial stress of all the atoms."""
         stresses = np.zeros((len(self), 6))  # Voigt notation
         stresscomp = np.array([[0, 5, 4], [5, 1, 3], [4, 3, 2]])
@@ -2126,7 +2135,7 @@ class Atoms(_LimitedAtoms):
             stresses_3x3 = [voigt_6_to_full_3x3_stress(s) for s in stresses]
             return np.array(stresses_3x3)
 
-    def get_dipole_moment(self):
+    def get_dipole_moment(self) -> np.ndarray:
         """Calculate the electric dipole moment for the atoms object.
 
         Only available for calculators which has a get_dipole_moment()
@@ -2143,7 +2152,7 @@ class Atoms(_LimitedAtoms):
         return tokens
 
 
-def string2vector(v):
+def string2vector(v: str | list | np.ndarray) -> np.ndarray:
     if isinstance(v, str):
         if v[0] == '-':
             return -string2vector(v[1:])
@@ -2153,7 +2162,7 @@ def string2vector(v):
     return np.array(v, float)
 
 
-def default(data, dflt):
+def default(data: Any, dflt: Any) -> Any:
     """Helper function for setting default values."""
     if data is None:
         return None

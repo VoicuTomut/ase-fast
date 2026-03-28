@@ -388,7 +388,7 @@ class RamanPhonons(RamanData):
             self.om_v = self.om_Q
 
             # pre-factors for one vibrational excitation
-            with np.errstate(divide='ignore', invalid='ignore'):
+            with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
                 self.vib01_Q = np.where(
                     self.om_Q > 0, 1. / np.sqrt(2 * self.om_Q), 0)
             # -> sqrt(amu) * Angstrom

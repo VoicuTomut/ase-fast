@@ -115,7 +115,8 @@ class BFGSLineSearch(Optimizer):
         # o,v = np.linalg.eigh(self.B)
         e = self.func(r)
 
-        self.p = -np.dot(self.H, g)
+        with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
+            self.p = -np.dot(self.H, g)
         p_size = np.sqrt((self.p**2).sum())
         if p_size <= np.sqrt(optimizable.ndofs() / 3 * 1e-10):
             self.p /= (p_size / np.sqrt(optimizable.ndofs() / 3 * 1e-10))
@@ -152,7 +153,8 @@ class BFGSLineSearch(Optimizer):
                 return
 
             try:  # this was handled in numeric, let it remain for more safety
-                rhok = 1.0 / (np.dot(dg, dr))
+                with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
+                    rhok = 1.0 / (np.dot(dg, dr))
             except ZeroDivisionError:
                 rhok = 1000.0
                 print("Divide-by-zero encountered: rhok assumed large")
@@ -161,8 +163,9 @@ class BFGSLineSearch(Optimizer):
                 print("Divide-by-zero encountered: rhok assumed large")
             A1 = self.I - dr[:, np.newaxis] * dg[np.newaxis, :] * rhok
             A2 = self.I - dg[:, np.newaxis] * dr[np.newaxis, :] * rhok
-            self.H = (np.dot(A1, np.dot(self.H, A2)) +
-                      rhok * dr[:, np.newaxis] * dr[np.newaxis, :])
+            with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
+                self.H = (np.dot(A1, np.dot(self.H, A2)) +
+                          rhok * dr[:, np.newaxis] * dr[np.newaxis, :])
             # self.B = np.linalg.inv(self.H)
 
     def func(self, x):

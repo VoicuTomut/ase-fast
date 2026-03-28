@@ -615,7 +615,8 @@ class ForceConstantCalculator(Calculator):
     def calculate(self, atoms, properties, system_changes):
         Calculator.calculate(self, atoms, properties, system_changes)
         u = atoms.positions - self.ref.positions
-        f = -self.D.dot(u.reshape(3 * self.size))
+        with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
+            f = -self.D.dot(u.reshape(3 * self.size))
         forces = np.zeros((len(atoms), 3))
         forces[:, :] = f.reshape(self.size, 3)
         self.results['forces'] = forces + self.f0

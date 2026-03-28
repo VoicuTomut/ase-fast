@@ -1,4 +1,5 @@
 # fmt: off
+from __future__ import annotations
 
 """Helper functions for creating supercells."""
 
@@ -6,6 +7,15 @@ import numpy as np
 
 from ase import Atoms
 from ase.utils import deprecated
+
+# ---------------------------------------------------------------------------
+# Optional Rust fast path for supercell position broadcast (Phase 9 T5).
+# ---------------------------------------------------------------------------
+try:
+    from ase._geometry_rs import make_supercell_positions_rs as _make_supercell_pos_rs  # type: ignore[import]
+    _HAVE_RUST_GEOM = True
+except ImportError:
+    _HAVE_RUST_GEOM = False
 
 
 class SupercellError(Exception):
@@ -17,7 +27,7 @@ def get_deviation_from_optimal_cell_shape(*args, **kwargs):
     return eval_length_deviation(*args, **kwargs)
 
 
-def eval_shape_deviation(cell, target_shape="sc"):
+def eval_shape_deviation(cell: np.ndarray, target_shape: str = "sc") -> float | np.ndarray:
     r"""
     Calculates the deviation of the given cell from the target cell metric.
 
@@ -66,7 +76,7 @@ def eval_shape_deviation(cell, target_shape="sc"):
     return scores
 
 
-def eval_length_deviation(cell, target_shape="sc"):
+def eval_length_deviation(cell: np.ndarray, target_shape: str = "sc") -> float | np.ndarray:
     r"""Calculate the deviation from the target cell shape.
 
     Calculates the deviation of the given cell metric from the ideal
@@ -126,8 +136,8 @@ def eval_length_deviation(cell, target_shape="sc"):
     return scores
 
 
-def _guess_initial_transformation(cell, target_shape,
-                                  target_size, verbose=False):
+def _guess_initial_transformation(cell: np.ndarray, target_shape: str,
+                                  target_size: int, verbose: bool = False) -> tuple[np.ndarray, np.ndarray]:
 
     # Set up target metric
     if target_shape == 'sc':
@@ -162,7 +172,7 @@ def _guess_initial_transformation(cell, target_shape,
     return ideal_P, starting_P
 
 
-def _build_matrix_operations(starting_P, lower_limit, upper_limit):
+def _build_matrix_operations(starting_P: np.ndarray, lower_limit: int, upper_limit: int) -> np.ndarray:
     mat_dim = starting_P.shape[0]
 
     if not mat_dim == starting_P.shape[1]:
@@ -180,7 +190,7 @@ def _build_matrix_operations(starting_P, lower_limit, upper_limit):
     return operations
 
 
-def _screen_supercell_size(operations, target_size):
+def _screen_supercell_size(operations: np.ndarray, target_size: int) -> np.ndarray | None:
 
     # screen supercells with the target size
     determinants = np.round(np.linalg.det(operations), 0).astype(int)
@@ -194,7 +204,7 @@ def _screen_supercell_size(operations, target_size):
     return operations
 
 
-def _optimal_transformation(operations, scores, ideal_P):
+def _optimal_transformation(operations: np.ndarray, scores: np.ndarray, ideal_P: np.ndarray) -> tuple[np.ndarray, float]:
 
     imin = np.argmin(scores)
     best_score = scores[imin]
@@ -218,14 +228,14 @@ all_score_funcs = {"length": eval_length_deviation,
 
 
 def find_optimal_cell_shape(
-    cell,
-    target_size,
-    target_shape,
-    lower_limit=-2,
-    upper_limit=2,
-    verbose=False,
-    score_key='length'
-):
+    cell: np.ndarray,
+    target_size: int,
+    target_shape: str,
+    lower_limit: int = -2,
+    upper_limit: int = 2,
+    verbose: bool = False,
+    score_key: str = 'length'
+) -> np.ndarray:
     """Obtain the optimal transformation matrix for a supercell of target size
     and shape.
 
@@ -308,7 +318,7 @@ def find_optimal_cell_shape(
     return optimal_P
 
 
-def make_supercell(prim, P, *, wrap=True, order="cell-major", tol=1e-5):
+def make_supercell(prim: Atoms, P: np.ndarray, *, wrap: bool = True, order: str = "cell-major", tol: float = 1e-5) -> Atoms:
     r"""Generate a supercell by applying a general transformation (*P*) to
     the input configuration (*prim*).
 
@@ -348,16 +358,24 @@ def make_supercell(prim, P, *, wrap=True, order="cell-major", tol=1e-5):
 
     # cartesian lattice points
     lattice_points_frac = lattice_points_in_supercell(supercell_matrix)
-    lattice_points = np.dot(lattice_points_frac, supercell)
+    with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
+        lattice_points = np.dot(lattice_points_frac, supercell)
     N = len(lattice_points)
 
-    if order == "cell-major":
-        shifted = prim.positions[None, :, :] + lattice_points[:, None, :]
-    elif order == "atom-major":
-        shifted = prim.positions[:, None, :] + lattice_points[None, :, :]
-    else:
+    if order not in ("cell-major", "atom-major"):
         raise ValueError(f"invalid order: {order}")
-    shifted_reshaped = shifted.reshape(-1, 3)
+    if _HAVE_RUST_GEOM:
+        shifted_reshaped = _make_supercell_pos_rs(
+            np.ascontiguousarray(prim.positions, dtype=np.float64),
+            np.ascontiguousarray(lattice_points, dtype=np.float64),
+            order == "cell-major",
+        )
+    elif order == "cell-major":
+        shifted = prim.positions[None, :, :] + lattice_points[:, None, :]
+        shifted_reshaped = shifted.reshape(-1, 3)
+    else:
+        shifted = prim.positions[:, None, :] + lattice_points[None, :, :]
+        shifted_reshaped = shifted.reshape(-1, 3)
 
     superatoms = Atoms(positions=shifted_reshaped,
                        cell=supercell,
@@ -388,7 +406,7 @@ def make_supercell(prim, P, *, wrap=True, order="cell-major", tol=1e-5):
     return superatoms
 
 
-def lattice_points_in_supercell(supercell_matrix):
+def lattice_points_in_supercell(supercell_matrix: np.ndarray) -> np.ndarray:
     """Find all lattice points contained in a supercell.
 
     Adapted from pymatgen, which is available under MIT license:
@@ -418,7 +436,8 @@ def lattice_points_in_supercell(supercell_matrix):
     all_points = ar[:, None, None] + br[None, :, None] + cr[None, None, :]
     all_points = all_points.reshape((-1, 3))
 
-    frac_points = np.dot(all_points, np.linalg.inv(supercell_matrix))
+    with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
+        frac_points = np.dot(all_points, np.linalg.inv(supercell_matrix))
 
     tvects = frac_points[np.all(frac_points < 1 - 1e-10, axis=1)
                          & np.all(frac_points >= -1e-10, axis=1)]
@@ -426,7 +445,7 @@ def lattice_points_in_supercell(supercell_matrix):
     return tvects
 
 
-def clean_matrix(matrix, eps=1e-12):
+def clean_matrix(matrix: np.ndarray, eps: float = 1e-12) -> np.ndarray:
     """ clean from small values"""
     matrix = np.array(matrix)
     for ij in np.ndindex(matrix.shape):

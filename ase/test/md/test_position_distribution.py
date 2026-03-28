@@ -63,7 +63,8 @@ def test_position_distribution():
     pdf_ref /= simpson(pdf_ref, grid)  # normalization
 
     distances = run(temperature_K=temperature_K)
-    pdf = gaussian_kde(distances)(grid)
+    with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
+        pdf = gaussian_kde(distances)(grid)
 
     # replace zero with a tiny value
     eps = np.finfo(float).eps

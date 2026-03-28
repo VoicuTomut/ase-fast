@@ -1,10 +1,10 @@
 [build-system]
-requires = ['setuptools >= 77.0.3']
+requires = ['setuptools >= 77.0.3', 'setuptools-rust >= 1.9']
 build-backend = 'setuptools.build_meta'
 
 [project]
-name = 'ase'
-description='Atomic Simulation Environment'
+name = 'ase-fast'
+description='ASE-fast — Atomic Simulation Environment with Rust acceleration'
 dynamic = ['version']
 readme = 'README.rst'
 license = 'LGPL-2.1-or-later'
@@ -17,6 +17,7 @@ classifiers = [
     'Programming Language :: Python :: 3.10',
     'Programming Language :: Python :: 3.11',
     'Programming Language :: Python :: 3.12',
+    'Programming Language :: Rust',
     'Intended Audience :: Science/Research',
     'Topic :: Scientific/Engineering :: Physics'
 ]
@@ -46,6 +47,9 @@ test = ['pytest>=7.4.0', 'pytest-xdist>=3.2.0']  # summer 2023
 spglib = ['spglib>=1.9']
 lint = ['mypy', 'ruff', 'types-docutils', 'types-PyMySQL']
 
+[tool.setuptools.packages.find]
+include = ['ase*']  # exclude target/, ase-*-rs/ etc. from package discovery
+
 [tool.setuptools.package-data]
 ase = [
     'spacegroup/spacegroup.dat',
@@ -55,6 +59,7 @@ ase = [
     'py.typed',
     'test/pytest.ini',
     'test/testdata/**',
+    '_*_rs*.so',   # include pre-built Rust .so files if present
 ]
 
 [tool.setuptools.dynamic]

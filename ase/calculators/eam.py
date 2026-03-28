@@ -720,7 +720,8 @@ End EAM Interface Documentation
 
         for i in range(len(atoms)):  # this is the atom to be embedded
             neighbors, offsets = self.neighbors.get_neighbors(i)
-            offset = np.dot(offsets, atoms.get_cell())
+            with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
+                offset = np.dot(offsets, atoms.get_cell())
 
             rvec = (atoms.positions[neighbors] + offset -
                     atoms.positions[i])
@@ -798,7 +799,8 @@ End EAM Interface Documentation
 
         for i in range(len(atoms)):  # this is the atom to be embedded
             neighbors, offsets = self.neighbors.get_neighbors(i)
-            offset = np.dot(offsets, atoms.get_cell())
+            with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
+                offset = np.dot(offsets, atoms.get_cell())
             # create a vector of relative positions of neighbors
             rvec = atoms.positions[neighbors] + offset - atoms.positions[i]
             r = np.sqrt(np.sum(np.square(rvec), axis=1))
