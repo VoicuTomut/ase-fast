@@ -54,7 +54,7 @@ ase/_*_rs*.pyd
 
 # Rust crate build artifacts and workspace lock
 target/
-Cargo.lock
+# Cargo.lock intentionally committed — extension modules need reproducible builds
 ase-neighborlist-rs/target/
 ase-extxyz-rs/target/
 ase-geometry-rs/target/

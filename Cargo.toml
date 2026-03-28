@@ -8,6 +8,6 @@ members = [
 resolver = "2"
 
 [profile.release]
-lto = true
-codegen-units = 1
+lto = "thin"       # full LTO OOMs on 7 GB CI runners; thin LTO still fast
+codegen-units = 4  # parallel codegen reduces peak memory on 2-core runners
 opt-level = 3
