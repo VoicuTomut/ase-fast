@@ -1,0 +1,61 @@
+name: Tests
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  test:
+    name: Python ${{ matrix.python-version }} / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.11", "3.12", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust build artifacts
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ". -> target"
+
+      - name: Install Python dependencies
+        run: |
+          pip install --upgrade pip
+          pip install setuptools-rust maturin
+          pip install -e ".[test]"
+
+      - name: Verify Rust extensions are active
+        run: |
+          python -c "
+          import ase.neighborlist as nl
+          import ase.io.extxyz as ex
+          import ase.geometry.minkowski_reduction as mk
+          import ase.io.vasp as vasp
+          print('NL Rust:', nl._HAVE_RUST_NEIGHBORLIST)
+          print('extxyz Rust:', ex._HAVE_RUST_EXTXYZ)
+          print('geometry Rust:', mk._HAVE_RUST_GEOM)
+          print('VASP IO Rust:', vasp._HAVE_RUST_IO)
+          assert nl._HAVE_RUST_NEIGHBORLIST, 'NL Rust inactive'
+          assert ex._HAVE_RUST_EXTXYZ, 'extxyz Rust inactive'
+          assert mk._HAVE_RUST_GEOM, 'geometry Rust inactive'
+          assert vasp._HAVE_RUST_IO, 'IO Rust inactive'
+          print('All Rust extensions active!')
+          "
+
+      - name: Run tests
+        run: pytest ase/test/ -x -q --tb=short --ignore=ase/test/calculator --ignore=ase/test/gui
+        timeout-minutes: 15
