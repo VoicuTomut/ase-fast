@@ -34,7 +34,10 @@ jobs:
           # Linux containers don't inherit the host PATH — install Rust inside them.
           CIBW_BEFORE_ALL_LINUX: >
             curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
-          CIBW_ENVIRONMENT_LINUX: 'PATH="$HOME/.cargo/bin:$PATH"'
+          # PIP_PREFER_BINARY: prefer pre-built wheels over source packages for
+          # ALL pip calls (build + test steps), preventing scipy from compiling
+          # from source when no manylinux binary matches the container's glibc.
+          CIBW_ENVIRONMENT_LINUX: 'PATH="$HOME/.cargo/bin:$PATH" PIP_PREFER_BINARY=1'
 
           # macOS / Windows: Rust is on PATH from dtolnay step above (no containers).
           # CIBW_ENVIRONMENT entries below are a belt-and-suspenders fallback.
