@@ -10,10 +10,10 @@ def test_neighborlist_initialization():
     atoms = bulk('Al', 'fcc', a=4)
 
     nl = NeighborList([8] * len(atoms), skin=0, self_interaction=False)
-    with pytest.raises(Exception, match="Must call update"):
+    with pytest.raises(Exception, match="not been built yet"):
         nl.get_neighbors(0)
 
-    with pytest.raises(Exception, match="Must call update"):
+    with pytest.raises(Exception, match="not been built yet"):
         nl.get_connectivity_matrix()
 
     nl.update(atoms)

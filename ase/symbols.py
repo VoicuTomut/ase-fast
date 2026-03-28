@@ -1,4 +1,5 @@
 # fmt: off
+from __future__ import annotations
 
 import collections.abc
 import numbers
@@ -18,7 +19,7 @@ def string2symbols(s: str) -> list[str]:
     return list(Formula(s))
 
 
-def symbols2numbers(symbols) -> list[int]:
+def symbols2numbers(symbols: str | Sequence[str | int]) -> list[int]:
     if isinstance(symbols, str):
         symbols = string2symbols(symbols)
     numbers = []

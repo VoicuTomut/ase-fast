@@ -1,4 +1,5 @@
 # fmt: off
+from __future__ import annotations
 
 from ase.io.bundletrajectory import BundleTrajectory
 from ase.io.formats import iread, read, string2index, write

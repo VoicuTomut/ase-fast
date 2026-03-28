@@ -1,4 +1,5 @@
 # fmt: off
+from __future__ import annotations
 
 """File formats.
 
@@ -76,7 +77,7 @@ class IOFormat:
         return self._ioclass(data)
 
     @property
-    def _ioclass(self):
+    def _ioclass(self) -> type:
         if self.isbinary:
             return io.BytesIO
         else:
@@ -114,7 +115,7 @@ class IOFormat:
                   for name, value in vars(self).items()]
         return 'IOFormat({})'.format(', '.join(tokens))
 
-    def __getitem__(self, i):
+    def __getitem__(self, i: int) -> str:
         # For compatibility.
         #
         # Historically, the ioformats were listed as tuples
@@ -130,21 +131,21 @@ class IOFormat:
     def _formatname(self) -> str:
         return self.name.replace('-', '_')
 
-    def _readfunc(self):
+    def _readfunc(self) -> Any:
         return getattr(self.module, 'read_' + self._formatname, None)
 
-    def _writefunc(self):
+    def _writefunc(self) -> Any:
         return getattr(self.module, 'write_' + self._formatname, None)
 
     @property
-    def read(self):
+    def read(self) -> Any:
         if not self.can_read:
             self._warn_none('read')
             return None
 
         return self._read_wrapper
 
-    def _read_wrapper(self, *args, **kwargs):
+    def _read_wrapper(self, *args: Any, **kwargs: Any) -> Any:
         function = self._readfunc()
         if function is None:
             self._warn_none('read')
@@ -153,7 +154,7 @@ class IOFormat:
             function = functools.partial(wrap_read_function, function)
         return function(*args, **kwargs)
 
-    def _warn_none(self, action):
+    def _warn_none(self, action: str) -> None:
         msg = ('Accessing the IOFormat.{action} property on a format '
                'without {action} support will change behaviour in the '
                'future and return a callable instead of None.  '
@@ -162,14 +163,14 @@ class IOFormat:
         warnings.warn(msg.format(action=action), FutureWarning)
 
     @property
-    def write(self):
+    def write(self) -> Any:
         if not self.can_write:
             self._warn_none('write')
             return None
 
         return self._write_wrapper
 
-    def _write_wrapper(self, *args, **kwargs):
+    def _write_wrapper(self, *args: Any, **kwargs: Any) -> Any:
         function = self._writefunc()
         if function is None:
             raise ValueError(f'Cannot write to {self.name}-format')
@@ -205,7 +206,7 @@ class IOFormat:
         return self.code[1] == 'B'
 
     @property
-    def module(self):
+    def module(self) -> Any:
         try:
             return import_module(self.module_name)
         except ImportError as err:
@@ -238,9 +239,9 @@ all_formats = ioformats  # Aliased for compatibility only.  Please do not use.
 format2modulename = {}  # Left for compatibility only.
 
 
-def define_io_format(name, desc, code, *, module=None, ext=None,
-                     glob=None, magic=None, encoding=None,
-                     magic_regex=None, external=False):
+def define_io_format(name: str, desc: str, code: str, *, module: str | None = None, ext=None,
+                     glob=None, magic=None, encoding: str | None = None,
+                     magic_regex: bytes | None = None, external: bool = False) -> IOFormat:
     if module is None:
         module = name.replace('-', '_')
         format2modulename[name] = module
@@ -248,7 +249,7 @@ def define_io_format(name, desc, code, *, module=None, ext=None,
     if not external:
         module = 'ase.io.' + module
 
-    def normalize_patterns(strings):
+    def normalize_patterns(strings: str | bytes | list | None) -> list:
         if strings is None:
             strings = []
         elif isinstance(strings, (str, bytes)):
@@ -285,7 +286,7 @@ def get_ioformat(name: str) -> IOFormat:
     return ioformats[name]
 
 
-def register_external_io_formats(group):
+def register_external_io_formats(group: str) -> None:
     if hasattr(entry_points(), 'select'):
         fmt_entry_points = entry_points().select(group=group)
     else:
@@ -301,7 +302,7 @@ def register_external_io_formats(group):
             )
 
 
-def define_external_io_format(entry_point):
+def define_external_io_format(entry_point) -> None:
 
     fmt = entry_point.load()
     if entry_point.name in ioformats:
@@ -603,7 +604,7 @@ def is_compressed(fd: io.BufferedIOBase) -> bool:
     return compressed
 
 
-def wrap_read_function(read, filename, index=None, **kwargs):
+def wrap_read_function(read, filename: NameOrFile, index: int | slice | None = None, **kwargs: Any) -> Iterator[Atoms]:
     """Convert read-function to generator."""
     if index is None:
         yield read(filename, **kwargs)
@@ -681,8 +682,8 @@ def write(
 
 
 @parallel_function
-def _write(filename, fd, format, io, images, parallel=None, append=False,
-           **kwargs):
+def _write(filename: str | None, fd: IO | None, format: str, io: IOFormat, images: Atoms | Sequence[Atoms], parallel: bool | None = None, append: bool = False,
+           **kwargs: Any) -> None:
     if isinstance(images, Atoms):
         images = [images]
 
@@ -823,8 +824,8 @@ def iread(
 
 
 @parallel_generator
-def _iread(filename, index, format, io, parallel=None, full_output=False,
-           **kwargs):
+def _iread(filename: NameOrFile, index: int | slice | str, format: str, io: IOFormat, parallel: bool | None = None, full_output: bool = False,
+           **kwargs: Any) -> Iterator[Atoms | dict]:
 
     if not io.can_read:
         raise ValueError(f"Can't read from {format}-format")
@@ -862,7 +863,7 @@ def _iread(filename, index, format, io, parallel=None, full_output=False,
             fd.close()
 
 
-def parse_filename(filename, index=None, do_not_split_by_at_sign=False):
+def parse_filename(filename: NameOrFile, index: int | slice | str | None = None, do_not_split_by_at_sign: bool = False) -> tuple:
     if not isinstance(filename, str):
         return filename, index
 

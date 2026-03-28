@@ -1,4 +1,5 @@
 # fmt: off
+from __future__ import annotations
 
 """
 This module defines abstract helper classes with the objective of reducing
@@ -16,41 +17,41 @@ class GetPropertiesMixin(ABC):
     Inheriting class must implement get_property()."""
 
     @abstractmethod
-    def get_property(self, name, atoms=None, allow_calculation=True):
+    def get_property(self, name: str, atoms=None, allow_calculation: bool = True) -> Any:
         """Get the named property."""
 
-    def get_potential_energy(self, atoms=None, force_consistent=False):
+    def get_potential_energy(self, atoms=None, force_consistent: bool = False) -> float:
         if force_consistent:
             name = 'free_energy'
         else:
             name = 'energy'
         return self.get_property(name, atoms)
 
-    def get_potential_energies(self, atoms=None):
+    def get_potential_energies(self, atoms=None) -> Any:
         return self.get_property('energies', atoms)
 
-    def get_forces(self, atoms=None):
+    def get_forces(self, atoms=None) -> Any:
         return self.get_property('forces', atoms)
 
-    def get_stress(self, atoms=None):
+    def get_stress(self, atoms=None) -> Any:
         return self.get_property('stress', atoms)
 
-    def get_stresses(self, atoms=None):
+    def get_stresses(self, atoms=None) -> Any:
         """the calculator should return intensive stresses, i.e., such that
                 stresses.sum(axis=0) == stress
         """
         return self.get_property('stresses', atoms)
 
-    def get_dipole_moment(self, atoms=None):
+    def get_dipole_moment(self, atoms=None) -> Any:
         return self.get_property('dipole', atoms)
 
-    def get_charges(self, atoms=None):
+    def get_charges(self, atoms=None) -> Any:
         return self.get_property('charges', atoms)
 
-    def get_magnetic_moment(self, atoms=None):
+    def get_magnetic_moment(self, atoms=None) -> Any:
         return self.get_property('magmom', atoms)
 
-    def get_magnetic_moments(self, atoms=None):
+    def get_magnetic_moments(self, atoms=None) -> Any:
         """Calculate magnetic moments projected onto atoms."""
         return self.get_property('magmoms', atoms)
 
@@ -72,7 +73,7 @@ class GetOutputsMixin(ABC):
         This may be called many times and should hence not be
         expensive (except possibly the first time)."""
 
-    def _get(self, name):
+    def _get(self, name: str) -> Any:
         # Cyclic import, should restructure.
         from ase.calculators.calculator import PropertyNotPresent
         dct = self._outputmixin_get_results()
@@ -81,34 +82,34 @@ class GetOutputsMixin(ABC):
         except KeyError:
             raise PropertyNotPresent(name)
 
-    def get_fermi_level(self):
+    def get_fermi_level(self) -> float:
         return self._get('fermi_level')
 
-    def get_ibz_k_points(self):
+    def get_ibz_k_points(self) -> Any:
         return self._get('ibz_kpoints')
 
-    def get_k_point_weights(self):
+    def get_k_point_weights(self) -> Any:
         return self._get('kpoint_weights')
 
-    def get_eigenvalues(self, kpt=0, spin=0):
+    def get_eigenvalues(self, kpt: int = 0, spin: int = 0) -> Any:
         eigs = self._get('eigenvalues')
         return eigs[spin, kpt]
 
-    def _eigshape(self):
+    def _eigshape(self) -> tuple[int, ...]:
         # We don't need this if we already have a Properties object.
         return self._get('eigenvalues').shape
 
-    def get_occupation_numbers(self, kpt=0, spin=0):
+    def get_occupation_numbers(self, kpt: int = 0, spin: int = 0) -> Any:
         occs = self._get('occupations')
         return occs[spin, kpt]
 
-    def get_number_of_bands(self):
+    def get_number_of_bands(self) -> int:
         return self._eigshape()[2]
 
-    def get_number_of_spins(self):
+    def get_number_of_spins(self) -> int:
         nspins = self._eigshape()[0]
         assert nspins in [1, 2]
         return nspins
 
-    def get_spin_polarized(self):
+    def get_spin_polarized(self) -> bool:
         return self.get_number_of_spins() == 2

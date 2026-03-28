@@ -1,4 +1,5 @@
 # fmt: off
+from __future__ import annotations
 
 """Build crystalline systems"""
 from math import sqrt
@@ -10,7 +11,7 @@ from ase.symbols import string2symbols
 from ase.utils import plural
 
 
-def incompatible_cell(*, want, have):
+def incompatible_cell(*, want: str, have: str) -> RuntimeError:
     return RuntimeError(f'Cannot create {want} cell for {have} structure')
 
 
@@ -64,7 +65,10 @@ def bulk(
         c, b = b, c
 
     if covera is not None and c is not None:
-        raise ValueError("Don't specify both c and c/a!")
+        raise ValueError(
+            "Specify either c= (absolute c-axis length in Ångström) or "
+            "covera= (c/a ratio), not both."
+        )
 
     xref = ''
     ref: Any = {}
@@ -80,14 +84,21 @@ def bulk(
         if crystalstructure is None:
             # `ref` requires `basis` but not given and not pre-defined
             if basis is None and 'basis' in ref and ref['basis'] is None:
-                raise ValueError('This structure requires an atomic basis')
+                raise ValueError(
+                    f"The reference structure for '{name}' requires an explicit "
+                    "atomic basis. Pass basis=[[x1,y1,z1], ...] in fractional "
+                    "coordinates of the unit cell."
+                )
             if xref == 'cubic':
                 # P and Mn are listed as 'cubic' but the lattice constants
                 # are 7 and 9.  They must be something other than simple cubic
                 # then. We used to just return the cubic one but that must
                 # have been wrong somehow.  --askhl
                 raise ValueError(
-                    f'The reference structure of {name} is not implemented')
+                    f"The reference structure for '{name}' is 'cubic' but a "
+                    "full implementation is not available. Specify "
+                    "crystalstructure= explicitly (e.g. 'sc', 'bcc', or 'fcc')."
+                )
 
     # Mapping of name to number of atoms in primitive cell.
     structures = {'sc': 1, 'fcc': 1, 'bcc': 1,
@@ -104,34 +115,50 @@ def bulk(
     if crystalstructure is None:
         crystalstructure = xref
         if crystalstructure not in structures:
-            raise ValueError(f'No suitable reference data for bulk {name}.'
-                             f'  Reference data: {ref}')
+            raise ValueError(
+                f"No reference crystal structure found for element '{name}' "
+                f"(reference state symmetry: '{xref}'). "
+                "Pass crystalstructure= explicitly, e.g. "
+                "bulk('{}', crystalstructure='fcc', a=<value>).".format(name)
+            )
 
     magmom_per_atom = None
     if crystalstructure == xref:
         magmom_per_atom = ref.get('magmom_per_atom')
 
     if crystalstructure not in structures:
-        raise ValueError(f'Unknown structure: {crystalstructure}.')
+        raise ValueError(
+            f"Unknown crystal structure '{crystalstructure}'. "
+            f"Valid choices are: {', '.join(sorted(structures))}."
+        )
 
     # Check name:
     natoms = len(string2symbols(name))
     natoms0 = structures[crystalstructure]
     if natoms != natoms0:
-        raise ValueError('Please specify {} for {} and not {}'
-                         .format(plural(natoms0, 'atom'),
-                                 crystalstructure, natoms))
+        raise ValueError(
+            f"Crystal structure '{crystalstructure}' requires exactly "
+            f"{plural(natoms0, 'atom')} in the formula, but '{name}' "
+            f"contains {natoms}. Use a single-element symbol or a "
+            f"{natoms0}-element formula."
+        )
 
     if alpha is None:
         alpha = ref.get('alpha')
 
     if a is None:
         if xref != crystalstructure:
-            raise ValueError('You need to specify the lattice constant.')
+            raise ValueError(
+                f"No reference lattice constant for '{name}' in the "
+                f"'{crystalstructure}' structure. Pass a=<value> in Ångström."
+            )
         if 'a' in ref:
             a = ref['a']
         else:
-            raise KeyError(f'No reference lattice parameter "a" for "{name}"')
+            raise ValueError(
+                f"No reference lattice constant 'a' found for element '{name}'. "
+                "Pass a=<value> in Ångström."
+            )
 
     if b is None:
         bovera = ref.get('b/a')
@@ -182,7 +209,7 @@ def bulk(
     return atoms
 
 
-def _build_rhl(name, a, alpha, basis):
+def _build_rhl(name: str, a: float, alpha: float, basis) -> Atoms:
     from ase.lattice import RHL
     lat = RHL(a, alpha)
     cell = lat.tocell()
@@ -194,7 +221,7 @@ def _build_rhl(name, a, alpha, basis):
     return Atoms([name] * natoms, cell=cell, scaled_positions=basis, pbc=True)
 
 
-def _orthorhombic_bulk(name, crystalstructure, a, covera=None, u=None):
+def _orthorhombic_bulk(name: str, crystalstructure: str, a: float, covera: float | None = None, u: float | None = None) -> Atoms:
     if crystalstructure in ('sc', 'bcc', 'cesiumchloride'):
         atoms = _cubic_bulk(name, crystalstructure, a)
     elif crystalstructure == 'fcc':
@@ -307,7 +334,7 @@ def _cubic_bulk(name: str, crystalstructure: str, a: float) -> Atoms:
     return atoms
 
 
-def _primitive_bulk(name, crystalstructure, a, covera=None, u=None):
+def _primitive_bulk(name: str, crystalstructure: str, a: float, covera: float | None = None, u: float | None = None) -> Atoms:
     if crystalstructure == 'sc':
         atoms = Atoms(name, cell=(a, a, a))
     elif crystalstructure == 'fcc':

@@ -1,10 +1,17 @@
 # fmt: off
+from __future__ import annotations
 
 """This module defines the Atom object."""
+
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
 from ase.data import atomic_masses, atomic_numbers, chemical_symbols
+
+if TYPE_CHECKING:
+    from ase.atoms import _LimitedAtoms
 
 # Singular, plural, default value:
 names = {'position': ('positions', np.zeros(3)),
@@ -16,7 +23,7 @@ names = {'position': ('positions', np.zeros(3)),
          'charge': ('initial_charges', 0.0)}
 
 
-def atomproperty(name, doc):
+def atomproperty(name: str, doc: str) -> property:
     """Helper function to easily create Atom attribute property."""
 
     def getter(self):
@@ -31,7 +38,7 @@ def atomproperty(name, doc):
     return property(getter, setter, deleter, doc)
 
 
-def abcproperty(index):
+def abcproperty(index: int) -> property:
     """Helper function to easily create Atom ABC-property."""
 
     def getter(self):
@@ -49,7 +56,7 @@ def abcproperty(index):
     return property(getter, setter, doc='ABC'[index] + '-coordinate')
 
 
-def xyzproperty(index):
+def xyzproperty(index: int) -> property:
     """Helper function to easily create Atom XYZ-property."""
 
     def getter(self):
@@ -84,10 +91,16 @@ class Atom:
     """
     __slots__ = ['data', 'atoms', 'index']
 
-    def __init__(self, symbol='X', position=(0, 0, 0),
-                 tag=None, momentum=None, mass=None,
-                 magmom=None, charge=None,
-                 atoms=None, index=None):
+    def __init__(self,
+                 symbol: str | int = 'X',
+                 position: Sequence[float] = (0, 0, 0),
+                 tag: int | None = None,
+                 momentum: Sequence[float] | None = None,
+                 mass: float | None = None,
+                 magmom: float | Sequence[float] | None = None,
+                 charge: float | None = None,
+                 atoms: _LimitedAtoms | None = None,
+                 index: int | None = None) -> None:
 
         self.data = d = {}
 
@@ -112,17 +125,17 @@ class Atom:
         self.atoms = atoms
 
     @property
-    def scaled_position(self):
+    def scaled_position(self) -> np.ndarray:
         pos = self.position
         spos = self.atoms.cell.scaled_positions(pos[np.newaxis])
         return spos[0]
 
     @scaled_position.setter
-    def scaled_position(self, value):
+    def scaled_position(self, value: np.ndarray) -> None:
         pos = self.atoms.cell.cartesian_positions(value)
         self.position = pos
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         s = f"Atom('{self.symbol}', {list(self.position)}"
         for name in ['tag', 'momentum', 'mass', 'magmom', 'charge']:
             value = self.get_raw(name)
@@ -136,14 +149,14 @@ class Atom:
             s += ', index=%d)' % self.index
         return s
 
-    def cut_reference_to_atoms(self):
+    def cut_reference_to_atoms(self) -> None:
         """Cut reference to atoms object."""
         for name in names:
             self.data[name] = self.get_raw(name)
         self.index = None
         self.atoms = None
 
-    def get_raw(self, name):
+    def get_raw(self, name: str) -> Any:
         """Get name attribute, return None if not explicitly set."""
         if name == 'symbol':
             return chemical_symbols[self.get_raw('number')]
@@ -157,7 +170,7 @@ class Atom:
         else:
             return None
 
-    def get(self, name):
+    def get(self, name: str) -> Any:
         """Get name attribute, return default if not explicitly set."""
         value = self.get_raw(name)
         if value is None:
@@ -167,7 +180,7 @@ class Atom:
                 value = names[name][1]
         return value
 
-    def set(self, name, value):
+    def set(self, name: str, value: Any) -> None:
         """Set name attribute to value."""
         if name == 'symbol':
             name = 'number'
@@ -195,7 +208,7 @@ class Atom:
                 array[self.index] = value
                 self.atoms.new_array(plural, array)
 
-    def delete(self, name):
+    def delete(self, name: str) -> None:
         """Delete name attribute."""
         assert self.atoms is None
         assert name not in ['number', 'symbol', 'position']

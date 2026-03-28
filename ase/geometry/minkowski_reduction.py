@@ -7,6 +7,15 @@ import numpy as np
 from ase.cell import Cell
 from ase.utils import pbc2pbc
 
+# ---------------------------------------------------------------------------
+# Optional Rust fast path for the 3D reduction (Phase 9 T4).
+# ---------------------------------------------------------------------------
+try:
+    from ase._geometry_rs import minkowski_reduce_rs as _minkowski_reduce_rs  # type: ignore[import]
+    _HAVE_RUST_GEOM = True
+except ImportError:
+    _HAVE_RUST_GEOM = False
+
 TOL = 1E-12
 MAX_IT = 100000    # in practice this is not exceeded
 
@@ -267,7 +276,10 @@ def minkowski_reduce(cell, pbc=True):
             op[index - 1] *= -1
 
     elif dim == 3:
-        _, op = reduction_full(cell)
+        if _HAVE_RUST_GEOM:
+            _, op = _minkowski_reduce_rs(np.asarray(cell, dtype=np.float64))
+        else:
+            _, op = reduction_full(cell)
         # maintain cell handedness
         if cell.handedness != Cell(op @ cell).handedness:
             op = -op

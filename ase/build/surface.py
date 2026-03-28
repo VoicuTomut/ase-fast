@@ -1,4 +1,5 @@
 # fmt: off
+from __future__ import annotations
 
 """Helper functions for creating the most common surfaces and related tasks.
 
@@ -9,6 +10,7 @@ add vacuum layers and add adsorbates.
 
 from math import sqrt
 from operator import itemgetter
+from typing import Any, Sequence
 
 import numpy as np
 
@@ -18,48 +20,57 @@ from ase.data import atomic_numbers, reference_states
 from ase.lattice.cubic import FaceCenteredCubic
 
 
-def fcc100(symbol, size, a=None, vacuum=None, orthogonal=True,
-           periodic=False):
+def fcc100(symbol: str, size: tuple, a: float | None = None, vacuum: float | None = None, orthogonal: bool = True,
+           periodic: bool = False) -> Atoms:
     """FCC(100) surface.
 
     Supported special adsorption sites: 'ontop', 'bridge', 'hollow'."""
     if not orthogonal:
-        raise NotImplementedError("Can't do non-orthogonal cell yet!")
+        raise NotImplementedError(
+            "Non-orthogonal cells are not yet supported for this surface. "
+            "Use orthogonal=True (adds extra atoms to make a rectangular cell)."
+        )
 
     return _surface(symbol, 'fcc', '100', size, a, None, vacuum,
                     periodic=periodic,
                     orthogonal=orthogonal)
 
 
-def fcc110(symbol, size, a=None, vacuum=None, orthogonal=True,
-           periodic=False):
+def fcc110(symbol: str, size: tuple, a: float | None = None, vacuum: float | None = None, orthogonal: bool = True,
+           periodic: bool = False) -> Atoms:
     """FCC(110) surface.
 
     Supported special adsorption sites: 'ontop', 'longbridge',
     'shortbridge', 'hollow'."""
     if not orthogonal:
-        raise NotImplementedError("Can't do non-orthogonal cell yet!")
+        raise NotImplementedError(
+            "Non-orthogonal cells are not yet supported for this surface. "
+            "Use orthogonal=True (adds extra atoms to make a rectangular cell)."
+        )
 
     return _surface(symbol, 'fcc', '110', size, a, None, vacuum,
                     periodic=periodic,
                     orthogonal=orthogonal)
 
 
-def bcc100(symbol, size, a=None, vacuum=None, orthogonal=True,
-           periodic=False):
+def bcc100(symbol: str, size: tuple, a: float | None = None, vacuum: float | None = None, orthogonal: bool = True,
+           periodic: bool = False) -> Atoms:
     """BCC(100) surface.
 
     Supported special adsorption sites: 'ontop', 'bridge', 'hollow'."""
     if not orthogonal:
-        raise NotImplementedError("Can't do non-orthogonal cell yet!")
+        raise NotImplementedError(
+            "Non-orthogonal cells are not yet supported for this surface. "
+            "Use orthogonal=True (adds extra atoms to make a rectangular cell)."
+        )
 
     return _surface(symbol, 'bcc', '100', size, a, None, vacuum,
                     periodic=periodic,
                     orthogonal=orthogonal)
 
 
-def bcc110(symbol, size, a=None, vacuum=None, orthogonal=False,
-           periodic=False):
+def bcc110(symbol: str, size: tuple, a: float | None = None, vacuum: float | None = None, orthogonal: bool = False,
+           periodic: bool = False) -> Atoms:
     """BCC(110) surface.
 
     Supported special adsorption sites: 'ontop', 'longbridge',
@@ -72,8 +83,8 @@ def bcc110(symbol, size, a=None, vacuum=None, orthogonal=False,
                     orthogonal=orthogonal)
 
 
-def bcc111(symbol, size, a=None, vacuum=None, orthogonal=False,
-           periodic=False):
+def bcc111(symbol: str, size: tuple, a: float | None = None, vacuum: float | None = None, orthogonal: bool = False,
+           periodic: bool = False) -> Atoms:
     """BCC(111) surface.
 
     Supported special adsorption sites: 'ontop'.
@@ -85,8 +96,8 @@ def bcc111(symbol, size, a=None, vacuum=None, orthogonal=False,
                     orthogonal=orthogonal)
 
 
-def fcc111(symbol, size, a=None, vacuum=None, orthogonal=False,
-           periodic=False):
+def fcc111(symbol: str, size: tuple, a: float | None = None, vacuum: float | None = None, orthogonal: bool = False,
+           periodic: bool = False) -> Atoms:
     """FCC(111) surface.
 
     Supported special adsorption sites: 'ontop', 'bridge', 'fcc' and 'hcp'.
@@ -98,8 +109,8 @@ def fcc111(symbol, size, a=None, vacuum=None, orthogonal=False,
                     orthogonal=orthogonal)
 
 
-def hcp0001(symbol, size, a=None, c=None, vacuum=None, orthogonal=False,
-            periodic=False):
+def hcp0001(symbol: str, size: tuple, a: float | None = None, c: float | None = None, vacuum: float | None = None, orthogonal: bool = False,
+            periodic: bool = False) -> Atoms:
     """HCP(0001) surface.
 
     Supported special adsorption sites: 'ontop', 'bridge', 'fcc' and 'hcp'.
@@ -111,49 +122,58 @@ def hcp0001(symbol, size, a=None, c=None, vacuum=None, orthogonal=False,
                     orthogonal=orthogonal)
 
 
-def hcp10m10(symbol, size, a=None, c=None, vacuum=None, orthogonal=True,
-             periodic=False):
+def hcp10m10(symbol: str, size: tuple, a: float | None = None, c: float | None = None, vacuum: float | None = None, orthogonal: bool = True,
+             periodic: bool = False) -> Atoms:
     """HCP(10m10) surface.
 
     Supported special adsorption sites: 'ontop'.
 
     Works only for size=(i,j,k) with j even."""
     if not orthogonal:
-        raise NotImplementedError("Can't do non-orthogonal cell yet!")
+        raise NotImplementedError(
+            "Non-orthogonal cells are not yet supported for this surface. "
+            "Use orthogonal=True (adds extra atoms to make a rectangular cell)."
+        )
 
     return _surface(symbol, 'hcp', '10m10', size, a, c, vacuum,
                     periodic=periodic,
                     orthogonal=orthogonal)
 
 
-def diamond100(symbol, size, a=None, vacuum=None, orthogonal=True,
-               periodic=False):
+def diamond100(symbol: str, size: tuple, a: float | None = None, vacuum: float | None = None, orthogonal: bool = True,
+               periodic: bool = False) -> Atoms:
     """DIAMOND(100) surface.
 
     Supported special adsorption sites: 'ontop'."""
     if not orthogonal:
-        raise NotImplementedError("Can't do non-orthogonal cell yet!")
+        raise NotImplementedError(
+            "Non-orthogonal cells are not yet supported for this surface. "
+            "Use orthogonal=True (adds extra atoms to make a rectangular cell)."
+        )
 
     return _surface(symbol, 'diamond', '100', size, a, None, vacuum,
                     periodic=periodic,
                     orthogonal=orthogonal)
 
 
-def diamond111(symbol, size, a=None, vacuum=None, orthogonal=False,
-               periodic=False):
+def diamond111(symbol: str, size: tuple, a: float | None = None, vacuum: float | None = None, orthogonal: bool = False,
+               periodic: bool = False) -> Atoms:
     """DIAMOND(111) surface.
 
     Supported special adsorption sites: 'ontop'."""
 
     if orthogonal:
-        raise NotImplementedError("Can't do orthogonal cell yet!")
+        raise NotImplementedError(
+            "Orthogonal cells are not yet supported for this surface. "
+            "Use orthogonal=False (the default) to get the primitive cell."
+        )
     return _surface(symbol, 'diamond', '111', size, a, None, vacuum,
                     periodic=periodic,
                     orthogonal=orthogonal)
 
 
-def add_adsorbate(slab, adsorbate, height, position=(0, 0), offset=None,
-                  mol_index=0):
+def add_adsorbate(slab: Atoms, adsorbate: str | Atom | Atoms, height: float, position: tuple | str = (0, 0), offset: Sequence[float] | None = None,
+                  mol_index: int = 0) -> None:
     """Add an adsorbate to a surface.
 
     This function adds an adsorbate to a slab.  If the slab is
@@ -209,11 +229,17 @@ def add_adsorbate(slab, adsorbate, height, position=(0, 0), offset=None,
     if isinstance(position, str):
         # A site-name:
         if 'sites' not in info:
-            raise TypeError('If the atoms are not made by an ' +
-                            'ase.build function, ' +
-                            'position cannot be a name.')
+            raise ValueError(
+                "Named adsorption sites are only available for slabs built with "
+                "ase.build surface functions (fcc111, bcc110, etc.). "
+                "Pass position as (x, y) coordinates instead."
+            )
         if position not in info['sites']:
-            raise TypeError(f'Adsorption site {position} not supported.')
+            available = sorted(info['sites'].keys())
+            raise ValueError(
+                f"Adsorption site '{position}' not recognized. "
+                f"Available sites for this slab: {available}."
+            )
         spos += info['sites'][position]
     else:
         pos += position
@@ -251,7 +277,7 @@ def add_adsorbate(slab, adsorbate, height, position=(0, 0), offset=None,
     slab.extend(ads)
 
 
-def add_vacuum(atoms, vacuum):
+def add_vacuum(atoms: Atoms, vacuum: float) -> None:
     """Add vacuum layer to the atoms.
 
     Parameters
@@ -279,8 +305,8 @@ def create_tags(size) -> np.ndarray:
     return np.arange(size[2], 0, -1).repeat(size[0] * size[1])
 
 
-def _surface(symbol, structure, face, size, a, c, vacuum, periodic,
-             orthogonal=True):
+def _surface(symbol: str, structure: str, face: str, size: tuple, a: float | None, c: float | None, vacuum: float | None, periodic: bool,
+             orthogonal: bool = True) -> Atoms:
     """Function to build often used surfaces.
 
     Don't call this function directly - use fcc100, fcc110, bcc111, ..."""
@@ -291,7 +317,10 @@ def _surface(symbol, structure, face, size, a, c, vacuum, periodic,
         sym = reference_states[Z]['symmetry']
         if sym != structure:
             raise ValueError(
-                f"Can't guess lattice constant for {structure}-{symbol}!")
+                f"Cannot look up lattice constant for '{symbol}' in a "
+                f"'{structure}' structure (reference state is '{sym}'). "
+                f"Pass a=<value> in Ångström."
+            )
         a = reference_states[Z]['a']
 
     if structure == 'hcp' and c is None:
@@ -336,9 +365,11 @@ def _surface(symbol, structure, face, size, a, c, vacuum, periodic,
         sites.update({'hollow': (0.5, 0.5), 'bridge': (0.5, 0)})
     else:
         if orthogonal and size[1] % 2 == 1:
-            raise ValueError(("Can't make orthorhombic cell with size=%r.  " %
-                              (tuple(size),)) +
-                             'Second number in size must be even.')
+            raise ValueError(
+                f"Cannot make an orthorhombic cell with size={tuple(size)!r}: "
+                "size[1] (the y-repeat) must be even. "
+                f"Try size[1]={size[1] + 1} or size[1]={size[1] - 1 if size[1] > 1 else 2}."
+            )
         if surf == 'fcc111':
             cell = (sqrt(0.5), sqrt(0.375), 1 / sqrt(3))
             if orthogonal:
@@ -430,7 +461,7 @@ def _surface(symbol, structure, face, size, a, c, vacuum, periodic,
     return slab
 
 
-def fcc211(symbol, size, a=None, vacuum=None, orthogonal=True):
+def fcc211(symbol: str, size: tuple, a: float | None = None, vacuum: float | None = None, orthogonal: bool = True) -> Atoms:
     """FCC(211) surface.
 
     Does not currently support special adsorption sites.
@@ -481,8 +512,8 @@ def fcc211(symbol, size, a=None, vacuum=None, orthogonal=True):
     return newatoms
 
 
-def mx2(formula='MoS2', kind='2H', a=3.18, thickness=3.19,
-        size=(1, 1, 1), vacuum=None):
+def mx2(formula: str = 'MoS2', kind: str = '2H', a: float = 3.18, thickness: float = 3.19,
+        size: tuple = (1, 1, 1), vacuum: float | None = None) -> Atoms:
     """Create three-layer 2D materials with hexagonal structure.
 
     This can be used for e.g. metal dichalcogenides :mol:`MX_2` 2D structures
@@ -506,7 +537,10 @@ def mx2(formula='MoS2', kind='2H', a=3.18, thickness=3.19,
                  (2 / 3, 1 / 3, 0.5 * thickness),
                  (1 / 3, 2 / 3, -0.5 * thickness)]
     else:
-        raise ValueError('Structure not recognized:', kind)
+        raise ValueError(
+            f"MX2 structure kind '{kind}' not recognized. "
+            "Valid options are '2H' (trigonal prismatic) and '1T' (octahedral)."
+        )
 
     cell = [[a, 0, 0], [-a / 2, a * 3**0.5 / 2, 0], [0, 0, 0]]
 
@@ -518,8 +552,8 @@ def mx2(formula='MoS2', kind='2H', a=3.18, thickness=3.19,
     return atoms
 
 
-def graphene(formula='C2', a=2.460, thickness=0.0,
-             size=(1, 1, 1), vacuum=None):
+def graphene(formula: str = 'C2', a: float = 2.460, thickness: float = 0.0,
+             size: tuple = (1, 1, 1), vacuum: float | None = None) -> Atoms:
     """Create a graphene monolayer structure.
 
     Parameters
@@ -537,7 +571,7 @@ def graphene(formula='C2', a=2.460, thickness=0.0,
     return atoms
 
 
-def _all_surface_functions():
+def _all_surface_functions() -> dict[str, Any]:
     # Convenient for debugging.
     d = {
         func.__name__: func

@@ -1,6 +1,8 @@
 # fmt: off
+from __future__ import annotations
 
 from functools import cached_property
+from typing import Any
 
 import numpy as np
 
@@ -23,7 +25,7 @@ class SinglePointCalculator(Calculator):
 
     name = 'unknown'
 
-    def __init__(self, atoms, **results):
+    def __init__(self, atoms, **results: Any) -> None:
         """Save energy, forces, stress, ... for the current configuration."""
         Calculator.__init__(self)
         self.results = {}
@@ -37,7 +39,7 @@ class SinglePointCalculator(Calculator):
                 self.results[property] = np.array(value, float)
         self.atoms = atoms.copy()
 
-    def __str__(self):
+    def __str__(self) -> str:
         tokens = []
         for key, val in sorted(self.results.items()):
             if np.isscalar(val):
@@ -47,7 +49,7 @@ class SinglePointCalculator(Calculator):
             tokens.append(txt)
         return '{}({})'.format(self.__class__.__name__, ', '.join(tokens))
 
-    def get_property(self, name, atoms=None, allow_calculation=True):
+    def get_property(self, name: str, atoms=None, allow_calculation: bool = True) -> Any:
         if atoms is None:
             atoms = self.atoms
         if name not in self.results or self.check_state(atoms):
@@ -63,7 +65,7 @@ class SinglePointCalculator(Calculator):
 
 
 class SinglePointKPoint:
-    def __init__(self, weight, s, k, eps_n=None, f_n=None):
+    def __init__(self, weight: float, s: int, k: int, eps_n: np.ndarray | None = None, f_n: np.ndarray | None = None) -> None:
         self.weight = weight
         self.s = s  # spin index
         self.k = k  # k-point index
@@ -75,7 +77,7 @@ class SinglePointKPoint:
         self.f_n = f_n
 
 
-def arrays_to_kpoints(eigenvalues, occupations, weights):
+def arrays_to_kpoints(eigenvalues: np.ndarray, occupations: np.ndarray, weights: np.ndarray) -> list[SinglePointKPoint]:
     """Helper function for building SinglePointKPoints.
 
     Convert eigenvalue, occupation, and weight arrays to list of
@@ -95,9 +97,9 @@ def arrays_to_kpoints(eigenvalues, occupations, weights):
 
 class SinglePointDFTCalculator(SinglePointCalculator):
     def __init__(self, atoms,
-                 efermi=None, bzkpts=None, ibzkpts=None, bz2ibz=None,
-                 kpts=None,
-                 **results):
+                 efermi: float | None = None, bzkpts: np.ndarray | None = None, ibzkpts: np.ndarray | None = None, bz2ibz: np.ndarray | None = None,
+                 kpts: list[SinglePointKPoint] | None = None,
+                 **results: Any) -> None:
         self.bz_kpts = bzkpts
         self.ibz_kpts = ibzkpts
         self.bz2ibz = bz2ibz
@@ -106,18 +108,18 @@ class SinglePointDFTCalculator(SinglePointCalculator):
         SinglePointCalculator.__init__(self, atoms, **results)
         self.kpts = kpts
 
-    def get_fermi_level(self):
+    def get_fermi_level(self) -> float | None:
         """Return the Fermi-level(s)."""
         return self.eFermi
 
-    def get_bz_to_ibz_map(self):
+    def get_bz_to_ibz_map(self) -> np.ndarray | None:
         return self.bz2ibz
 
-    def get_bz_k_points(self):
+    def get_bz_k_points(self) -> np.ndarray | None:
         """Return the k-points."""
         return self.bz_kpts
 
-    def get_number_of_spins(self):
+    def get_number_of_spins(self) -> int | None:
         """Return the number of spins in the calculation.
 
         Spin-paired calculations: 1, spin-polarized calculation: 2."""
@@ -128,7 +130,7 @@ class SinglePointDFTCalculator(SinglePointCalculator):
             return len(nspin)
         return None
 
-    def get_number_of_bands(self):
+    def get_number_of_bands(self) -> int | None:
         values = {len(kpt.eps_n) for kpt in self.kpts}
         if not values:
             return None
@@ -137,18 +139,18 @@ class SinglePointDFTCalculator(SinglePointCalculator):
         else:
             raise RuntimeError('Multiple array sizes')
 
-    def get_spin_polarized(self):
+    def get_spin_polarized(self) -> bool | None:
         """Is it a spin-polarized calculation?"""
         nos = self.get_number_of_spins()
         if nos is not None:
             return nos == 2
         return None
 
-    def get_ibz_k_points(self):
+    def get_ibz_k_points(self) -> np.ndarray | None:
         """Return k-points in the irreducible part of the Brillouin zone."""
         return self.ibz_kpts
 
-    def get_kpt(self, kpt=0, spin=0):
+    def get_kpt(self, kpt: int = 0, spin: int = 0) -> SinglePointKPoint | None:
         if self.kpts is not None:
             counter = 0
             for kpoint in self.kpts:
@@ -158,7 +160,7 @@ class SinglePointDFTCalculator(SinglePointCalculator):
                     counter += 1
         return None
 
-    def get_k_point_weights(self):
+    def get_k_point_weights(self) -> np.ndarray | None:
         """ Retunrs the weights of the k points """
         if self.kpts is not None:
             weights = []
@@ -168,7 +170,7 @@ class SinglePointDFTCalculator(SinglePointCalculator):
             return np.array(weights)
         return None
 
-    def get_occupation_numbers(self, kpt=0, spin=0):
+    def get_occupation_numbers(self, kpt: int = 0, spin: int = 0) -> np.ndarray | None:
         """Return occupation number array."""
         kpoint = self.get_kpt(kpt, spin)
         if kpoint is not None:
@@ -176,14 +178,14 @@ class SinglePointDFTCalculator(SinglePointCalculator):
                 return kpoint.f_n
         return None
 
-    def get_eigenvalues(self, kpt=0, spin=0):
+    def get_eigenvalues(self, kpt: int = 0, spin: int = 0) -> np.ndarray | None:
         """Return eigenvalue array."""
         kpoint = self.get_kpt(kpt, spin)
         if kpoint is not None:
             return kpoint.eps_n
         return None
 
-    def get_homo_lumo(self):
+    def get_homo_lumo(self) -> tuple[float, float]:
         """Return HOMO and LUMO energies."""
         if self.kpts is None:
             raise RuntimeError('No kpts')
@@ -195,7 +197,7 @@ class SinglePointDFTCalculator(SinglePointCalculator):
             eL = min(eL, lumo)
         return eH, eL
 
-    def get_homo_lumo_by_spin(self, spin=0):
+    def get_homo_lumo_by_spin(self, spin: int = 0) -> tuple[float, float]:
         """Return HOMO and LUMO energies for a given spin."""
         if self.kpts is None:
             raise RuntimeError('No kpts')
@@ -221,7 +223,7 @@ class SinglePointDFTCalculator(SinglePointCalculator):
         return OutputPropertyWrapper(self).properties()
 
 
-def propertygetter(func):
+def propertygetter(func: Any) -> Any:
     from functools import wraps
 
     @wraps(func)
@@ -234,22 +236,22 @@ def propertygetter(func):
 
 
 class OutputPropertyWrapper:
-    def __init__(self, calc):
+    def __init__(self, calc: SinglePointDFTCalculator) -> None:
         self.calc = calc
 
     @propertygetter
-    def nspins(self):
+    def nspins(self) -> int:
         return self.calc.get_number_of_spins()
 
     @propertygetter
-    def nbands(self):
+    def nbands(self) -> int:
         return self.calc.get_number_of_bands()
 
     @propertygetter
-    def nkpts(self):
+    def nkpts(self) -> int:
         return len(self.calc.kpts) // self.nspins
 
-    def _build_eig_occ_array(self, getter):
+    def _build_eig_occ_array(self, getter) -> np.ndarray | None:
         arr = np.empty((self.nspins, self.nkpts, self.nbands))
         for s in range(self.nspins):
             for k in range(self.nkpts):
@@ -260,23 +262,23 @@ class OutputPropertyWrapper:
         return arr
 
     @propertygetter
-    def eigenvalues(self):
+    def eigenvalues(self) -> np.ndarray:
         return self._build_eig_occ_array(self.calc.get_eigenvalues)
 
     @propertygetter
-    def occupations(self):
+    def occupations(self) -> np.ndarray:
         return self._build_eig_occ_array(self.calc.get_occupation_numbers)
 
     @propertygetter
-    def fermi_level(self):
+    def fermi_level(self) -> float:
         return self.calc.get_fermi_level()
 
     @propertygetter
-    def kpoint_weights(self):
+    def kpoint_weights(self) -> np.ndarray:
         return self.calc.get_k_point_weights()
 
     @propertygetter
-    def ibz_kpoints(self):
+    def ibz_kpoints(self) -> np.ndarray:
         return self.calc.get_ibz_k_points()
 
     def properties(self) -> Properties:
