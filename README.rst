@@ -7,8 +7,8 @@ ASE-fast — Atomic Simulation Environment (accelerated)
 
 |
 
-.. image:: https://badge.fury.io/py/ase.svg
-    :target: https://pypi.org/project/ase/
+.. image:: https://badge.fury.io/py/ase-fast.svg
+    :target: https://pypi.org/project/ase-fast/
 
 .. image:: https://gitlab.com/ase/ase/badges/master/coverage.svg?job=coverage-combine
     :target: https://ase-lib.org/coverage-html/
@@ -58,42 +58,35 @@ Optional:
 
 * Flask_ (for ase.db web-interface)
 * spglib_ (for symmetry operations)
-* Rust_ + maturin_ (to build the optional Rust fast-path extensions)
+* Rust_ toolchain (auto-compiled on install — see below)
 
 Installation
 ------------
 
-Pure-Python install (same as upstream ASE):
+**From PyPI (recommended):**
 
 ::
 
-  pip install ase
+  pip install ase-fast
 
-Development install from this repository:
+The Rust extensions compile automatically during install.
+You need a Rust toolchain installed first (one-time, takes ~1 min):
+
+* **Linux / macOS:**  ``curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh``
+* **Windows:**  download and run `rustup-init.exe <https://rustup.rs>`_
+
+If no Rust toolchain is found, ``pip install ase-fast`` falls back gracefully
+to pure-Python mode — identical behaviour to upstream ASE, no errors.
+
+**Development install from source:**
 
 ::
 
+  git clone https://github.com/VoicuTomut/ase-fast.git
+  cd ase-fast
   pip install -e .
 
-With Rust acceleration (recommended for MD / ML workflows):
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-You need a Rust toolchain (``rustup``) and ``maturin``:
-
-::
-
-  pip install maturin
-  # Build and install all four Rust extensions:
-  cd ase-neighborlist-rs && maturin develop --release && cd ..
-  cd ase-extxyz-rs       && maturin develop --release && cd ..
-  cd ase-geometry-rs     && maturin develop --release && cd ..
-  cd ase-io-rs           && maturin develop --release && cd ..
-
-That's it.  All Rust crates live inside the repository alongside the Python
-source.  After building, ASE automatically detects the extensions and enables
-the fast paths — no configuration needed.
-
-To verify the extensions are active:
+To verify the Rust extensions are active after install:
 
 ::
 
@@ -102,19 +95,18 @@ To verify the extensions are active:
   import ase.io.extxyz as ex
   import ase.geometry.minkowski_reduction as mk
   import ase.io.vasp as vasp
-  print('NL Rust:', nl._HAVE_RUST_NEIGHBORLIST)
-  print('extxyz Rust:', ex._HAVE_RUST_EXTXYZ)
+  print('NL Rust:      ', nl._HAVE_RUST_NEIGHBORLIST)
+  print('extxyz Rust:  ', ex._HAVE_RUST_EXTXYZ)
   print('geometry Rust:', mk._HAVE_RUST_GEOM)
-  print('VASP IO Rust:', vasp._HAVE_RUST_IO)
+  print('VASP IO Rust: ', vasp._HAVE_RUST_IO)
   "
 
 Running benchmarks:
 
 ::
 
-  python benchmarks/run_benchmarks.py                   # full suite
-  python benchmarks/run_benchmarks.py --quick           # fewer reps
-  python benchmarks/run_benchmarks.py --output out.json # save results
+  python benchmarks/compare.py           # speed comparison table
+  python benchmarks/compare.py --reps 3  # faster run
 
 Testing
 -------
@@ -188,5 +180,4 @@ Contributors
 .. _ase-users: https://listserv.fysik.dtu.dk/mailman/listinfo/ase-users
 .. _Matrix: https://matrix.to/#/!JEiuNJLuxedbohAOuH:matrix.org
 .. _Element: https://app.element.io/#/room/#ase:matrix.org
-.. _Rust: https://www.rust-lang.org/tools/install
-.. _maturin: https://www.maturin.rs/
+.. _Rust: https://rustup.rs
