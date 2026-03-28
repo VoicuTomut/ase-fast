@@ -51,6 +51,9 @@ jobs:
           CIBW_ARCHS_MACOS: "auto"
           CIBW_ARCHS_WINDOWS: "AMD64"
 
+          # Pre-install heavy deps before the wheel so pip doesn't re-download
+          # them inside the container (which is slow and can timeout).
+          CIBW_TEST_REQUIRES: "numpy scipy matplotlib"
           CIBW_TEST_COMMAND: "python -c \"import ase.neighborlist as nl; assert nl._HAVE_RUST_NEIGHBORLIST, 'Rust NL not active'; print('Rust NL active in wheel test')\""
 
       - name: Upload wheel artifacts
