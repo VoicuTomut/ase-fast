@@ -25,6 +25,14 @@ jobs:
       # inherits the host PATH — dtolnay/rust-toolchain is sufficient.
       # Linux: cibuildwheel uses manylinux containers; Rust must be
       # installed inside them via CIBW_BEFORE_ALL_LINUX below.
+      # QEMU needed so the x86_64 runner can execute the aarch64 container
+      # that cibuildwheel uses to build Linux arm64 wheels.
+      - name: Set up QEMU (for Linux aarch64 cross-build)
+        if: runner.os == 'Linux'
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+
       - name: Install Rust toolchain (host)
         uses: dtolnay/rust-toolchain@stable
 
@@ -57,10 +65,7 @@ jobs:
           # Pre-install heavy deps before the wheel so pip doesn't re-download
           # them inside the container (which is slow and can timeout).
           CIBW_TEST_REQUIRES: "numpy scipy matplotlib"
-          CIBW_TEST_COMMAND: >-
-            python -c "import os,glob,ase; d=os.path.dirname(ase.__file__); print('so:',sorted(glob.glob(d+'/*_rs*.so')+glob.glob(d+'/*_rs*.pyd')))"
-            && python -c "from ase._neighborlist_rs import primitive_neighbor_list_rs; print('direct import OK')"
-            && python -c "import ase.neighborlist as nl; assert nl._HAVE_RUST_NEIGHBORLIST, 'Rust NL not active'; print('OK')"
+          CIBW_TEST_COMMAND: "python -c \"import ase.neighborlist as nl; assert nl._HAVE_RUST_NEIGHBORLIST, 'Rust NL not active'; print('Rust NL active')\""
 
       - name: Upload wheel artifacts
         uses: actions/upload-artifact@v4
