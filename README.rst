@@ -10,8 +10,8 @@ ASE-fast — Atomic Simulation Environment (accelerated)
 .. image:: https://badge.fury.io/py/ase-fast.svg
     :target: https://pypi.org/project/ase-fast/
 
-.. image:: https://gitlab.com/ase/ase/badges/master/coverage.svg?job=coverage-combine
-    :target: https://ase-lib.org/coverage-html/
+.. image:: https://github.com/VoicuTomut/ase-fast/actions/workflows/tests.yml/badge.svg
+    :target: https://github.com/VoicuTomut/ase-fast/actions/workflows/tests.yml
 
 
 **ASE-fast** is a drop-in replacement for ASE with optional Rust-accelerated
