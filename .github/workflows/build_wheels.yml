@@ -57,22 +57,10 @@ jobs:
           # Pre-install heavy deps before the wheel so pip doesn't re-download
           # them inside the container (which is slow and can timeout).
           CIBW_TEST_REQUIRES: "numpy scipy matplotlib"
-          CIBW_TEST_COMMAND: "python -c \"
-import os, glob, sys
-import ase
-d = os.path.dirname(ase.__file__)
-print('ase dir:', d)
-so = sorted(glob.glob(d + '/*_rs*.so') + glob.glob(d + '/*_rs*.pyd'))
-print('Rust .so files in wheel:', so)
-try:
-    from ase._neighborlist_rs import primitive_neighbor_list_rs
-    print('direct import OK')
-except Exception as e:
-    print('direct import FAILED:', repr(e))
-import ase.neighborlist as nl
-print('NL flag:', nl._HAVE_RUST_NEIGHBORLIST)
-assert nl._HAVE_RUST_NEIGHBORLIST, 'Rust NL not active'
-\""
+          CIBW_TEST_COMMAND: >-
+            python -c "import os,glob,ase; d=os.path.dirname(ase.__file__); print('so:',sorted(glob.glob(d+'/*_rs*.so')+glob.glob(d+'/*_rs*.pyd')))"
+            && python -c "from ase._neighborlist_rs import primitive_neighbor_list_rs; print('direct import OK')"
+            && python -c "import ase.neighborlist as nl; assert nl._HAVE_RUST_NEIGHBORLIST, 'Rust NL not active'; print('OK')"
 
       - name: Upload wheel artifacts
         uses: actions/upload-artifact@v4
