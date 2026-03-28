@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 """
-ASE-fast — speed + memory comparison: baseline (Python) vs ase-fast (Rust).
+ASE-fast — speed comparison: baseline (Python) vs ase-fast (Rust).
 
 Produces:
-  - A rich terminal table with speed AND memory for every operation
+  - A rich terminal table with timing for every operation
   - benchmarks/results/compare_<timestamp>.json  (machine-readable)
   - benchmarks/results/compare_<timestamp>.md    (paste-ready GitHub table)
 
@@ -19,7 +19,6 @@ import json
 import platform
 import sys
 import time
-import tracemalloc
 import warnings
 from contextlib import contextmanager
 from datetime import datetime
@@ -59,31 +58,10 @@ def _time_ms(fn, n=7):
     return times[n // 2]
 
 
-def _peak_kb(fn):
-    """Peak memory increment in KB for a single call."""
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        tracemalloc.start()
-        fn()
-        _, peak = tracemalloc.get_traced_memory()
-        tracemalloc.stop()
-    return peak / 1024
-
-
 @contextmanager
 def _rust_off(module, flag):
     orig = getattr(module, flag)
     setattr(module, flag, False)
-    try:
-        yield
-    finally:
-        setattr(module, flag, orig)
-
-
-@contextmanager
-def _rust_on(module, flag):
-    orig = getattr(module, flag)
-    setattr(module, flag, True)
     try:
         yield
     finally:
@@ -98,23 +76,17 @@ def _measure(label, py_fn, rs_fn, n=7):
          _rust_off(_sc, '_HAVE_RUST_GEOM'), \
          _rust_off(_vasp, '_HAVE_RUST_IO'), \
          _rust_off(_xyz, '_HAVE_RUST_IO'):
-        py_ms  = _time_ms(py_fn, n)
-        py_kb  = _peak_kb(py_fn)
+        py_ms = _time_ms(py_fn, n)
 
-    rs_ms  = _time_ms(rs_fn, n)
-    rs_kb  = _peak_kb(rs_fn)
+    rs_ms = _time_ms(rs_fn, n)
 
-    speedup   = round(py_ms / rs_ms, 1) if rs_ms > 0 else 0
-    mem_ratio = round(py_kb / rs_kb, 1) if rs_kb > 0 else 0
+    speedup = round(py_ms / rs_ms, 1) if rs_ms > 0 else 0
 
     return {
-        "label":        label,
-        "py_ms":        round(py_ms, 3),
-        "rs_ms":        round(rs_ms, 3),
-        "speedup_x":    speedup,
-        "py_kb":        round(py_kb, 1),
-        "rs_kb":        round(rs_kb, 1),
-        "mem_ratio_x":  mem_ratio,
+        "label":     label,
+        "py_ms":     round(py_ms, 3),
+        "rs_ms":     round(rs_ms, 3),
+        "speedup_x": speedup,
     }
 
 
@@ -286,33 +258,15 @@ def run_all(n_reps=7):
 # ── formatting ────────────────────────────────────────────────────────────────
 
 HEADER = (
-    f"  {'Operation':<38s}  {'Py ms':>7s}  {'Rs ms':>7s}  {'Speed':>6s}  "
-    f"{'Py RAM':>7s}  {'Rs RAM':>7s}  {'MemSave':>7s}"
+    f"  {'Operation':<38s}  {'Baseline ms':>11s}  {'ase-fast ms':>11s}  {'Speedup':>7s}"
 )
-SEP = "  " + "-" * 92
-
-
-def _fmt_kb(kb):
-    """Format bytes nicely: KB below 1 MB, MB above."""
-    if kb < 1024:
-        return f"{kb:.0f} KB"
-    return f"{kb/1024:.1f} MB"
-
-
-def _fmt_mem_ratio(ratio):
-    if ratio < 1.1:
-        return "~same"
-    if ratio > 999:
-        return ">999×"
-    return f"{ratio:.0f}×"
+SEP = "  " + "-" * 74
 
 
 def _print_row(r):
     spd = f"{r['speedup_x']:.1f}×"
-    mem = _fmt_mem_ratio(r['mem_ratio_x'])
     print(
-        f"  {r['label']:<38s}  {r['py_ms']:>7.2f}  {r['rs_ms']:>7.2f}  "
-        f"{spd:>6s}  {_fmt_kb(r['py_kb']):>7s}  {_fmt_kb(r['rs_kb']):>7s}  {mem:>7s}"
+        f"  {r['label']:<38s}  {r['py_ms']:>11.2f}  {r['rs_ms']:>11.2f}  {spd:>7s}"
     )
 
 
@@ -324,21 +278,18 @@ def _to_markdown(results, meta):
         f"**Python:** {meta['python']}  ",
         f"**Date:** {meta['timestamp']}  ",
         "",
-        "| Operation | Baseline (ms) | ase-fast (ms) | Speed | Baseline RAM | ase-fast RAM | Mem saved |",
-        "|-----------|:-------------:|:-------------:|:-----:|:------------:|:------------:|:---------:|",
+        "| Operation | Baseline (ms) | ase-fast (ms) | Speedup |",
+        "|-----------|:-------------:|:-------------:|:-------:|",
     ]
     for r in results:
-        mem = _fmt_mem_ratio(r['mem_ratio_x'])
         spd = f"**{r['speedup_x']:.1f}×**" if r['speedup_x'] >= 2 else f"{r['speedup_x']:.1f}×"
         lines.append(
-            f"| `{r['label']}` | {r['py_ms']:.2f} | {r['rs_ms']:.2f} | {spd} "
-            f"| {_fmt_kb(r['py_kb'])} | {_fmt_kb(r['rs_kb'])} | {mem} |"
+            f"| `{r['label']}` | {r['py_ms']:.2f} | {r['rs_ms']:.2f} | {spd} |"
         )
     lines += [
         "",
         "> Measured with `python benchmarks/compare.py`. "
-        "Speed = baseline / ase-fast (higher is better). "
-        "Mem = peak RSS reduction.",
+        "Speedup = baseline / ase-fast median wall-clock time (higher is better).",
     ]
     return "\n".join(lines)
 
@@ -358,14 +309,14 @@ def main():
         "geometry":     _mink._HAVE_RUST_GEOM,
         "io":           _vasp._HAVE_RUST_IO,
     }
-    print("\n" + "=" * 92)
-    print("  ASE-fast — speed + memory comparison")
+    print("\n" + "=" * 74)
+    print("  ASE-fast — speed comparison (baseline Python vs Rust)")
     for k, v in flags.items():
         status = "ACTIVE ✓" if v else "NOT FOUND ✗"
         print(f"    {k:<16s} {status}")
     if not all(flags.values()):
         print("\n  WARNING: some Rust extensions missing — run `pip install -e .` first")
-    print("=" * 92)
+    print("=" * 74)
     print(HEADER)
     print(SEP)
 
@@ -376,10 +327,8 @@ def main():
     with_speedup = [r for r in results if r["speedup_x"] >= 1.0]
     avg_speed = sum(r["speedup_x"] for r in with_speedup) / len(with_speedup)
     best      = max(with_speedup, key=lambda r: r["speedup_x"])
-    best_mem  = max(with_speedup, key=lambda r: r["mem_ratio_x"])
     print(f"\n  Average speedup across all operations: {avg_speed:.1f}×")
     print(f"  Best speedup:   {best['speedup_x']:.1f}×  ({best['label']})")
-    print(f"  Best mem saved: {best_mem['mem_ratio_x']:.0f}×  ({best_mem['label']})")
 
     meta = {
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M"),

@@ -1,0 +1,159 @@
+{
+  "meta": {
+    "timestamp": "2026-03-28 10:23",
+    "platform": "macOS-26.3.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.2",
+    "rust_flags": {
+      "neighborlist": true,
+      "extxyz": true,
+      "geometry": true,
+      "io": true
+    }
+  },
+  "results": [
+    {
+      "label": "nl_scalar/500_atoms",
+      "py_ms": 3.884,
+      "rs_ms": 0.3,
+      "speedup_x": 13.0
+    },
+    {
+      "label": "nl_scalar/864_atoms",
+      "py_ms": 6.702,
+      "rs_ms": 0.513,
+      "speedup_x": 13.1
+    },
+    {
+      "label": "nl_scalar/4000_atoms",
+      "py_ms": 31.876,
+      "rs_ms": 2.524,
+      "speedup_x": 12.6
+    },
+    {
+      "label": "nl_radii/500_atoms",
+      "py_ms": 3.946,
+      "rs_ms": 0.404,
+      "speedup_x": 9.8
+    },
+    {
+      "label": "nl_radii/864_atoms",
+      "py_ms": 6.927,
+      "rs_ms": 0.703,
+      "speedup_x": 9.8
+    },
+    {
+      "label": "nl_dict/500_atoms",
+      "py_ms": 4.035,
+      "rs_ms": 0.461,
+      "speedup_x": 8.8
+    },
+    {
+      "label": "nl_dict/864_atoms",
+      "py_ms": 7.072,
+      "rs_ms": 0.861,
+      "speedup_x": 8.2
+    },
+    {
+      "label": "extxyz_write/50fr_108at",
+      "py_ms": 7.465,
+      "rs_ms": 2.214,
+      "speedup_x": 3.4
+    },
+    {
+      "label": "extxyz_write/200fr_108at",
+      "py_ms": 30.708,
+      "rs_ms": 8.551,
+      "speedup_x": 3.6
+    },
+    {
+      "label": "extxyz_write/1000fr_3at",
+      "py_ms": 23.072,
+      "rs_ms": 19.018,
+      "speedup_x": 1.2
+    },
+    {
+      "label": "extxyz_read/50fr_108at",
+      "py_ms": 0.383,
+      "rs_ms": 0.335,
+      "speedup_x": 1.1
+    },
+    {
+      "label": "extxyz_read/200fr_108at",
+      "py_ms": 1.287,
+      "rs_ms": 1.266,
+      "speedup_x": 1.0
+    },
+    {
+      "label": "vasp_write/500_atoms",
+      "py_ms": 0.567,
+      "rs_ms": 0.097,
+      "speedup_x": 5.9
+    },
+    {
+      "label": "vasp_write/2048_atoms",
+      "py_ms": 2.464,
+      "rs_ms": 0.354,
+      "speedup_x": 7.0
+    },
+    {
+      "label": "vasp_write/5324_atoms",
+      "py_ms": 6.043,
+      "rs_ms": 0.856,
+      "speedup_x": 7.1
+    },
+    {
+      "label": "vasp_read/500_atoms",
+      "py_ms": 0.351,
+      "rs_ms": 0.113,
+      "speedup_x": 3.1
+    },
+    {
+      "label": "vasp_read/2048_atoms",
+      "py_ms": 1.397,
+      "rs_ms": 0.472,
+      "speedup_x": 3.0
+    },
+    {
+      "label": "vasp_read/5324_atoms",
+      "py_ms": 3.537,
+      "rs_ms": 1.084,
+      "speedup_x": 3.3
+    },
+    {
+      "label": "xyz_write/50fr_108at",
+      "py_ms": 4.729,
+      "rs_ms": 1.075,
+      "speedup_x": 4.4
+    },
+    {
+      "label": "xyz_read/50fr_108at",
+      "py_ms": 4.294,
+      "rs_ms": 1.755,
+      "speedup_x": 2.4
+    },
+    {
+      "label": "xyz_write/200fr_108at",
+      "py_ms": 19.099,
+      "rs_ms": 4.554,
+      "speedup_x": 4.2
+    },
+    {
+      "label": "xyz_read/200fr_108at",
+      "py_ms": 35.428,
+      "rs_ms": 7.628,
+      "speedup_x": 4.6
+    },
+    {
+      "label": "minkowski/triclinic",
+      "py_ms": 0.07,
+      "rs_ms": 0.025,
+      "speedup_x": 2.8
+    },
+    {
+      "label": "minkowski/fcc",
+      "py_ms": 0.01,
+      "rs_ms": 0.01,
+      "speedup_x": 1.0
+    }
+  ]
+}
