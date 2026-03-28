@@ -36,10 +36,11 @@ jobs:
             curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
           CIBW_ENVIRONMENT_LINUX: 'PATH="$HOME/.cargo/bin:$PATH"'
 
-          # macOS / Windows: Rust is on PATH from dtolnay step above.
-          # No BEFORE_ALL needed. Explicitly add cargo/bin in case of edge cases.
+          # macOS / Windows: Rust is on PATH from dtolnay step above (no containers).
+          # CIBW_ENVIRONMENT entries below are a belt-and-suspenders fallback.
           CIBW_ENVIRONMENT_MACOS: 'PATH="$HOME/.cargo/bin:$PATH"'
-          CIBW_ENVIRONMENT_WINDOWS: 'PATH="C:\\Users\\runneradmin\\.cargo\\bin;$PATH"'
+          # On Windows, $USERPROFILE expands to C:\Users\<runner-user>
+          CIBW_ENVIRONMENT_WINDOWS: 'PATH="$USERPROFILE\\.cargo\\bin;$PATH"'
 
           # Build for Python 3.10, 3.11, 3.12, 3.13
           CIBW_BUILD: "cp310-* cp311-* cp312-* cp313-*"
