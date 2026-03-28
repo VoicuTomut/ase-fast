@@ -1,0 +1,44 @@
+[
+  {
+    "label": "primitive_neighbor_list/500_atoms",
+    "median_wall_s": 0.09661970799788833,
+    "median_wall_ms": 96.61970799788833,
+    "peak_memory_bytes": 68838667,
+    "peak_memory_kb": 67225.2607421875
+  },
+  {
+    "label": "primitive_neighbor_list/4000_atoms",
+    "median_wall_s": 0.11539004201767966,
+    "median_wall_ms": 115.39004201767966,
+    "peak_memory_bytes": 164561122,
+    "peak_memory_kb": 160704.220703125
+  },
+  {
+    "label": "write_xyz/200_frames",
+    "median_wall_s": 0.004464208002900705,
+    "median_wall_ms": 4.464208002900705,
+    "peak_memory_bytes": 54238,
+    "peak_memory_kb": 52.966796875
+  },
+  {
+    "label": "read_write_xyz/round_trip_100_frames",
+    "median_wall_s": 0.004127624997636303,
+    "median_wall_ms": 4.127624997636303,
+    "peak_memory_bytes": 240774,
+    "peak_memory_kb": 235.130859375
+  },
+  {
+    "label": "wrap_positions/10k_atoms",
+    "median_wall_s": 0.00112524998257868,
+    "median_wall_ms": 1.12524998257868,
+    "peak_memory_bytes": 722699,
+    "peak_memory_kb": 705.7607421875
+  },
+  {
+    "label": "get_distances/500_atoms",
+    "median_wall_s": 0.005563374987104908,
+    "median_wall_ms": 5.563374987104908,
+    "peak_memory_bytes": 14827606,
+    "peak_memory_kb": 14480.083984375
+  }
+]

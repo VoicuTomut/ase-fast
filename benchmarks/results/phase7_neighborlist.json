@@ -1,0 +1,26 @@
+[
+  {
+    "label": "primitive_neighbor_list/500_atoms",
+    "n_atoms": 500,
+    "python_median_ms": 4.462,
+    "rust_median_ms": 0.338,
+    "speedup_x": 13.2,
+    "rust_peak_kb": 2.4
+  },
+  {
+    "label": "primitive_neighbor_list/1000_atoms",
+    "n_atoms": 864,
+    "python_median_ms": 7.766,
+    "rust_median_ms": 0.493,
+    "speedup_x": 15.7,
+    "rust_peak_kb": 2.4
+  },
+  {
+    "label": "primitive_neighbor_list/4000_atoms",
+    "n_atoms": 4000,
+    "python_median_ms": 37.157,
+    "rust_median_ms": 2.85,
+    "speedup_x": 13.0,
+    "rust_peak_kb": 2.4
+  }
+]
