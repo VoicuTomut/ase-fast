@@ -50,6 +50,40 @@ lint = ['mypy', 'ruff', 'types-docutils', 'types-PyMySQL']
 [tool.setuptools.packages.find]
 include = ['ase*']  # exclude target/, ase-*-rs/ etc. from package discovery
 
+# Declare Rust extensions directly to the build backend (setuptools-rust >= 1.9).
+# This is more reliable than setup.py rust_extensions= with newer setuptools.
+[[tool.setuptools-rust.ext-modules]]
+target = "ase._neighborlist_rs"
+path   = "ase-neighborlist-rs/Cargo.toml"
+binding = "PyO3"
+optional = true
+debug   = false
+features = ["pyo3/extension-module"]
+
+[[tool.setuptools-rust.ext-modules]]
+target = "ase._extxyz_rs"
+path   = "ase-extxyz-rs/Cargo.toml"
+binding = "PyO3"
+optional = true
+debug   = false
+features = ["pyo3/extension-module"]
+
+[[tool.setuptools-rust.ext-modules]]
+target = "ase._geometry_rs"
+path   = "ase-geometry-rs/Cargo.toml"
+binding = "PyO3"
+optional = true
+debug   = false
+features = ["pyo3/extension-module"]
+
+[[tool.setuptools-rust.ext-modules]]
+target = "ase._io_rs"
+path   = "ase-io-rs/Cargo.toml"
+binding = "PyO3"
+optional = true
+debug   = false
+features = ["pyo3/extension-module"]
+
 [tool.setuptools.package-data]
 ase = [
     'spacegroup/spacegroup.dat',

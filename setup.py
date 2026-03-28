@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 
 # Copyright (C) 2007-2017  CAMd
-# Please see the accompanying LICENSE file for further information.
+# Please see the accompanying license files for further information.
+
+# NOTE: Rust extensions are now declared in pyproject.toml via
+# [[tool.setuptools-rust.ext-modules]] — do not re-add them here.
+# This file exists only for the custom gettext build command.
 
 import os
 from glob import glob
@@ -10,28 +14,12 @@ from os.path import join
 from setuptools import setup
 from setuptools.command.build_py import build_py as _build_py
 
-try:
-    from setuptools_rust import Binding, RustExtension
-    _HAVE_SETUPTOOLS_RUST = True
-except ImportError:
-    _HAVE_SETUPTOOLS_RUST = False
-
-# Four optional Rust extensions — silently skipped if Rust toolchain is absent.
-_RUST_EXTENSIONS = [
-    ('ase._neighborlist_rs', 'ase-neighborlist-rs/Cargo.toml'),
-    ('ase._extxyz_rs',       'ase-extxyz-rs/Cargo.toml'),
-    ('ase._geometry_rs',     'ase-geometry-rs/Cargo.toml'),
-    ('ase._io_rs',           'ase-io-rs/Cargo.toml'),
-]
-
 
 class build_py(_build_py):
     """Custom command to build translations."""
 
     def __init__(self, *args, **kwargs):
         _build_py.__init__(self, *args, **kwargs)
-        # Keep list of files to appease bdist_rpm.  We have to keep track of
-        # all the installed files for no particular reason.
         self.mofiles = []
 
     def run(self):
@@ -57,21 +45,4 @@ class build_py(_build_py):
         return _build_py.get_outputs(self, *args, **kwargs) + self.mofiles
 
 
-_rust_exts = []
-if _HAVE_SETUPTOOLS_RUST:
-    for module, manifest in _RUST_EXTENSIONS:
-        _rust_exts.append(
-            RustExtension(
-                module,
-                manifest,
-                binding=Binding.PyO3,
-                optional=True,    # graceful degradation: no Rust = Python fallback
-                debug=False,      # always compile with --release (LTO, opt-level=3)
-                features=['pyo3/extension-module'],
-            )
-        )
-
-setup(
-    cmdclass={'build_py': build_py},
-    rust_extensions=_rust_exts,
-)
+setup(cmdclass={'build_py': build_py})
